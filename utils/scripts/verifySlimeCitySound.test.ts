@@ -207,7 +207,11 @@ for (const [name, source] of [
   ['clash', clash],
   ['duel', duel],
 ] as const) {
-  assert.match(source, /<SlimeCitySoundToggle/, `${name} shows the toggle`)
+  assert.match(
+    source,
+    /<SlimeCitySoundToggle|<SlimeCityQuickSettings/,
+    `${name} shows the toggle`,
+  )
   assert.match(source, /useSlimeCitySoundStore/, `${name} uses the store`)
 }
 assert.match(page, /data-testid="slime-settings-music"/)

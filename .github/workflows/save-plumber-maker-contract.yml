@@ -6,10 +6,16 @@ on:
       - 'utils/arcade/games/savePlumberLevels.ts'
       - 'utils/arcade/games/savePlumberPreview.ts'
       - 'utils/arcade/games/savePlumberWorlds.ts'
+      - 'utils/arcade/games/savePlumberOverworld.ts'
+      - 'utils/arcade/games/savePlumberGen2Worlds.json'
       - 'components/arcade/plumber-level-maker.vue'
       - 'components/arcade/plumber-maker-sidebar.vue'
       - 'stores/savePlumberMakerStore.ts'
       - 'utils/scripts/verifySavePlumberMaker.test.ts'
+      - 'utils/scripts/verifySavePlumberMovementReplay.test.ts'
+      - 'utils/scripts/verifySavePlumberOverworld.test.ts'
+      - 'utils/scripts/verifySavePlumberGears.test.ts'
+      - 'utils/scripts/verifySavePlumberPreview.test.ts'
       - '.github/workflows/save-plumber-maker-contract.yml'
 permissions:
   contents: read
@@ -33,3 +39,11 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Verify playable Maker geometry, templates, controls and campaign isolation
         run: npx tsx utils/scripts/verifySavePlumberMaker.test.ts
+      - name: Verify campaign movement, physics and checkpoints
+        run: npx tsx utils/scripts/verifySavePlumberMovementReplay.test.ts
+      - name: Verify overworld exits, progression and save round trips
+        run: npx tsx utils/scripts/verifySavePlumberOverworld.test.ts
+      - name: Verify secret routes are physically reachable
+        run: npx tsx utils/scripts/verifySavePlumberGears.test.ts --secret-exits-only
+      - name: Verify opening flow, music and action cues
+        run: npx tsx utils/scripts/verifySavePlumberPreview.test.ts

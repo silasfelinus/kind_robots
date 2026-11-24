@@ -154,8 +154,8 @@ function fight(players: number, seed: number, timed = false) {
 
     if (boss && boss.frame === 1) {
       attempts++
-      // 2.5 base shares for the first pilot and 4 for each pilot after.
-      assert.equal(boss.maxHp, BOSS_MAX_HP * (2.5 + 4 * (players - 1)))
+      // 2.5 base shares for the first pilot and 2 for each pilot after (4 until the gameplay critic's D3).
+      assert.equal(boss.maxHp, BOSS_MAX_HP * (2.5 + 2 * (players - 1)))
       // A continue brings the boss back as damaged as the crew left it.
       assert.equal(
         boss.hp,

@@ -22,26 +22,53 @@
         type="button"
         class="rh-btn rh-title-screen__toggle"
         :aria-pressed="showSaves"
-        @click="showSaves = !showSaves"
+        @click="toggleSaves"
       >
         {{ showSaves ? 'Begin a new reign' : 'Continue a reign' }}
       </button>
-      <details class="rh-parchment text-left">
-        <summary class="cursor-pointer">Sound settings</summary>
-        <RulerHookedAudioSettings />
-      </details>
+      <button
+        type="button"
+        class="rh-btn rh-title-screen__toggle"
+        :aria-pressed="showSettings"
+        @click="toggleSettings"
+      >
+        {{ showSettings ? 'Return to reign selection' : 'Settings' }}
+      </button>
       <button
         type="button"
         class="rh-btn rh-title-screen__toggle"
         :aria-pressed="showScrapbook"
-        @click="showScrapbook = !showScrapbook"
+        @click="toggleScrapbook"
       >
         {{ showScrapbook ? 'Return to reign selection' : 'Royal Scrapbook' }}
+      </button>
+      <button
+        type="button"
+        class="rh-btn rh-title-screen__toggle"
+        :aria-pressed="showAchievements"
+        @click="toggleAchievements"
+      >
+        {{ showAchievements ? 'Return to reign selection' : 'Achievements' }}
       </button>
     </header>
 
     <div
-      v-if="showScrapbook"
+      v-if="showSettings"
+      class="rh-parchment rh-title-screen__panel min-h-0 overflow-y-auto"
+      aria-label="Game settings"
+    >
+      <RulerHookedDisplaySettings />
+      <RulerHookedAccountArchive />
+    </div>
+    <div
+      v-else-if="showAchievements"
+      class="rh-parchment rh-title-screen__panel min-h-0 overflow-y-auto"
+      aria-label="Royal achievements"
+    >
+      <GameAchievementStrip game="ruler-hooked" layout="icons" />
+    </div>
+    <div
+      v-else-if="showScrapbook"
       class="rh-parchment rh-title-screen__panel min-h-0 overflow-y-auto"
     >
       <RulerHookedScrapbook />
@@ -102,11 +129,32 @@
             Rename
           </button>
         </template>
+        <div v-if="deleteSlotId === slot.saveId" class="grid gap-1">
+          <p class="text-xs" role="status">
+            Delete this reign? Scrapbook discoveries remain.
+          </p>
+          <button
+            type="button"
+            class="rh-btn rh-btn--small rh-btn--danger"
+            :aria-label="'Confirm deletion of ' + slot.name"
+            @click="confirmDelete(slot.saveId)"
+          >
+            Confirm delete
+          </button>
+          <button
+            type="button"
+            class="rh-btn rh-btn--small"
+            @click="deleteSlotId = null"
+          >
+            Keep reign
+          </button>
+        </div>
         <button
+          v-else
           type="button"
           class="rh-btn rh-btn--small rh-btn--danger"
           :aria-label="'Delete ' + slot.name"
-          @click="store.deleteSlot(slot.saveId)"
+          @click="deleteSlotId = slot.saveId"
         >
           Delete
         </button>
@@ -187,6 +235,9 @@ const emit = defineEmits<{ picked: [] }>()
 const store = useRulerHookedStore()
 const showSaves = ref(false)
 const showScrapbook = ref(false)
+const showSettings = ref(false)
+const showAchievements = ref(false)
+const deleteSlotId = ref<string | null>(null)
 const creating = ref(false)
 const editingSlotId = ref<string | null>(null)
 const editedSlotName = ref('')
@@ -197,6 +248,40 @@ const customPortraitFile = ref<File | null>(null)
 const honorificSuggestions = [
   ...new Set(RULER_PRESETS.map((preset) => preset.title)),
 ]
+
+function toggleSettings() {
+  showSettings.value = !showSettings.value
+  showAchievements.value = false
+  showScrapbook.value = false
+  showSaves.value = false
+  deleteSlotId.value = null
+}
+function toggleAchievements() {
+  showAchievements.value = !showAchievements.value
+  showSettings.value = false
+  showScrapbook.value = false
+  showSaves.value = false
+  deleteSlotId.value = null
+}
+function toggleScrapbook() {
+  showScrapbook.value = !showScrapbook.value
+  showSettings.value = false
+  showAchievements.value = false
+  showSaves.value = false
+  deleteSlotId.value = null
+}
+function toggleSaves() {
+  showSaves.value = !showSaves.value
+  showSettings.value = false
+  showAchievements.value = false
+  showScrapbook.value = false
+  deleteSlotId.value = null
+}
+function confirmDelete(saveId: string) {
+  if (deleteSlotId.value !== saveId) return
+  deleteSlotId.value = null
+  store.deleteSlot(saveId)
+}
 
 function selectSlot(saveId: string) {
   store.loadSlot(saveId)

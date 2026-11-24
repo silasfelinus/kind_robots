@@ -154,8 +154,8 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
 
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
 
       - name: Resolve target URL
         id: target
@@ -238,7 +238,13 @@ jobs:
           BASE_URL: ${{ steps.target.outputs.url }}
         run: npm run audit:tablet-nav -- --base "$BASE_URL"
 
-      - name: Upload Clash screenshots
+      - name: Audit tablet rotation in WebKit
+        if: always()
+        env:
+          BASE_URL: ${{ steps.target.outputs.url }}
+        run: node utils/scripts/auditTabletRotation.mjs --base "$BASE_URL" --screenshots audit-shots/tablet-rotation
+
+      - name: Upload control and rotation screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:

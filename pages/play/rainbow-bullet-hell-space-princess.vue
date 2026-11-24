@@ -626,7 +626,7 @@
           <h2 class="text-lg font-black">Eclipse Scrapbook</h2>
           <p class="text-xs text-white/75" aria-live="polite">
             {{ endingCount }}/{{ endingArchive.length }} ending memories: three
-            final choices and six Motherland-road outcomes.
+            final choices, six Motherland-road outcomes and one late turn.
           </p>
         </div>
         <ol
@@ -641,12 +641,12 @@
             <img
               :src="
                 entry.unlocked
-                  ? (rainbowEndingPlate(entry.choice) ??
+                  ? (rainbowEndingPlate(entry.choice, entry.road) ??
                     rainbowStageCard('s08', look))
                   : rainbowStageCard('s08', look)
               "
               :alt="
-                entry.unlocked && rainbowEndingPlate(entry.choice)
+                entry.unlocked && rainbowEndingPlate(entry.choice, entry.road)
                   ? entry.title + ' ending illustration'
                   : 'Eclipse Palace backdrop'
               "
@@ -1023,5 +1023,12 @@ useHead({ title: 'Rainbow Bullet Hell Space Princess · Work in progress' })
 .princess-stage :deep(.cabinet-title-plate),
 .princess-stage :deep(.cabinet-hint) {
   display: none;
+}
+
+/* Presentation critic P-16: the Arcade-wide 64rem cabinet cap left the stage at about 27% of a 1920x1080
+   screen. Rainbow's contained cabinet already fits its stage to the height it is given, so on large screens it
+   may use the page's full width (the page itself stops at 1500px). */
+.princess-stage :deep(.arcade-cabinet) {
+  max-width: none;
 }
 </style>

@@ -6,13 +6,30 @@
 // title cards come alive as short looping interludes, and each pilot has painted hit and victory poses. Every
 // piece is optional: until its file has loaded, or under calm motion, the reviewed still plays instead. Bullets
 // stay crisp code-drawn shapes; animation is for craft, pilots and scenes.
-import type { RainbowStageStrip } from './rainbowGameArt'
-import { rainbowArt, rainbowLoadedArt, rainbowLook } from './rainbowGameArt'
+import type { RainbowStage, RainbowStageStrip } from './rainbowGameArt'
+import {
+  rainbowArt,
+  rainbowDoodleLoadedArt,
+  rainbowLoadedArt,
+  rainbowLook,
+} from './rainbowGameArt'
 
-/** Idle atlases by enemy kind: a horizontal strip of `frames` equal cells, played at `fps`. Fever Dream look. */
+/**
+ * Idle atlases by enemy kind: a horizontal strip of `frames` equal cells, played at `fps`. Fever Dream look only.
+ * Each is eight evenly spaced frames of a reviewed WAN 2.2 loop (conductor T030-ANIMATION-2026-11-23, framed
+ * -v2 cells, 2026-11-24 PT review), matte keyed, centred on the creature and sized to its still. Kept: the
+ * picket's fin flutter, the urchin's puff, the anchor's paddling fins (third take) and the lantern's pulse (third
+ * take, its green matte spill recoloured into the tentacles' blue). Rejected: spiral (turns to face the camera
+ * in both takes), relay and coral (near-static), skimmer (source cut at the edge).
+ */
 export const RAINBOW_ENEMY_ATLASES: Readonly<
   Record<string, { frames: number; fps: number }>
-> = {}
+> = {
+  picket: { frames: 8, fps: 4 },
+  urchin: { frames: 8, fps: 4 },
+  anchor: { frames: 8, fps: 4 },
+  lantern: { frames: 8, fps: 4 },
+}
 
 /** The atlas cell to show on this tick, or null without an atlas; calm motion holds the first cell. */
 export function rainbowAtlasCell(
@@ -41,9 +58,10 @@ export function drawRainbowEnemyFrame(
   calm: boolean,
   area = 1000,
 ): boolean {
+  if (rainbowLook() !== 'fever') return false
   const cell = rainbowAtlasCell(kind, tick, calm)
   if (cell === null) return false
-  const img = rainbowLoadedArt(rainbowEnemyAtlasPath(kind))
+  const img = rainbowDoodleLoadedArt(rainbowEnemyAtlasPath(kind))
   if (!img || img.naturalWidth <= 0) return false
   const cellWidth = img.naturalWidth / RAINBOW_ENEMY_ATLASES[kind]!.frames
   const aspect = cellWidth / img.naturalHeight
@@ -66,33 +84,37 @@ export function drawRainbowEnemyFrame(
 /**
  * Act title cards that have a living interlude (looping, muted video). Each is a WAN 2.2 first-and-last-frame
  * loop of the Fever Dream card (conductor T030-ANIMATION-2026-11-23, reviewed 2026-11-23 PT): the exact source
- * frame is dropped and the tail crossfaded into the head so the loop has no seam. S03 (smeared to grain) and S04
- * (the card's painted fake logo moves) were rejected; S08 is still rendering. Fever Dream only: the classic
- * look has its own painted cards.
+ * frame is dropped and the tail crossfaded into the head so the loop has no seam. S03 is the second take (the
+ * first smeared to grain); S04 is a take from its logo-free card (reviewed 2026-11-24 PT). S03, S04 and S08 are
+ * 640 px loops (the card draws 200 px wide). Every Act now has one. Fever Dream only: the classic look has its own painted cards.
  */
 export const RAINBOW_INTERLUDES: readonly RainbowStageStrip[] = [
   's01',
   's02',
+  's03',
+  's04',
   's05',
   's06',
   's07',
+  's08',
 ]
 
-export function rainbowInterludePath(stage: RainbowStageStrip): string {
+export function rainbowInterludePath(stage: RainbowStage): string {
   return `/rainbow-princess-video/interludes/${stage}.mp4`
 }
 
 const videos = new Map<string, HTMLVideoElement | null>()
 /** The playing interlude for this Act, or null while it loads, without video support, or with none. */
-function interlude(stage: RainbowStageStrip): HTMLVideoElement | null {
-  if (!RAINBOW_INTERLUDES.includes(stage)) return null
+function interlude(stage: RainbowStage): HTMLVideoElement | null {
+  if (!(RAINBOW_INTERLUDES as readonly string[]).includes(stage)) return null
   let video = videos.get(stage)
   if (video === undefined) {
     video = null
     if (typeof document !== 'undefined') {
       const made = document.createElement('video')
       made.muted = true
-      made.loop = true
+      // One-shot clips (presentation critic P-02): the squadron crosses the sky once per splash, then holds.
+      made.loop = false
       made.playsInline = true
       made.preload = 'auto'
       made.onerror = () => videos.set(stage, null)
@@ -111,25 +133,43 @@ function interlude(stage: RainbowStageStrip): HTMLVideoElement | null {
  */
 export function drawRainbowInterlude(
   g: CanvasRenderingContext2D,
-  stage: RainbowStageStrip,
+  stage: RainbowStage,
   x: number,
   y: number,
   width: number,
   calm: boolean,
+  /** Frames since the splash began: the clip starts over at each Act's splash and holds its last frame. */
+  elapsed: number | null = null,
 ): number {
   if (calm || rainbowLook() !== 'fever') return 0
   const video = interlude(stage)
   if (!video) return 0
+  if (elapsed !== null && elapsed < 2 && video.currentTime > 0.05) {
+    video.currentTime = 0
+    void video.play()?.catch?.(() => {})
+  }
   const height = (width * video.videoHeight) / video.videoWidth
   g.drawImage(video, x, y, width, height)
   return height
 }
 
 export type RainbowPose = 'hit' | 'victory'
-/** Pilots (by first name, lower case) with painted poses. */
+/**
+ * Pilots (by first name, lower case) with painted poses: Kontext edits of each CAST-QA identity lock (conductor
+ * T030-ANIMATION-2026-11-23, reviewed 2026-11-24 PT for face, hair, skin and build), cropped to head and shoulders.
+ * Solenne's hit take showed no reaction and was rejected; her portrait stands in until a retake passes.
+ */
 export const RAINBOW_PILOT_POSES: Readonly<
   Record<string, readonly RainbowPose[]>
-> = {}
+> = {
+  maribel: ['hit', 'victory'],
+  azure: ['hit', 'victory'],
+  solenne: ['hit', 'victory'],
+  vivi: ['hit', 'victory'],
+}
+
+/** How long a pilot's hit card shows over her ship after she loses a life. */
+export const RAINBOW_HIT_CARD_FRAMES = 54
 
 export function rainbowPosePath(pilot: string, pose: RainbowPose): string {
   return `poses/${pilot}-${pose}`

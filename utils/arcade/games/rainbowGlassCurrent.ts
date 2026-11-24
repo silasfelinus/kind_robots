@@ -369,7 +369,7 @@ export function glassDialogue(
     'A07.SIGNAL': [
       {
         speaker: 'Lilt-7',
-        text: "A navigator's beacon, deep in the glass. Reaching it is your choice, not an order.",
+        text: "A navigator's beacon, deep in the glass. I want us to go after it. Say the word.",
       },
       {
         speaker: azure ? 'Azure' : lead,

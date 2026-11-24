@@ -124,8 +124,10 @@ assert.equal(
   texts.length = 0
   game.render(g)
   assert.ok(
-    texts.some((text) => text === 'A01.OPEN / SOLENNE'),
-    `the lead's line is Solenne's (${texts.filter((t) => t.startsWith('A01')).join(', ')})`,
+    texts.some((text) => text === 'SOLENNE') &&
+      game.snapshot.comms?.id === 'A01.OPEN' &&
+      game.snapshot.comms.speaker === 'Solenne',
+    `the lead's line is Solenne's (${JSON.stringify(game.snapshot.comms)})`,
   )
   assert.ok(!texts.some((text) => text.includes('MARIBEL')))
 }

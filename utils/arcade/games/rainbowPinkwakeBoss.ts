@@ -22,12 +22,13 @@ export type BossTarget = { x: number; y: number; lives: number }
 export const BOSS_MAX_HP = 150
 
 /**
- * Hull for a fight that lasts: 2.5 base shares for the first pilot and 4 for each pilot after. A crew
- * out-damages its head count (someone is always lined up with the boss), so four powered-up pilots
- * still see all three phases instead of melting the boss in seconds.
+ * Hull for a fight that lasts: 2.5 base shares for the first pilot and 2 for each pilot after. Four shares
+ * per extra pilot (until 2026-11-23 PT) made a four-pilot crew's fights as long as solo or longer, the finale
+ * 4.7 min against 2.7 (independent gameplay critic D3); two keeps every phase on screen while a full crew
+ * still finishes a little faster than one pilot.
  */
 export const RAINBOW_BOSS_HP_FIRST_PILOT = 2.5
-export const RAINBOW_BOSS_HP_EXTRA_PILOT = 4
+export const RAINBOW_BOSS_HP_EXTRA_PILOT = 2
 export function rainbowBossHp(base: number, pilots: number): number {
   const extra = Math.max(1, pilots) - 1
   return Math.round(
@@ -95,6 +96,12 @@ export function stepPinkwakeBoss(
   return bullets
 }
 
+/** Frames of warning glow before each B01 volley. */
+export const BOSS_TELEGRAPH_FRAMES = 36
+
 export function bossTelegraph(boss: PinkwakeBoss): boolean {
-  return boss.frame < boss.nextVolleyAt && boss.frame >= boss.nextVolleyAt - 36
+  return (
+    boss.frame < boss.nextVolleyAt &&
+    boss.frame >= boss.nextVolleyAt - BOSS_TELEGRAPH_FRAMES
+  )
 }

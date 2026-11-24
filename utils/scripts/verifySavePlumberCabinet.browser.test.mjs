@@ -3,6 +3,7 @@ import { chromium } from 'playwright'
 import {
   bundleCabinetFixture,
   openCabinet,
+  reopenCabinet,
   wait,
 } from './arcadeCabinetFixture.mjs'
 
@@ -190,6 +191,61 @@ try {
     results.push('gamepad movement and jump')
   } finally {
     await context.close()
+  }
+  const audioFixture = await bundleCabinetFixture({ realArcadeStore: true })
+  const audio = await openCabinet(browser, audioFixture, {
+    slug: 'save-the-plumber',
+    width: 1440,
+    height: 900,
+    audioProbe: true,
+    storage: { 'kr-arcade-prefs': { muted: false, volume: 0.65 } },
+  })
+  try {
+    const { page, errors } = audio
+    const volume = page.getByRole('slider', { name: 'Arcade volume' })
+    const mixer = () =>
+      page.evaluate(() => {
+        const run = (window.__plumbers ?? [])
+          .filter((entry) => !entry.demo)
+          .at(-1)?.game
+        return {
+          unlocked: run?.sound.unlocked,
+          muted: run?.sound.muted,
+          volume: run?.sound.volume,
+        }
+      })
+    await volume.waitFor()
+    assert.equal(await volume.inputValue(), '0.65')
+    assert.equal(await page.evaluate(() => window.__arcadeAudioContexts), 0)
+    await page.locator('.cabinet-start').click()
+    await page.waitForFunction(() =>
+      (window.__plumbers ?? []).some((entry) => !entry.demo),
+    )
+    assert.ok(await page.evaluate(() => window.__arcadeAudioContexts > 0))
+    assert.deepEqual(await mixer(), {
+      unlocked: true,
+      muted: false,
+      volume: 0.65,
+    })
+    await volume.fill('0.35')
+    assert.equal((await mixer()).volume, 0.35)
+    await page.getByRole('button', { name: 'Sound on', exact: true }).click()
+    assert.equal((await mixer()).muted, true)
+    assert.equal(await volume.isDisabled(), true)
+    const saved = await page.evaluate(() =>
+      JSON.parse(localStorage.getItem('kr-arcade-prefs')),
+    )
+    assert.equal(saved.muted, true)
+    assert.equal(saved.volume, 0.35)
+    await reopenCabinet(page, audioFixture, { slug: 'save-the-plumber' })
+    assert.equal(await volume.inputValue(), '0.35')
+    assert.equal(await volume.isDisabled(), true)
+    await page.getByRole('button', { name: 'Sound off', exact: true }).click()
+    assert.equal(await volume.isEnabled(), true)
+    assert.deepEqual(errors, [])
+    results.push('real audio unlock, mute, volume and persisted settings')
+  } finally {
+    await audio.context.close()
   }
 } finally {
   await browser.close()

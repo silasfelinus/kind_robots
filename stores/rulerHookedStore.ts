@@ -43,6 +43,7 @@ import {
   deleteSlot as deleteSlotStore,
   setActive,
   makeSaveId,
+  restoreRoyalBackup,
 } from '~/utils/rulerHooked/save'
 import {
   putPortrait,
@@ -80,6 +81,7 @@ import type {
 } from '~/types/ruler-hooked'
 
 import type { RoyalScrapbook } from '~/utils/rulerHooked/scrapbook'
+import type { RoyalBackup } from '~/utils/rulerHooked/accountBackup'
 
 const nowStamp = (): string => new Date().toISOString()
 
@@ -394,8 +396,12 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   }
 
   function renameSlot(saveId: string, name: string) {
-    renameSlotStore(saveId, name)
-    if (save.value?.saveId === saveId) save.value.name = name
+    const stamp = nowStamp()
+    renameSlotStore(saveId, name, stamp)
+    if (save.value?.saveId === saveId) {
+      save.value.name = name
+      save.value.updatedAt = stamp
+    }
     refreshSlots()
   }
 
@@ -406,6 +412,22 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
       clearTransientPlayState()
     }
     refreshSlots()
+  }
+
+  const canRestoreAccount = computed(
+    () => !activeFishing.value && !activeCard.value && !pendingEnding.value,
+  )
+
+  function restoreAccount(backup: RoyalBackup): boolean {
+    if (!canRestoreAccount.value) return false
+    const activeId = save.value?.saveId
+    restoreRoyalBackup(backup)
+    if (activeId) {
+      const restored = loadSave(activeId)
+      if (restored) save.value = restored
+    }
+    refreshSlots()
+    return true
   }
 
   function persist() {
@@ -519,6 +541,8 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     renameSlot,
     deleteSlot,
     refreshSlots,
+    canRestoreAccount,
+    restoreAccount,
     purchaseGear,
     purchaseKingdomItem,
   }

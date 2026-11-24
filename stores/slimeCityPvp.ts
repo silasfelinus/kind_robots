@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from './utils'
 import { useFriendStore } from './friendStore'
+import { useUserStore } from './userStore'
 import {
   pvpRematch,
   pvpTally,
@@ -9,10 +10,6 @@ import {
   type PvpSnapshot,
 } from '~/utils/slimeCity/pvp'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
-import {
-  readTakebackPreference,
-  writeTakebackPreference,
-} from './helpers/slimeCityClashPreference'
 
 export type PvpInput =
   | { t: 'play'; card: string; lane: number; choice?: 1 }
@@ -43,6 +40,19 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   const games = ref<PvpGameSummary[]>([])
   const gamesLoaded = ref(false)
   const gamesError = ref('')
+  const userStore = useUserStore()
+  const gamesAccountId = ref<number | null>(null)
+  const accountId = computed(() =>
+    userStore.isLoggedIn ? userStore.userId : null,
+  )
+  const pendingTurns = computed(() =>
+    accountId.value !== null &&
+    gamesAccountId.value === accountId.value &&
+    !gamesError.value
+      ? games.value.filter((game) => game.myTurn && game.stage === 'battle')
+          .length
+      : 0,
+  )
   /**
    * Silas, 2026-11-11 PT: "You should be able to challenge players on your
    * friends list. And they should get notified. That should be the assumed
@@ -71,13 +81,6 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
       error.value = ''
       errorTimer = null
     }, hold)
-  }
-  /** The take-back allowance new duels start with (a game option at start). */
-  const takebackChoice = ref(1)
-  if (import.meta.client) takebackChoice.value = readTakebackPreference() ?? 1
-  function setTakebackChoice(value: number): void {
-    takebackChoice.value = value
-    writeTakebackPreference(value)
   }
   function clearError(): void {
     if (errorTimer) clearTimeout(errorTimer)
@@ -148,7 +151,7 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
 
   async function start(
     team: TeamId,
-    options: { friendId?: number; isPublic?: boolean; takebacks?: number } = {},
+    options: { friendId?: number; isPublic?: boolean } = {},
   ): Promise<PvpSnapshot | null> {
     sending.value = true
     error.value = ''
@@ -159,7 +162,6 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
           team,
           ...(options.friendId ? { friendId: options.friendId } : {}),
           ...(options.isPublic ? { isPublic: true } : {}),
-          takebacks: options.takebacks ?? takebackChoice.value,
         }),
       })
       duel.value = data
@@ -178,12 +180,7 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     const next = duel.value ? pvpRematch(duel.value) : null
     if (!next || sending.value) return null
     stopWatching()
-    return start(next.team, {
-      friendId: next.friendId,
-      ...(duel.value?.takebacks !== undefined
-        ? { takebacks: duel.value.takebacks }
-        : {}),
-    })
+    return start(next.team, { friendId: next.friendId })
   }
 
   async function join(id: string, team: TeamId): Promise<PvpSnapshot | null> {
@@ -250,21 +247,31 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   }
 
   async function loadGames(): Promise<void> {
+    const requestedAccount = accountId.value
+    if (requestedAccount === null) return
+    if (gamesAccountId.value !== requestedAccount) {
+      games.value = []
+      gamesLoaded.value = false
+      gamesError.value = ''
+    }
     try {
       const result = await performFetch<PvpGameSummary[]>(
         '/api/slime-city/pvp',
         {},
         1,
       )
+      if (accountId.value !== requestedAccount) return
       if (!result.success || !result.data)
         throw new Error(result.message || 'Cannot load your games.')
+      gamesAccountId.value = requestedAccount
       games.value = result.data
       gamesError.value = ''
     } catch (cause) {
-      gamesError.value =
-        cause instanceof Error ? cause.message : 'Cannot load your games.'
+      if (accountId.value === requestedAccount)
+        gamesError.value =
+          cause instanceof Error ? cause.message : 'Cannot load your games.'
     } finally {
-      gamesLoaded.value = true
+      if (accountId.value === requestedAccount) gamesLoaded.value = true
     }
   }
 
@@ -383,6 +390,7 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     tally,
     gamesLoaded,
     gamesError,
+    pendingTurns,
     loadGames,
     friends,
     friendsLoaded,
@@ -400,8 +408,6 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     error,
     showError,
     clearError,
-    takebackChoice,
-    setTakebackChoice,
     isMyTurn,
     load,
     start,

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { rainbowHudStatusSlot } from '../arcade/games/rainbowPrincessPreview'
 import { readFileSync } from 'node:fs'
 
 // Silas, 2026-10-15, on an iPad: "Conversation threads should be on the top, not the bottom, they're
@@ -10,10 +11,21 @@ const engine = readFileSync(
   'utf8',
 )
 
-assert.match(
-  engine,
-  /const commsTop = 33 \+ Math\.max\(0, activePlayers - 1\) \* 10/,
-)
+// Every pilot's status sits inside the 29 px HUD bar, so nothing covers the playfield or the boss bar
+// (gameplay critic D4, presentation critic P-08), and prompts sit just under the bar for any crew size.
+assert.match(engine, /const commsTop = 33\n/)
+for (let players = 1; players <= 4; players++) {
+  const slots = Array.from({ length: players }, (_, seat) =>
+    rainbowHudStatusSlot(seat, players),
+  )
+  for (const slot of slots)
+    assert.ok(slot.y <= 24, `${players}p status inside the bar`)
+  assert.equal(
+    new Set(slots.map((slot) => `${slot.column}:${slot.y}`)).size,
+    players,
+    `${players}p seats never share a status slot`,
+  )
+}
 // Silas, 2026-10-20: "the messages just need to show up and replace the header." A comms line takes the
 // HUD bar's slot at the top edge, and the HUD (act, controls, scores, seat status) steps aside while it plays.
 assert.match(engine, /const COMMS_HEIGHT = 51\n/)
@@ -38,7 +50,7 @@ assert.match(
 )
 assert.match(engine, /for \(const burst of bursts\)/)
 assert.match(engine, /SUPER READY · TAP B/)
-assert.match(engine, /'A FIRE · B FOCUS\/SUPER · X SPECIAL · Y EVADE'/)
+assert.match(engine, /'A FIRE · B HOLD FOCUS\/TAP SUPER · X SPECIAL · Y EVADE'/)
 assert.match(
   engine,
   /const HUD_LEFT = 44\n/,

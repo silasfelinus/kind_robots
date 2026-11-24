@@ -4,26 +4,13 @@
     data-layout="console-fixed"
     data-testid="slime-pvp"
   >
-    <header-page-bar
-      v-if="!(narrowScreen && pvp.duel?.stage === 'battle')"
-      console-theme="slime-city"
-    >
-      <nav class="scpvp-top" aria-label="Slime City multiplayer">
-        <NuxtLink to="/play/slime-city?vs=1">← VS</NuxtLink>
-        <strong>THE TWO-PLAYER PIT</strong>
-        <button
-          v-if="pvp.duel?.stage === 'battle'"
-          type="button"
-          class="scpvp-concede"
-          :disabled="pvp.sending"
-          @click="confirmForfeit"
-        >
-          {{ forfeitArmed ? 'CONFIRM FORFEIT' : 'FORFEIT' }}
-        </button>
-        <span>PRIVATE INVITE · PREVIEW</span>
-        <SlimeCitySoundToggle />
-      </nav>
-    </header-page-bar>
+    <!--
+      Silas, 2026-11-24 PT: "Most of that header for slime city can be deleted
+      entirely. Forfeit is a button in settings control. One simple control
+      panel. Art first, minimalist interface." No page bar: the site header
+      is the only header, and the fight's settings, back and forfeit live in
+      one gear at the console.
+    -->
 
     <div class="scpvp-stage">
       <SlimeCityArtwork
@@ -57,6 +44,12 @@
             compact
           />
           <div class="scpvp-poster-copy">
+            <NuxtLink
+              to="/play/slime-city?vs=1"
+              class="scpvp-lobby-back"
+              data-testid="slime-pvp-lobby-back"
+              >← VS</NuxtLink
+            >
             <small>TWENTY CARDS · FIVE ALLEYS · THREE EVOLUTIONS</small>
             <strong class="scpvp-poster-title">
               {{ invitedId ? 'ANSWER THE CHALLENGE' : 'FIGHT A REAL RIVAL' }}
@@ -122,14 +115,6 @@
               OPEN TO ANYONE
             </button>
           </div>
-          <SlimeCityTakebackChoice v-if="!invitedId" />
-          <p
-            v-else-if="answering && pvp.duel!.takebacks !== undefined"
-            class="scpvp-note"
-            data-testid="slime-pvp-takeback-rule"
-          >
-            {{ takebackRule(pvp.duel!.takebacks) }}
-          </p>
           <button
             class="scpvp-primary"
             type="button"
@@ -388,9 +373,12 @@
                   >
                 </span>
                 <span class="scpvp-unit-label"
-                  ><i>{{ '★'.repeat(unit(side, lane)!.level) }}</i
+                  ><i :class="'lv-' + unit(side, lane)!.level">{{
+                    '★'.repeat(unit(side, lane)!.level)
+                  }}</i
                   >{{ cardById(unit(side, lane)!.cardId).name }}</span
                 >
+                <SlimeCityLevelFrame :level="unit(side, lane)!.level" />
               </template>
               <span v-else class="scpvp-empty">{{
                 targetable(side, lane)
@@ -462,6 +450,7 @@
             :choice-pick="choice"
             :inspect="inspect"
             open-off-turn
+            dock-held
             @pick="onPick"
             @drop="onDrop"
           />
@@ -514,13 +503,6 @@
             >
           </div>
           <div class="scpvp-turn" aria-live="polite" :style="{ order: 1 }">
-            <NuxtLink
-              v-if="narrowScreen"
-              class="scpvp-back"
-              to="/play/slime-city?vs=1"
-              aria-label="Back to VS"
-              >‹</NuxtLink
-            >
             <span class="scpvp-turn-copy">
               <b>{{ turnLabel }}</b>
               <small>ROUND {{ board.round }} / {{ CLASH_ROUND_LIMIT }}</small>
@@ -533,26 +515,13 @@
             >
               RESULT ›
             </button>
-            <SlimeCitySoundToggle v-if="narrowScreen" class="scpvp-sound" />
-            <button
-              v-if="narrowScreen && !finished"
-              type="button"
-              class="scpvp-flag"
-              :class="{ armed: forfeitArmed }"
-              :disabled="pvp.sending"
-              :aria-label="forfeitArmed ? 'Confirm forfeit' : 'Forfeit'"
-              data-testid="slime-pvp-forfeit"
-              @click="confirmForfeit"
-            >
-              {{ forfeitArmed ? 'SURE?' : '⚑' }}
-            </button>
           </div>
         </aside>
 
         <footer class="scpvp-console">
           <div id="clash-hand-dock" class="scpvp-hand-dock"></div>
           <button
-            v-if="pvp.isMyTurn && !finished && takeback && takeback.allowed"
+            v-if="pvp.isMyTurn && !finished && takeback"
             type="button"
             class="scpvp-takeback"
             :class="{ blocked: !!takeback.blocked }"
@@ -562,10 +531,7 @@
             data-testid="slime-pvp-takeback"
             @click="takeBack"
           >
-            ↶ <span>BACK</span
-            ><small v-if="takeback.allowed < PVP_TAKEBACKS_ANY">{{
-              takeback.left
-            }}</small>
+            ↶ <span>BACK</span>
           </button>
           <div
             v-if="choiceStages && selectedCard"
@@ -633,6 +599,25 @@
           >
             LOG
           </button>
+          <SlimeCityQuickSettings up class="scpvp-settings">
+            <NuxtLink
+              to="/play/slime-city?vs=1"
+              class="scpvp-panel-action"
+              data-testid="slime-pvp-back"
+              >← BACK TO VS</NuxtLink
+            >
+            <button
+              v-if="!finished"
+              type="button"
+              class="scpvp-panel-action is-forfeit"
+              :class="{ armed: forfeitArmed }"
+              :disabled="pvp.sending"
+              data-testid="slime-pvp-forfeit"
+              @click="confirmForfeit"
+            >
+              {{ forfeitArmed ? 'TAP AGAIN TO FORFEIT' : '⚑ FORFEIT' }}
+            </button>
+          </SlimeCityQuickSettings>
           <button
             type="button"
             class="scpvp-fight"
@@ -694,12 +679,7 @@ import {
   clashPowerSpent,
   type ClashStrike,
 } from '~/utils/slimeCity/clash'
-import {
-  PVP_TAKEBACKS_ANY,
-  pvpCardRow,
-  pvpClashView,
-  type PvpBoard,
-} from '~/utils/slimeCity/pvp'
+import { pvpCardRow, pvpClashView, type PvpBoard } from '~/utils/slimeCity/pvp'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { CLASH_SPEED_PACE } from '~/stores/helpers/slimeCityClashPreference'
 import { OVERCHARGE_RULE, factionPower } from '~/utils/slimeCity/factionPowers'
@@ -1176,16 +1156,15 @@ async function clickSlot(side: Side, lane: number) {
   pinnedUid.value =
     fighter && pinnedUid.value !== fighter.uid ? fighter.uid : null
 }
-/** Silas, 2026-11-22 PT: "There should be a back button if it's your turn." */
+/**
+ * Silas, 2026-11-22 PT: "There should be a back button if it's your turn."
+ * Silas, 2026-11-24 PT: "We shouldn't be limiting undos." Any play can be
+ * taken back until FIGHT; only a move that revealed something stands.
+ */
 const takeback = computed(() => pvp.duel?.takeback ?? null)
-const takebackTitle = computed(() => {
-  const state = takeback.value
-  if (!state) return 'Take back your last play'
-  if (state.blocked) return state.blocked
-  return state.allowed >= PVP_TAKEBACKS_ANY
-    ? 'Take back your last play'
-    : 'Take back your last play (' + state.left + ' left this turn)'
-})
+const takebackTitle = computed(
+  () => takeback.value?.blocked ?? 'Take back your last play',
+)
 async function takeBack() {
   const state = takeback.value
   if (!canAct.value || !state) return
@@ -1197,13 +1176,6 @@ async function takeBack() {
   pinnedUid.value = null
   powerArmed.value = null
   await pvp.send({ t: 'undo' })
-}
-function takebackRule(allowed: number | undefined): string {
-  return !allowed
-    ? 'Take-backs are off: every play stands.'
-    : allowed >= PVP_TAKEBACKS_ANY
-      ? 'Take-backs: undo any play until you FIGHT.'
-      : 'Take-backs: one per turn.'
 }
 async function tapFighter(uid: number) {
   if (await pvp.send({ t: 'activate', uid })) pinnedUid.value = null
@@ -1508,26 +1480,16 @@ onMounted(async () => {
 onBeforeUnmount(() => pvp.stopWatching())
 
 /**
- * Silas, 2026-11-11 PT: the two-player board gets the phone battle layout.
- * In battle on a phone only the site header remains ("at most one row of a
- * header"); back and forfeit ride in the versus strip, the board takes the
- * rest and the hand fans up from the bottom edge.
+ * The site header is the only header: the duel registers the Slime City
+ * console skin but no page bar (Silas, 2026-11-24 PT: "Art first,
+ * minimalist interface"). Back and forfeit live in the console's gear.
  */
-const narrowScreen = ref(false)
-let narrowQuery: MediaQueryList | null = null
-function syncNarrow(): void {
-  narrowScreen.value = !!narrowQuery?.matches
-}
 const navStore = useNavStore()
 let themeId = 0
 onMounted(() => {
   themeId = navStore.registerConsoleTheme('slime-city')
-  narrowQuery = window.matchMedia('(max-width: 600px)')
-  syncNarrow()
-  narrowQuery.addEventListener('change', syncNarrow)
 })
 onBeforeUnmount(() => {
-  narrowQuery?.removeEventListener('change', syncNarrow)
   navStore.releasePageBar(themeId)
   sound.detach()
 })
@@ -1564,41 +1526,11 @@ watch(
 </script>
 
 <style scoped>
-.scpvp-concede {
-  border: 1px solid currentColor;
-  border-radius: 0.5rem;
-  padding: 0.3rem 0.6rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-}
-.scpvp-concede:hover,
-.scpvp-concede:focus-visible {
-  color: #fca5a5;
-}
 .scpvp {
   display: flex;
   flex-direction: column;
   background: radial-gradient(ellipse at 45% 20%, #29313e 0%, #090e15 75%);
   color: #ecf5e9;
-}
-.scpvp-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  gap: 0.75rem;
-  font-size: 0.77rem;
-  letter-spacing: 0.12em;
-}
-.scpvp-top a {
-  color: #b9f151;
-  font-weight: 850;
-}
-.scpvp-top strong {
-  font-size: 0.95rem;
-}
-.scpvp-top span {
-  color: #9bb0a7;
 }
 .scpvp-stage {
   flex: 1;
@@ -1610,6 +1542,56 @@ watch(
 .scpvp-stage > section {
   position: relative;
   z-index: 1;
+}
+.scpvp-lobby-back {
+  align-self: flex-start;
+  color: #b9f151;
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+}
+.scpvp-settings {
+  flex: none;
+}
+/* The deck and the gear lead the console row: one compact control pair. */
+.scpvp-hand-dock {
+  order: -2;
+}
+.scpvp-settings {
+  order: -1;
+}
+.scpvp-settings {
+  align-self: center;
+}
+.scpvp-settings :deep(.scq-gear) {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.6rem;
+}
+.scpvp-settings :deep(.scq-panel) {
+  z-index: 30;
+}
+.scpvp-panel-action {
+  display: block;
+  min-height: 2rem;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #38877a;
+  border-radius: 0.45rem;
+  background: #0f2622;
+  color: #dfff93;
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-align: left;
+}
+.scpvp-panel-action.is-forfeit {
+  border-color: #b3646d;
+  color: #f6b6a3;
+}
+.scpvp-panel-action.is-forfeit.armed {
+  border-color: #ff6f7a;
+  background: #4b1f26;
+  color: #ffd6dc;
 }
 .scpvp-arena-art {
   position: absolute;
@@ -1881,9 +1863,6 @@ watch(
   letter-spacing: 0.08em;
 }
 @media (max-width: 690px) {
-  .scpvp-top span {
-    display: none;
-  }
   .scpvp-result {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr) auto;
@@ -2077,9 +2056,17 @@ watch(
   text-shadow: 0 1px 3px #000;
 }
 .scpvp-unit-label i {
-  color: #ffdb76;
+  color: #8af2c2;
   font-style: normal;
   font-size: 0.85em;
+}
+.scpvp-unit-label i.lv-2 {
+  color: #b9adff;
+  text-shadow: 0 0 6px #3fd6ff;
+}
+.scpvp-unit-label i.lv-3 {
+  color: #ffd34d;
+  text-shadow: 0 0 6px #ff5fa2;
 }
 .scpvp-empty {
   position: absolute;
@@ -2430,6 +2417,47 @@ watch(
 .scpvp-arena {
   grid-area: arena;
 }
+/*
+  Silas, 2026-11-24 PT: "The card enlarged is fully blocking the middle lane."
+  With the boss rail beside the board, the held card docks over the rail
+  (its right edge on the rail's), so every alley stays visible and tappable.
+  The hand may overhang the arena for this; the stage still clips the page.
+*/
+@media (min-width: 691px) {
+  .scpvp-arena :deep(.cxh) {
+    --held-reach: calc(clamp(10rem, 17vw, 15rem) + 0.4rem + 1px);
+    overflow: visible;
+  }
+  .scpvp-arena :deep(.cxh .cxh-card.big.held-dock.dock-left) {
+    --x: calc(50cqw - 0.6rem - var(--W) / 2 + var(--held-reach));
+  }
+  .scpvp-arena :deep(.cxh .cxh-levels.docked.held-dock.dock-left) {
+    left: auto;
+    right: calc(0.6rem + var(--W) / 2 - var(--held-reach));
+    transform: translateX(50%);
+  }
+  /*
+    The held card hangs from the top of the rail, over the bosses, so the
+    deck, BACK, LOG and turn button at the rail's foot stay in reach.
+  */
+  .scpvp-arena :deep(.cxh .cxh-card.big.held-dock) {
+    --y: calc(0.5rem + var(--W) * 1.5 - 100cqh);
+  }
+  /*
+    Its level tabs float over the card's art band (between the name block
+    and the rules), so they never cover the console or a choice below.
+  */
+  .scpvp-arena :deep(.cxh .cxh-levels.docked.held-dock) {
+    top: calc(0.5rem + var(--W) * 0.55);
+  }
+  /*
+    While a card is held it overhangs the rail, so it rises above the
+    console: its rules must never sit under the deck or gear buttons.
+  */
+  .scpvp-arena :deep(.cxh.holding) {
+    z-index: 9;
+  }
+}
 .scpvp-rail {
   grid-area: rail;
   min-height: 0;
@@ -2549,35 +2577,6 @@ watch(
   font-size: 0.6rem;
   letter-spacing: 0.08em;
 }
-.scpvp-back,
-.scpvp-flag {
-  flex: none;
-  display: grid;
-  place-items: center;
-  min-width: 1.9rem;
-  height: 2.2rem;
-  padding: 0 0.4rem;
-  border: 1px solid #5c99917a;
-  border-radius: 0.5rem;
-  background: #10231f;
-  color: #c9ee5a;
-  font-size: 1.1rem;
-  font-weight: 900;
-  line-height: 1;
-}
-.scpvp-flag {
-  color: #f6b6a3;
-  font-size: 0.9rem;
-}
-.scpvp-flag.armed {
-  border-color: #ff6f7a;
-  background: #4b1f26;
-  color: #ffd6dc;
-  font-size: 0.6rem;
-}
-.scpvp-sound {
-  flex: none;
-}
 .scpvp-takeback {
   flex: none;
   display: flex;
@@ -2592,23 +2591,10 @@ watch(
   font-weight: 900;
   letter-spacing: 0.06em;
 }
-.scpvp-takeback small {
-  display: grid;
-  place-items: center;
-  min-width: 1.1rem;
-  height: 1.1rem;
-  border-radius: 999px;
-  background: #c9ee5a;
-  color: #10200b;
-  font-size: 0.62rem;
-}
 .scpvp-takeback.blocked,
 .scpvp-takeback:disabled {
   border-color: #586e68;
   color: #8fa49c;
-}
-.scpvp-takeback.blocked small {
-  background: #586e68;
 }
 .scpvp-slot.hurt {
   animation: scpvp-shake 0.36s ease;
@@ -2647,6 +2633,125 @@ watch(
   from {
     opacity: 0;
     transform: translateY(-14%) scale(1.08);
+  }
+}
+/*
+  Silas, 2026-11-24 PT, tablet landscape: "The cards should start at the very
+  bottom of the screen, there's blank space that really extraneous. Deck log
+  turn button should all be on right." Beside a rail, the board takes the
+  full height (the hand fans up from the screen's bottom edge) and the
+  console stacks at the foot of the rail, under the bosses: the deck, BACK,
+  powers and LOG in a wrapping row, the turn button full width below.
+*/
+@media (min-width: 691px) {
+  .scpvp-battle {
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'arena rail'
+      'arena console';
+    padding-bottom: 0.2rem;
+  }
+  .scpvp-rail {
+    padding-bottom: 0;
+  }
+  .scpvp-console {
+    flex-wrap: wrap;
+    align-items: stretch;
+    align-content: flex-end;
+    gap: 0.3rem;
+    padding-bottom: 0.2rem;
+  }
+  .scpvp-hand-dock :deep(.cxh-toggle) {
+    width: 2.9rem;
+    height: 2.9rem;
+  }
+  .scpvp-choice {
+    flex: 1 1 100%;
+    flex-direction: column;
+  }
+  /*
+    The held card shows the picked option's full rules, so the rail's A / B
+    buttons carry just their titles, whole, instead of clipped rules.
+  */
+  .scpvp-choice small {
+    display: none;
+  }
+  .scpvp-choice b {
+    white-space: normal;
+  }
+  .scpvp-tap,
+  .scpvp-power,
+  .scpvp-log-toggle,
+  .scpvp-takeback {
+    flex: 1 1 auto;
+    justify-content: center;
+    min-width: 0;
+    padding: 0.4rem 0.5rem;
+  }
+  .scpvp-power {
+    max-width: none;
+  }
+  .scpvp-fight {
+    flex: 1 1 100%;
+    max-width: none;
+    margin-left: 0;
+    padding: 0.6rem 0.5rem;
+    font-size: 0.9rem;
+  }
+  .scpvp-log {
+    right: calc(clamp(10rem, 17vw, 15rem) + 1rem);
+    bottom: 0.5rem;
+  }
+}
+/*
+  Phone landscape: too short for boss portraits and a stacked console. The
+  bosses become name, life bar and HP; the console buttons tighten so the
+  rail still ends in a full-width turn button.
+*/
+@media (min-width: 691px) and (max-height: 540px) {
+  .scpvp-rail {
+    grid-template-rows: auto auto auto;
+    align-content: start;
+    gap: 0.2rem;
+    padding-top: 0;
+  }
+  .scpvp-boss > .slime-art {
+    display: none;
+  }
+  .scpvp-boss-info {
+    margin-top: 0;
+    padding: 0.25rem 0.4rem 0.3rem;
+    background: none;
+  }
+  .scpvp-boss-info > small {
+    display: none;
+  }
+  .scpvp-boss strong {
+    font-size: 0.68rem;
+  }
+  .scpvp-boss b {
+    font-size: 0.85rem;
+  }
+  .scpvp-life {
+    height: 0.35rem;
+  }
+  .scpvp-turn {
+    min-height: 0;
+    font-size: 0.75rem;
+  }
+  .scpvp-hand-dock :deep(.cxh-toggle) {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+  .scpvp-tap,
+  .scpvp-power,
+  .scpvp-log-toggle,
+  .scpvp-takeback {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.66rem;
+  }
+  .scpvp-fight {
+    padding: 0.45rem 0.5rem;
   }
 }
 @media (max-width: 690px) {
@@ -2708,9 +2813,6 @@ watch(
   }
   .scpvp-turn small {
     font-size: 0.5rem;
-  }
-  .scpvp-sound :deep(.sc-sound-word) {
-    display: none;
   }
   .scpvp-takeback span {
     display: none;

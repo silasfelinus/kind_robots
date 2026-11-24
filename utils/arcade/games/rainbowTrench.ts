@@ -513,7 +513,7 @@ export function trenchDialogue(
         text:
           route === 'vault'
             ? 'Vault salvage aboard. Its locks answered to Motherland command codes.'
-            : 'The vault is behind us, and its locks answer to Motherland command codes.',
+            : 'The vault pinged us as we passed. Its locks answer to Motherland command codes.',
       },
       {
         speaker: wing,

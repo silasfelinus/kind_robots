@@ -321,6 +321,13 @@
           <Icon name="kind-icon:cards" class="kr-icon-4" />
         </button>
 
+        <ClientOnly>
+          <admin-feedback-capture
+            v-if="userStore.isAdmin"
+            @begin="store.close"
+          />
+        </ClientOnly>
+
         <maturity-toggle v-if="userStore.isLoggedIn" />
 
         <template v-if="userStore.isLoggedIn">

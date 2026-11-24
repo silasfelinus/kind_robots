@@ -16,7 +16,11 @@ import {
   RAINBOW_GUARDIAN_SPRITES,
   RAINBOW_PICKUP_SPRITES,
   RAINBOW_SHIP_SPRITES,
+  RAINBOW_FINALE_STAGE,
+  RAINBOW_STAGE_PAINTINGS,
   RAINBOW_STAGE_STRIPS,
+  rainbowActStage,
+  rainbowStagePlane,
   drawRainbowBossSprite,
   drawRainbowCommsPortrait,
   drawRainbowEndingPlate,
@@ -51,7 +55,10 @@ import {
 } from '../arcade/games/rainbowEclipseFinale'
 import {
   RAINBOW_DISTANT_PAINTED_PLANES,
+  RAINBOW_PAINTED_SKY,
+  drawRainbowPaintedSky,
   rainbowDistantParallaxLayers,
+  rainbowPaintedSkyScroll,
 } from '../arcade/games/rainbowPaintedParallax'
 import { PINKWAKE } from '../arcade/games/rainbowPinkwake'
 import { MOONJELLY } from '../arcade/games/rainbowMoonjelly'
@@ -398,6 +405,75 @@ assert.ok(
   'painted distant planes render before the bright foreground and combat',
 )
 
+// Presentation review P-04/P-07 (conductor ART-BACKLOG-2026-11-24): a painted sky drifts over the whole field,
+// slowest of every plane and muted for shots; the finale flies its own S09 card and backdrop once they ship,
+// and borrows Act VIII's until then. Every listed Classic painting is committed, small and has a Fever twin.
+assert.ok(
+  RAINBOW_PAINTED_SKY.alpha <= 0.6,
+  'the painted sky stays muted behind shots',
+)
+assert.ok(
+  rainbowPaintedSkyScroll(120, 1) > 0 &&
+    rainbowPaintedSkyScroll(120, 1) < distant[0]!.scroll,
+  'the sky drifts, slower than the far plane',
+)
+assert.ok(
+  Math.abs(
+    rainbowPaintedSkyScroll(120, 0.3) - rainbowPaintedSkyScroll(120, 1) * 0.3,
+  ) < 1e-9,
+  'calm motion slows the sky with the rest',
+)
+assert.equal(
+  drawRainbowStagePlane(g, 's01', 'sky', 0, 0, 270),
+  false,
+  'an unshipped sky is not drawn, and never crops the strip',
+)
+assert.equal(drawRainbowPaintedSky(g, 's01', 0, 1), false)
+const skyAt = engine.indexOf('drawRainbowPaintedSky(g, stage')
+assert.ok(
+  skyAt > engine.indexOf('if (fever) drawFeverSky(') &&
+    skyAt < engine.indexOf('drawRainbowDistantParallax('),
+  'the painted sky sits over the base sky and behind every other plane',
+)
+for (let act = 1; act <= 8; act++)
+  assert.equal(rainbowActStage(act), RAINBOW_STAGE_STRIPS[act - 1])
+const finaleShipped =
+  RAINBOW_STAGE_PAINTINGS.includes(`stages/${RAINBOW_FINALE_STAGE}-card`) &&
+  RAINBOW_STAGE_PAINTINGS.includes(`stages/${RAINBOW_FINALE_STAGE}-fore`)
+assert.equal(
+  rainbowActStage(9),
+  finaleShipped ? RAINBOW_FINALE_STAGE : 's08',
+  'the finale flies its own stage once its card and strip ship',
+)
+assert.doesNotMatch(
+  engine,
+  /'s07',\s*'s08',\s*'s08'/,
+  'no Act table hard-codes Act VIII for the finale',
+)
+assert.match(engine, /const stage = rainbowActStage\(currentAct\(\)\)/)
+for (const path of RAINBOW_STAGE_PAINTINGS) {
+  const src = `/rainbow-princess-art/${path}.webp`
+  assert.ok(existsSync(publicFile(src)), `${path} is committed`)
+  assert.ok(statSync(publicFile(src)).size < 140_000, `${path} stays small`)
+  assert.ok(
+    existsSync(publicFile(`/rainbow-princess-art/doodle/${path}.webp`)),
+    `${path} has a Fever Dream twin`,
+  )
+}
+for (const depth of ['sky', 'far', 'mid'] as const)
+  for (const stage of [
+    ...RAINBOW_STAGE_STRIPS,
+    RAINBOW_FINALE_STAGE,
+  ] as const) {
+    const src = rainbowStagePlane(stage, depth, 'classic')
+    assert.equal(
+      src,
+      RAINBOW_STAGE_PAINTINGS.includes(`stages/${stage}-${depth}`)
+        ? `/rainbow-princess-art/stages/${stage}-${depth}.webp`
+        : null,
+    )
+  }
+
 // Act intro splash: each playable Act's painted title card fades in under the opening comms and is
 // gone before the first craft can enter, so it never hides a threat.
 for (const stage of RAINBOW_STAGE_STRIPS) {
@@ -435,9 +511,21 @@ assert.equal(
 )
 assert.equal(
   rainbowEndingPlate('sever'),
-  '/rainbow-princess-art/endings/sever.webp',
+  '/rainbow-princess-art/endings/sever-open.webp',
 )
 assert.equal(drawRainbowEndingPlate(g, 'restore', 0, 0, 340), 0)
+// S11 (story critic): the loyal road has its own plates.
+for (const choice of ['restore', 'evacuate', 'sever'] as const) {
+  const loyal = rainbowEndingPlate(choice, 'loyal')!
+  assert.notEqual(loyal, rainbowEndingPlate(choice, 'rebel'), `loyal ${choice}`)
+  assert.ok(existsSync(publicFile(loyal)), `loyal ${choice} plate is committed`)
+  assert.ok(statSync(publicFile(loyal)).size < 40_000)
+}
+// P-03: the sever plate is the house-style lantern scene with no pilots in shot, for any crew.
+assert.equal(
+  rainbowEndingPlate('sever', 'rebel'),
+  '/rainbow-princess-art/endings/sever-open.webp',
+)
 assert.equal(
   finaleEndingCaption('restore', 'rebel'),
   'TURN ON THE EMPIRE · ASK FIRST',
@@ -445,7 +533,7 @@ assert.equal(
 assert.equal(finaleEndingCaption('restore'), 'THE CROWN REMEMBERS')
 assert.match(
   engine,
-  /drawRainbowEndingPlate\(\s+g,\s+finalChoice \?\? 'evacuate',/,
+  /drawRainbowEndingPlate\(\s+g,\s+finalChoice \?\? 'evacuate',[\s\S]{0,160}allegiance,\s+\)/,
   'the ending draws the plate for the choice the crew flew',
 )
 assert.match(

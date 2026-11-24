@@ -201,6 +201,7 @@
 import { ref } from 'vue'
 import { useSiteFeedbackStore } from '~/stores/siteFeedbackStore'
 
+const emit = defineEmits<{ begin: [] }>()
 const feedback = useSiteFeedbackStore()
 const consent = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -208,6 +209,7 @@ const fileInput = ref<HTMLInputElement | null>(null)
 function begin(): void {
   consent.value = false
   feedback.begin()
+  emit('begin')
 }
 
 function chooseScreenshot(): void {

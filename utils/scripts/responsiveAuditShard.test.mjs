@@ -5,6 +5,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 import { parseShard, selectShard } from './responsiveAuditShard.mjs'
+import { rotationProblems } from './auditTabletRotation.mjs'
 
 const audit = readFileSync(
   new URL('./auditResponsiveLayout.mjs', import.meta.url),
@@ -75,4 +76,49 @@ test('workflow shards the sweep and isolates the follow-on audits', () => {
   assert.doesNotMatch(controls, /npm run audit:responsive/)
   for (const minutes of workflow.matchAll(/timeout-minutes: (\d+)/g))
     assert.ok(Number(minutes[1]) <= 45, 'no job leans on a longer timeout')
+})
+
+test('tablet rotation detects a stale portrait-width workspace in landscape', () => {
+  const width = 1194
+  const viewport = { name: 'landscape', width, height: 834 }
+  const box = (gutter) => ({
+    left: gutter,
+    right: width - gutter,
+    width: width - gutter * 2,
+  })
+  const metrics = {
+    viewportWidth: width,
+    visualWidth: width,
+    scrollWidth: width,
+    shell: box(0),
+    header: box(16),
+    main: box(16),
+    hall: box(32),
+    columns: 4,
+  }
+  assert.deepEqual(rotationProblems(metrics, viewport, 2), [])
+  const stale = {
+    ...metrics,
+    shell: { left: 0, right: 834, width: 834 },
+    header: { left: 16, right: 818, width: 802 },
+    main: { left: 16, right: 818, width: 802 },
+    hall: { left: 32, right: 802, width: 770 },
+    columns: 2,
+  }
+  assert.equal(rotationProblems(stale, viewport, 2).length, 5)
+  assert.ok(rotationProblems(null, viewport, 2).length)
+})
+
+test('tablet rotation checks the same WebKit tab and the live shell width', () => {
+  const rotation = readFileSync(
+    new URL('./auditTabletRotation.mjs', import.meta.url),
+    'utf8',
+  )
+  const app = readFileSync(new URL('../../app.vue', import.meta.url), 'utf8')
+  assert.match(app, /\.kr-shell \{\s*width: 100vw;\s*width: 100dvw;/)
+  assert.match(rotation, /webkit\.launch\(/)
+  assert.match(rotation, /await page\.setViewportSize\(/)
+  assert.match(rotation, /name: 'portrait-return'/)
+  assert.match(workflow, /playwright install --with-deps chromium webkit/)
+  assert.match(workflow, /node utils\/scripts\/auditTabletRotation\.mjs/)
 })

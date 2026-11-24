@@ -582,7 +582,7 @@ console.log(
   )
   assert.match(
     client,
-    /start\(next\.team, \{\s*friendId: next\.friendId,/,
+    /start\(next\.team, \{\s*friendId: next\.friendId\s*\}/,
     'REMATCH is a private friend challenge through the normal start path',
   )
   assert.match(client, /pvpTally\(games\.value\)/)
@@ -737,7 +737,7 @@ console.log(
     played.decks.player.length === fresh.decks.player.length
   if (quiet) {
     const taken = pvpTakeBack(host, guest, seed, record(), 'player')
-    assert.ok('record' in taken, 'one take-back per turn by default')
+    assert.ok('record' in taken, 'a quiet play can be taken back')
     if ('record' in taken) {
       assert.equal(taken.record.commands.length, 0)
       assert.deepEqual(
@@ -753,21 +753,26 @@ console.log(
         ...taken.record,
         commands: [...played.commands],
       }
-      assert.equal(
-        pvpTakebackState(host, guest, seed, again, 'player').blocked,
-        'No take-backs left this turn.',
-      )
-      const any: PvpRecord = { ...again, takebacks: PVP_TAKEBACKS_ANY }
-      assert.equal(
-        pvpTakebackState(host, guest, seed, any, 'player').blocked,
-        null,
-      )
+      // Silas, 2026-11-24 PT: "We shouldn't be limiting undos." A second
+      // take-back in the same turn is allowed, even in duels created with the
+      // old OFF or 1 / TURN settings.
+      for (const legacy of [undefined, 0, 1, PVP_TAKEBACKS_ANY]) {
+        const old: PvpRecord = {
+          ...again,
+          ...(legacy === undefined ? {} : { takebacks: legacy }),
+        }
+        assert.equal(
+          pvpTakebackState(host, guest, seed, old, 'player').blocked,
+          null,
+          'take-backs are unlimited (stored ' + legacy + ')',
+        )
+        assert.equal(
+          pvpTakebackState(host, guest, seed, old, 'player').allowed,
+          PVP_TAKEBACKS_ANY,
+        )
+      }
     }
   }
-  assert.equal(
-    pvpTakebackState(host, guest, seed, record(0), 'player').blocked,
-    'Take-backs are off in this duel.',
-  )
   assert.notEqual(
     pvpTakebackState(host, guest, seed, record(), 'enemy').blocked,
     null,
@@ -865,3 +870,66 @@ console.log('Slime City VS take-backs, strike trail and board animations PASS')
   assert.match(picker, /route\.path\.startsWith\('\/play\/slime-city'\)/)
 }
 console.log('Slime City Chromebook duel layout contract PASS')
+
+// Silas, 2026-11-24 PT: "The card enlarged is fully blocking the middle
+// lane." The VS duel docks the held card to the side (over the boss rail on
+// wide screens) instead of standing it over the middle alley.
+{
+  const read = (file: string) =>
+    readFileSync(new URL('../../components/' + file, import.meta.url), 'utf8')
+  const duel = read('slime-city-pvp-game.vue')
+  const hand = read('slime-city-clash-hand.vue')
+  assert.match(duel, /<SlimeCityClashHand[^>]*\bdock-held\b/)
+  assert.match(duel, /--held-reach:/, 'the held card docks over the rail')
+  assert.match(hand, /\.cxh-card\.big\.held-dock \{\s*--x: calc\(50cqw/)
+  assert.doesNotMatch(
+    duel,
+    /SlimeCityTakebackChoice/,
+    'no take-back limit picker',
+  )
+}
+
+// Silas, 2026-11-24 PT, tablet landscape: the hand starts at the very bottom,
+// deck / log / turn button live on the right, and the duel's bar shares the
+// nav and icon row unless the screen is portrait.
+{
+  const duel = readFileSync(
+    new URL('../../components/slime-city-pvp-game.vue', import.meta.url),
+    'utf8',
+  )
+  const shell = readFileSync(
+    new URL(
+      '../../components/navigation/workspace-header.vue',
+      import.meta.url,
+    ),
+    'utf8',
+  )
+  // Silas, 2026-11-24 PT: "Most of that header for slime city can be
+  // deleted entirely. Forfeit is a button in settings control." The site
+  // header is the only header; back and forfeit live in the console gear.
+  assert.doesNotMatch(duel, /<header-page-bar/)
+  assert.match(
+    duel,
+    /<SlimeCityQuickSettings[^>]*>[\s\S]*?data-testid="slime-pvp-forfeit"[\s\S]*?<\/SlimeCityQuickSettings>/,
+    'forfeit lives in the settings panel',
+  )
+  assert.match(shell, /'landscape:contents': navStore\.pageBarInlineLandscape/)
+  assert.match(
+    duel,
+    /grid-template-areas:\s*'arena rail'\s*'arena console';/,
+    'beside a rail the board spans the full height and the console sits under the bosses',
+  )
+}
+
+// Silas, 2026-11-24 PT: "There needs to be a visual for levels 1 2 and 3."
+// Card faces and fighters on both boards wear a per-level frame.
+for (const file of [
+  'slime-city-clash-card-face.vue',
+  'slime-city-pvp-game.vue',
+  'slime-city-clash.vue',
+])
+  assert.match(
+    readFileSync(new URL('../../components/' + file, import.meta.url), 'utf8'),
+    /<SlimeCityLevelFrame :level="/,
+    file + ' frames each level',
+  )

@@ -6,7 +6,8 @@ import { rainbowBossPhase } from './rainbowPinkwakeBoss'
  * pulse their beacons, then swap sides through the middle, each firing a fan as it goes. In phase 2 the pair
  * leaps to a new lane; the lanes the twins will hold are marked when the warning starts and fired down when
  * it ends. In phase 3 the twins spread wide and the coupling's link core charges, fires a ring with a gap
- * that walks round, and stays exposed (double damage) for a moment after each ring.
+ * that walks round, and stays exposed (double damage) for a moment after each ring, while each wide twin
+ * fires a short aimed fan.
  */
 export type DelphionBoss = {
   x: number
@@ -214,13 +215,20 @@ export function stepDelphionBoss(
     startMove(boss, DELPHION.leapFrames, boss.gap, boss.aimY)
     boss.nextVolley = boss.frame + 96
   } else {
-    // Link core: a ring with a three-pellet gap that walks round, then the core stays exposed.
+    // Link core: a ring with a three-pellet gap that walks round, then the core stays exposed. The wide twins
+    // each add a short aimed fan, so no lane between them is a place to wait the fight out (persona QA,
+    // 2026-11-23 PT: a crew parked just above the core was never hit and never hit back).
     const core = delphionCore(boss)
     const count = 14
     const gap = (boss.volleys * 4) % count
     for (let i = 0; i < count; i++) {
       if ((i - gap + count) % count < 3) continue
       fire(core.x, core.y, (i / count) * Math.PI * 2, 1.55)
+    }
+    for (const twin of delphionTwins(boss)) {
+      const theta = Math.atan2(nearest.y - twin.y, nearest.x - twin.x)
+      for (const spread of [-0.14, 0, 0.14])
+        fire(twin.x - 22, twin.y, theta + spread, 1.85)
     }
     boss.exposedUntil = boss.frame + DELPHION.exposedFrames
     boss.nextVolley = boss.frame + 150

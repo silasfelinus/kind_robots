@@ -91,6 +91,8 @@ export function reinforcements<Kind extends string>(
     pairs?: boolean
     /** A lone launcher (the mortar, after Silas's second playtest) every so many frames, high then low. */
     launcher?: { kind: Kind; every: number }
+    /** Sections whose first school waits longer than 300 frames (a scene plays at their start). */
+    lead?: Readonly<Record<string, number>>
   },
 ): RainbowWave<Kind>[] {
   const waves: RainbowWave<Kind>[] = []
@@ -99,9 +101,10 @@ export function reinforcements<Kind extends string>(
   for (const [name, every] of Object.entries(plan.every)) {
     const section = sections.find((s) => s.name === name)
     if (!section) throw new Error(`reinforcements: no section named ${name}`)
+    const lead = plan.lead?.[name] ?? 300
     if (plan.launcher)
       for (
-        let at = section.from + 450;
+        let at = section.from + lead + 150;
         at <= section.to - 420;
         at += plan.launcher.every
       )
@@ -112,7 +115,7 @@ export function reinforcements<Kind extends string>(
           count: 1,
           lane: launched++ % 2 ? 0.78 : 0.22,
         })
-    for (let at = section.from + 300; at <= section.to - 300; at += every) {
+    for (let at = section.from + lead; at <= section.to - 300; at += every) {
       const school = REINFORCEMENT_PATTERN[n % REINFORCEMENT_PATTERN.length]!
       waves.push({
         at,

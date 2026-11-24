@@ -25,6 +25,7 @@ import {
 } from './rainbowPinkwake'
 import {
   BOSS_MAX_HP,
+  BOSS_TELEGRAPH_FRAMES,
   bossTelegraph,
   createPinkwakeBoss,
   rainbowBossHp,
@@ -53,21 +54,35 @@ import {
   drawRainbowHazardSprite,
   drawRainbowSuperCutin,
   loadRainbowLook,
+  rainbowActStage,
   rainbowLook,
 } from './rainbowGameArt'
 import { drawFeverSky, drawFeverTrail } from './rainbowFeverDream'
-import { applyRainbowSwimMotion } from './rainbowSwimMotion'
+import {
+  applyRainbowSwimMotion,
+  rainbowHitFlinch,
+  rainbowBossWindup,
+  rainbowShipPose,
+} from './rainbowSwimMotion'
 import { drawRainbowBossBloom } from './rainbowBossBloom'
-import { drawRainbowDistantParallax } from './rainbowPaintedParallax'
+import {
+  drawRainbowDistantParallax,
+  drawRainbowPaintedSky,
+} from './rainbowPaintedParallax'
 import { RAINBOW_PILOTS, RAINBOW_KITTY_POWER } from './rainbowPilots'
 import { rainbowPartyMask } from './rainbowPartyComms'
-import { RAINBOW_CONTRAST_PELLET, rainbowCommsLine } from './rainbowComms'
+import {
+  RAINBOW_CONTRAST_PELLET,
+  RAINBOW_DEFAULT_PELLET,
+  rainbowCommsLine,
+} from './rainbowComms'
 import { rainbowShipFilter } from './rainbowLivery'
 import {
   rainbowRouteStinger,
   type RainbowRouteFlags,
 } from './rainbowRouteBeats'
 import {
+  RAINBOW_HIT_CARD_FRAMES,
   drawRainbowEnemyFrame,
   drawRainbowInterlude,
   drawRainbowPose,
@@ -77,6 +92,7 @@ import {
   type RainbowDetour,
 } from './rainbowDetourPlanes'
 import { rainbowEndingMemoryIds } from './rainbowEndingArchive'
+import { rainbowArcSeat, rainbowPilotArcBeat } from './rainbowPilotArcs'
 import { ACT_TERRAIN_PALETTE, actCallout, actTerrain } from './rainbowActBeats'
 import type { ActBeatAct } from './rainbowActBeats'
 import {
@@ -227,6 +243,7 @@ import {
   lanternRayExposed,
   lanternRayNurseries,
   lanternRayWarning,
+  lanternRayWarningFrames,
   stepLanternRayBoss,
   type LanternRayBoss,
 } from './rainbowLanternRay'
@@ -282,6 +299,7 @@ import {
   createGlassEelBoss,
   glassEelExposed,
   glassEelWarning,
+  glassEelWarningFrames,
   stepGlassEelBoss,
   type GlassEelBoss,
 } from './rainbowGlassEel'
@@ -381,7 +399,11 @@ import {
   rainbowMedal,
   readRainbowSave,
 } from './rainbowLoadouts'
-import { RAINBOW_FAILURE, failureLines } from './rainbowFailure'
+import {
+  rainbowContinueLine,
+  RAINBOW_FAILURE,
+  failureLines,
+} from './rainbowFailure'
 import { rainbowMusicFor } from './rainbowScore'
 import type { RainbowMedal, RainbowSave } from './rainbowLoadouts'
 import { isRainbowFeat, rainbowMedalFeats } from './rainbowAchievements'
@@ -438,6 +460,23 @@ export const RAINBOW_SHIP_SPEED = 3.4
 const SPEED = RAINBOW_SHIP_SPEED
 const FOCUS_SPEED = SPEED * 0.55
 const CORE_RADIUS = 4
+/** The width of one pilot-status column in the HUD bar. */
+export const HUD_STATUS_COLUMN = 140
+/**
+ * Where a seat's status sits inside the 29 px HUD bar: a solo pilot under the counters on the right; with
+ * more pilots, seats 1-2 fill the right column (rows 12 and 24) and seats 3-4 the column beside it.
+ */
+export function rainbowHudStatusSlot(
+  seat: number,
+  players: number,
+): { column: number; y: number } {
+  if (players <= 1) return { column: 0, y: 24 }
+  return { column: Math.floor(seat / 2), y: seat % 2 === 0 ? 12 : 24 }
+}
+/** B released within this many frames is a tap: the super. Held longer, B is focus (gameplay critic D1). */
+export const SUPER_TAP_FRAMES = 12
+/** Charge each kill refunds (an urchin twice this); grazing is the main source (gameplay critic D2). */
+export const SUPER_REFUND = 4
 const GRAZE_RADIUS = 15
 const PILOT_COLORS = ['#ffd2ef', '#b8f8ff', '#ffe99f', '#b9a9ff'] as const
 const SHIP_NAMES = ['PETAL', 'PRISM', 'HALO', 'COMET'] as const
@@ -742,10 +781,107 @@ export const MORTAR = {
   shells: 2,
   flight: 72,
   gravity: 0.05,
-  bomblets: 3,
-  bombletSpeed: 1.15,
   bombletFuse: 34,
 } as const
+/**
+ * Each Act's own mortar shell (independent gameplay critic D7: one launcher reused across seven Acts read as the
+ * same enemy everywhere). The launcher, its telegraph ring and its rhythm stay the same so the lesson carries; what
+ * the shell bursts into is the Act's own: Act I keeps the teaching cluster, the moon jellies scatter slow spores,
+ * the trench splits into vent crosses, the Express throws its bomblets back along the rails, the wreckyard sheds
+ * scrap fans, the reef blooms rings, the glass shatters into crosses and the palace salutes in a five-point crown.
+ * `count` bomblets leave on a fan of `arc` radians centred on `heading`, then burst as `then` (or fly on, if none).
+ */
+export type MortarShell = {
+  name: string
+  count: number
+  heading: number
+  arc: number
+  speed: number
+  then: 'split' | 'cross' | 'ring' | null
+  /** The shell's two flashing colours while it flies. */
+  colors: readonly [string, string]
+}
+const FULL = Math.PI * 2
+export const MORTAR_SHELLS: Readonly<
+  Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, MortarShell>
+> = {
+  1: {
+    name: 'cluster',
+    count: 3,
+    heading: Math.PI / 2,
+    arc: FULL,
+    speed: 1.15,
+    then: 'split',
+    colors: ['#fff2a8', '#ff9f6a'],
+  },
+  2: {
+    name: 'spore',
+    count: 6,
+    heading: Math.PI / 2,
+    arc: FULL,
+    speed: 0.85,
+    then: null,
+    colors: ['#d8fbff', '#9fd8ff'],
+  },
+  3: {
+    name: 'vent',
+    count: 2,
+    heading: Math.PI / 2,
+    arc: FULL,
+    speed: 1.15,
+    then: 'cross',
+    colors: ['#ffd27a', '#ff6a3a'],
+  },
+  4: {
+    name: 'rail',
+    count: 3,
+    heading: Math.PI,
+    arc: 1.1,
+    speed: 1.3,
+    then: 'split',
+    colors: ['#fff6d8', '#ffb347'],
+  },
+  5: {
+    name: 'scrap',
+    count: 4,
+    heading: Math.PI / 4,
+    arc: FULL,
+    speed: 1.15,
+    then: 'split',
+    colors: ['#e8e2d0', '#b08a5a'],
+  },
+  6: {
+    name: 'bloom',
+    count: 2,
+    heading: 0,
+    arc: FULL,
+    speed: 1,
+    then: 'ring',
+    colors: ['#ffd8f0', '#ff7ac8'],
+  },
+  7: {
+    name: 'shard',
+    count: 3,
+    heading: Math.PI / 2,
+    arc: FULL,
+    speed: 1.2,
+    then: 'cross',
+    colors: ['#f2fbff', '#8fe9ff'],
+  },
+  8: {
+    name: 'crown',
+    count: 5,
+    heading: -Math.PI / 2,
+    arc: FULL,
+    speed: 1.1,
+    then: 'split',
+    colors: ['#fff2a8', '#c38cff'],
+  },
+}
+/** The shell a mortar lobs in this Act (the finale, which has none, would borrow the palace's). */
+export function mortarShell(act: number): MortarShell {
+  return MORTAR_SHELLS[Math.max(1, Math.min(8, act)) as 1]
+}
 /**
  * The same playtest: "everything just sits and floats". Plain craft rush in from the edge and brake to their
  * own pace, and the lighter ones slide toward a pilot's lane every few seconds instead of drifting on a line.
@@ -823,20 +959,29 @@ const VOLLEY = {
  * into three along its heading.
  */
 function burstShots(bullet: EnemyShot): EnemyShot[] {
-  if (bullet.burst === 'cluster')
-    // A mortar shell: bomblets that burst again into rings.
-    return Array.from({ length: MORTAR.bomblets }, (_, i) => {
-      const theta = (i / MORTAR.bomblets) * Math.PI * 2 + Math.PI / 2
-      return {
+  if (bullet.burst === 'cluster') {
+    // A mortar shell: bomblets on the Act's own fan, each bursting again as the Act's shell says.
+    const shell = mortarShell(bullet.shell ?? 1)
+    const full = shell.arc >= FULL - 1e-9
+    return Array.from({ length: shell.count }, (_, i) => {
+      const theta = full
+        ? (i / shell.count) * FULL + shell.heading
+        : shell.heading +
+          (shell.count > 1 ? (i / (shell.count - 1) - 0.5) * shell.arc : 0)
+      const pellet: EnemyShot = {
         x: bullet.x,
         y: bullet.y,
-        vx: Math.cos(theta) * MORTAR.bombletSpeed,
-        vy: Math.sin(theta) * MORTAR.bombletSpeed,
+        vx: Math.cos(theta) * shell.speed,
+        vy: Math.sin(theta) * shell.speed,
         grazed: 0,
-        fuse: MORTAR.bombletFuse,
-        burst: 'split' as const,
       }
+      if (shell.then) {
+        pellet.fuse = MORTAR.bombletFuse
+        pellet.burst = shell.then
+      }
+      return pellet
     })
+  }
   if (bullet.burst === 'split') {
     const heading = Math.atan2(bullet.vy, bullet.vx)
     return [-0.5, 0, 0.5].map((spread) => ({
@@ -860,6 +1005,20 @@ function burstShots(bullet: EnemyShot): EnemyShot[] {
       grazed: 0,
     }
   })
+}
+/** Every Act's aftermath reads its lines at this pace; the arc beat is the fourth. */
+const ARC_LINE_FRAMES = 96
+/**
+ * A right-aligned footer line at the bottom-right corner on a dark plate, so a detour or route status reads over
+ * bright painted art (presentation critic P-14: the X3 footer had no plate). Uses the current font and fill.
+ */
+function footerText(g: CanvasRenderingContext2D, text: string) {
+  const width = g.measureText(text).width
+  const fill = g.fillStyle
+  g.fillStyle = '#160b34cc'
+  g.fillRect(W - 12 - width, H - 18, width + 8, 13)
+  g.fillStyle = fill
+  g.fillText(text, W - 8, H - 8)
 }
 /** Presses this soon after the crew falls are fire-button carry-over, not a choice to continue. */
 const CONTINUE_GRACE_FRAMES = 30
@@ -921,6 +1080,8 @@ type Ship = {
   focus: boolean
   /** Smoothed vertical speed, so the ship banks into a climb or a dive. */
   bank: number
+  /** Smoothed horizontal speed, so the ship stretches as it surges forward and squats as it backs off. */
+  thrust: number
   /** Four-button cabinet: frames left of the pilot's special and of her evade, their cooldowns, and a dash. */
   special: number
   specialCooldown: number
@@ -1015,6 +1176,8 @@ type EnemyShot = {
   burst?: 'ring' | 'cross' | 'split' | 'cluster'
   /** A lobbed mortar shell falls under this gravity (and ignores the bullet-speed scale, so it lands on its mark). */
   ay?: number
+  /** Which Act's shell a mortar lobbed (`MORTAR_SHELLS`); missing means Act I's cluster. */
+  shell?: number
   /** Where a mortar shell will burst, ringed while it flies. */
   tx?: number
   ty?: number
@@ -1033,6 +1196,11 @@ type GuardianOutcome = 'waiting' | 'defeated' | 'escaped'
 
 export type RainbowCombatSnapshot = {
   tick: number
+  /**
+   * The comms line the last render drew: its scene or callout id (never shown to players), speaker and text.
+   * For tests and tools; null when the comms box was empty.
+   */
+  comms: { id: string; speaker: string; text: string } | null
   /** Rebel road (t-060): volleys truce craft held back this flight. */
   truceHeld: number
   score: number
@@ -1242,6 +1410,7 @@ export function createRainbowPrincessPreview(
     lives: level.lives + extraLife,
     focus: false,
     bank: 0,
+    thrust: 0,
     special: 0,
     specialCooldown: 0,
     evade: 0,
@@ -1255,6 +1424,10 @@ export function createRainbowPrincessPreview(
   const shots: Shot[] = []
   const reefs: Reef[] = []
   const enemyShots: EnemyShot[] = []
+  /** Frames each seat's hit-pose card has left to show (drawing only, t-030). */
+  const hitCards: number[] = Array.from({ length: 4 }, () => 0)
+  /** Frames each seat has held B, to tell a super tap from a focus hold. */
+  const superHold: number[] = Array.from({ length: 4 }, () => 0)
   const pickups: Pickup[] = []
   let tick = 0
   let score = 0
@@ -1415,6 +1588,8 @@ export function createRainbowPrincessPreview(
   /** High-contrast hostile shots and the comms level (t-044 settings): drawing only, never the run. */
   let contrast = options.highContrast === true
   let comms: ArcadeComms = options.comms ?? 'full'
+  /** The comms line the last render showed, with its scene id (story critic S17: players see only the speaker). */
+  let shownComms: RainbowCombatSnapshot['comms'] = null
   /** The crew's choice at Act V's memorial (t-040, PLOT-MOTHERLAND.md), or null before it. */
   let allegiance: RainbowAllegiance | null = null
   /** Rebel road (t-060): volleys truce craft held back this flight. */
@@ -1760,6 +1935,11 @@ export function createRainbowPrincessPreview(
       ship.invulnerable = Math.max(ship.invulnerable, 240)
     popups.push({ x: W / 2, y: 92, text: 'STOOD DOWN', age: 0 })
     options.sound.play('extra')
+  }
+
+  /** Frames into the Crown's plea while it pleads (the A09.PLEA scene), else null. */
+  function pleaElapsed(): number | null {
+    return crown && crown.plea > 0 ? CROWN_PLEA.frames - crown.plea : null
   }
 
   /** The whole crew fell in the prism corridors: the escape starts again, the choice kept. */
@@ -2458,6 +2638,7 @@ export function createRainbowPrincessPreview(
       grazed: 0,
       fuse: t,
       burst: 'cluster',
+      shell: currentAct(),
       tx,
       ty,
     })
@@ -2812,17 +2993,29 @@ export function createRainbowPrincessPreview(
     for (const ship of ships) ship.lives = level.lives + extraLife
   }
 
-  /** A line of dialogue with the crew's names swapped for the pilots actually flying each seat. */
+  /**
+   * A line of dialogue with the crew's names swapped for the pilots actually flying each seat. Scripts are
+   * written for seats in pilot order; a line written for a seat nobody flies (a four-pilot detour script in a
+   * smaller crew) goes to the pilot in seat `authored % crew`, so only the crew ever speaks (blind story
+   * critic S1, 2026-11-23 PT).
+   */
   function crewLine<Line extends { speaker: string; text: string }>(
     line: Line,
   ): Line {
     if ('partyAuthored' in line && line.partyAuthored) return line
-    if (!pick && (!roster || roster.every((pilot, seat) => pilot === seat)))
+    if (
+      activePlayers === RAINBOW_PILOTS.length &&
+      !pick &&
+      (!roster || roster.every((pilot, seat) => pilot === seat))
+    )
       return line
     const names = RAINBOW_PILOTS.map((pilot) => pilot.name.split(' ')[0]!)
     const pattern = new RegExp(`\\b(${names.join('|')})\\b`, 'g')
     const swap = (text: string) =>
-      text.replace(pattern, (name) => names[pilotOf(names.indexOf(name))]!)
+      text.replace(
+        pattern,
+        (name) => names[pilotOf(names.indexOf(name) % activePlayers)]!,
+      )
     return { ...line, speaker: swap(line.speaker), text: swap(line.text) }
   }
 
@@ -2974,6 +3167,13 @@ export function createRainbowPrincessPreview(
    */
   function resumeFromCheckpoint() {
     continueLeft = 0
+    // The lead pilot's "back in" beat as the crew comes back (story critic S16), drawing only.
+    popups.push({
+      x: W / 2,
+      y: 92,
+      text: `${RAINBOW_PILOTS[pilotOf(0)]!.name.split(' ')[0]!.toUpperCase()} · BACK IN THE FIGHT`,
+      age: 0,
+    })
     caches.length = 0
     continues++
     actContinues++
@@ -3481,46 +3681,51 @@ export function createRainbowPrincessPreview(
     supers++
     options.sound.play('rainbowNova')
     feat('kitty-power')
+    // The wipe stays whole-screen (the cut-in may cover the comms band only because no pellet is left under
+    // it); supers are kept rare by their charge instead: kills refund SUPER_REFUND, grazing does the rest.
     bursts.push({ seat, pilot: kind, x: ship.x, y: ship.y, age: 0 })
     enemyShots.length = 0
+    // Bosses lose a share of their hull, so a super matters as much in a four-pilot fight as solo.
+    const share = (maxHp: number) =>
+      Math.max(1, Math.round(maxHp * (kind === 1 ? 0.05 : 0.035)))
     if (boss && boss.frame > 85) {
-      boss.hp -= kind === 1 ? 28 : 20
+      boss.hp -= share(boss.maxHp)
       if (boss.hp <= 0) defeatBoss()
     }
     if (moonBoss && moonBoss.frame > 85) {
-      moonBoss.hp -= kind === 1 ? 28 : 20
+      moonBoss.hp -= share(moonBoss.maxHp)
       if (moonBoss.hp <= 0) defeatMoonBoss()
     }
     if (clawBoss && clawBoss.frame > 85) {
-      clawBoss.hp -= kind === 1 ? 28 : 20
+      clawBoss.hp -= share(clawBoss.maxHp)
       if (clawBoss.hp <= 0) defeatClawBoss()
     }
     if (delphion && delphion.frame > 85) {
-      delphion.hp -= kind === 1 ? 28 : 20
+      delphion.hp -= share(delphion.maxHp)
       if (delphion.hp <= 0) defeatDelphion()
     }
     if (sawtooth && sawtooth.frame > 85) {
-      sawtooth.hp -= kind === 1 ? 28 : 20
+      sawtooth.hp -= share(sawtooth.maxHp)
       if (sawtooth.hp <= 0) defeatSawtooth()
     }
     if (lanternRay && lanternRay.frame > 85) {
-      lanternRay.hp -= kind === 1 ? 28 : 20
+      lanternRay.hp -= share(lanternRay.maxHp)
       if (lanternRay.hp <= 0) defeatLanternRay()
     }
     if (glassEel && glassEel.frame > 85) {
-      glassEel.hp -= kind === 1 ? 28 : 20
+      glassEel.hp -= share(glassEel.maxHp)
       if (glassEel.hp <= 0) defeatGlassEel()
     }
     if (leviathan && leviathan.frame > 85) {
-      leviathan.hp -= kind === 1 ? 28 : 20
+      leviathan.hp -= share(leviathan.maxHp)
       if (leviathan.hp <= 0) defeatLeviathan()
     }
     if (crown && crown.frame > 85 && crown.plea === 0) {
-      crown.hp -= kind === 1 ? 28 : 20
+      crown.hp -= share(crown.maxHp)
       if (crown.hp <= 0) subdueCrown()
     }
     if (guardian && guardian.frame > 60) {
-      guardian.hp -= kind === 1 ? 28 : 20
+      guardian.hp -= share(guardian.maxHp)
       if (guardian.hp <= 0) defeatGuardian(seat)
     }
     for (let i = reefs.length - 1; i >= 0; i--) {
@@ -3654,7 +3859,8 @@ export function createRainbowPrincessPreview(
     if (refund)
       ship.charge = Math.min(
         100,
-        ship.charge + (reef.kind === 'urchin' ? 24 : 12),
+        ship.charge +
+          (reef.kind === 'urchin' ? SUPER_REFUND * 2 : SUPER_REFUND),
       )
     if (clearCount % 3 === 0) {
       const kinds: Pickup['kind'][] = ['power', 'shield', 'charge']
@@ -4168,6 +4374,9 @@ export function createRainbowPrincessPreview(
     if (ship.shield <= 0) {
       ship.lives--
       if (ship.lives > 0) options.sound.play('rainbowHurt')
+      // Her painted hit pose flashes over the ship for a moment (t-030), drawing only.
+      if (ship.lives > 0)
+        hitCards[ships.indexOf(ship)] = RAINBOW_HIT_CARD_FRAMES
       ship.shield = shieldCap
       // The power level lost with the life falls just ahead as a Recovery Cache (U12) for four seconds.
       if (ship.power > 1 && ship.lives > 0)
@@ -4967,6 +5176,7 @@ export function createRainbowPrincessPreview(
           for (const memory of rainbowEndingMemoryIds(
             finalChoice ?? 'evacuate',
             allegiance,
+            stoodDown,
           ))
             earn(memory)
           if (difficulty === 'hard') earn('ace-of-eclipse')
@@ -5018,7 +5228,16 @@ export function createRainbowPrincessPreview(
       if (!keys) continue
       if (ship.lives <= 0) continue
       ship.focus = !options.demo && keys.held.b
+      // B: hold to focus, tap to fire the super (gameplay critic D1). A press that becomes a hold never spends it.
+      const tapped =
+        !options.demo &&
+        ((!keys.held.b &&
+          superHold[seat]! > 0 &&
+          superHold[seat]! <= SUPER_TAP_FRAMES) ||
+          (keys.pressed.b && !keys.held.b && superHold[seat] === 0))
+      superHold[seat] = keys.held.b ? superHold[seat]! + 1 : 0
       const lastY = ship.y
+      const lastX = ship.x
       if (options.demo) {
         ship.y = 135 + Math.sin(tick / 33 + seat) * 56
         // A guardian on screen: the attract demo lines up on it, so it shows the guardian beaten.
@@ -5159,10 +5378,12 @@ export function createRainbowPrincessPreview(
         }
       }
       ship.bank += (ship.y - lastY - ship.bank) * 0.25
+      ship.thrust += (ship.x - lastX - ship.thrust) * 0.25
       if (ship.cooldown > 0) ship.cooldown--
       if (ship.invulnerable > 0) ship.invulnerable--
+      if (hitCards[seat]! > 0) hitCards[seat]!--
       if ((options.demo || keys.held.a) && ship.cooldown === 0) fire(ship, seat)
-      if (!options.demo && keys.pressed.b) superAttack(seat)
+      if (tapped) superAttack(seat)
       if (!options.demo && keys.pressed.x) useSpecial(ship, seat)
       if (!options.demo && keys.pressed.y) useEvade(ship, seat, keys)
       if (ship.specialCooldown > 0) ship.specialCooldown--
@@ -6140,6 +6361,7 @@ export function createRainbowPrincessPreview(
     },
     get snapshot(): RainbowCombatSnapshot {
       return {
+        comms: shownComms,
         tick,
         truceHeld,
         score,
@@ -6282,6 +6504,7 @@ export function createRainbowPrincessPreview(
                                     choiceFrame,
                                     escapeFrame,
                                     endingFrame,
+                                    pleaElapsed(),
                                   )?.id ?? null),
         boss: boss ? { ...boss } : null,
         moonBoss: moonBoss ? { ...moonBoss } : null,
@@ -6388,10 +6611,15 @@ export function createRainbowPrincessPreview(
       // Fever Dream: the neon school-folder sky replaces the classic bubbles (decoration only).
       const fever = rainbowLook() === 'fever'
       if (fever) drawFeverSky(g, currentAct(), tick, drift)
-      for (let plane = 0; plane < (fever ? 0 : 4); plane++) {
-        g.fillStyle = ['#f2d6ff88', '#9ffffa44', '#fff5c444', '#ffe6f277'][
-          plane
-        ]!
+      // The Act's painted scenery: S01-S08, and the finale's own Crown heart once it ships (P-04/P-07).
+      const stage = rainbowActStage(currentAct())
+      // A painted sky drifts slowest of all over the whole field (P-04); a detour paints its own below.
+      if (!activeDetour())
+        drawRainbowPaintedSky(g, stage, actFrame(currentAct()), drift, H, W)
+      // Classic drifting motes: only the two far planes, small and faint, so nothing ambient is the size or
+      // brightness of a hostile pellet (presentation critic P-10).
+      for (let plane = 0; plane < (fever ? 0 : 2); plane++) {
+        g.fillStyle = ['#f2d6ff33', '#9ffffa2e'][plane]!
         const speed = [0.15, 0.34, 0.72, 1.3][plane]!
         for (let i = 0; i < 16; i++) {
           const x =
@@ -6570,16 +6798,28 @@ export function createRainbowPrincessPreview(
             g.fill()
           }
         }
-        g.strokeStyle = '#ffb3c855'
-        g.lineWidth = 2
+        // Dock cranes as solid silhouettes (presentation critic P-13: the old one-pixel outlines read as debug
+        // bounds): a lattice tower, a jib with its counterweight, the cab and a hook on its cable.
         for (let i = 0; i < 3; i++) {
           const x = ((((i * 230 - frame * drift * 0.3) % 690) + 690) % 690) - 60
+          g.fillStyle = '#2a1028d9'
+          g.fillRect(x - 4, 70, 9, H - 110)
+          g.fillRect(x - 24, 64, 98, 7)
+          g.fillRect(x - 24, 71, 14, 9)
+          g.fillRect(x - 6, 54, 14, 11)
+          g.strokeStyle = '#5a2a48'
+          g.lineWidth = 1
           g.beginPath()
-          g.moveTo(x, H - 40)
-          g.lineTo(x, 70)
-          g.lineTo(x + 70, 70)
-          g.lineTo(x + 70, 92)
+          for (let y = 76; y < H - 46; y += 14) {
+            g.moveTo(x - 4, y)
+            g.lineTo(x + 5, y + 14)
+          }
+          g.moveTo(x + 66, 71)
+          g.lineTo(x + 66, 96)
           g.stroke()
+          g.fillStyle = '#ffb3c844'
+          g.fillRect(x - 24, 64, 98, 1)
+          g.fillRect(x + 62, 96, 8, 4)
         }
       } else if (cometActive()) {
         // The comet tail streaks past in speed-surges without tinting hostile bullets.
@@ -6711,9 +6951,6 @@ export function createRainbowPrincessPreview(
         }
       }
       // Distant painted silhouettes drift behind the brighter coral foreground.
-      const stage = (
-        ['s01', 's02', 's03', 's04', 's05', 's06', 's07', 's08', 's08'] as const
-      )[currentAct() - 1]!
       // A detour flies its own painted sky and bands (t-028) instead of its origin Act's strips.
       const detour = activeDetour()
       if (
@@ -7134,6 +7371,10 @@ export function createRainbowPrincessPreview(
                         : '#d09ffd'
         g.save()
         applyRainbowSwimMotion(g, reef.kind, tick, calm)
+        if (reef.flash) {
+          const flinch = rainbowHitFlinch(reef.flash, HIT_FLASH_FRAMES, calm)
+          g.scale(flinch.x, flinch.y)
+        }
         if (reef.kind === 'motherdrone') {
           if (!drawRainbowEnemySprite(g, 'motherdrone')) drawMotherlandDrone(g)
         } else if (
@@ -7511,6 +7752,13 @@ export function createRainbowPrincessPreview(
         g.save()
         g.translate(boss.x, boss.y)
         const glow = bossTelegraph(boss)
+        const windup = rainbowBossWindup(
+          boss.nextVolleyAt - boss.frame,
+          BOSS_TELEGRAPH_FRAMES,
+          calm,
+        )
+        g.translate(windup.pull, 0)
+        g.scale(windup.scaleX, windup.scaleY)
         g.shadowColor = glow ? '#fff7a7' : '#ffaff1'
         g.shadowBlur = glow ? 25 : 9
         // The painted seahorse carries the escape pod in its coil; the vector body carries it at its belly.
@@ -7954,6 +8202,11 @@ export function createRainbowPrincessPreview(
       if (glassEel) {
         const warn = glassEelWarning(glassEel)
         const exposed = glassEelExposed(glassEel)
+        const eelWindup = rainbowBossWindup(
+          glassEel.nextVolley - glassEel.frame,
+          glassEelWarningFrames(glassEel),
+          calm,
+        )
         const body = (y: number, solid: boolean) => {
           g.save()
           g.translate(glassEel!.x, y)
@@ -7961,12 +8214,19 @@ export function createRainbowPrincessPreview(
           g.shadowColor =
             exposed && solid ? '#ff7ad9' : warn ? '#fff49c' : '#c9f2ff'
           g.shadowBlur = solid && (warn || exposed) ? 24 : 10
+          // Only the true eel's body winds up before a volley; the outline and ring stay true to the hitbox.
+          g.save()
+          if (solid) {
+            g.translate(eelWindup.pull, 0)
+            g.scale(eelWindup.scaleX, eelWindup.scaleY)
+          }
           if (!drawRainbowBossSprite(g, 'b07', glassEel!.phase, 0, 0, 140)) {
             g.fillStyle = '#9fb8d9'
             g.beginPath()
             g.ellipse(0, 0, 56, 20, 0, 0, Math.PI * 2)
             g.fill()
           }
+          g.restore()
           g.shadowBlur = 0
           if (solid) {
             // Only the true eel carries the outline.
@@ -8026,12 +8286,22 @@ export function createRainbowPrincessPreview(
         g.translate(lanternRay.x, lanternRay.y)
         g.shadowColor = exposed ? '#ff7ad9' : warn ? '#fff49c' : '#ffd27a'
         g.shadowBlur = warn || exposed ? 24 : 10
+        // The ray's body winds up before a volley; nurseries, beacon and ring stay where they can be hit.
+        const rayWindup = rainbowBossWindup(
+          lanternRay.nextVolley - lanternRay.frame,
+          lanternRayWarningFrames(lanternRay),
+          calm,
+        )
+        g.save()
+        g.translate(rayWindup.pull, 0)
+        g.scale(rayWindup.scaleX, rayWindup.scaleY)
         if (!drawRainbowBossSprite(g, 'b06', lanternRay.phase, 0, 0, 150)) {
           g.fillStyle = '#2a3a6a'
           g.beginPath()
           g.ellipse(0, 0, 60, 24, 0, 0, Math.PI * 2)
           g.fill()
         }
+        g.restore()
         g.shadowBlur = 0
         for (const [i, side] of [-1, 1].entries()) {
           if (lanternRay.nurseries[i]! <= 0) continue
@@ -8336,21 +8606,26 @@ export function createRainbowPrincessPreview(
         )
         g.textAlign = 'left'
       }
-      // A tightly capped boss flare sits behind shots and their dark halos.
-      drawRainbowBossBloom(g, sparks, calm)
+      // A tightly capped boss flare and lens streak sit behind shots and their dark halos;
+      // high-contrast shots skip it.
+      drawRainbowBossBloom(g, sparks, calm, contrast)
       // Every solid hostile pellet sits on a dark halo inside its light rim, so it reads against any scenery.
       // Since t-032 each pellet carries its own dark outline too, so the halo is a softer shadow that lets
       // the family's shape read first.
       // High-contrast shots (t-044) make that halo an opaque black disc with a white ring at its edge.
-      g.fillStyle = contrast ? RAINBOW_CONTRAST_PELLET.halo : '#05030f70'
-      g.strokeStyle = RAINBOW_CONTRAST_PELLET.ring
-      g.lineWidth = RAINBOW_CONTRAST_PELLET.ringWidth
+      // Default shots get a firmer halo and a faint ring too (presentation critic P-11).
+      const pelletBacking = contrast
+        ? RAINBOW_CONTRAST_PELLET
+        : RAINBOW_DEFAULT_PELLET
+      g.fillStyle = pelletBacking.halo
+      g.strokeStyle = pelletBacking.ring
+      g.lineWidth = pelletBacking.ringWidth
       for (const bullet of enemyShots) {
         if (bullet.ghost) continue
         g.beginPath()
         g.arc(bullet.x, bullet.y, RAINBOW_SHOT_HALO_RADIUS, 0, Math.PI * 2)
         g.fill()
-        if (contrast) g.stroke()
+        g.stroke()
       }
       for (const bullet of enemyShots) {
         if (bullet.ghost) {
@@ -8430,7 +8705,8 @@ export function createRainbowPrincessPreview(
             g.stroke()
             g.restore()
           }
-          g.fillStyle = bullet.fuse % 10 < 5 ? '#fff2a8' : '#ff9f6a'
+          const shellColors = mortarShell(bullet.shell ?? 1).colors
+          g.fillStyle = shellColors[bullet.fuse % 10 < 5 ? 0 : 1]
           g.beginPath()
           g.arc(bullet.x, bullet.y, 7, 0, Math.PI * 2)
           g.fill()
@@ -8735,9 +9011,10 @@ export function createRainbowPrincessPreview(
             Math.cos((1 - ship.evade / RAINBOW_EVADE.roll) * Math.PI * 2),
           )
         if (ship.evade > 0 && pilotOf(seat) === 2) g.globalAlpha = 0.55
-        // Bank into a climb or a dive: tilt with the vertical speed, flattening a little as it turns.
-        g.rotate(Math.max(-0.35, Math.min(0.35, ship.bank * 0.12)))
-        g.scale(1, 1 - Math.min(0.18, Math.abs(ship.bank) * 0.05))
+        // Bank into a climb or a dive and lean into a surge (t-011): a draw-only pose, so the hitbox never moves.
+        const pose = rainbowShipPose(ship.bank, ship.thrust, calm)
+        g.rotate(pose.rotate)
+        g.scale(pose.scaleX, pose.scaleY)
         g.shadowColor = PILOT_COLORS[pilotOf(seat)]!
         g.shadowBlur = 10
         // Paint recolours the painting only (t-044); the seat glow above keeps the pilot's own colour.
@@ -8772,7 +9049,21 @@ export function createRainbowPrincessPreview(
         }
         g.strokeStyle = '#fff'
         g.font = 'bold 9px sans-serif'
-        g.strokeText(String(seat + 1), -3, -17)
+        // The seat number sits behind the ship's tail, not above it, so in tight formation it never lands on
+        // the next pilot's hull (presentation critic P-22).
+        g.strokeText(String(seat + 1), -24, 3)
+        if (hitCards[seat]! > 0) {
+          // The hit-pose card (t-030): the pilot's painted reaction, framed above her ship as it flickers.
+          const pilotName = RAINBOW_PILOTS[pilotOf(seat)]!.name
+          g.save()
+          g.globalAlpha = Math.min(1, hitCards[seat]! / 12)
+          if (drawRainbowPose(g, pilotName, 'hit', -14, -52, 28)) {
+            g.strokeStyle = PILOT_COLORS[pilotOf(seat)]!
+            g.lineWidth = 1.5
+            g.strokeRect(-14, -52, 28, 28)
+          }
+          g.restore()
+        }
         if (ship.charge >= 100 && Math.floor(tick / 10) % 2 === 0) {
           g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
           g.font = 'bold 7px monospace'
@@ -8896,28 +9187,23 @@ export function createRainbowPrincessPreview(
       const act = currentAct()
       const introFrame = actFrame(act)
       if (introFrame < INTRO_FRAMES && (moonStart !== null || !defeatedAt)) {
-        const stage = (
-          [
-            's01',
-            's02',
-            's03',
-            's04',
-            's05',
-            's06',
-            's07',
-            's08',
-            's08',
-          ] as const
-        )[act - 1]!
-        const top = 33 + Math.max(0, activePlayers - 1) * 10 + 60
+        // The same stage the backdrop flies, so the finale's card is its own once S09 ships (P-07).
+        const top = 33 + 60
         g.save()
         g.globalAlpha =
           Math.min(1, introFrame / 15) *
           Math.min(1, (INTRO_FRAMES - introFrame) / 30)
         // The living interlude (t-030) where one shipped, else the still title card.
         const height =
-          drawRainbowInterlude(g, stage, W / 2 - 100, top, 200, calm) ||
-          drawRainbowStageCard(g, stage, W / 2 - 100, top, 200)
+          drawRainbowInterlude(
+            g,
+            stage,
+            W / 2 - 100,
+            top,
+            200,
+            calm,
+            introFrame,
+          ) || drawRainbowStageCard(g, stage, W / 2 - 100, top, 200)
         const bandY = top + Math.max(height, 40) - 22
         g.fillStyle = '#180d38d9'
         g.fillRect(W / 2 - 100, bandY, 200, 22)
@@ -9021,6 +9307,7 @@ export function createRainbowPrincessPreview(
                                   choiceFrame,
                                   escapeFrame,
                                   endingFrame,
+                                  pleaElapsed(),
                                 )
       const said = scene
         ? cometActive()
@@ -9065,6 +9352,7 @@ export function createRainbowPrincessPreview(
                       allegiance,
                       partyMask(),
                       routeFlags(),
+                      stoodDown,
                     )
                   : act === 8
                     ? palaceDialogue(
@@ -9141,9 +9429,45 @@ export function createRainbowPrincessPreview(
         flying &&
         actCallout(flying.act, flying.sections, flying.frame, activePlayers)
       // The comms switch (t-044): full, story scenes only, or off but for the ending.
-      const line = rainbowCommsLine(comms, said, callout, scene?.id ?? null)
+      // After each Act's three aftermath lines, one pilot's own arc beat (story critic S8, S9).
+      const arcAct = /^A0([1-8])\.AFTER$/.exec(scene?.id ?? '')?.[1]
+      const arcBeat =
+        !said &&
+        arcAct &&
+        scene &&
+        scene.elapsed >= 3 * ARC_LINE_FRAMES &&
+        scene.elapsed < 4 * ARC_LINE_FRAMES
+          ? (() => {
+              const pilot =
+                RAINBOW_PILOTS[
+                  pilotOf(rainbowArcSeat(Number(arcAct), activePlayers))
+                ]!
+              const text = rainbowPilotArcBeat(Number(arcAct), pilot.key)
+              return text
+                ? {
+                    speaker: pilot.name.split(' ')[0]!,
+                    text,
+                    partyAuthored: true as const,
+                  }
+                : null
+            })()
+          : null
+      const line = rainbowCommsLine(
+        comms,
+        said ?? arcBeat,
+        callout,
+        scene?.id ?? null,
+      )
       const dialogue = line && crewLine(line)
-      const commsTop = 33 + Math.max(0, activePlayers - 1) * 10
+      shownComms = dialogue
+        ? {
+            id: String(scene?.id ?? callout?.id),
+            speaker: dialogue.speaker,
+            text: dialogue.text,
+          }
+        : null
+      // Pilot status lives inside the 29 px bar now, so prompts sit just under it for any crew size.
+      const commsTop = 33
       // Silas, 2026-10-20: a comms line takes the HUD bar's place instead of stacking under it, so the
       // conversation covers no more of the playfield than the header already did. The HUD returns after.
       if (!dialogue) {
@@ -9171,25 +9495,32 @@ export function createRainbowPrincessPreview(
           12,
         )
         g.font = '9px monospace'
-        g.fillText(
-          // Short enough to clear P1's status on the right of the same row.
-          'A FIRE · B FOCUS/SUPER · X SPECIAL · Y EVADE',
-          HUD_LEFT,
-          24,
-        )
+        // The button legend teaches Act I, then gives the bar back (presentation critic P-21); with three or
+        // four pilots their status needs the room.
+        if (act === 1 && activePlayers <= 2)
+          g.fillText(
+            // Short enough to clear P1's status on the right of the same row.
+            'A FIRE · B HOLD FOCUS/TAP SUPER · X SPECIAL · Y EVADE',
+            HUD_LEFT,
+            24,
+          )
         g.textAlign = 'right'
-        g.fillText(`SHOALS ${clearCount}  ·  NOVAS ${supers}`, HUD_RIGHT, 12)
-        if (activePlayers > 1) {
-          g.fillStyle = '#180d38e8'
-          g.fillRect(HUD_RIGHT - 150, 29, 158, (activePlayers - 1) * 10 + 4)
-        }
+        if (activePlayers <= 2)
+          g.fillText(
+            `SHOALS ${clearCount}  ·  NOVAS ${supers}`,
+            activePlayers === 1 ? HUD_RIGHT : HUD_RIGHT - HUD_STATUS_COLUMN,
+            12,
+          )
+        // Every pilot's status lives inside the 29 px bar, never over the playfield or the boss bar
+        // (gameplay critic D4, presentation critic P-08): pilots 1-2 in the right column, 3-4 beside them.
         for (let seat = 0; seat < activePlayers; seat++) {
           const ship = ships[seat]!
+          const slot = rainbowHudStatusSlot(seat, activePlayers)
           g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
           g.fillText(
             `${SHIP_NAMES[pilotOf(seat)]} ${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${ship.charge}%${ship.specialCooldown ? '' : ' X'}${ship.evadeCooldown ? '' : ' Y'}`,
-            HUD_RIGHT,
-            24 + seat * 10,
+            HUD_RIGHT - slot.column * HUD_STATUS_COLUMN,
+            slot.y,
           )
         }
         g.textAlign = 'left'
@@ -9213,7 +9544,8 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#aef6f0'
         g.font = 'bold 10px monospace'
         g.fillText(
-          `${scene?.id ?? callout?.id} / ${dialogue.speaker.toUpperCase()}${callSignFor(dialogue.speaker)}`,
+          // The speaker and call sign only; scene ids stay internal (story critic S17).
+          `${dialogue.speaker.toUpperCase()}${callSignFor(dialogue.speaker)}`,
           textX,
           16,
         )
@@ -9243,6 +9575,7 @@ export function createRainbowPrincessPreview(
             plateX,
             ENDING_PLATE_TOP,
             ENDING_PLATE_WIDTH,
+            allegiance,
           )
           if (plateHeight) {
             const captionY = ENDING_PLATE_TOP + plateHeight - 15
@@ -9397,6 +9730,7 @@ export function createRainbowPrincessPreview(
               ),
               callSign: livery?.callSign,
               route: routeFlags(),
+              stoodDown,
             },
           )
           const top =
@@ -9492,7 +9826,8 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#ffe9b3'
         g.font = 'bold 8px monospace'
         g.textAlign = 'right'
-        g.fillText(
+        footerText(
+          g,
           'X2 · CADETS ' +
             cometCadetsMask.toString(2).replace(/0/g, '').length +
             '/4 · ' +
@@ -9500,8 +9835,6 @@ export function createRainbowPrincessPreview(
               (section) =>
                 cometFrame() >= section.from && cometFrame() < section.to,
             )?.name.toUpperCase() ?? 'CORAL COMET'),
-          W - 8,
-          H - 8,
         )
         g.restore()
       }
@@ -9510,7 +9843,8 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#ffe9b3'
         g.font = 'bold 8px monospace'
         g.textAlign = 'right'
-        g.fillText(
+        footerText(
+          g,
           'X1 · CHOIR ' +
             nurseryChoirMask.toString(2).replace(/0/g, '').length +
             '/5 · ' +
@@ -9518,8 +9852,6 @@ export function createRainbowPrincessPreview(
               (section) =>
                 nurseryFrame() >= section.from && nurseryFrame() < section.to,
             )?.name.toUpperCase() ?? 'LANTERN NURSERY'),
-          W - 8,
-          H - 8,
         )
         g.restore()
       }
@@ -9528,15 +9860,14 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#ffe9b3'
         g.font = 'bold 8px monospace'
         g.textAlign = 'right'
-        g.fillText(
+        footerText(
+          g,
           `X3 · LIGHTS ${lighthouseLamps.toString(2).replace(/0/g, '').length}/6 · ` +
             (LIGHTHOUSE_SECTIONS.find(
               (section) =>
                 lighthouseFrame() >= section.from &&
                 lighthouseFrame() < section.to,
             )?.name.toUpperCase() ?? 'SUNKEN LIGHTHOUSE'),
-          W - 8,
-          H - 8,
         )
         g.restore()
       }
@@ -9545,14 +9876,13 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#ffd5f5'
         g.font = 'bold 8px monospace'
         g.textAlign = 'right'
-        g.fillText(
+        footerText(
+          g,
           'X4 · ' +
             (SHOAL_SECTIONS.find(
               (section) =>
                 shoalFrame() >= section.from && shoalFrame() < section.to,
             )?.name.toUpperCase() ?? 'MIRROR SHOAL'),
-          W - 8,
-          H - 8,
         )
         g.restore()
       }
@@ -9614,12 +9944,11 @@ export function createRainbowPrincessPreview(
           g.font = '8px monospace'
           g.textAlign = 'right'
           g.fillStyle = reefRoute === 'relay' ? '#ffd27a' : '#9ff3ff'
-          g.fillText(
+          footerText(
+            g,
             reefRoute === 'relay'
               ? `ROUTE · DAMAGE RELAY · PYLONS ${pylonsDown}/${CROWN_REEF_PYLONS}`
               : 'ROUTE · SHIELD CACHE',
-            W - 8,
-            H - 8,
           )
           g.restore()
         }
@@ -9655,10 +9984,9 @@ export function createRainbowPrincessPreview(
           g.font = '8px monospace'
           g.textAlign = 'right'
           g.fillStyle = wreckRoute === 'depot' ? '#c7ffe6' : '#ffb38a'
-          g.fillText(
+          footerText(
+            g,
             `${wreckRoute === 'depot' ? `DEPOT · SURVIVORS ${podsSaved}` : 'ARMORY RAID'} · ${Math.ceil((WRECK_FORK.rejoinAt - frame) / 60)}s`,
-            W - 8,
-            H - 8,
           )
           g.restore()
         }
@@ -9693,12 +10021,11 @@ export function createRainbowPrincessPreview(
           g.font = '8px monospace'
           g.textAlign = 'right'
           g.fillStyle = trenchRoute === 'vault' ? '#ffd36e' : '#9ff3ff'
-          g.fillText(
+          footerText(
+            g,
             trenchRoute === 'vault'
               ? 'ROUTE · SALVAGE VAULT'
               : 'ROUTE · SAFE PASSAGE',
-            W - 8,
-            H - 8,
           )
           g.restore()
         }
@@ -9786,6 +10113,13 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#0c0620d0'
         g.fillRect(0, 0, W, H)
         g.textAlign = 'center'
+        // Lilt speaks the continue beat (story critic S16).
+        g.fillStyle = '#aef6f0'
+        g.font = 'bold 9px monospace'
+        g.fillText('LILT-7', W / 2, 62)
+        g.fillStyle = '#fff4fa'
+        g.font = '9px monospace'
+        g.fillText(rainbowContinueLine(checkpoint.act), W / 2, 76)
         g.fillStyle = '#ffd2ef'
         g.font = 'bold 22px monospace'
         g.fillText('CONTINUE?', W / 2, 104)
@@ -9808,16 +10142,14 @@ export function createRainbowPrincessPreview(
         g.restore()
       }
       if (failFrame !== null) {
-        const flags = palaceFlags()
-        const rescues =
-          Number(rescuedStation) +
-          Number(flags.rescuedNemi) +
-          Number(flags.rescuedCourier) +
-          Number(flags.freedDepot) +
-          Number(flags.stoppedRelay) +
-          Number(flags.rescuedNavigator) +
-          flags.captivesFreed
-        const lines = failureLines(currentAct(), rescues, savedAct)
+        // One rescue tally everywhere: the finale's six, palace captives named apart (story critic S15).
+        const flags = finaleFlags()
+        const lines = failureLines(
+          currentAct(),
+          finaleRescues(flags),
+          savedAct,
+          flags.captivesFreed,
+        )
         g.save()
         g.fillStyle = '#05030fe6'
         g.fillRect(0, 0, W, H)

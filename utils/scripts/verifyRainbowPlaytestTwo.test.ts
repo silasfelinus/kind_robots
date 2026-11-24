@@ -11,6 +11,7 @@ import {
 } from '../arcade/games/rainbowPinkwake'
 import {
   MORTAR,
+  MORTAR_SHELLS,
   RAINBOW_SHIP_SPEED,
   createRainbowPrincessPreview,
 } from '../arcade/games/rainbowPrincessPreview'
@@ -59,6 +60,28 @@ assert.ok(
   'mortars join Act I',
 )
 
+// D7 (independent gameplay critic): each Act lobs its own shell from the same launcher, every one distinct, and
+// none buries a lane: the final pellet count stays between six and sixteen.
+{
+  const PELLETS = { split: 3, cross: 4, ring: 8 } as const
+  const shells = Object.values(MORTAR_SHELLS)
+  assert.equal(shells.length, 8, 'a shell for every Act I-VIII')
+  assert.equal(new Set(shells.map((s) => s.name)).size, 8)
+  assert.equal(
+    new Set(shells.map((s) => `${s.count}/${s.then}/${s.arc}/${s.heading}`))
+      .size,
+    8,
+    'no two Acts burst alike',
+  )
+  for (const shell of shells) {
+    const pellets = shell.count * (shell.then ? PELLETS[shell.then] : 1)
+    assert.ok(
+      pellets >= 6 && pellets <= 16,
+      `${shell.name} bursts into ${pellets}`,
+    )
+  }
+}
+
 function seeded(seed = 1234) {
   let state = seed
   return () => {
@@ -98,7 +121,7 @@ for (let frame = 0; frame < 14000; frame++) {
       (s) => s.burst === 'split' && Math.hypot(s.x - x, s.y - y) < 1e-6,
     )
     if (bomblets.length) {
-      assert.equal(bomblets.length, MORTAR.bomblets)
+      assert.equal(bomblets.length, MORTAR_SHELLS[1].count)
       seen.bomblets += bomblets.length
     }
   }

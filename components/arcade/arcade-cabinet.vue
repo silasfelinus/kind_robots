@@ -10,6 +10,8 @@
         'arcade-cabinet--fullscreen': fullscreen,
         'arcade-cabinet--contained': contained,
         'arcade-cabinet--paddle': paddleMode,
+        'arcade-cabinet--compact': compactPanel,
+        'arcade-cabinet--side-panel': sidePanel,
       }"
       :style="{ '--arcade-accent': meta?.accent ?? '#f472b6' }"
       @contextmenu="onContextMenu"
@@ -40,7 +42,8 @@
           {{
             store.spectrumCloudStatus === 'synced'
               ? '☁ Career synced'
-              : store.spectrumCloudStatus === 'checking'
+              : store.spectrumCloudStatus === 'checking' ||
+                  store.spectrumCloudStatus === 'saving'
                 ? '☁ Syncing'
                 : store.spectrumCloudStatus === 'offline'
                   ? '⚠ Saved on device'
@@ -49,7 +52,13 @@
         </span>
       </div>
 
-      <div ref="wrapRef" class="cabinet-screen-wrap">
+      <div
+        v-if="clearStageWanted"
+        ref="safeProbeRef"
+        class="cabinet-safe-probe"
+        aria-hidden="true"
+      />
+      <div ref="wrapRef" class="cabinet-screen-wrap" :style="wrapStyle">
         <div
           class="cabinet-bezel"
           :class="{ 'cabinet-bezel--fill': fillsScreen }"
@@ -95,8 +104,14 @@
             'cabinet-overlay--duo': duo,
             'cabinet-overlay--twin': aiming,
             'cabinet-overlay--paddle': paddleMode,
+            'cabinet-overlay--clear': touchPlan !== null,
           },
         ]"
+        :style="
+          touchPlan
+            ? { '--key': `${touchPlan.key}px`, '--ball': `${touchPlan.ball}px` }
+            : undefined
+        "
         aria-label="Touch controls"
       >
         <ArcadePinballTouch
@@ -156,12 +171,23 @@
           type="button"
           class="cabinet-pause-chip"
           aria-label="Pause"
+          :style="placedAt(touchPlan?.pauseChip)"
           @click="togglePause"
         >
           <span aria-hidden="true">❚❚</span>
         </button>
+        <p
+          v-if="touchPlan?.hint"
+          class="cabinet-rotate-hint"
+          :style="placedAt(touchPlan.hint, true)"
+        >
+          <span aria-hidden="true">⟳</span> Turn sideways for a bigger view
+        </p>
         <!-- Always on screen while locked: the way out, and fullscreen. -->
-        <div class="cabinet-corner-chips">
+        <div
+          class="cabinet-corner-chips"
+          :style="placedAt(touchPlan?.cornerChips)"
+        >
           <button
             type="button"
             class="cabinet-corner-chip"
@@ -193,6 +219,7 @@
             :ref="(el) => setDpadRef(seat, el)"
             class="cabinet-dpad"
             :class="{ 'cabinet-dpad--compact': compactDpad }"
+            :style="placedAt(touchPlan?.clusters[seat]?.dpad)"
             role="group"
             :aria-label="
               duo ? `Player ${seat + 1} direction pad` : 'Direction pad'
@@ -222,6 +249,7 @@
               'cabinet-buttons--four': fourButtons && !duo,
               'cabinet-buttons--labelled': labelled,
             }"
+            :style="placedAt(touchPlan?.clusters[seat]?.buttons)"
           >
             <template v-if="fourButtons && !duo">
               <button
@@ -302,7 +330,12 @@
               aria-hidden="true"
             />
           </div>
-          <span v-if="duo" class="cabinet-seat-tag" aria-hidden="true">
+          <span
+            v-if="duo"
+            class="cabinet-seat-tag"
+            :style="placedAt(touchPlan?.clusters[seat]?.tag)"
+            aria-hidden="true"
+          >
             {{ seat + 1 }}P
           </span>
         </div>
@@ -394,155 +427,175 @@
             {{ phase === 'paused' ? 'Resume' : 'Pause' }}
           </button>
           <button
-            v-if="hasGuide"
+            v-if="compactPanel"
             type="button"
-            class="cabinet-switch"
-            :aria-pressed="guideOpen"
-            :disabled="!guideOpen && !canOpenGuide"
-            title="How this table plays"
-            @click="toggleGuide"
+            class="cabinet-switch cabinet-settings-toggle"
+            :aria-expanded="settingsOpen"
+            aria-controls="cabinet-settings"
+            @click="toggleSettings"
           >
-            {{ guideOpen ? 'Close guide' : 'Table guide' }}
-          </button>
-          <button
-            type="button"
-            class="cabinet-switch"
-            :aria-pressed="muted"
-            @click="toggleMute"
-          >
-            {{ muted ? 'Sound off' : 'Sound on' }}
-          </button>
-          <label class="cabinet-switch cabinet-volume">
-            <span>Vol</span>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              :value="volume"
-              :disabled="muted"
-              aria-label="Arcade volume"
-              @input="onVolumeInput"
-            />
-          </label>
-          <button
-            type="button"
-            class="cabinet-switch"
-            :aria-pressed="crt"
-            @click="toggleCrt"
-          >
-            {{ crt ? 'CRT on' : 'CRT off' }}
-          </button>
-          <button
-            v-if="meta?.difficulty"
-            type="button"
-            class="cabinet-switch"
-            :title="`Difficulty: ${difficultyName}. Click to change; it applies from the next game.`"
-            @click="cycleDifficulty"
-          >
-            {{ difficultyName }}
-          </button>
-          <button
-            v-if="meta?.touchLayout === 'pinball'"
-            type="button"
-            class="cabinet-switch"
-            :aria-pressed="stillCamera"
-            title="A still camera never sweeps, and cuts instead of panning"
-            @click="toggleStillCamera"
-          >
-            {{ stillCamera ? 'Camera still' : 'Camera moves' }}
-          </button>
-          <button
-            v-else-if="meta?.calmMotion"
-            type="button"
-            class="cabinet-switch"
-            :aria-pressed="stillCamera"
-            title="Calm motion: no screen flashes or shockwaves, fewer sparks and slower scenery"
-            @click="toggleStillCamera"
-          >
-            {{ stillCamera ? 'Motion calm' : 'Motion full' }}
-          </button>
-          <button
-            v-if="meta?.highContrast"
-            type="button"
-            class="cabinet-switch"
-            :aria-pressed="highContrast"
-            title="High-contrast shots: every enemy shot sits on a solid black disc with a white ring"
-            @click="toggleHighContrast"
-          >
-            {{ highContrast ? 'Shots bold' : 'Shots normal' }}
-          </button>
-          <button
-            v-if="meta?.comms"
-            type="button"
-            class="cabinet-switch"
-            :title="`Comms: ${COMMS_TITLES[comms]} Click to change.`"
-            @click="cycleComms"
-          >
-            {{ COMMS_NAMES[comms] }}
-          </button>
-          <button
-            v-if="meta?.remap"
-            type="button"
-            class="cabinet-switch"
-            :aria-expanded="remapOpen"
-            aria-controls="cabinet-remap"
-            title="Give each action button a key of your own"
-            @click="toggleRemap"
-          >
-            Keys
+            Settings
           </button>
           <div
-            v-if="meta?.remap && remapOpen"
-            id="cabinet-remap"
-            class="cabinet-remap"
+            v-show="!compactPanel || settingsOpen"
+            id="cabinet-settings"
+            class="cabinet-settings"
+            :class="{ 'cabinet-settings--popover': compactPanel }"
+            :style="compactPanel ? settingsBox : undefined"
             role="group"
-            aria-label="Your keys for the action buttons"
+            aria-label="Cabinet settings"
           >
-            <span v-for="button in REMAPPABLE_BUTTONS" :key="button">
-              <button
-                type="button"
-                class="cabinet-switch"
-                :aria-pressed="remapListening === button"
-                :aria-label="
-                  remapListening === button
-                    ? `Press a key for ${button.toUpperCase()}, or Escape to cancel`
-                    : `${button.toUpperCase()}: ${remapLabel(button)}. Change`
-                "
-                @click="listenForKey(button)"
-              >
-                {{ button.toUpperCase() }}
-                {{
-                  remapListening === button
-                    ? '…press a key'
-                    : remapLabel(button)
-                }}
-              </button>
-            </span>
-            <button type="button" class="cabinet-switch" @click="resetRemap">
-              Default keys
+            <button
+              v-if="hasGuide"
+              type="button"
+              class="cabinet-switch"
+              :aria-pressed="guideOpen"
+              :disabled="!guideOpen && !canOpenGuide"
+              title="How this table plays"
+              @click="toggleGuide"
+            >
+              {{ guideOpen ? 'Close guide' : 'Table guide' }}
             </button>
-            <span class="cabinet-remap-note" aria-live="polite">{{
-              remapNote
-            }}</span>
+            <button
+              type="button"
+              class="cabinet-switch"
+              :aria-pressed="muted"
+              @click="toggleMute"
+            >
+              {{ muted ? 'Sound off' : 'Sound on' }}
+            </button>
+            <label class="cabinet-switch cabinet-volume">
+              <span>Vol</span>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                :value="volume"
+                :disabled="muted"
+                aria-label="Arcade volume"
+                @input="onVolumeInput"
+              />
+            </label>
+            <button
+              type="button"
+              class="cabinet-switch"
+              :aria-pressed="crt"
+              @click="toggleCrt"
+            >
+              {{ crt ? 'CRT on' : 'CRT off' }}
+            </button>
+            <button
+              v-if="meta?.difficulty"
+              type="button"
+              class="cabinet-switch"
+              :title="`Difficulty: ${difficultyName}. Click to change; it applies from the next game.`"
+              @click="cycleDifficulty"
+            >
+              {{ difficultyName }}
+            </button>
+            <button
+              v-if="meta?.touchLayout === 'pinball'"
+              type="button"
+              class="cabinet-switch"
+              :aria-pressed="stillCamera"
+              title="A still camera never sweeps, and cuts instead of panning"
+              @click="toggleStillCamera"
+            >
+              {{ stillCamera ? 'Camera still' : 'Camera moves' }}
+            </button>
+            <button
+              v-else-if="meta?.calmMotion"
+              type="button"
+              class="cabinet-switch"
+              :aria-pressed="stillCamera"
+              title="Calm motion: no screen flashes or shockwaves, fewer sparks and slower scenery"
+              @click="toggleStillCamera"
+            >
+              {{ stillCamera ? 'Motion calm' : 'Motion full' }}
+            </button>
+            <button
+              v-if="meta?.highContrast"
+              type="button"
+              class="cabinet-switch"
+              :aria-pressed="highContrast"
+              title="High-contrast shots: every enemy shot sits on a solid black disc with a white ring"
+              @click="toggleHighContrast"
+            >
+              {{ highContrast ? 'Shots bold' : 'Shots normal' }}
+            </button>
+            <button
+              v-if="meta?.comms"
+              type="button"
+              class="cabinet-switch"
+              :title="`Comms: ${COMMS_TITLES[comms]} Click to change.`"
+              @click="cycleComms"
+            >
+              {{ COMMS_NAMES[comms] }}
+            </button>
+            <button
+              v-if="meta?.remap"
+              type="button"
+              class="cabinet-switch"
+              :aria-expanded="remapOpen"
+              aria-controls="cabinet-remap"
+              title="Give each action button a key of your own"
+              @click="toggleRemap"
+            >
+              Keys
+            </button>
+            <div
+              v-if="meta?.remap && remapOpen"
+              id="cabinet-remap"
+              class="cabinet-remap"
+              role="group"
+              aria-label="Your keys for the action buttons"
+            >
+              <span v-for="button in REMAPPABLE_BUTTONS" :key="button">
+                <button
+                  type="button"
+                  class="cabinet-switch"
+                  :aria-pressed="remapListening === button"
+                  :aria-label="
+                    remapListening === button
+                      ? `Press a key for ${button.toUpperCase()}, or Escape to cancel`
+                      : `${button.toUpperCase()}: ${remapLabel(button)}. Change`
+                  "
+                  @click="listenForKey(button)"
+                >
+                  {{ button.toUpperCase() }}
+                  {{
+                    remapListening === button
+                      ? '…press a key'
+                      : remapLabel(button)
+                  }}
+                </button>
+              </span>
+              <button type="button" class="cabinet-switch" @click="resetRemap">
+                Default keys
+              </button>
+              <span class="cabinet-remap-note" aria-live="polite">{{
+                remapNote
+              }}</span>
+            </div>
+            <button
+              type="button"
+              class="cabinet-switch"
+              :title="`Render style: ${RENDER_STYLE_NAMES[renderStyle]} (click for ${RENDER_STYLE_NAMES[otherStyle]})`"
+              @click="toggleRenderStyle"
+            >
+              {{ RENDER_STYLE_NAMES[renderStyle] }}
+            </button>
+            <button
+              type="button"
+              class="cabinet-switch"
+              :aria-pressed="fullscreen"
+              @click="toggleFullscreen"
+            >
+              {{ fullscreen ? 'Exit fullscreen' : 'Fullscreen' }}
+            </button>
+            <span class="cabinet-coin">Free play</span>
           </div>
-          <button
-            type="button"
-            class="cabinet-switch"
-            :title="`Render style: ${RENDER_STYLE_NAMES[renderStyle]} (click for ${RENDER_STYLE_NAMES[otherStyle]})`"
-            @click="toggleRenderStyle"
-          >
-            {{ RENDER_STYLE_NAMES[renderStyle] }}
-          </button>
-          <button
-            type="button"
-            class="cabinet-switch"
-            :aria-pressed="fullscreen"
-            @click="toggleFullscreen"
-          >
-            {{ fullscreen ? 'Exit fullscreen' : 'Fullscreen' }}
-          </button>
-          <span class="cabinet-coin">Free play</span>
         </div>
       </div>
     </div>
@@ -626,6 +679,11 @@ import {
   type ArcadeMusicScene,
 } from '~/utils/arcade/soundtrackBriefs'
 import { setGamePageLock } from '~/utils/arcade/pageLock'
+import {
+  planTouchStage,
+  type TouchBox,
+  type TouchStagePlan,
+} from '~/utils/arcade/touchStage'
 import { drawText, lineStep, measureText } from '~/utils/arcade/font'
 import { mulberry32 } from '~/utils/arcade/curve'
 import { INITIALS_ALPHABET, isAllowedInitials } from '~/utils/arcade/initials'
@@ -920,6 +978,134 @@ const screenStyle = computed<CSSProperties>(() =>
     : { aspectRatio: `${meta.value?.width ?? 4} / ${meta.value?.height ?? 3}` },
 )
 
+/**
+ * A game that keeps its touch controls off the stage (meta.touchClearStage) gets a planned layout
+ * while it plays: the stage fits what the controls leave, and each control sits where the plan says.
+ */
+const clearStageWanted = computed(
+  () =>
+    meta.value?.touchClearStage === true &&
+    locked.value &&
+    !pinballPad.value &&
+    !paddleMode.value &&
+    !aiming.value &&
+    !labelled.value,
+)
+const safeProbeRef = ref<HTMLDivElement | null>(null)
+/** The area inside the safe-area insets, and the insets, measured by fitScreen. */
+const touchArea = ref<
+  (TouchBox & { right: number; bottom: number; viewportMin: number }) | null
+>(null)
+const touchPlan = computed<TouchStagePlan | null>(() => {
+  const area = touchArea.value
+  if (!clearStageWanted.value || !area) return null
+  return planTouchStage(
+    {
+      area,
+      aspect: (meta.value?.width ?? 4) / (meta.value?.height ?? 3),
+      seats: players.value,
+      fourButtons: fourButtons.value && !duo.value,
+      cornerChips: canFullscreen.value ? 2 : 1,
+    },
+    area.viewportMin,
+  )
+})
+const wrapStyle = computed<CSSProperties | undefined>(() => {
+  const plan = touchPlan.value
+  const area = touchArea.value
+  if (!plan || !area) return undefined
+  const { reserve } = plan
+  return {
+    padding: `${area.top + reserve.top}px ${area.right + reserve.right}px ${area.bottom + reserve.bottom}px ${area.left + reserve.left}px`,
+    alignItems: plan.align,
+  }
+})
+
+/** Inline position for a planned control (none without a plan, so the stylesheet places it). */
+function placedAt(box: TouchBox | null | undefined, sized = false) {
+  if (!box) return undefined
+  return {
+    left: `${box.left}px`,
+    top: `${box.top}px`,
+    right: 'auto',
+    bottom: 'auto',
+    ...(sized ? { width: `${box.width}px`, height: `${box.height}px` } : {}),
+  }
+}
+
+function measureTouchArea(wrap: HTMLElement) {
+  const probe = safeProbeRef.value
+  const style = probe ? getComputedStyle(probe) : null
+  const inset = (value: string | undefined) => parseFloat(value ?? '') || 0
+  const top = inset(style?.paddingTop)
+  const right = inset(style?.paddingRight)
+  const bottom = inset(style?.paddingBottom)
+  const left = inset(style?.paddingLeft)
+  const next = {
+    left,
+    top,
+    right,
+    bottom,
+    width: wrap.clientWidth - left - right,
+    height: wrap.clientHeight - top - bottom,
+    viewportMin: Math.min(wrap.clientWidth, wrap.clientHeight),
+  }
+  const now = touchArea.value
+  if (
+    !now ||
+    (Object.keys(next) as Array<keyof typeof next>).some(
+      (key) => Math.abs(now[key] - next[key]) > 0.5,
+    )
+  )
+    touchArea.value = next
+}
+
+/**
+ * A contained cabinet on a short or narrow screen (meta.compactSettings) keeps only Start, the
+ * player switch and one Settings button under (or, sideways, beside) its screen; the other
+ * switches open in a pop-over over the screen, so the title screen keeps the height.
+ */
+const shortScreen = ref(false)
+const landscapeScreen = ref(false)
+let screenQueries: MediaQueryList[] = []
+const compactPanel = computed(
+  () =>
+    meta.value?.compactSettings === true &&
+    contained.value &&
+    shortScreen.value &&
+    !locked.value &&
+    !fullscreen.value,
+)
+const sidePanel = computed(() => compactPanel.value && landscapeScreen.value)
+const settingsOpen = ref(false)
+const settingsBox = ref<CSSProperties>({})
+
+function readScreenQueries() {
+  shortScreen.value = screenQueries[0]?.matches ?? false
+  landscapeScreen.value = screenQueries[1]?.matches ?? false
+}
+
+function toggleSettings() {
+  settingsOpen.value = !settingsOpen.value
+  if (settingsOpen.value) placeSettings()
+}
+
+/** The pop-over covers the screen, inside the cabinet, whatever side the switches are on. */
+function placeSettings() {
+  const cabinet = cabinetRef.value
+  const wrap = wrapRef.value
+  if (!cabinet || !wrap) return
+  const outer = cabinet.getBoundingClientRect()
+  const inner = wrap.getBoundingClientRect()
+  const top = Math.max(inner.top, 0)
+  settingsBox.value = {
+    left: `${inner.left - outer.left - cabinet.clientLeft + 6}px`,
+    top: `${top - outer.top - cabinet.clientTop + 6}px`,
+    width: `${Math.max(0, inner.width - 12)}px`,
+    height: `${Math.max(0, inner.bottom - top - 12)}px`,
+  }
+}
+
 /** Size the bezel to the largest screen that fits the measured play area. */
 function fitScreen() {
   const wrap = wrapRef.value
@@ -928,6 +1114,16 @@ function fitScreen() {
     fittedHeight.value = 0
     return
   }
+  if (clearStageWanted.value) {
+    measureTouchArea(wrap)
+    const plan = touchPlan.value
+    if (plan) {
+      fittedWidth.value = plan.stage.width
+      fittedHeight.value = 0
+      return
+    }
+  }
+  if (settingsOpen.value) placeSettings()
   const style = getComputedStyle(wrap)
   const width =
     wrap.clientWidth -
@@ -1348,9 +1544,15 @@ function syncMusic(instance: ArcadePlayableInstance | null) {
 
 /** The last progress a game asked to keep, so the store is written only when it changes. */
 let lastSave: unknown = undefined
+let spectrumRunOwner: number | null = null
 
 /** Keep a long game's progress (a real game's only; demos never save). */
 function keepSave(instance: ArcadePlayableInstance | null) {
+  if (
+    props.slug === 'superkate-spectrum' &&
+    spectrumRunOwner !== (useUserStore().authenticatedUserId ?? null)
+  )
+    return
   if (
     isRainbowReplay.value ||
     !instance ||
@@ -1495,6 +1697,7 @@ function startGame() {
     }),
   )
   lastSave = undefined
+  spectrumRunOwner = useUserStore().authenticatedUserId ?? null
   gameMenu.value = menuOpenOf(game)
   paddleActions.value =
     game && 'touchActions' in game ? (game.touchActions ?? {}) : {}
@@ -2291,6 +2494,10 @@ function onKey(event: KeyboardEvent) {
     closeGuide()
     return
   }
+  if (settingsOpen.value && event.code === 'Escape') {
+    settingsOpen.value = false
+    return
+  }
   if (event.code === 'KeyP' || event.code === 'Escape') {
     togglePause()
     return
@@ -2396,7 +2603,9 @@ function cycleComms() {
   for (const instance of [game, demoGame]) instance?.setComms?.(next)
 }
 
+let bootGeneration = 0
 async function boot() {
+  const generation = ++bootGeneration
   retire(game)
   retire(demoGame)
   game = null
@@ -2412,6 +2621,7 @@ async function boot() {
   machine = initialArcadeState()
   phase.value = machine.phase
   if (info.slug === 'superkate-spectrum') await store.syncSuperkateCareer()
+  if (generation !== bootGeneration) return
   if (titleArt) {
     titleArtReady = false
     titleArt.onload = () => {
@@ -2420,9 +2630,12 @@ async function boot() {
     titleArt.src = info.titleArt
   }
   try {
-    gameModule = await loadArcadeGame(info.slug)
+    const loaded = await loadArcadeGame(info.slug)
+    if (generation !== bootGeneration) return
+    gameModule = loaded
     hasGuide.value = typeof gameModule.guide === 'function'
   } catch {
+    if (generation !== bootGeneration) return
     loadError.value = 'This cabinet could not start. Try reloading.'
   }
   void store.fetchBoard(info.slug, 'all')
@@ -2453,6 +2666,13 @@ onMounted(() => {
   if (screenRef.value) resizeObserver.observe(screenRef.value)
   wrapObserver = new ResizeObserver(fitScreen)
   if (wrapRef.value) wrapObserver.observe(wrapRef.value)
+  screenQueries = [
+    window.matchMedia('(max-height: 540px), (max-width: 540px)'),
+    window.matchMedia('(orientation: landscape)'),
+  ]
+  for (const query of screenQueries)
+    query.addEventListener('change', readScreenQueries)
+  readScreenQueries()
   void boot()
   const doc = document as WebkitDocument
   canFullscreen.value = Boolean(
@@ -2464,9 +2684,15 @@ onMounted(() => {
 
 const userForArcade = useUserStore()
 watch(
-  () => [userForArcade.authenticatedUserId, userForArcade.token],
-  () => {
-    if (props.slug === 'superkate-spectrum') void store.syncSuperkateCareer()
+  () => [userForArcade.authenticatedUserId, userForArcade.token] as const,
+  ([owner], [previousOwner]) => {
+    if (props.slug !== 'superkate-spectrum') return
+    if (owner !== previousOwner) {
+      releaseInterruptedInput()
+      void boot()
+    } else {
+      void store.syncSuperkateCareer()
+    }
   },
 )
 
@@ -2487,6 +2713,18 @@ watch(
     void boot().then(applySeats)
   },
 )
+
+watch(compactPanel, (on) => {
+  if (!on) settingsOpen.value = false
+})
+
+watch(phase, (now) => {
+  if (now === 'playing') settingsOpen.value = false
+})
+
+watch([players, canFullscreen], () => {
+  void nextTick(fitScreen)
+})
 
 watch(players, () => {
   releaseTouch()
@@ -2524,6 +2762,7 @@ watch(locked, (on) => {
 })
 
 onBeforeUnmount(() => {
+  bootGeneration++
   loop?.stop()
   for (const seatIn of inputs) seatIn.detach()
   window.removeEventListener('gamepadconnected', applySeats)
@@ -2538,6 +2777,8 @@ onBeforeUnmount(() => {
   if (fullscreenElement() === cabinetRef.value) void toggleFullscreen()
   resizeObserver?.disconnect()
   wrapObserver?.disconnect()
+  for (const query of screenQueries)
+    query.removeEventListener('change', readScreenQueries)
   sound?.dispose()
   retire(game)
   retire(demoGame)
@@ -2964,6 +3205,36 @@ onBeforeUnmount(() => {
   letter-spacing: -0.1em;
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
+}
+
+/* Measures the safe-area insets for a planned touch layout (touchStage.ts). */
+.cabinet-safe-probe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  visibility: hidden;
+  pointer-events: none;
+  padding: max(0.4rem, env(safe-area-inset-top))
+    max(0.4rem, env(safe-area-inset-right))
+    max(0.4rem, env(safe-area-inset-bottom))
+    max(0.4rem, env(safe-area-inset-left));
+}
+
+.cabinet-overlay .cabinet-rotate-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0;
+  pointer-events: none;
+  color: rgba(253, 230, 138, 0.85);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
 }
 
 /* Upright, the screen sits at the top so the controls get the room below it,
@@ -3567,5 +3838,79 @@ onBeforeUnmount(() => {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   box-shadow: inset 0 0 6px rgba(134, 239, 172, 0.5);
+}
+
+/* Short screens (meta.compactSettings): Start, players and Settings; the rest in a pop-over. */
+.cabinet-settings {
+  display: contents;
+}
+
+.arcade-cabinet--compact {
+  position: relative;
+}
+
+.arcade-cabinet--contained.arcade-cabinet--compact:not(
+    .arcade-cabinet--locked
+  ):not(.arcade-cabinet--fullscreen)
+  .cabinet-panel {
+  max-height: none;
+  overflow: visible;
+}
+
+.cabinet-settings--popover {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 2px solid rgba(253, 230, 138, 0.5);
+  border-radius: 1rem;
+  background: rgba(15, 10, 46, 0.95);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+}
+
+.cabinet-settings-toggle[aria-expanded='true'] {
+  background: #fde68a;
+  color: #1e1b4b;
+}
+
+/* Sideways and short, the three switches stand beside the screen instead of under it. */
+.arcade-cabinet.arcade-cabinet--side-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.arcade-cabinet--side-panel .cabinet-marquee,
+.arcade-cabinet--side-panel .cabinet-title-plate {
+  grid-column: 1 / -1;
+}
+
+.arcade-cabinet--side-panel .cabinet-screen-wrap {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.arcade-cabinet--contained.arcade-cabinet--side-panel:not(
+    .arcade-cabinet--locked
+  ):not(.arcade-cabinet--fullscreen)
+  .cabinet-panel {
+  grid-column: 2;
+  grid-row: 3;
+  justify-content: center;
+  border-top: 0;
+  border-left: 4px solid #fde68a;
+}
+
+.arcade-cabinet--side-panel .cabinet-panel > .cabinet-switches {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
 }
 </style>

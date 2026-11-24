@@ -943,6 +943,8 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     comms: true,
     remap: true,
     fourButtons: true,
+    touchClearStage: true,
+    compactSettings: true,
   },
 ]
 

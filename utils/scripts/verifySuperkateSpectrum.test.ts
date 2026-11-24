@@ -2,6 +2,12 @@ import assert from 'node:assert/strict'
 import {
   COLS,
   ROWS,
+  CHAPTER_RULES,
+  STORY_LAYOUTS,
+  pressureAfterShot,
+  pressureLimit,
+  specialForStage,
+  detachUnanchored,
   activeHues,
   attachAndPop,
   fireSpecial,
@@ -31,7 +37,12 @@ import {
   endingForStory,
   pendingStoryDecision,
 } from '../arcade/superkateSpectrum/story'
-import { create } from '../arcade/games/superkateSpectrum'
+import {
+  BOSS_PATTERNS,
+  bossContact,
+  bossTarget,
+  create,
+} from '../arcade/games/superkateSpectrum'
 import {
   SPECTRUM_BOSS_MUSIC,
   SPECTRUM_CLASSIC_MUSIC,
@@ -114,11 +125,53 @@ assert.ok(
   attachAndPop(firstLesson, { row: 3, col: 0 }, 'pink').matched >= 3,
   'The first hand-authored tutorial permits an immediate matching shot',
 )
-const palette = makeBoard(30, () => 0.99)
+const palette = makeBoard(30, () => 0.99, 'classic')
 assert.ok(activeHues(palette).includes('lime'))
 assert.equal(
   chooseHue(palette, () => 0),
   'lime',
+)
+assert.equal(STORY_LAYOUTS.length, 30)
+const allStoryBoards = new Set<string>()
+for (let stage = 1; stage <= 30; stage++) {
+  const authored = makeBoard(stage, () => {
+    throw new Error('Story layout must not consume random numbers')
+  })
+  assert.equal(authored.length, ROWS)
+  assert.ok(authored.every((row) => row.length === COLS))
+  assert.ok(STORY_LAYOUTS[stage - 1]!.every((row) => row.length === COLS))
+  assert.ok(authored[0]!.some(Boolean))
+  assert.ok(!authored[ROWS - 1]!.some(Boolean))
+  allStoryBoards.add(JSON.stringify(authored))
+  if (stage > 5)
+    assert.equal(
+      detachUnanchored(authored),
+      0,
+      'Every new puzzle starts anchored',
+    )
+}
+assert.equal(allStoryBoards.size, 30)
+assert.equal(activeHues(makeBoard(30, () => 0)).length, 6)
+const miss = { matched: 0, dropped: 0, cleared: false }
+const match = { matched: 3, dropped: 0, cleared: false }
+const chain = { matched: 6, dropped: 3, cleared: false }
+assert.equal(CHAPTER_RULES.length, 6)
+assert.equal(pressureAfterShot(3, 1, 'story', match, false), 4)
+assert.equal(pressureAfterShot(3, 6, 'story', match, false), 3)
+assert.equal(pressureAfterShot(3, 6, 'story', miss, false), 4)
+assert.equal(pressureAfterShot(3, 11, 'story', match, true), 3)
+assert.equal(pressureAfterShot(3, 11, 'story', match, false), 4)
+assert.equal(pressureAfterShot(3, 16, 'story', chain, false), 2)
+assert.equal(pressureAfterShot(0, 16, 'story', chain, false), 0)
+assert.equal(pressureAfterShot(3, 26, 'story', chain, false), 3)
+assert.equal(pressureAfterShot(3, 26, 'story', match, false), 4)
+assert.equal(pressureAfterShot(3, 26, 'classic', chain, true), 4)
+assert.equal(pressureLimit(35, 'classic'), 4)
+assert.equal(pressureLimit(26, 'story'), 5)
+assert.equal(CHAPTER_RULES[4].charge, 12)
+assert.deepEqual(
+  [0, 1, 2, 3].map((count) => specialForStage(21, 1, count)),
+  ['prism', 'burst', 'ribbon', 'prism'],
 )
 const rng = () => 0.25
 const options = {
@@ -500,6 +553,53 @@ assert.equal(chapterSixteen.pendingChoice, 1)
 chapterSixteen.update(openStory)
 assert.deepEqual(chapterSixteen.save.storyChoices, [1, 0, null])
 assert.equal(chapterSixteen.lives, 4, 'The community path gains a heart')
+function finishBoss(run: ReturnType<typeof create>) {
+  const chapter = Math.floor((run.level - 1) / 5)
+  assert.ok(run.boss)
+  for (let hit = 0; hit < BOSS_PATTERNS[chapter]!.targets.length; hit++) {
+    const target = bossTarget(chapter, hit)
+    let found = false
+    for (let angle = -Math.PI + 0.18; angle <= -0.18; angle += 0.01) {
+      let x = 160
+      let y = 438
+      let vx = Math.cos(angle) * 7
+      const vy = Math.sin(angle) * 7
+      let banked = false
+      while (y > 40) {
+        x += vx
+        y += vy
+        if (x < 14 || x > 306) {
+          x = Math.max(14, Math.min(306, x))
+          vx *= -1
+          banked = true
+        }
+        const contact = bossContact(target, {
+          x,
+          y,
+          hue: target.hue,
+          banked,
+        })
+        if (contact === 'hit') {
+          found = true
+          run.angle = angle
+          break
+        }
+        if (contact === 'blocked') break
+      }
+      if (found) break
+    }
+    assert.ok(found, 'Every boss core has a reachable legal shot')
+    assert.equal(run.loaded, target.hue)
+    run.update(openStory)
+    for (let frame = 0; run.shot && frame < 400; frame++)
+      run.update(emptyInput())
+    assert.equal(run.shot, null)
+    if (hit + 1 < BOSS_PATTERNS[chapter]!.targets.length)
+      assert.equal(run.boss?.hits, hit + 1)
+  }
+  assert.equal(run.boss, null)
+}
+
 const replayChoiceSave = readSpectrumSave({
   ...cloudB,
   stage: 5,
@@ -514,6 +614,7 @@ const replayChoice = create({
   ...options,
   resume: replayChoiceSave,
 } as Parameters<typeof create>[0])
+replayChoice.menuStage = 5
 replayChoice.update(openStory)
 replayChoice.board = emptyBoard()
 replayChoice.board[0]![0] = 'pink'
@@ -527,6 +628,8 @@ replayChoice.shot = {
   power: null,
 }
 replayChoice.update(emptyInput())
+assert.equal(replayChoice.level, 5)
+finishBoss(replayChoice)
 assert.equal(replayChoice.level, 6)
 assert.equal(
   replayChoice.pendingChoice,
@@ -565,6 +668,8 @@ finaleRun.shot = {
   power: null,
 }
 finaleRun.update(emptyInput())
+assert.equal(finaleRun.over, false)
+finishBoss(finaleRun)
 assert.equal(finaleRun.over, true)
 assert.equal(finaleRun.won, true)
 assert.equal(finaleRun.ending, 'prism-partners')
@@ -572,6 +677,51 @@ assert.deepEqual(finaleRun.save.endings, ['prism-partners'])
 assert.equal((finaleRun.save.career.stars[29] ?? 0) > 0, true)
 assert.equal(validSpectrumCloudSave(finaleRun.save), true)
 assert.ok(finaleRun.mastered.includes('true-spectrum'))
+
+for (let chapter = 0; chapter < BOSS_PATTERNS.length; chapter++) {
+  const stage = (chapter + 1) * 5
+  const run = create({
+    ...options,
+    resume: readSpectrumSave({
+      ...cloudB,
+      career: {
+        ...cloudB.career,
+        highestStage: stage,
+        stars: Array(30).fill(0),
+      },
+      stage,
+      storyChoices: [0, 0, 0],
+    }),
+  } as Parameters<typeof create>[0])
+  run.update(openStory)
+  run.board = emptyBoard()
+  run.board[0]![0] = 'pink'
+  run.board[0]![1] = 'pink'
+  run.shot = {
+    x: 36,
+    y: 57,
+    vx: 0,
+    vy: 0,
+    hue: 'pink',
+    power: null,
+  }
+  run.update(emptyInput())
+  assert.equal(run.level, stage)
+  assert.equal(run.save.career.stars[stage - 1], 0)
+  const target = bossTarget(chapter, 0)
+  assert.equal(
+    bossContact(target, { ...target, x: target.x + target.radius + 14 }),
+    'none',
+  )
+  assert.equal(
+    bossContact(target, { ...target, banked: false }),
+    target.bank ? 'blocked' : 'hit',
+  )
+  finishBoss(run)
+  assert.ok((run.save.career.stars[stage - 1] ?? 0) > 0)
+  assert.equal(run.won, stage === 30)
+  if (stage < 30) assert.equal(run.level, stage + 1)
+}
 
 const choiceAccount = readSpectrumSave({
   ...cloudA,

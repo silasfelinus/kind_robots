@@ -54,3 +54,55 @@ export function applyRainbowSwimMotion(
   g.rotate(pose.bank)
   g.scale(1, pose.stretch)
 }
+
+/**
+ * Conductor rainbow t-011: a craft a shot just hurt flinches, a quick squash that springs back over the
+ * white-flash frames, so a hit reads on the body as well as the colour. Calm motion keeps the flash only.
+ */
+export function rainbowHitFlinch(
+  flash: number,
+  flashFrames: number,
+  calm = false,
+): { x: number; y: number } {
+  if (calm || flash <= 0 || flashFrames <= 0) return { x: 1, y: 1 }
+  const t = Math.min(1, flash / flashFrames)
+  const squash = 0.14 * t * t
+  return { x: 1 - squash, y: 1 + squash * 0.6 }
+}
+
+/**
+ * Conductor rainbow t-011: the pilot's craft banks into a climb or a dive and leans into a surge — stretching
+ * as it pushes forward, squatting as it backs off. Draw-only: the hitbox never moves. Calm motion keeps a
+ * fifth of the pose, the same share the swimmers keep.
+ */
+export function rainbowShipPose(
+  bank: number,
+  thrust: number,
+  calm = false,
+): { rotate: number; scaleX: number; scaleY: number } {
+  const motion = calm ? 0.2 : 1
+  const lean = Math.max(-0.1, Math.min(0.1, thrust * 0.025)) * motion
+  return {
+    rotate: Math.max(-0.35, Math.min(0.35, bank * 0.12)) * motion,
+    scaleX: 1 + lean,
+    scaleY:
+      (1 - Math.min(0.18, Math.abs(bank) * 0.05) * motion) * (1 - lean * 0.5),
+  }
+}
+
+/**
+ * Conductor rainbow t-011: a boss winds up before a volley. Across the warning window it draws back and
+ * swells, deepest just before the shots leave, so the body tells the beat as well as the glow ring. Draw-only:
+ * the hitbox never moves. Calm motion keeps a fifth of the pose; the ring still carries the warning.
+ */
+export function rainbowBossWindup(
+  framesToVolley: number,
+  warnFrames: number,
+  calm = false,
+): { pull: number; scaleX: number; scaleY: number } {
+  if (warnFrames <= 0 || framesToVolley <= 0 || framesToVolley > warnFrames)
+    return { pull: 0, scaleX: 1, scaleY: 1 }
+  const t = 1 - (framesToVolley - 1) / warnFrames
+  const ease = t * t * (calm ? 0.2 : 1)
+  return { pull: 4 * ease, scaleX: 1 - 0.03 * ease, scaleY: 1 + 0.06 * ease }
+}

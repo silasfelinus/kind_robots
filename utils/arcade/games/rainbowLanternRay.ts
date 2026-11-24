@@ -76,6 +76,11 @@ export function createLanternRayBoss(
   }
 }
 
+/** Frames the current attack's warning lasts (the core/beacon phase charges for its own length). */
+export function lanternRayWarningFrames(boss: LanternRayBoss): number {
+  return warningLength(boss)
+}
+
 function warningLength(boss: LanternRayBoss) {
   return boss.phase === 3
     ? LANTERN_RAY.beaconWarningFrames

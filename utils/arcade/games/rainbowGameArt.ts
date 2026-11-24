@@ -98,6 +98,14 @@ function loadedArt(src: string): HTMLImageElement | null {
 }
 
 /** The loaded picture for a path under the art root (Fever Dream twin when one shipped), or null while loading. */
+/**
+ * A Fever Dream-only picture under doodle/ that has no classic twin (t-030 animation atlases): loaded straight
+ * from its doodle path, so it needs no entry in the generated doodle manifest.
+ */
+export function rainbowDoodleLoadedArt(path: string): HTMLImageElement | null {
+  return loadedArt(`${RAINBOW_GAME_ART_ROOT}/doodle/${path}.webp`)
+}
+
 export function rainbowLoadedArt(path: string): HTMLImageElement | null {
   return loadedArt(rainbowArt(path))
 }
@@ -549,14 +557,42 @@ export const RAINBOW_STAGE_STRIPS = [
 ] as const
 export type RainbowStageStrip = (typeof RAINBOW_STAGE_STRIPS)[number]
 
-export function rainbowStageStrip(stage: RainbowStageStrip): string {
+/**
+ * The finale's own stage (presentation review P-07, conductor ART-BACKLOG-2026-11-24): the Crown heart and its
+ * prism corridors, with a card, strip and painted planes of its own. Act IX flies it once its classic card and
+ * strip are listed in RAINBOW_STAGE_PAINTINGS; until then it borrows Act VIII's, as it always has.
+ */
+export const RAINBOW_FINALE_STAGE = 's09'
+export type RainbowStage = RainbowStageStrip | typeof RAINBOW_FINALE_STAGE
+
+/**
+ * Classic stage paintings shipped beyond the eight strips and cards (P-04/P-07): the painted sky, far and mid
+ * planes per Act (`stages/s01-sky`) and the finale's card and strip. A plane draws only when it is listed here
+ * or, in Fever Dream, in RAINBOW_DOODLE_ART; every listed file needs its Fever Dream twin.
+ */
+export const RAINBOW_STAGE_PAINTINGS: readonly string[] = []
+const stagePaintings = new Set(RAINBOW_STAGE_PAINTINGS)
+
+/** The stage an Act flies: S01-S08 for Acts I-VIII, and the finale's own S09 once it has shipped. */
+export function rainbowActStage(act: number): RainbowStage {
+  if (
+    act >= 9 &&
+    stagePaintings.has(`stages/${RAINBOW_FINALE_STAGE}-card`) &&
+    stagePaintings.has(`stages/${RAINBOW_FINALE_STAGE}-fore`)
+  )
+    return RAINBOW_FINALE_STAGE
+  const index = Math.min(RAINBOW_STAGE_STRIPS.length, Math.max(1, act)) - 1
+  return RAINBOW_STAGE_STRIPS[index]!
+}
+
+export function rainbowStageStrip(stage: RainbowStage): string {
   return rainbowArt(`stages/${stage}-fore`)
 }
 
 /** Tile the stage's strip across the playfield at (0, y), scrolled left by `scroll` logical pixels. */
 export function drawRainbowStageStrip(
   g: CanvasRenderingContext2D,
-  stage: RainbowStageStrip,
+  stage: RainbowStage,
   scroll: number,
   y: number,
   height: number,
@@ -572,11 +608,25 @@ export function drawRainbowStageStrip(
 }
 
 /**
- * The source-backed far/mid planes remain optional until their Kontext outputs
- * pass visual review and the doodle art export registers their paths. In the
- * meantime each depth crops a different band of the already reviewed coral art.
+ * Painted stage planes stay optional until a reviewed render is registered (RAINBOW_DOODLE_ART for Fever Dream,
+ * RAINBOW_STAGE_PAINTINGS for Classic, which Fever Dream also falls back to). Until then a far or mid plane crops
+ * a different band of the stage's reviewed strip, and a sky plane is simply not drawn.
  */
-export type RainbowStageDepth = 'far' | 'mid'
+export type RainbowStageDepth = 'sky' | 'far' | 'mid'
+
+/** The painted plane this look draws for the stage and depth, or null when none has shipped. */
+export function rainbowStagePlane(
+  stage: RainbowStage,
+  depth: RainbowStageDepth,
+  look: RainbowLook = currentLook,
+): string | null {
+  const path = `stages/${stage}-${depth}`
+  if (look === 'fever' && doodleArt.has(path))
+    return `${RAINBOW_GAME_ART_ROOT}/doodle/${path}.webp`
+  return stagePaintings.has(path)
+    ? `${RAINBOW_GAME_ART_ROOT}/${path}.webp`
+    : null
+}
 
 export function rainbowStageTileLayout(
   scroll: number,
@@ -603,18 +653,16 @@ export function rainbowStageTileLayout(
 
 export function drawRainbowStagePlane(
   g: CanvasRenderingContext2D,
-  stage: RainbowStageStrip,
+  stage: RainbowStage,
   depth: RainbowStageDepth,
   scroll: number,
   y: number,
   height: number,
   width = 480,
 ): boolean {
-  const path = `stages/${stage}-${depth}`
-  const approved = currentLook === 'fever' && doodleArt.has(path)
-  const painted = approved
-    ? loadedImage(`${RAINBOW_GAME_ART_ROOT}/doodle/${path}.webp`)
-    : null
+  const src = rainbowStagePlane(stage, depth)
+  const painted = src ? loadedImage(src) : null
+  if (!painted && depth === 'sky') return false
   const img = painted ?? loadedArt(rainbowStageStrip(stage))
   if (!img || img.naturalHeight <= 0 || height <= 0) return false
 
@@ -670,7 +718,7 @@ export function rainbowGen2Art(
 
 /** Painted Act title cards (round-15/16 Kontext), shown as the Act intro splash. */
 export function rainbowStageCard(
-  stage: RainbowStageStrip,
+  stage: RainbowStage,
   look: RainbowLook = currentLook,
 ): string {
   return rainbowArt(`stages/${stage}-card`, look)
@@ -679,7 +727,7 @@ export function rainbowStageCard(
 /** Draw the stage's title card at (x, y) with the given width; returns its height, or 0 while loading. */
 export function drawRainbowStageCard(
   g: CanvasRenderingContext2D,
-  stage: RainbowStageStrip,
+  stage: RainbowStage,
   x: number,
   y: number,
   width: number,
@@ -694,17 +742,38 @@ export function drawRainbowStageCard(
 /**
  * Painted ending plates in the Fever Dream look (conductor ENDINGS-FEVER-DREAM-2026-11-22), keyed by the final
  * choice and shared by every road: C14 restore (279195, the open Crown over a sunrise of freed sea-ships), C15
- * evacuate (279196, the Aurora Mercy leading the convoy out of the shattering palace) and C16 sever (279239, the
- * four pilots releasing lanterns on the mirror sea; the fourth take, after three failed CAST-QA on Maribel).
+ * evacuate (279196, the Aurora Mercy leading the convoy out of the shattering palace) and C16 sever (279935,
+ * lanterns rising over the mirror sea with cat ships on the water and no pilots in shot, so it fits any crew and
+ * replaces the four-pilot plate the presentation critic found off the house style, P-03).
  */
 export const RAINBOW_ENDING_PLATES: Readonly<Record<FinaleChoice, string>> = {
   restore: 'endings/restore',
   evacuate: 'endings/evacuate',
-  sever: 'endings/sever',
+  sever: 'endings/sever-open',
 }
 
-export function rainbowEndingPlate(choice: FinaleChoice): string | null {
-  const path = RAINBOW_ENDING_PLATES[choice]
+/**
+ * The loyal road's own plates (independent story critic S11, 2026-11-23 PT: "the ending art ignores the road"):
+ * PEACE BY ORDER, AN EMPTY OCEAN and ORDERS BROKEN, from conductor ENDINGS-ROADS-2026-11-24 (reviewed 2026-11-24
+ * PT). A loyal choice without one here shows the shared plate.
+ */
+export const RAINBOW_LOYAL_ENDING_PLATES: Readonly<
+  Partial<Record<FinaleChoice, string>>
+> = {
+  restore: 'endings/loyal-restore',
+  evacuate: 'endings/loyal-evacuate',
+  sever: 'endings/loyal-sever',
+}
+/**
+ * The plate for this ending: the loyal road has its own, and every other road shows the choice's plate.
+ */
+export function rainbowEndingPlate(
+  choice: FinaleChoice,
+  road: 'rebel' | 'loyal' | 'choice' | 'turned' | null = null,
+): string | null {
+  const path =
+    (road === 'loyal' && RAINBOW_LOYAL_ENDING_PLATES[choice]) ||
+    RAINBOW_ENDING_PLATES[choice]
   return path ? rainbowArt(path) : null
 }
 
@@ -755,8 +824,9 @@ export function drawRainbowEndingPlate(
   x: number,
   y: number,
   width: number,
+  road: 'rebel' | 'loyal' | null = null,
 ): number {
-  const src = rainbowEndingPlate(choice)
+  const src = rainbowEndingPlate(choice, road)
   const img = src ? loadedArt(src) : null
   if (!img) return 0
   const height = (width * img.naturalHeight) / img.naturalWidth

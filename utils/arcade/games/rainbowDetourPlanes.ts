@@ -52,6 +52,45 @@ export function rainbowDetourPlanePaths(): string[] {
   )
 }
 
+/**
+ * The sky drifts too, slowest of every layer (presentation review P-04: the top half of X3 moved 0 px). A detour
+ * sky holds one landmark (X3's moon), so rather than tile it (which would show a mirrored second moon) the sky is
+ * drawn a little larger than the field and pans slowly back and forth across that margin.
+ */
+export const RAINBOW_DETOUR_SKY_PAN = { overscan: 1.2, period: 4800 } as const
+
+/** How far left of the field's edge the oversized sky sits this frame, 0 to (overscan - 1) x width. */
+export function rainbowDetourSkyOffset(
+  frame: number,
+  drift: number,
+  width = 480,
+): number {
+  const { overscan, period } = RAINBOW_DETOUR_SKY_PAN
+  const turn = ((frame * drift) / period) * Math.PI * 2
+  return ((overscan - 1) * width * (1 - Math.cos(turn))) / 2
+}
+
+/** Tile `img` across the width at (scroll, y), `height` tall, mirroring every other tile. */
+function drawMirroredTiles(
+  g: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  scroll: number,
+  y: number,
+  height: number,
+  width: number,
+) {
+  const tile = (height * img.naturalWidth) / img.naturalHeight
+  for (const { x, mirrored } of rainbowStageTileLayout(scroll, tile, width)) {
+    if (mirrored) {
+      g.save()
+      g.translate(x + tile, 0)
+      g.scale(-1, 1)
+      g.drawImage(img, 0, y, tile, height)
+      g.restore()
+    } else g.drawImage(img, x, y, tile, height)
+  }
+}
+
 /** The bands to draw this frame: where each sits, how far it has scrolled and how strongly it shows. */
 export function rainbowDetourBands(
   detour: RainbowDetour,
@@ -80,28 +119,22 @@ export function drawRainbowDetourPlanes(
   height = 270,
 ): boolean {
   const sky = rainbowLoadedArt(rainbowDetourPlanePath(detour, 'sky'))
-  if (!sky) return false
+  if (!sky || sky.naturalHeight <= 0) return false
   g.save()
   g.globalAlpha = RAINBOW_DETOUR_PLANES[detour].sky
-  g.drawImage(sky, 0, 0, width, height)
+  const { overscan } = RAINBOW_DETOUR_SKY_PAN
+  g.drawImage(
+    sky,
+    -rainbowDetourSkyOffset(frame, drift, width),
+    (-(overscan - 1) * height) / 2,
+    width * overscan,
+    height * overscan,
+  )
   for (const band of rainbowDetourBands(detour, frame, drift, height)) {
     const img = rainbowLoadedArt(rainbowDetourPlanePath(detour, band.depth))
     if (!img || img.naturalHeight <= 0) continue
     g.globalAlpha = band.alpha
-    const tile = (band.height * img.naturalWidth) / img.naturalHeight
-    for (const { x, mirrored } of rainbowStageTileLayout(
-      band.scroll,
-      tile,
-      width,
-    )) {
-      if (mirrored) {
-        g.save()
-        g.translate(x + tile, 0)
-        g.scale(-1, 1)
-        g.drawImage(img, 0, band.y, tile, band.height)
-        g.restore()
-      } else g.drawImage(img, x, band.y, tile, band.height)
-    }
+    drawMirroredTiles(g, img, band.scroll, band.y, band.height, width)
   }
   g.restore()
   return true

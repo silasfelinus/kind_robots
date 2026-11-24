@@ -28,8 +28,24 @@
         reviewed
       </span>
     </div>
+    <label class="mt-4 block text-xs font-bold text-slate-200">
+      Find a production review group
+      <select
+        v-model="selected"
+        data-testid="capes-production-group-select"
+        class="mt-1 block w-full rounded-lg border border-slate-500 bg-slate-900 p-2 text-sm text-white"
+      >
+        <option
+          v-for="person in CAPES_PRODUCTION_IDENTITIES"
+          :key="person.signature"
+          :value="person.signature"
+        >
+          {{ person.label }} · {{ person.subtitle }}
+        </option>
+      </select>
+    </label>
     <div
-      class="mt-4 flex gap-2 overflow-x-auto pb-2"
+      class="mt-2 flex gap-2 overflow-x-auto pb-2"
       role="tablist"
       aria-label="Production cast"
     >

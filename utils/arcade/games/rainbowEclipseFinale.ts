@@ -14,6 +14,7 @@
  * ones for a flight saved before the memorial existed), how many rescues came home sets the crew's verdict,
  * and A moves the ending on a line at a time.
  */
+import { CROWN_PLEA } from './rainbowEclipseCrown'
 import {
   RAINBOW_ALLEGIANCE_LABEL,
   type RainbowAllegiance,
@@ -27,7 +28,8 @@ import {
 import { rainbowPartyTrack } from './rainbowPartyComms'
 
 export type FinaleChoice = 'restore' | 'evacuate' | 'sever'
-export type FinaleSceneId = 'A09.OPEN' | 'A09.TURN' | 'A09.ESCAPE' | 'A09.AFTER'
+export type FinaleSceneId =
+  'A09.OPEN' | 'A09.PLEA' | 'A09.TURN' | 'A09.ESCAPE' | 'A09.AFTER'
 export type FinaleDialogue = {
   speaker: string
   text: string
@@ -201,19 +203,61 @@ export function finaleEndingCaption(
     : title
 }
 
-/** Lilt's resolution: their arc is letting the crew choose, and each road shows what that cost or won. */
-const LILT_RESOLUTION: Record<FinaleRoad, string> = {
-  rebel:
-    'I let you lead, and you led us out of an empire. I would choose that again.',
-  loyal: 'You kept your orders. I kept asking. Neither of us is finished.',
-  unsworn: 'I let you lead. I would choose that again, every time.',
+/**
+ * Lilt's resolution for each road and choice (independent story critic S3, S10). On the rebel road Lilt spent the
+ * memory of writing the rescue rule to open the flagship's clamps; on the loyal road Lilt closed Command's channel.
+ */
+const LILT_RESOLUTION: Record<FinaleRoad, Record<FinaleChoice, string>> = {
+  rebel: {
+    restore:
+      'I do not remember writing the first rule any more. I watched you fly it. That is better.',
+    evacuate:
+      'I gave up a memory to open those clamps. Watching every pod fly free, I would give it again.',
+    sever:
+      'No Crown, no clamps, no orders. I gave a memory for that, and I would give it again.',
+  },
+  loyal: {
+    restore:
+      'Command has its Crown. I closed their channel once tonight, and they will know it was me.',
+    evacuate:
+      'Command will call the Ocean empty. I logged every pod by name, where they cannot erase it.',
+    sever:
+      'You broke the order and I broke the channel. We will answer for it together.',
+  },
+  unsworn: {
+    restore:
+      'The rule I wrote is whole again. I let you lead, and I would choose that again.',
+    evacuate:
+      'Everyone is out. I let you lead, and I would choose that again, every time.',
+    sever:
+      'It is cut, and it cost the Ocean some light. I let you lead. I would still choose that.',
+  },
+}
+
+/** The escape out of the collapsing heart reads as what the choice did (story critic S3). */
+const ESCAPE_CUE: Record<FinaleChoice, string> = {
+  restore:
+    'The heart is waking. The Crown is lighting the corridors for us. Follow its light out.',
+  evacuate:
+    'Escape pods are pouring out of the walls. Fly with them and keep the lanes open.',
+  sever:
+    'The corridors are going dark one section at a time. Fly on my light, and fly fast.',
 }
 
 /** The crew's verdict on its own flight: how many of the six rescues came home, and the palace captives. */
-function rescueVerdict(rescues: number, captives: number): string {
-  const palace = captives > 0 ? `, and ${captives} palace captives` : ''
+function rescueVerdict(
+  rescues: number,
+  captives: number,
+  road: FinaleRoad,
+): string {
+  const palace =
+    captives > 0
+      ? `, with ${captives} palace ${captives === 1 ? 'captive' : 'captives'} beside them`
+      : ''
   if (rescues === 6)
-    return 'Every rescue we chose made it home with us. Every single one.'
+    return road === 'loyal'
+      ? 'Every rescue we chose made it home. Command will file them as cleared; I will file them by name.'
+      : 'Every rescue we chose made it home with us. Every single one.'
   if (rescues >= 3)
     return `${rescues} of our six rescues are flying home${palace}.`
   if (rescues > 0)
@@ -224,7 +268,11 @@ function rescueVerdict(rescues: number, captives: number): string {
 /** The send-off: a rebel crew flies free, a loyal crew flies home, and a crew that broke its orders says so. */
 function sendOff(road: FinaleRoad, choice: FinaleChoice): string {
   if (road === 'rebel')
-    return 'C.A.T.S., the sea is free and so are we. Let us fly.'
+    return choice === 'restore'
+      ? 'C.A.T.S., the Crown asks first now, and so do we. Let us fly.'
+      : choice === 'sever'
+        ? 'C.A.T.S., no leash on the sea and none on us. Let us fly.'
+        : 'C.A.T.S., the sea is free and so are we. Let us fly.'
   if (road === 'loyal')
     return choice === 'sever'
       ? 'C.A.T.S., form up. We go home and tell them we said no.'
@@ -232,71 +280,44 @@ function sendOff(road: FinaleRoad, choice: FinaleChoice): string {
   return 'Princesses, the sky is open. Let us go home.'
 }
 
+type FinalePilot = (typeof PILOTS)[number]
+
 /**
- * The crew's own epilogue by crew size, the selected pilots rather than seat numbers (COMMS bible party masks 1,
- * 3, 7, 15; the pilot select renames them to whoever flew). Each road gets its own: a rebel crew names what it
- * became, a loyal one what it will carry home.
+ * Each pilot's own epilogue on each road (independent story critic S7, 2026-11-23 PT: seat renaming handed one
+ * pilot's role to another, e.g. "Maribel heard the call, I drew the route" read with Solenne as the cartographer).
+ * The line belongs to a pilot, not a seat, and names no one else: Maribel's radio, Azure's map, Solenne's squadron,
+ * Vivi's broadcast. A rebel crew names what it became, a loyal one what it will carry home.
  */
-const ROAD_EPILOGUE: Record<
-  RainbowAllegiance,
-  Record<number, FinaleDialogue>
-> = {
+const ROAD_EPILOGUE: Record<RainbowAllegiance, Record<FinalePilot, string>> = {
   rebel: {
-    1: {
-      speaker: 'Maribel',
-      text: 'I flew in to pacify an ocean. I am flying out as one of its rescuers.',
-    },
-    2: {
-      speaker: 'Azure',
-      text: "Maribel heard the call, I drew the route. Our charts use the Ocean's own names now.",
-    },
-    3: {
-      speaker: 'Solenne',
-      text: 'C.A.T.S. answers to the Ocean now. Maribel, you lead us out. I have the rear.',
-    },
-    4: {
-      speaker: 'Vivi',
-      text: 'No ranks on this broadcast. Just names: every pilot, every creature, every carer.',
-    },
+    Maribel:
+      'I flew in to pacify an ocean. I am flying out as one of its rescuers.',
+    Azure:
+      "I drew routes for an empire. Our charts use the Ocean's own names now.",
+    Solenne:
+      'C.A.T.S. answers to the Ocean now. I will hold the rear all the way home.',
+    Vivi: 'No ranks on this broadcast. Just names: every pilot, every creature, every carer.',
   },
   loyal: {
-    1: {
-      speaker: 'Maribel',
-      text: 'Command will call this a victory. My radio will tell them what I heard.',
-    },
-    2: {
-      speaker: 'Azure',
-      text: 'The official map will say pacified. Mine will say who lived here, and I signed it.',
-    },
-    3: {
-      speaker: 'Solenne',
-      text: 'Orders kept, squadron whole. I will carry what it cost. Not alone, this time.',
-    },
-    4: {
-      speaker: 'Vivi',
-      text: 'They will hand out medals. I will read the names they leave off, every one.',
-    },
+    Maribel:
+      'Command will call this a victory. My radio will tell them what I heard.',
+    Azure:
+      'The official map will say pacified. Mine will say who lived here, and I signed it.',
+    Solenne:
+      'Orders kept, squadron whole. I will carry what it cost. Not alone, this time.',
+    Vivi: 'They will hand out medals. I will read the names they leave off, every one.',
   },
 }
 
-/** The epilogue for a flight saved before the memorial existed (the shipped one). */
-const EPILOGUE: Record<number, FinaleDialogue> = {
-  1: {
-    speaker: 'Maribel',
-    text: 'I flew in alone and I am flying out with a whole fleet. That was never just my rescue.',
-  },
-  2: {
-    speaker: 'Azure',
-    text: 'Maribel found the signal, I found the route. Next time we chart it together from the start.',
-  },
-  3: {
-    speaker: 'Solenne',
-    text: 'All escort sectors report in. Every cadet, every pod, accounted for. We go home as a squadron.',
-  },
-  4: {
-    speaker: 'Vivi',
-    text: 'Maribel asked who was out there, Azure mapped it, Solenne flew the escort. I am broadcasting every name.',
-  },
+/** The epilogue for a flight saved before the memorial existed (the shipped one), per pilot as well. */
+const EPILOGUE: Record<FinalePilot, string> = {
+  Maribel:
+    'I flew in alone and I am flying out with a whole fleet. That was never just my rescue.',
+  Azure:
+    'I found the route, but someone else found the signal. Next time we chart it together from the start.',
+  Solenne:
+    'All escort sectors report in. Every pod accounted for. We go home as a squadron.',
+  Vivi: 'Everyone out there asked, mapped and flew escort. I am broadcasting every name.',
 }
 
 export function finaleDialogue(
@@ -308,12 +329,23 @@ export function finaleDialogue(
   allegiance: RainbowAllegiance | null = null,
   partyMask: number | null = null,
   route?: RainbowRouteFlags,
+  /** A loyal crew that flew high through the Crown's plea and turned at the last (story critic S4). */
+  stoodDown = false,
 ): FinaleDialogue | null {
   const party = partyMask === null ? null : rainbowPartyTrack(partyMask)
   const crew = PILOTS.slice(0, Math.max(1, Math.min(4, players)))
   const lead = crew[0]!
   const wing = crew[crew.length - 1]!
   const rescues = finaleRescues(flags)
+  // Epilogues belong to a pilot, not a seat (story critic S7): with the party mask, the flown pilot speaks her own.
+  const voice =
+    partyMask !== null && partyMask > 0
+      ? PILOTS[Math.min(3, 31 - Math.clz32(partyMask))]!
+      : null
+  const epilogue = (lines: Record<FinalePilot, string>): FinaleDialogue =>
+    voice
+      ? { speaker: voice, text: lines[voice], partyAuthored: true }
+      : { speaker: wing, text: lines[wing] }
   const road = roadOf(allegiance)
   const ending = choice ?? 'evacuate'
   const lines: Record<FinaleSceneId, FinaleDialogue[]> = {
@@ -336,60 +368,114 @@ export function finaleDialogue(
               : 'Then we free the heart, and everyone it is holding. Together.',
       },
     ],
+    // The loyal road's late course-correction is a scene, not a countdown (independent story critic S4): the
+    // Crown asks, Lilt names the turn, the lead answers, while the crew decides with its wings.
+    'A09.PLEA': [
+      {
+        speaker: 'Crown Voice',
+        text: 'You were sent to take me. I am asking instead. Let the Ocean keep its heart, and I will let you go.',
+      },
+      {
+        speaker: 'Lilt-7',
+        text: 'This is the late turn the rescue rule allows. Fly high and we stand down. Stay low and we finish it.',
+      },
+      {
+        speaker: lead,
+        text:
+          crew.length === 1
+            ? 'I hear you. Give me a breath, and watch which way I fly.'
+            : 'We hear you. Wings decide, pilots: high if you would rather ask than take.',
+      },
+    ],
     'A09.TURN': [
       {
         speaker: 'Lilt-7',
-        text:
-          road === 'loyal'
-            ? 'Command orders a restore under its flag. I still will not choose for you.'
-            : 'The heart is open. I will not make this choice for you again.',
+        text: stoodDown
+          ? 'You turned at the last breath, and the Crown lowered its guard for you. Now choose what it becomes.'
+          : road === 'loyal'
+            ? 'Command orders a restore under its flag. I closed their channel. This choice is yours.'
+            : road === 'rebel'
+              ? 'I spent my last old memory to open the clamps. I will not recall writing the rule. Choose well.'
+              : 'The heart is open. I wrote its first rule, and I am handing you the pen.',
       },
       {
         speaker: 'Lilt-7',
         text: 'Fly high to restore its first rule, through the middle to evacuate, low to sever its control.',
       },
-      {
-        speaker: wing,
-        text:
-          crew.length === 4
-            ? 'Who is still out there? Azure maps it, Solenne holds the sectors, I call the names. Now choose.'
-            : 'Whatever we choose, we choose it together, and we live with it together.',
-      },
+      crew.length === 4
+        ? {
+            // All four fly: each pilot keeps her own role (blind story critic S7), so no seat renaming.
+            speaker: 'Vivi',
+            text: 'Who is still out there? Azure maps it, Solenne holds the sectors, I call the names. Now choose.',
+            partyAuthored: true,
+          }
+        : {
+            speaker: wing,
+            text:
+              crew.length === 1
+                ? 'Whatever I choose, I carry it home with me.'
+                : 'Whatever we choose, we choose it together, and we live with it together.',
+          },
     ],
     'A09.ESCAPE': [
       {
         speaker: 'Lilt-7',
-        text: 'The heart is collapsing. The prism corridors are closing; follow the light out.',
+        text: choice
+          ? ESCAPE_CUE[choice]
+          : 'The heart is collapsing. The prism corridors are closing; follow the light out.',
       },
-      {
-        speaker: wing === lead ? 'Lilt-7' : wing,
-        text: 'Stay together. Nobody gets left behind, not now.',
-      },
+      wing === lead
+        ? {
+            speaker: 'Lilt-7',
+            text: 'Stay on my light. Nobody gets left behind, not now.',
+          }
+        : {
+            speaker: wing,
+            text: 'Stay together. Nobody gets left behind, not now.',
+          },
     ],
     'A09.AFTER': [
       { speaker: 'Lilt-7', text: FINALE_ENDINGS[road][ending].world },
-      { speaker: lead, text: rescueVerdict(rescues, flags.captivesFreed) },
-      { speaker: 'Lilt-7', text: LILT_RESOLUTION[road] },
-      party
-        ? {
-            speaker: party.speaker,
-            text: party.epilogue,
-            partyAuthored: true,
-          }
-        : road === 'unsworn'
-          ? EPILOGUE[crew.length]!
-          : ROAD_EPILOGUE[road][crew.length]!,
-      { speaker: lead, text: sendOff(road, ending) },
+      {
+        speaker: lead,
+        text: rescueVerdict(rescues, flags.captivesFreed, road),
+      },
+      {
+        speaker: 'Lilt-7',
+        text: stoodDown
+          ? 'You were ordered to take it and you chose to ask. That is the rule I helped write, flown at last.'
+          : LILT_RESOLUTION[road][ending],
+      },
+      // The crew's own line, then the close (blind story critic S2, 2026-11-23 PT). The fifteen party epilogues
+      // are written for a crew that freed the Ocean, so they play on the rebel and unsworn roads; a loyal crew
+      // says what it will carry home. A rebel crew then closes on what it became.
+      road === 'loyal'
+        ? epilogue(ROAD_EPILOGUE.loyal)
+        : party
+          ? { ...party.epilogue, partyAuthored: true }
+          : road === 'unsworn'
+            ? epilogue(EPILOGUE)
+            : epilogue(ROAD_EPILOGUE.rebel),
+      road === 'rebel' && party
+        ? epilogue(ROAD_EPILOGUE.rebel)
+        : { speaker: lead, text: sendOff(road, ending) },
     ],
   }
   const frames =
-    id === 'A09.AFTER' ? FINALE.endingLineFrames : FINALE.lineFrames
+    id === 'A09.AFTER'
+      ? FINALE.endingLineFrames
+      : id === 'A09.PLEA'
+        ? PLEA_LINE_FRAMES
+        : FINALE.lineFrames
   return (
     withRainbowRouteBeat(lines[id], id, route, crew)[
       Math.floor(elapsed / frames)
     ] ?? null
   )
 }
+
+/** The plea's three lines share the Crown's plea window evenly. */
+const PLEA_LINE_FRAMES = Math.floor(CROWN_PLEA.frames / 3)
 
 /** The ending's length in frames: every AFTER line, read in full. */
 export const FINALE_ENDING_FRAMES = 5 * FINALE.endingLineFrames
@@ -423,6 +509,8 @@ export function finaleCredits(
     callSign?: string
     /** The detours flown and their flags (ROUTE-MAP section 6): a THE ROUTE section and its stinger. */
     route?: RainbowRouteFlags
+    /** A loyal crew that turned at the Crown's plea (story critic S4). */
+    stoodDown?: boolean
   } = {},
 ): string[] {
   const seats = Math.max(1, Math.min(4, players))
@@ -447,7 +535,7 @@ export function finaleCredits(
       flags.stoppedRelay && 'The reef nursery, safe from the relay',
       flags.rescuedNavigator && 'The Lost Navigator',
     ].filter((line): line is string => Boolean(line)),
-    `${flags.captivesFreed} captives of the Eclipse Palace`,
+    `${flags.captivesFreed} ${flags.captivesFreed === 1 ? 'captive' : 'captives'} of the Eclipse Palace`,
     'The whale fleet',
     'Every rescuer who was never named',
     '',
@@ -456,11 +544,18 @@ export function finaleCredits(
     'B03 Clawburst · B04 Delphion',
     'B05 Sawtooth Regent · B06 Lantern Ray',
     'B07 Glass Eel · B08 Prism Leviathan',
-    'B09 Eclipse Crown',
-    '',
-    ...(allegiance
-      ? [`THE ROAD: ${RAINBOW_ALLEGIANCE_LABEL[allegiance]}`]
+    allegiance === 'loyal' && choice === 'restore'
+      ? 'B09 Eclipse Crown · under the Motherland flag'
+      : 'B09 Eclipse Crown',
+    ...(allegiance === 'rebel'
+      ? ['', 'DEFEATED', 'B09 Motherland Flagship']
       : []),
+    '',
+    ...(flown.stoodDown
+      ? ['THE ROAD: TURNED AT THE CROWN']
+      : allegiance
+        ? [`THE ROAD: ${RAINBOW_ALLEGIANCE_LABEL[allegiance]}`]
+        : []),
     `THE CHOICE: ${choice.toUpperCase()}`,
     `ENDING: ${finaleEndingTitle(choice, allegiance)}`,
     '',
@@ -482,7 +577,10 @@ export function finaleScene(
   choiceFrame: number | null,
   escapeFrame: number | null,
   endingFrame: number | null,
+  /** Frames into the Crown's plea, while it pleads. */
+  plea: number | null = null,
 ): { id: FinaleSceneId; elapsed: number } | null {
+  if (plea !== null) return { id: 'A09.PLEA', elapsed: plea }
   if (endingFrame !== null)
     return endingFrame < FINALE_ENDING_FRAMES
       ? { id: 'A09.AFTER', elapsed: endingFrame }

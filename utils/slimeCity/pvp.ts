@@ -52,8 +52,10 @@ export interface PvpRecord {
   dealEarly?: boolean
   /**
    * Silas, 2026-11-22 PT: "There should be a back button if it's your turn,
-   * with options for more depending on game options at start." Take-backs
-   * allowed per turn: 0 off, 1, or PVP_TAKEBACKS_ANY. Absent means 1.
+   * with options for more depending on game options at start." Older duels
+   * stored 0 off, 1, or PVP_TAKEBACKS_ANY here. Silas, 2026-11-24 PT: "We
+   * shouldn't be limiting undos." Every duel now allows any take-back until
+   * FIGHT; the stored value is kept only so old records still parse.
    */
   takebacks?: number
   /** Take-backs used so far; keeps the duel revision moving forward. */
@@ -66,9 +68,12 @@ export interface PvpRecord {
 export const PVP_TAKEBACKS_ANY = 99
 export const PVP_TAKEBACK_CHOICES = [0, 1, PVP_TAKEBACKS_ANY] as const
 
-/** The duel's take-back allowance per turn. */
-export function pvpTakebacks(record: Pick<PvpRecord, 'takebacks'>): number {
-  return record.takebacks ?? 1
+/**
+ * The duel's take-back allowance per turn: unlimited for every duel, old or
+ * new (Silas, 2026-11-24 PT: "We shouldn't be limiting undos.").
+ */
+export function pvpTakebacks(_record?: Pick<PvpRecord, 'takebacks'>): number {
+  return PVP_TAKEBACKS_ANY
 }
 
 /**

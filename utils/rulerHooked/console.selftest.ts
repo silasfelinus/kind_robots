@@ -5,6 +5,16 @@
 // library's fallback chains. Run via `npx tsx`, like the other selftests.
 
 import assert from 'node:assert/strict'
+import {
+  mergeRoyalBackups,
+  parseRoyalBackup,
+  royalBackup,
+} from '~/utils/rulerHooked/accountBackup'
+import {
+  cleanRoyalDisplayPrefs,
+  decodeRoyalDisplayPrefs,
+  ROYAL_DISPLAY_DEFAULTS,
+} from '~/utils/rulerHooked/displayPrefs'
 import { rememberReign, scrapbookSummary } from '~/utils/rulerHooked/scrapbook'
 import {
   cleanRoyalAudioPrefs,
@@ -435,6 +445,79 @@ const fresh = (seed = 'console-seed'): RunSave =>
     scrapbookSummary({}).endings.size,
     0,
     'new players see no spoilers',
+  )
+}
+
+{
+  assert.deepEqual(cleanRoyalDisplayPrefs(null), ROYAL_DISPLAY_DEFAULTS)
+  assert.deepEqual(decodeRoyalDisplayPrefs('{bad JSON'), ROYAL_DISPLAY_DEFAULTS)
+  assert.deepEqual(
+    cleanRoyalDisplayPrefs({
+      readingSize: 'huge',
+      highContrast: 'true',
+      reducedMotion: 1,
+    }),
+    ROYAL_DISPLAY_DEFAULTS,
+  )
+  const prefs = cleanRoyalDisplayPrefs({
+    readingSize: 'extra-large',
+    highContrast: true,
+    reducedMotion: true,
+  })
+  assert.deepEqual(decodeRoyalDisplayPrefs(JSON.stringify(prefs)), {
+    readingSize: 'extra-large',
+    highContrast: true,
+    reducedMotion: true,
+  })
+  assert.equal(
+    cleanRoyalDisplayPrefs({ readingSize: 'large' }).readingSize,
+    'large',
+  )
+  assert.equal(cleanRoyalDisplayPrefs({}).readingSize, 'standard')
+}
+
+{
+  const first = fresh('cloud-first')
+  first.createdAt = '2026-11-24T00:00:00Z'
+  first.updatedAt = first.createdAt
+  first.ruler.cosmetics = { presetId: 'mo', customPortraitId: 'private-id' }
+  const slug = availableFish(first)[0]!.slug
+  first.fishopedia[slug] = {
+    fishSlug: slug,
+    countCaught: 2,
+    firstCaughtTurn: 1,
+    bestSizeCm: 15,
+    bestQualityScore: 70,
+  }
+  const newer = JSON.parse(JSON.stringify(first)) as RunSave
+  newer.updatedAt = '2026-11-24T01:00:00Z'
+  newer.turnCount = 3
+  newer.fishopedia[slug]!.countCaught = 3
+  const second = { ...fresh('cloud-second'), saveId: 'sv_other' }
+  second.createdAt = first.createdAt
+  second.updatedAt = first.updatedAt
+  const local = royalBackup([first], rememberReign({}, first, C))
+  const remote = royalBackup(
+    [newer, second],
+    rememberReign(rememberReign({}, newer, C), second, C),
+  )
+  const merged = mergeRoyalBackups(local, remote)
+  assert.equal(merged.reigns.length, 2)
+  assert.equal(merged.reigns[0]?.turnCount, 3)
+  assert.equal(merged.reigns[0]?.ruler.cosmetics?.customPortraitId, undefined)
+  assert.equal(scrapbookSummary(merged.scrapbook).fish.get(slug)?.count, 3)
+  assert.deepEqual(mergeRoyalBackups(merged, local), merged)
+  assert.throws(() => royalBackup([first, first], {}))
+  assert.throws(() => parseRoyalBackup('{"kind":"wrong"}'))
+  assert.throws(() =>
+    parseRoyalBackup(
+      JSON.stringify({ ...local, reigns: [{ ...first, deckState: null }] }),
+    ),
+  )
+  assert.throws(() =>
+    parseRoyalBackup(
+      '{"kind":"kind-robots-ruler-hooked","version":1,"reigns":[],"scrapbook":{"__proto__":{}}}',
+    ),
   )
 }
 

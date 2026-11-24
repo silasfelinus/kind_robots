@@ -433,6 +433,8 @@ for (const open of [false, true]) {
       ATTRACT_PHASES: ['title', 'scores', 'demo'],
       machine: { phase: 'title' },
       guide: { value: open ? { pages: [{}, {}], page: 0 } : null },
+      // The cabinet's short-screen Settings pop-over (Rainbow t-067) closes on Escape before pause.
+      settingsOpen: { value: false },
       unlockArcadeAudio() {},
       startGame() {
         starts++

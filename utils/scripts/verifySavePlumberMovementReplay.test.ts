@@ -336,7 +336,8 @@ const buffered = (early: number) =>
       input.held.a = true
     } else input.held.a = frame < 40
   })
-const BUFFER_FRAMES = 5
+// A seven-tick buffer includes the press tick, so six early ticks remain valid.
+const BUFFER_FRAMES = 6
 for (let early = 0; early <= BUFFER_FRAMES; early++) {
   const trace = buffered(early)
   if (early > 0)

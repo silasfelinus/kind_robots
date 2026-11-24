@@ -16,9 +16,25 @@ import {
   drawRainbowBossBloom,
   rainbowBossBloomFlares,
 } from '../arcade/games/rainbowBossBloom'
+import { BOSS_TELEGRAPH_FRAMES } from '../arcade/games/rainbowPinkwakeBoss'
+import {
+  GLASS_EEL,
+  createGlassEelBoss,
+  glassEelWarning,
+  glassEelWarningFrames,
+} from '../arcade/games/rainbowGlassEel'
+import {
+  LANTERN_RAY,
+  createLanternRayBoss,
+  lanternRayWarning,
+  lanternRayWarningFrames,
+} from '../arcade/games/rainbowLanternRay'
 import { setRainbowLook } from '../arcade/games/rainbowGameArt'
 import {
   applyRainbowSwimMotion,
+  rainbowBossWindup,
+  rainbowHitFlinch,
+  rainbowShipPose,
   rainbowSwimPose,
 } from '../arcade/games/rainbowSwimMotion'
 import { emptyInput } from '../arcade/types'
@@ -197,6 +213,8 @@ for (const stillCamera of [false, true]) {
     press.pressed.b = true
     press.held.b = true
     game.update(press)
+    // B released inside the tap window is the super (gameplay critic D1: a hold is focus).
+    game.update(emptyInput())
     const { g, calls } = recorder()
     game.render(g)
     return calls.filter(
@@ -303,20 +321,198 @@ assert.ok(
   )
   assert.equal(calls.filter((call) => call.name === 'save').length, 2)
   assert.equal(calls.filter((call) => call.name === 'restore').length, 2)
+  const linear = calls.filter((call) => call.name === 'createLinearGradient')
+  assert.equal(linear.length, 2, 'one lens streak per boss flare, no more')
+  const rects = calls.filter((call) => call.name === 'fillRect')
+  assert.equal(rects.length, 2)
+  for (const [i, rect] of rects.entries()) {
+    const flare = flares[i]!
+    const [, , w, h] = rect.args as number[]
+    assert.ok(
+      w! > flare.radius * 2 && h! <= RAINBOW_BOSS_BLOOM.streakHalfHeight * 2,
+      'the lens streak is a thin sliver wider than its glow',
+    )
+    assert.ok(
+      rect.alpha < flare.alpha,
+      'the lens streak is fainter than the glow it crosses',
+    )
+  }
   const { calls: calmCalls, g: calmContext } = recorder()
   drawRainbowBossBloom(calmContext, bossFlares, true)
   assert.equal(calmCalls.length, 0, 'calm rendering performs no bloom work')
+  const { calls: contrastCalls, g: contrastContext } = recorder()
+  drawRainbowBossBloom(contrastContext, bossFlares, false, true)
+  assert.equal(
+    contrastCalls.length,
+    0,
+    'high-contrast shots draw no bloom or streak that could lift the scenery behind a pellet',
+  )
 }
+assert.deepEqual(
+  rainbowBossBloomFlares(bossFlares, false, 480, 270, true),
+  [],
+  'high-contrast shots omit boss bloom',
+)
 const previewSource = readFileSync(
   new URL('../arcade/games/rainbowPrincessPreview.ts', import.meta.url),
   'utf8',
 )
-// The hostile-shot halo pass (its soft dark fill; high-contrast shots swap in an opaque one, t-044).
-const haloPass = previewSource.indexOf("'#05030f70'")
+// The hostile-shot halo pass (its default backing; high-contrast shots swap in an opaque one, t-044).
+const haloPass = previewSource.indexOf('const pelletBacking = contrast')
 assert.ok(haloPass > 0, 'the hostile shot halo pass is still drawn')
 assert.ok(
-  previewSource.indexOf('drawRainbowBossBloom(g, sparks, calm)') < haloPass,
+  previewSource.includes('drawRainbowBossBloom(g, sparks, calm, contrast)'),
+  'the game passes its high-contrast choice to the boss bloom',
+)
+assert.ok(
+  previewSource.indexOf('drawRainbowBossBloom(g, sparks, calm, contrast)') <
+    haloPass,
   'boss bloom is drawn under hostile shot halos instead of washing them out',
+)
+
+// t-011 character animation: a hurt craft flinches (squash, then springs back) over the flash frames;
+// calm motion and an unhurt craft keep their shape.
+assert.deepEqual(
+  rainbowHitFlinch(0, 6),
+  { x: 1, y: 1 },
+  'an unhurt craft keeps its shape',
+)
+assert.deepEqual(
+  rainbowHitFlinch(6, 6, true),
+  { x: 1, y: 1 },
+  'calm motion drops the flinch',
+)
+const freshHit = rainbowHitFlinch(6, 6)
+const fadingHit = rainbowHitFlinch(2, 6)
+assert.ok(
+  freshHit.x < fadingHit.x && fadingHit.x < 1,
+  'the squash springs back as the flash fades',
+)
+assert.ok(
+  freshHit.y > 1 && freshHit.x >= 0.85,
+  'the flinch stays a small squash',
+)
+
+// t-011: the pilot's craft banks and leans into a surge, a draw-only pose that calm motion damps.
+assert.deepEqual(
+  rainbowShipPose(0, 0),
+  { rotate: 0, scaleX: 1, scaleY: 1 },
+  'a still craft holds its shape',
+)
+const surge = rainbowShipPose(0, 4)
+const backOff = rainbowShipPose(0, -4)
+assert.ok(
+  surge.scaleX > 1 && surge.scaleY < 1,
+  'a forward surge stretches the craft',
+)
+assert.ok(
+  backOff.scaleX < 1 && backOff.scaleY > 1,
+  'backing off squats the craft',
+)
+const wildPose = rainbowShipPose(40, 40)
+assert.ok(
+  Math.abs(wildPose.rotate) <= 0.35 &&
+    wildPose.scaleX <= 1.1 &&
+    wildPose.scaleY >= 0.75,
+  'the pose stays bounded at full speed',
+)
+const calmPose = rainbowShipPose(3, 4, true)
+const fullPose = rainbowShipPose(3, 4)
+assert.ok(
+  Math.abs(calmPose.rotate) < Math.abs(fullPose.rotate) &&
+    calmPose.scaleX < fullPose.scaleX,
+  'calm motion damps the bank and the lean',
+)
+assert.match(
+  previewSource,
+  /rainbowShipPose\(ship\.bank, ship\.thrust, calm\)/,
+  'the ship draw uses the shared pose',
+)
+
+// t-011: B01 winds up across its warning window, drawing back and swelling deepest just before the volley.
+const restPose = { pull: 0, scaleX: 1, scaleY: 1 }
+assert.deepEqual(
+  rainbowBossWindup(BOSS_TELEGRAPH_FRAMES + 1, BOSS_TELEGRAPH_FRAMES),
+  restPose,
+  'no windup before the warning starts',
+)
+assert.deepEqual(
+  rainbowBossWindup(0, BOSS_TELEGRAPH_FRAMES),
+  restPose,
+  'the body settles once the volley leaves',
+)
+const earlyWindup = rainbowBossWindup(
+  BOSS_TELEGRAPH_FRAMES,
+  BOSS_TELEGRAPH_FRAMES,
+)
+const deepWindup = rainbowBossWindup(1, BOSS_TELEGRAPH_FRAMES)
+assert.ok(
+  deepWindup.pull > earlyWindup.pull &&
+    deepWindup.scaleY > earlyWindup.scaleY &&
+    deepWindup.scaleX < 1,
+  'the windup deepens toward the volley',
+)
+assert.ok(
+  deepWindup.pull <= 4 && deepWindup.scaleY <= 1.06,
+  'the windup stays a small draw-only pose',
+)
+const calmWindup = rainbowBossWindup(1, BOSS_TELEGRAPH_FRAMES, true)
+assert.ok(
+  calmWindup.pull < deepWindup.pull && calmWindup.pull > 0,
+  'calm motion damps the windup',
+)
+assert.match(
+  previewSource,
+  /rainbowBossWindup\(\s*boss\.nextVolleyAt - boss\.frame,\s*BOSS_TELEGRAPH_FRAMES,\s*calm,\s*\)/,
+  'the B01 draw uses the shared windup',
+)
+
+// B07 Glass Eel and B06 Lantern Ray wind up across their own warnings: the exported length matches the cue.
+for (const [label, boss, warnFrames, warning, base] of [
+  [
+    'B07',
+    createGlassEelBoss(),
+    glassEelWarningFrames,
+    glassEelWarning,
+    GLASS_EEL.warningFrames,
+  ],
+  [
+    'B06',
+    createLanternRayBoss(),
+    lanternRayWarningFrames,
+    lanternRayWarning,
+    LANTERN_RAY.warningFrames,
+  ],
+] as const) {
+  const b = boss as never
+  assert.equal(
+    warnFrames(b),
+    base,
+    `${label} phase 1 warns for its base length`,
+  )
+  ;(boss as { frame: number }).frame = boss.nextVolley - warnFrames(b)
+  assert.ok(warning(b), `${label} cue is on at the first windup frame`)
+  assert.ok(
+    rainbowBossWindup(boss.nextVolley - boss.frame, warnFrames(b)).pull > 0,
+    `${label} begins its windup with the cue`,
+  )
+  ;(boss as { frame: number }).frame -= 1
+  assert.ok(!warning(b), `${label} cue is off before the warning`)
+  assert.deepEqual(
+    rainbowBossWindup(boss.nextVolley - boss.frame, warnFrames(b)),
+    restPose,
+    `${label} rests before its warning`,
+  )
+}
+assert.match(
+  previewSource,
+  /rainbowBossWindup\(\s*glassEel\.nextVolley - glassEel\.frame,\s*glassEelWarningFrames\(glassEel\),\s*calm,\s*\)/,
+  'the B07 draw uses the shared windup',
+)
+assert.match(
+  previewSource,
+  /rainbowBossWindup\(\s*lanternRay\.nextVolley - lanternRay\.frame,\s*lanternRayWarningFrames\(lanternRay\),\s*calm,\s*\)/,
+  'the B06 draw uses the shared windup',
 )
 
 console.log(

@@ -14,8 +14,10 @@
 // Each persona can take every continue offered or none. A run records hits and lives lost by Act, continues,
 // where it ended (THE END, the failure ending, or the frame cap) and how long it took, so pacing and difficulty
 // are measured from real input rather than assumed.
-import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
-import { RAINBOW_SHIP_SPEED } from '../arcade/games/rainbowPrincessPreview'
+import {
+  createRainbowPrincessPreview,
+  RAINBOW_SHIP_SPEED,
+} from '../arcade/games/rainbowPrincessPreview'
 import { SPIRE } from '../arcade/games/rainbowPinkwake'
 import { emptyInput, type InputFrame } from '../arcade/types'
 

@@ -18,14 +18,17 @@ import {
  * Idle atlases by enemy kind: a horizontal strip of `frames` equal cells, played at `fps`. Fever Dream look only.
  * Each is eight evenly spaced frames of a reviewed WAN 2.2 loop (conductor T030-ANIMATION-2026-11-23, framed
  * -v2 cells, 2026-11-24 PT review), matte keyed, centred on the creature and sized to its still. Kept: the
- * picket's fin flutter and the urchin's puff. Rejected: spiral (turns to face the camera), anchor and relay
- * (near-static), lantern (green tentacle streaks), skimmer (source cut at the edge); coral is still rendering.
+ * picket's fin flutter, the urchin's puff, the anchor's paddling fins (third take) and the lantern's pulse (third
+ * take, its green matte spill recoloured into the tentacles' blue). Rejected: spiral (turns to face the camera
+ * in both takes), relay and coral (near-static), skimmer (source cut at the edge).
  */
 export const RAINBOW_ENEMY_ATLASES: Readonly<
   Record<string, { frames: number; fps: number }>
 > = {
   picket: { frames: 8, fps: 4 },
   urchin: { frames: 8, fps: 4 },
+  anchor: { frames: 8, fps: 4 },
+  lantern: { frames: 8, fps: 4 },
 }
 
 /** The atlas cell to show on this tick, or null without an atlas; calm motion holds the first cell. */
@@ -142,10 +145,22 @@ export function drawRainbowInterlude(
 }
 
 export type RainbowPose = 'hit' | 'victory'
-/** Pilots (by first name, lower case) with painted poses. */
+/**
+ * Pilots (by first name, lower case) with painted poses: Kontext edits of each CAST-QA identity lock (conductor
+ * T030-ANIMATION-2026-11-23, reviewed 2026-11-24 PT for face, hair, skin and build), cropped to head and shoulders.
+ * Solenne's hit take showed no reaction and was rejected; her portrait stands in until a retake passes.
+ */
 export const RAINBOW_PILOT_POSES: Readonly<
   Record<string, readonly RainbowPose[]>
-> = {}
+> = {
+  maribel: ['hit', 'victory'],
+  azure: ['hit', 'victory'],
+  solenne: ['victory'],
+  vivi: ['hit', 'victory'],
+}
+
+/** How long a pilot's hit card shows over her ship after she loses a life. */
+export const RAINBOW_HIT_CARD_FRAMES = 54
 
 export function rainbowPosePath(pilot: string, pose: RainbowPose): string {
   return `poses/${pilot}-${pose}`

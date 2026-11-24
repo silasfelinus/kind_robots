@@ -78,6 +78,11 @@ function nextIsCharge(boss: SawtoothBoss) {
   return boss.phase === 1 || (boss.phase === 3 && boss.volleys % 2 === 0)
 }
 
+/** Frames the current attack's warning lasts (a charge warns longer than a fin volley). */
+export function sawtoothWarningFrames(boss: SawtoothBoss): number {
+  return warningLength(boss)
+}
+
 function warningLength(boss: SawtoothBoss) {
   return nextIsCharge(boss)
     ? SAWTOOTH.chargeWarningFrames

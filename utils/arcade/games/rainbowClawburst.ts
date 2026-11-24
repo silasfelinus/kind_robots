@@ -59,6 +59,11 @@ export function createClawburstBoss(
   }
 }
 
+/** Frames the current attack's warning lasts (phase 3's punch charges for its own length). */
+export function clawburstWarningFrames(boss: ClawburstBoss): number {
+  return warningLength(boss)
+}
+
 function warningLength(boss: ClawburstBoss) {
   return boss.phase === 3
     ? CLAWBURST.punchWarningFrames

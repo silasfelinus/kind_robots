@@ -626,7 +626,7 @@
           <h2 class="text-lg font-black">Eclipse Scrapbook</h2>
           <p class="text-xs text-white/75" aria-live="polite">
             {{ endingCount }}/{{ endingArchive.length }} ending memories: three
-            final choices and six Motherland-road outcomes.
+            final choices, six Motherland-road outcomes and one late turn.
           </p>
         </div>
         <ol

@@ -15,6 +15,7 @@ const ids = [
   'ending-loyal-restore',
   'ending-loyal-evacuate',
   'ending-loyal-sever',
+  'ending-stood-down',
 ]
 const fresh = rainbowEndingArchive([])
 assert.deepEqual(
@@ -22,7 +23,20 @@ assert.deepEqual(
   ids,
 )
 assert.equal(fresh.filter((entry) => entry.unlocked).length, 0)
-assert.equal(new Set(ids).size, 9)
+assert.equal(new Set(ids).size, 10)
+// Story critic S20: the scrapbook speaks in-world, and a crew that turned at the Crown has its own page.
+for (const entry of fresh)
+  assert.doesNotMatch(entry.summary, /original record|does not prove|save/i)
+assert.deepEqual(rainbowEndingMemoryIds('evacuate', 'rebel', true), [
+  'ending-evacuate',
+  'ending-rebel-evacuate',
+  'ending-stood-down',
+])
+assert.equal(
+  rainbowEndingArchive(['ending-stood-down']).find((entry) => entry.unlocked)
+    ?.title,
+  'Turned at the Crown',
+)
 
 assert.deepEqual(rainbowEndingMemoryIds('restore', null), ['ending-restore'])
 for (const road of ['rebel', 'loyal'] as const) {
@@ -62,5 +76,5 @@ assert.deepEqual(
 )
 assert.ok(fresh.every((entry) => entry.summary.length > 20))
 console.log(
-  'rainbow ending archive: 9 exact memories, 6 route titles and safe legacy choices passed',
+  'rainbow ending archive: 10 exact memories, 6 route titles, the late turn and safe legacy choices passed',
 )

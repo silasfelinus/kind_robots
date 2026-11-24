@@ -194,12 +194,11 @@ for (
   const headers = calls
     .filter((c) => c.op === 'fillText' && typeof c.args[0] === 'string')
     .map((c) => c.args[0] as string)
-    .filter((text) => / \/ [A-Z]/.test(text))
+    .filter((text) => text.includes(' · STARLIGHT'))
   for (const header of headers) {
-    if (header.includes(' · STARLIGHT')) {
-      callSignFrames++
-      assert.match(header, /\/ MARIBEL\b/, 'only the lead pilot answers to it')
-    }
+    callSignFrames++
+    assert.match(header, /^MARIBEL\b/, 'only the lead pilot answers to it')
+    assert.doesNotMatch(header, /\//, 'the header names no scene id (S17)')
   }
 }
 assert.ok(paintedFrames > 0, 'the lead ship flew in Nova paint')

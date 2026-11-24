@@ -1167,6 +1167,11 @@ type GuardianOutcome = 'waiting' | 'defeated' | 'escaped'
 
 export type RainbowCombatSnapshot = {
   tick: number
+  /**
+   * The comms line the last render drew: its scene or callout id (never shown to players), speaker and text.
+   * For tests and tools; null when the comms box was empty.
+   */
+  comms: { id: string; speaker: string; text: string } | null
   /** Rebel road (t-060): volleys truce craft held back this flight. */
   truceHeld: number
   score: number
@@ -1553,6 +1558,8 @@ export function createRainbowPrincessPreview(
   /** High-contrast hostile shots and the comms level (t-044 settings): drawing only, never the run. */
   let contrast = options.highContrast === true
   let comms: ArcadeComms = options.comms ?? 'full'
+  /** The comms line the last render showed, with its scene id (story critic S17: players see only the speaker). */
+  let shownComms: RainbowCombatSnapshot['comms'] = null
   /** The crew's choice at Act V's memorial (t-040, PLOT-MOTHERLAND.md), or null before it. */
   let allegiance: RainbowAllegiance | null = null
   /** Rebel road (t-060): volleys truce craft held back this flight. */
@@ -5139,6 +5146,7 @@ export function createRainbowPrincessPreview(
           for (const memory of rainbowEndingMemoryIds(
             finalChoice ?? 'evacuate',
             allegiance,
+            stoodDown,
           ))
             earn(memory)
           if (difficulty === 'hard') earn('ace-of-eclipse')
@@ -6321,6 +6329,7 @@ export function createRainbowPrincessPreview(
     },
     get snapshot(): RainbowCombatSnapshot {
       return {
+        comms: shownComms,
         tick,
         truceHeld,
         score,
@@ -9358,6 +9367,13 @@ export function createRainbowPrincessPreview(
       // The comms switch (t-044): full, story scenes only, or off but for the ending.
       const line = rainbowCommsLine(comms, said, callout, scene?.id ?? null)
       const dialogue = line && crewLine(line)
+      shownComms = dialogue
+        ? {
+            id: String(scene?.id ?? callout?.id),
+            speaker: dialogue.speaker,
+            text: dialogue.text,
+          }
+        : null
       // Pilot status lives inside the 29 px bar now, so prompts sit just under it for any crew size.
       const commsTop = 33
       // Silas, 2026-10-20: a comms line takes the HUD bar's place instead of stacking under it, so the
@@ -9436,7 +9452,8 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#aef6f0'
         g.font = 'bold 10px monospace'
         g.fillText(
-          `${scene?.id ?? callout?.id} / ${dialogue.speaker.toUpperCase()}${callSignFor(dialogue.speaker)}`,
+          // The speaker and call sign only; scene ids stay internal (story critic S17).
+          `${dialogue.speaker.toUpperCase()}${callSignFor(dialogue.speaker)}`,
           textX,
           16,
         )

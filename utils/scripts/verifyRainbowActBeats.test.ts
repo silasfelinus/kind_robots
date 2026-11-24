@@ -140,13 +140,13 @@ for (let frame = 0; frame < 400000; frame++) {
   if (frame % 24) continue
   texts.length = 0
   game.render(g)
-  texts.forEach((text, i) => {
-    if (!text.startsWith(`A0${act}.CALL / `)) return
-    // The header, then the line's first row: one entry per line heard.
+  // The comms line the render drew (its id stays internal, story critic S17): one entry per line heard.
+  const shown = game.snapshot.comms
+  if (shown?.id === `A0${act}.CALL`) {
     const lines = heard.get(act) ?? new Set<string>()
-    lines.add(`${text} ${texts[i + 1]}`)
+    lines.add(`${shown.id} / ${shown.speaker.toUpperCase()} ${shown.text}`)
     heard.set(act, lines)
-  })
+  }
 }
 for (const act of ACTS) {
   assert.ok(

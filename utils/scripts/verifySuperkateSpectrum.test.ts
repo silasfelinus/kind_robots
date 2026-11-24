@@ -139,7 +139,11 @@ for (let stage = 1; stage <= 30; stage++) {
   assert.ok(!authored[ROWS - 1]!.some(Boolean))
   allStoryBoards.add(JSON.stringify(authored))
   if (stage > 5)
-    assert.equal(detachUnanchored(authored), 0, 'Every new puzzle starts anchored')
+    assert.equal(
+      detachUnanchored(authored),
+      0,
+      'Every new puzzle starts anchored',
+    )
 }
 assert.equal(allStoryBoards.size, 30)
 assert.equal(activeHues(makeBoard(30, () => 0)).length, 6)

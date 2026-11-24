@@ -49,13 +49,7 @@ export const STORY_LAYOUTS: readonly (readonly string[])[] = [
     '...p..t...',
   ],
   // Botanic Dome
-  [
-    'llppttggvv',
-    'llppttggvv',
-    '.llpttgvv.',
-    '..llttvv..',
-    '...llvv...',
-  ],
+  ['llppttggvv', 'llppttggvv', '.llpttgvv.', '..llttvv..', '...llvv...'],
   [
     'ppggvvttll',
     'ppggvvttll',
@@ -479,7 +473,10 @@ export function chapterIndex(stage: number): number {
   return Math.max(0, Math.min(5, Math.floor((stage - 1) / 5)))
 }
 
-export function pressureLimit(stage: number, mode: 'story' | 'classic'): number {
+export function pressureLimit(
+  stage: number,
+  mode: 'story' | 'classic',
+): number {
   return mode === 'classic'
     ? Math.max(4, 9 - Math.floor(stage / 5))
     : CHAPTER_RULES[chapterIndex(stage)]!.limit

@@ -21,9 +21,9 @@ for (const { notes } of cues) {
 }
 
 const fallback: string[] = []
-for (const cue of Object.keys(PLUMBER_ACTION_CUES) as (
-  keyof typeof PLUMBER_ACTION_CUES
-)[]) {
+for (const cue of Object.keys(
+  PLUMBER_ACTION_CUES,
+) as (keyof typeof PLUMBER_ACTION_CUES)[]) {
   playPlumberCue({ play: (name) => fallback.push(name) }, cue)
 }
 assert.deepEqual(
@@ -91,4 +91,6 @@ damage.hurt(-1)
 assert.equal(count('hurt'), 1, 'fatal damage does not stack a hurt cue')
 assert.equal(count('death'), 1, 'fatal damage plays only the death cue')
 
-console.log('Save the Plumber: distinct original cues, real triggers and fallback verified')
+console.log(
+  'Save the Plumber: distinct original cues, real triggers and fallback verified',
+)

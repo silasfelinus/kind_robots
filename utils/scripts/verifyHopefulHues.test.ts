@@ -305,9 +305,11 @@ assert.equal(weatherBoard.weather?.remaining, 1)
 assert.equal(weatherBoard.weather?.countdown, 3)
 const weatherReplay = E.clone(weatherBefore)
 E.trySwap(weatherReplay, [1, 2], [2, 2])
+// E.clone() normalizes into the engine's vm realm; the fixture mixes in
+// test-realm objects that would otherwise fail deepStrictEqual on prototype.
 assert.deepEqual(
   weatherReplay,
-  weatherBoard,
+  E.clone(weatherBoard),
   'weather and ribbon state replay exactly',
 )
 const weatherLevel = L.buildLevel(must(worlds[0]!.regions[1]).id, 18)

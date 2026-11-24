@@ -9,6 +9,12 @@ import {
   COLS,
   ROWS,
   COLORS,
+  CHAPTER_RULES,
+  activeHues,
+  chapterIndex,
+  pressureAfterShot,
+  pressureLimit,
+  specialForStage,
   attachAndPop,
   fireSpecial,
   center,
@@ -110,6 +116,7 @@ type Shot = {
   vy: number
   hue: Hue
   power: SpectrumPower | null
+  banked?: boolean
 }
 type Spark = {
   x: number
@@ -369,6 +376,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.poppedThisBoard = 0
     this.power = null
     this.specialMeter = 0
+    this.specialCount = 0
     this.banner = 160
     this.message =
       this.mode === 'classic'
@@ -394,6 +402,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     const landing = nearestSnap(this.board, this.shot)
     const hue = this.shot.hue
     const power = this.shot.power
+    const banked = this.shot.banked === true
     this.shot = null
     this.shotsThisBoard++
     if (!landing) {
@@ -411,10 +420,11 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       this.burstSparks(pos.x, pos.y, hue, result.matched + result.dropped)
       if (this.mode === 'story' && !this.power) {
         this.specialMeter += result.matched + result.dropped
-        if (this.specialMeter >= 22) {
+        const charge = CHAPTER_RULES[chapterIndex(this.level)]!.charge
+        if (this.specialMeter >= charge) {
           this.specialMeter = 0
           const rank = rankForXp(this.career.xp)
-          this.power = rank >= 15 ? 'ribbon' : rank >= 9 ? 'burst' : 'prism'
+          this.power = specialForStage(this.level, rank, this.specialCount++)
         }
       }
       this.score +=
@@ -424,6 +434,10 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       this.message = result.dropped
         ? `SUPERKATE: ${result.dropped} FREE TO SHINE!`
         : 'SUPERKATE: BEAUTIFUL COMBINATION!'
+      if (this.mode === 'story' && chapterIndex(this.level) === 2 && banked) {
+        this.score += 400
+        this.message = 'SUPERKATE: BANK SHOT BONUS +400!'
+      }
       if (result.dropped >= 5) this.earn('rainbow-rescue')
       if (result.matched >= 6) this.earn('color-alchemist')
     }
@@ -475,11 +489,20 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       this.remember()
       return
     }
-    this.loaded = this.next
+    const hues = activeHues(this.board)
+    this.loaded = hues.includes(this.next)
+      ? this.next
+      : chooseHue(this.board, this.rng)
     this.next = chooseHue(this.board, this.rng)
     this.remember()
-    this.shots++
-    if (this.shots >= Math.max(4, 9 - Math.floor(this.level / 5))) {
+    this.shots = pressureAfterShot(
+      this.shots,
+      this.level,
+      this.mode,
+      result,
+      banked,
+    )
+    if (this.shots >= pressureLimit(this.level, this.mode)) {
       this.shots = 0
       if (pushCeiling(this.board, this.rng)) this.lose()
     }
@@ -611,6 +634,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     if (this.shot.x < 14 || this.shot.x > W - 14) {
       this.shot.x = Math.max(14, Math.min(W - 14, this.shot.x))
       this.shot.vx *= -1
+      this.shot.banked = true
     }
     if (
       this.shot.y <= 40 ||
@@ -895,6 +919,14 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     )
     label(g, `SCORE ${this.score}`, 240, 401, 11, '#fff')
     label(g, `HEARTS ${this.lives}`, 55, 417, 11, '#ffa0c4')
+    label(
+      g,
+      `DROP ${this.shots}/${pressureLimit(this.level, this.mode)}`,
+      150,
+      417,
+      10,
+      '#fff0ad',
+    )
     const rank = rankForXp(this.career.xp)
     label(g, `COLOR RANK ${rank}`, 236, 417, 11, '#9df8f0')
     label(
@@ -1016,7 +1048,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         g,
         this.won
           ? 'THREE PATHS · ONE RAINBOW CITY'
-          : 'A FIRE  B SWAP  LEFT/RIGHT AIM',
+          : this.mode === 'story' && !this.over
+            ? CHAPTER_RULES[chapterIndex(this.level)]!.label
+            : 'A FIRE  B SWAP  LEFT/RIGHT AIM',
         160,
         266,
         10,
@@ -1038,7 +1072,8 @@ const game: ArcadeGameModule = {
         'B SWAPS WITH THE NEXT ORB',
         'MATCH THREE OR MORE TO FREE THEM',
         'FLOATING ORBS DROP FOR EXTRA POINTS',
-        'EVERY FEW SHOTS THE CEILING ADVANCES',
+        'WATCH DROP COUNT: CEILING ADVANCES AT THE LIMIT',
+        'EACH STORY DISTRICT HAS ITS OWN PRESSURE RULE',
         'CLEAR 30 BOARDS TO RESTORE THE CITY',
         'RANK UP TO UNLOCK NEW BUBBLE LOOKS',
         'PRISM MATCHES NEIGHBOR COLORS',

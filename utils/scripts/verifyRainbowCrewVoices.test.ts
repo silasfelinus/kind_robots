@@ -1,5 +1,11 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { CROWN_PLEA } from '../arcade/games/rainbowEclipseCrown'
+import {
+  RAINBOW_CONTINUE_LINES,
+  failureLines,
+  rainbowContinueLine,
+} from '../arcade/games/rainbowFailure'
 import {
   FINALE,
   finaleCredits,
@@ -207,6 +213,31 @@ assert.ok(
     { stoodDown: true },
   ).includes('THE ROAD: TURNED AT THE CROWN'),
 )
+
+// S16: Lilt speaks the continue beat in every Act, in one caption line, and the crew comes back with a cue.
+// S15: an early failure line stays local instead of naming the Eclipse before the story has.
+assert.equal(RAINBOW_CONTINUE_LINES.length, 9)
+for (let act = 1; act <= 9; act++)
+  assert.ok(
+    rainbowContinueLine(act).length <= 80,
+    `Act ${act} continue line fits`,
+  )
+assert.equal(
+  new Set(RAINBOW_CONTINUE_LINES).size,
+  9,
+  'each Act has its own line',
+)
+assert.doesNotMatch(failureLines(1, 0, null)[1]!, /Eclipse/)
+assert.match(failureLines(1, 0, null)[1]!, /Pinkwake/)
+assert.match(failureLines(6, 0, null)[1]!, /Eclipse/)
+{
+  const engine = readFileSync(
+    new URL('../arcade/games/rainbowPrincessPreview.ts', import.meta.url),
+    'utf8',
+  )
+  assert.match(engine, /rainbowContinueLine\(checkpoint\.act\)/)
+  assert.match(engine, /BACK IN THE FIGHT/)
+}
 
 // S1, flown: a solo Vivi crew takes the X1 detour, and every comms header names Vivi or Lilt-7.
 function seeded(seed = 7) {

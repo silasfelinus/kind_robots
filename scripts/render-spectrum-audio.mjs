@@ -39,9 +39,9 @@ function renderWave(loop) {
         const freq = match
           ? 440 *
             2 **
-              ((pitches[match[1]] +
-                (match[2] === '#' ? 1 : match[2] === 'b' ? -1 : 0) +
-                (Number(match[3]) - 4) * 12) /
+              ((pitches[match?.[1] ?? 'A'] +
+                (match?.[2] === '#' ? 1 : match?.[2] === 'b' ? -1 : 0) +
+                (Number(match?.[3] ?? 4) - 4) * 12) /
                 12)
           : 0
         let filtered = 0
@@ -50,7 +50,7 @@ function renderWave(loop) {
             p = 2 * Math.PI * freq * t
           const attack = Math.min(1, t / 0.008),
             release = Math.min(1, (duration - n) / (rate * 0.025))
-          let voice = 0
+          let voice
           if (track.noise) {
             filtered = 0.55 * filtered + 0.45 * random()
             voice = filtered * Math.exp(-t * 24)

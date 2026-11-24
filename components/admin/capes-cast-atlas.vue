@@ -267,9 +267,21 @@
                 previews are not composition approvals.
               </p>
             </div>
-            <span aria-live="polite">
-              {{ loadedCrewProofs }} / 24 fetched for private review
-            </span>
+            <div>
+              <span aria-live="polite">
+                {{ loadedCrewProofs }} / 24 fetched for private review
+              </span>
+              <p>{{ crewReviewCount }} / 24 visually reviewed this session</p>
+              <button
+                type="button"
+                class="atlas-review-export"
+                :disabled="!viewer.isAdmin || !viewer.token || !crewReviewCount"
+                data-testid="capes-crew-export-qa"
+                @click="exportCrewReviews"
+              >
+                Export QA receipts
+              </button>
+            </div>
           </div>
           <div
             class="atlas-crew-tabs"
@@ -338,6 +350,37 @@
                       : 'Private media not fetched'
                   }}
                 </small>
+                <div v-if="viewer.isAdmin && viewer.token" class="atlas-review">
+                  <p>
+                    {{ crewReviews[crewProofReceipt(beat).imageId]?.decision ?? 'Not reviewed' }}
+                    · local QA only
+                  </p>
+                  <label>
+                    Composition, anatomy, canon and originality notes
+                    <textarea
+                      v-model="crewReviewNotes[crewProofReceipt(beat).imageId]"
+                      :aria-label="'Review notes for ' + crewProofReceipt(beat).title"
+                      maxlength="500"
+                      rows="3"
+                    ></textarea>
+                  </label>
+                  <div class="atlas-review-actions">
+                    <button
+                      type="button"
+                      :disabled="!canReviewCrew(beat)"
+                      @click="reviewCrew(beat, 'approved')"
+                    >
+                      Mark acceptable
+                    </button>
+                    <button
+                      type="button"
+                      :disabled="!canReviewCrew(beat)"
+                      @click="reviewCrew(beat, 'rejected')"
+                    >
+                      Flag replacement
+                    </button>
+                  </div>
+                </div>
               </figcaption>
             </figure>
           </div>
@@ -387,6 +430,11 @@ import {
   CREW_COMBAT_POSES,
   type CrewCombatPose,
 } from '~/utils/everyVillainTactics/crewCombatArt'
+import {
+  makeCrewArtReview,
+  type CrewArtReview,
+  type CrewReviewDecision,
+} from '~/utils/everyVillainTactics/crewArtReview'
 import { useEveryVillainTacticsArtStore } from '~/stores/everyVillainTacticsArtStore'
 import { useUserStore } from '~/stores/userStore'
 
@@ -459,6 +507,54 @@ function retryCrewProof(beat: CrewProofBeat): void {
   if (!viewer.isAdmin || !viewer.token) return
   void paintedArt.retry(crewProofReceipt(beat).imageId)
 }
+const crewReviews = ref<Record<number, CrewArtReview>>({})
+const crewReviewNotes = ref<Record<number, string>>({})
+const crewReviewCount = computed(() => Object.keys(crewReviews.value).length)
+function canReviewCrew(beat: CrewProofBeat): boolean {
+  const receipt = crewProofReceipt(beat)
+  return Boolean(
+    viewer.isAdmin &&
+      viewer.token &&
+      crewProofStatus(beat) === 'loaded' &&
+      crewProofImage(beat) &&
+      crewReviewNotes.value[receipt.imageId]?.trim(),
+  )
+}
+function reviewCrew(beat: CrewProofBeat, decision: CrewReviewDecision): void {
+  if (!canReviewCrew(beat)) return
+  const receipt = crewProofReceipt(beat)
+  const result = makeCrewArtReview(
+    receipt,
+    decision,
+    crewReviewNotes.value[receipt.imageId] ?? '',
+    Boolean(viewer.isAdmin && viewer.token),
+    crewProofStatus(beat) === 'loaded' && Boolean(crewProofImage(beat)),
+    new Date().toISOString(),
+  )
+  if (result) crewReviews.value[receipt.imageId] = result
+}
+function exportCrewReviews(): void {
+  if (!import.meta.client || !viewer.isAdmin || !viewer.token) return
+  if (!crewReviewCount.value) return
+  const reviewed = Object.values(crewReviews.value)
+  const url = URL.createObjectURL(
+    new Blob([JSON.stringify({ version: 1, reviewed }, null, 2)], {
+      type: 'application/json',
+    }),
+  )
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'capes-private-crew-image-qa.json'
+  link.click()
+  URL.revokeObjectURL(url)
+}
+watch(
+  [() => viewer.token, () => viewer.isAdmin],
+  () => {
+    crewReviews.value = {}
+    crewReviewNotes.value = {}
+  },
+)
 const loadedCrewProofs = computed(() =>
   viewer.isAdmin && viewer.token
     ? crewKinds.reduce(
@@ -1071,6 +1167,43 @@ watch(
 }
 .atlas-proof-state {
   color: #f0c98a;
+}
+.atlas-review {
+  display: grid;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid #8297b355;
+  font-size: 11px;
+}
+.atlas-review label {
+  display: grid;
+  gap: 4px;
+}
+.atlas-review textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid #8297b3;
+  border-radius: 5px;
+  background: #0b1727;
+  color: #f0ecdf;
+}
+.atlas-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.atlas-review-actions button,
+.atlas-review-export {
+  padding: 5px 8px;
+  border: 1px solid #dba76c;
+  border-radius: 5px;
+  color: #f0d09c;
+}
+.atlas-review-actions button:disabled,
+.atlas-review-export:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 .atlas-missions {
   display: grid;

@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import {
+  CREW_REVIEW_RECEIPTS,
+  makeCrewArtReview,
+} from '../everyVillainTactics/crewArtReview'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import { EVERY_VILLAIN_TACTICS } from '../playbookKit/games/everyVillainTactics'
 import { auditPlaybookKit } from '../playbookKit/budget'
@@ -185,3 +189,34 @@ assert.match(tab, /^route: \/admin\/every-villain-tactics$/m)
 console.log(
   'Every Villain Tactics: 48 roster identities, First Bell combat and console contracts verified.',
 )
+
+// Curator handoff must bind the exact private source receipt and require
+// an authenticated, successfully decoded image and written visual rationale.
+assert.equal(CREW_REVIEW_RECEIPTS.length, 24)
+assert.equal(new Set(CREW_REVIEW_RECEIPTS.map((r) => r.imageId)).size, 24)
+const crewReviewTime = '2026-11-24T03:04:00Z'
+for (const receipt of CREW_REVIEW_RECEIPTS) {
+  const rationale = 'Canon, anatomy and composition reviewed.'
+  assert.equal(makeCrewArtReview(receipt, 'approved', rationale, false, true, crewReviewTime), null)
+  assert.equal(makeCrewArtReview(receipt, 'approved', rationale, true, false, crewReviewTime), null)
+  assert.equal(makeCrewArtReview(receipt, 'approved', '  ', true, true, crewReviewTime), null)
+  assert.equal(makeCrewArtReview({ ...receipt, imageId: 1 }, 'approved', rationale, true, true, crewReviewTime), null)
+  for (const decision of ['approved', 'rejected'] as const) {
+    const result = makeCrewArtReview(receipt, decision, rationale, true, true, crewReviewTime)
+    assert.deepEqual(result, {
+      asset: receipt.artKey,
+      artJobId: receipt.jobId,
+      artImageId: receipt.imageId,
+      decision,
+      note: rationale,
+      reviewedAt: crewReviewTime,
+      source: 'browser-local-art-qa',
+      productionApproved: false,
+    })
+  }
+}
+const crewReviewAtlas = readFileSync(new URL('../../components/admin/capes-cast-atlas.vue', import.meta.url), 'utf8')
+assert.match(crewReviewAtlas, /data-testid="capes-crew-export-qa"/)
+assert.match(crewReviewAtlas, /crewProofStatus\(beat\) === 'loaded'/)
+assert.match(crewReviewAtlas, /makeCrewArtReview\(/)
+assert.match(crewReviewAtlas, /crewReviews\.value = \{\}/)

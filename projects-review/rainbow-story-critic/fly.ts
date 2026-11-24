@@ -6,7 +6,6 @@ import { TRENCH_FORK } from '../../utils/arcade/games/rainbowTrench'
 import { WRECK_FORK } from '../../utils/arcade/games/rainbowWreckyard'
 import { CROWN_REEF_FORK } from '../../utils/arcade/games/rainbowCrownReef'
 import { FINALE_LANES } from '../../utils/arcade/games/rainbowEclipseFinale'
-import { CROWN_PLEA } from '../../utils/arcade/games/rainbowEclipseCrown'
 import { ROSEFIN } from '../../utils/arcade/games/rainbowRosefin'
 import { emptyInput } from '../../utils/arcade/types'
 

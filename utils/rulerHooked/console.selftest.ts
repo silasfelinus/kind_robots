@@ -5,6 +5,7 @@
 // library's fallback chains. Run via `npx tsx`, like the other selftests.
 
 import assert from 'node:assert/strict'
+import { rememberReign, scrapbookSummary } from '~/utils/rulerHooked/scrapbook'
 import {
   cleanRoyalAudioPrefs,
   ROYAL_AUDIO_DEFAULTS,
@@ -379,6 +380,40 @@ const fresh = (seed = 'console-seed'): RunSave =>
       assert.ok(duration >= 0.08)
     }
   }
+}
+
+
+{
+  const first = fresh('scrapbook-first')
+  const slug = availableFish(first)[0]!.slug
+  first.fishopedia[slug] = {
+    fishSlug: slug,
+    firstCaughtTurn: 2,
+    countCaught: 3,
+    bestSizeCm: 19,
+    bestQualityScore: 72,
+  }
+  const card = C.decks.flatMap((deck) => deck.cards).find((card) => card.characters?.length)!
+  first.deckState.seenCardIds.push(card.id)
+  first.turnCount = 5
+  let archive = rememberReign({}, first, C)
+  archive = rememberReign(archive, first, C)
+  assert.equal(scrapbookSummary(archive).fish.get(slug)?.count, 3, 'reload never doubles catches')
+  assert.ok(scrapbookSummary(archive).characters.has(card.characters![0]!))
+  const second = { ...fresh('scrapbook-second'), saveId: 'second' }
+  second.fishopedia[slug] = { ...first.fishopedia[slug]!, countCaught: 2, bestSizeCm: 25 }
+  second.status = 'COMPLETE'
+  second.endingKey = C.endings[0]!.outcomeKey
+  archive = rememberReign(archive, second, C)
+  assert.equal(scrapbookSummary(archive).fish.get(slug)?.count, 5)
+  assert.equal(scrapbookSummary(archive).fish.get(slug)?.bestSizeCm, 25)
+  assert.ok(scrapbookSummary(archive).endings.has(second.endingKey))
+  const stale = { ...second, status: 'ACTIVE' as const, endingKey: null, fishopedia: {}, turnCount: 0 }
+  archive = rememberReign(archive, stale, C)
+  assert.equal(scrapbookSummary(archive).fish.get(slug)?.count, 5)
+  assert.ok(scrapbookSummary(archive).endings.has(second.endingKey), 'older saves cannot erase an ending')
+  assert.equal(scrapbookSummary(archive).reigns.length, 2)
+  assert.equal(scrapbookSummary({}).endings.size, 0, 'new players see no spoilers')
 }
 
 console.log(

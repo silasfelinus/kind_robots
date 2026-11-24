@@ -16,40 +16,13 @@
   <body>
     <main id="game" aria-label="Chessweeper Triple Threat">
       <div id="stage" class="stage">
-        <section class="play-panel chess-panel" aria-label="Chess game">
-          <div class="panel-label">
-            <strong>♔ CHESS</strong><span id="chess-status">Your move</span>
-          </div>
-          <div
-            id="chess-board"
-            class="tile-grid chess-board"
-            role="group"
-            aria-label="Chessboard"
-          ></div>
-          <div class="panel-caption" id="chess-caption">
-            Tap a piece, then its destination
-          </div>
-        </section>
-        <section class="play-panel mine-panel" aria-label="Minesweeper game">
-          <div class="panel-label">
-            <strong>✹ MINES</strong><span id="mine-status">10 hidden</span>
-          </div>
-          <div
-            id="mine-board"
-            class="tile-grid mine-board"
-            role="group"
-            aria-label="Minefield"
-          ></div>
-          <div class="panel-caption">
-            <button id="flag-mode" class="small-action" aria-pressed="false">
-              🚩 Flag mode
-            </button>
-            <span id="mine-caption">Tap to reveal, long-press to flag</span>
-          </div>
-        </section>
         <section class="play-panel disc-panel" aria-label="Disc survival game">
-          <div class="panel-label">
-            <strong>◉ SURVIVE</strong><span id="disc-status">WASD / Drag</span>
+          <div class="status-strip survival-strip">
+            <output id="hearts" aria-label="Shared lives">♥♥♥</output>
+            <div class="mini-controls">
+              <button id="pause" class="hud-button" title="Pause and settings" aria-label="Pause and settings">⚙</button>
+              <button id="rankings" class="hud-button" title="Global leaderboard" aria-label="Global leaderboard">🏆</button>
+            </div>
           </div>
           <canvas
             id="disc-arena"
@@ -57,47 +30,35 @@
             height="360"
             aria-label="Avoid the bouncing discs using WASD or drag on touchscreens"
           ></canvas>
-          <div class="panel-caption" id="disc-caption">
-            WASD or touch and drag
+          <span id="disc-status" class="sr-only">WASD / Drag</span>
+          <span id="disc-caption" class="sr-only" role="status"></span>
+        </section>
+        <section class="play-panel chess-panel" aria-label="Chess game">
+          <div class="status-strip chess-strip">
+            <output id="clock" aria-label="Shared time left">02:00</output>
+            <output id="total" aria-label="Total score" title="Total score">0</output>
           </div>
+          <div id="chess-board" class="tile-grid chess-board" role="group" aria-label="Chessboard"></div>
+          <span id="chess-status" class="sr-only" role="status">Your move</span>
+          <span id="chess-caption" class="sr-only"></span>
+        </section>
+        <section class="play-panel mine-panel" aria-label="Minesweeper game">
+          <div class="status-strip mine-strip">
+            <output id="mine-counter" class="digital" aria-label="Remaining mines">010</output>
+            <button id="flag-mode" class="mine-face" aria-pressed="false" aria-label="Toggle flag mode" title="Toggle flag mode">☺</button>
+            <output id="mine-time" class="digital" aria-label="Elapsed seconds">000</output>
+          </div>
+          <div id="mine-board" class="tile-grid mine-board" role="group" aria-label="Minefield"></div>
+          <span id="mine-status" class="sr-only" role="status">10 hidden</span>
+          <span id="mine-caption" class="sr-only"></span>
         </section>
       </div>
-      <footer class="hud" aria-label="Shared run controls">
-        <span class="hud-item" title="Time left"
-          >⏱ <output id="clock">02:00</output></span
-        >
-        <span class="hud-item" title="Total score"
-          >★ <output id="total">0</output></span
-        >
-        <span class="hud-item" title="Shared lives"
-          >♥ <output id="hearts">♥♥♥</output></span
-        >
-        <span class="hud-breakdown" title="Chess, mines, survival scores">
-          ♔ <output id="chess-points">0</output> ✹
-          <output id="mine-points">0</output> ◉
-          <output id="disc-points">0</output>
-        </span>
-        <span id="difficulty-badge" class="hud-difficulty" title="Difficulty"
-          >⚖ MEDIUM</span
-        >
-        <span class="hud-spacer"></span>
-        <button
-          id="pause"
-          class="hud-button"
-          title="Pause and settings"
-          aria-label="Pause and settings"
-        >
-          ⚙
-        </button>
-        <button
-          id="rankings"
-          class="hud-button"
-          title="Global leaderboard"
-          aria-label="Global leaderboard"
-        >
-          🏆
-        </button>
-      </footer>
+      <div class="sr-only" aria-label="Score breakdown">
+        <span id="difficulty-badge"></span>
+        <output id="chess-points">0</output>
+        <output id="mine-points">0</output>
+        <output id="disc-points">0</output>
+      </div>
     </main>
     <div
       id="dialog"

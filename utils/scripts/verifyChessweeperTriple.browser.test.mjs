@@ -145,6 +145,31 @@ try {
       false,
       'title and settings are absent during play',
     )
+    const boardGeometry = await page
+      .locator('#disc-arena, #chess-board, #mine-board')
+      .evaluateAll((elements) =>
+        elements.map((el) => {
+          const r = el.getBoundingClientRect()
+          return { id: el.id, x: r.x, y: r.y, width: r.width, height: r.height }
+        }),
+      )
+    assert.deepEqual(
+      boardGeometry.map((b) => b.id),
+      ['disc-arena', 'chess-board', 'mine-board'],
+      'the player mockup sets survival, chess, mines order',
+    )
+    assert.ok(
+      boardGeometry.every(
+        (b) =>
+          Math.abs(b.width - b.height) <= 1 &&
+          Math.abs(b.width - boardGeometry[0].width) <= 1 &&
+          Math.abs(b.y - boardGeometry[0].y) <= 1,
+      ),
+      'three equal aligned square boards',
+    )
+    assert.equal(await page.locator('#chess-board img').count(), 32)
+    assert.equal(await page.locator('.panel-caption, .panel-label, footer.hud').count(), 0)
+    assert.equal(await page.locator('#mine-counter').innerText(), String(expected.mineCount).padStart(3, '0'))
     const beginning = await page.evaluate(() =>
       window.__chessweeperTriple.snapshot(),
     )
@@ -194,7 +219,7 @@ try {
     assert.equal(
       await page.locator('#scores-view').isVisible(),
       true,
-      'global scores are accessible from bottom HUD',
+      'global scores are accessible from the compact top strip',
     )
     assert.equal(await page.locator('#score-difficulty').inputValue(), bracket)
     await page.locator('#score-rows').getByText(/AAA/).waitFor()

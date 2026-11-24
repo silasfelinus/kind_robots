@@ -1785,6 +1785,11 @@ export function createRainbowPrincessPreview(
     options.sound.play('extra')
   }
 
+  /** Frames into the Crown's plea while it pleads (the A09.PLEA scene), else null. */
+  function pleaElapsed(): number | null {
+    return crown && crown.plea > 0 ? CROWN_PLEA.frames - crown.plea : null
+  }
+
   /** The whole crew fell in the prism corridors: the escape starts again, the choice kept. */
   function restartEscape() {
     escapeFrame = 0
@@ -6331,6 +6336,7 @@ export function createRainbowPrincessPreview(
                                     choiceFrame,
                                     escapeFrame,
                                     endingFrame,
+                                    pleaElapsed(),
                                   )?.id ?? null),
         boss: boss ? { ...boss } : null,
         moonBoss: moonBoss ? { ...moonBoss } : null,
@@ -9088,6 +9094,7 @@ export function createRainbowPrincessPreview(
                                   choiceFrame,
                                   escapeFrame,
                                   endingFrame,
+                                  pleaElapsed(),
                                 )
       const said = scene
         ? cometActive()
@@ -9132,6 +9139,7 @@ export function createRainbowPrincessPreview(
                       allegiance,
                       partyMask(),
                       routeFlags(),
+                      stoodDown,
                     )
                   : act === 8
                     ? palaceDialogue(
@@ -9472,6 +9480,7 @@ export function createRainbowPrincessPreview(
               ),
               callSign: livery?.callSign,
               route: routeFlags(),
+              stoodDown,
             },
           )
           const top =

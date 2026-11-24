@@ -9529,9 +9529,7 @@ export function createRainbowPrincessPreview(
                                   )
                                 : moonjellyDialogue(
                                     scene.id as
-                                      | 'A02.OPEN'
-                                      | 'A02.TURN'
-                                      | 'A02.AFTER',
+                                      'A02.OPEN' | 'A02.TURN' | 'A02.AFTER',
                                     scene.elapsed,
                                     activePlayers,
                                     rescuedNemi,

@@ -56,6 +56,7 @@ import {
   loadRainbowLook,
   rainbowActStage,
   rainbowLook,
+  setRainbowAnimationClock,
 } from './rainbowGameArt'
 import { drawFeverSky, drawFeverTrail } from './rainbowFeverDream'
 import {
@@ -6610,6 +6611,8 @@ export function createRainbowPrincessPreview(
     },
     update,
     render(g: CanvasRenderingContext2D) {
+      // One animation clock for every sprite's idle atlas (P-01); calm motion holds the first cell.
+      setRainbowAnimationClock(tick, calm)
       /** Calm motion slows every scenery plane alike, so their parallax still reads. */
       const drift = calm ? RAINBOW_EFFECTS.calmDrift : 1
       const sky = g.createLinearGradient(0, 0, 0, H)

@@ -1840,9 +1840,10 @@ export class PlumberRun implements ArcadeGameInstance {
         this.sound.play('extra')
       }
     }
-    const desiredLead = this.locked || this.stillCamera
-      ? 0
-      : Math.max(-42, Math.min(42, hero.vx * 10))
+    const desiredLead =
+      this.locked || this.stillCamera
+        ? 0
+        : Math.max(-42, Math.min(42, hero.vx * 10))
     this.cameraLead += (desiredLead - this.cameraLead) * 0.12
     if (Math.abs(this.cameraLead) < 0.05) this.cameraLead = 0
     const target = this.cameraTarget()

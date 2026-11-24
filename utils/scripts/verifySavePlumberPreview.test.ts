@@ -148,9 +148,7 @@ const edgeProbe = {
 const contrast = calmRun as unknown as {
   renderContrastEdges(g: CanvasRenderingContext2D): void
 }
-contrast.renderContrastEdges(
-  edgeProbe as unknown as CanvasRenderingContext2D,
-)
+contrast.renderContrastEdges(edgeProbe as unknown as CanvasRenderingContext2D)
 assert.ok(edgeColors.has('#ffffff'), 'contrast marks exposed terrain')
 assert.ok(edgeColors.has('#101820'), 'contrast backs edges with a dark stroke')
 

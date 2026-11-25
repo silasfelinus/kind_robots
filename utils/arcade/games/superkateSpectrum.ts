@@ -373,6 +373,7 @@ type PointerAction =
   | { kind: 'atelierChoose'; by: number }
   | { kind: 'atelierStart' }
   | { kind: 'atelierBack' }
+  | { kind: 'relayStart' }
   | { kind: 'tab'; tab: HomeTab }
   | { kind: 'mode' }
   | { kind: 'album'; by: number }
@@ -505,6 +506,11 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   choosingMode = true
   menuStage = 1
   atelierMenu = false
+  relayActive = false
+  relayTurn: 1 | 2 = 1
+  relayCombo = 0
+  relayRoundScore = 0
+  relayRoundTurn: 1 | 2 = 1
   atelierActive = false
   atelierIndex = 0
   atelierUsed = 0
@@ -604,6 +610,25 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       endings: [...this.storyEndings],
     }
   }
+  private startRelay() {
+    this.relayActive = true
+    this.relayRoundScore = 0
+    this.relayRoundTurn = 1
+    this.atelierIndex = 0
+    this.startAtelier()
+  }
+  private continuePuzzle() {
+    if (this.relayActive && this.atelierResult === 'cleared') {
+      if (this.atelierIndex === ATELIER_PUZZLES.length - 1) {
+        this.backFromAtelier()
+        return
+      }
+      this.relayRoundScore = this.score
+      this.relayRoundTurn = this.relayTurn
+      this.atelierIndex++
+    }
+    this.startAtelier()
+  }
   private startAtelier() {
     const puzzle = ATELIER_PUZZLES[this.atelierIndex]!
     this.choosingMode = false
@@ -618,13 +643,16 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.pendingChoice = null
     this.power = null
     this.banner = 0
-    this.score = 0
+    this.score = this.relayActive ? this.relayRoundScore : 0
+    this.relayTurn = this.relayRoundTurn
+    this.relayCombo = 0
     this.over = false
     this.won = false
     this.angle = -Math.PI / 2
     this.pointerAction = null
   }
   private backFromAtelier() {
+    this.relayActive = false
     this.atelierActive = false
     this.atelierResult = null
     this.atelierMenu = false
@@ -740,6 +768,15 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       const puzzle = ATELIER_PUZZLES[this.atelierIndex]!
       this.atelierUsed++
       if (result.matched) this.playEffect('pop')
+      if (this.relayActive) {
+        this.relayTurn = this.relayTurn === 1 ? 2 : 1
+        this.relayCombo = result.matched ? this.relayCombo + 1 : 0
+        if (result.matched)
+          this.score +=
+            result.matched * 100 +
+            result.dropped * 175 +
+            Math.max(0, this.relayCombo - 1) * 100
+      }
       if (result.cleared) {
         this.atelierResult = 'cleared'
         this.playEffect('level')
@@ -994,6 +1031,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       }
       if (this.mode === 'classic') {
         if (y >= 380 && y <= 420) return { kind: 'atelierOpen' }
+        if (y >= 422 && y < 459) return { kind: 'relayStart' }
         if (y >= 207 && y <= 234) return { kind: 'mode' }
         return y >= 310 && y <= 350 ? { kind: 'classic' } : null
       }
@@ -1057,7 +1095,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     } else if (action.kind === 'classic') this.beginRun()
     else if (action.kind === 'atelierOpen') this.atelierMenu = true
     else if (action.kind === 'atelierChoose') this.chooseAtelier(action.by)
-    else if (action.kind === 'atelierStart') this.startAtelier()
+    else if (action.kind === 'atelierStart') this.continuePuzzle()
+    else if (action.kind === 'relayStart') this.startRelay()
     else if (action.kind === 'atelierBack') this.backFromAtelier()
     else if (action.kind === 'style') {
       this.selectedStyle = action.style
@@ -1108,7 +1147,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
 
   update(input: InputFrame) {
     if (this.atelierResult) {
-      if (input.pressed.a) this.startAtelier()
+      if (input.pressed.a) this.continuePuzzle()
       else if (input.pressed.b) this.backFromAtelier()
       return
     }
@@ -1142,6 +1181,10 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         this.playEffect('blip')
       }
       if (this.menuTab === 'play') {
+        if (this.mode === 'classic' && input.pressed.left) {
+          this.startRelay()
+          return
+        }
         if (this.mode === 'classic' && input.pressed.right) {
           this.atelierMenu = true
           return
@@ -1635,7 +1678,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     label(
       g,
       this.atelierActive
-        ? 'ATELIER'
+        ? this.relayActive
+          ? `RELAY ${this.atelierIndex + 1}/6`
+          : 'ATELIER'
         : this.mode === 'classic'
           ? `CLASSIC ${this.level}`
           : `STAGE ${this.level}/30`,
@@ -1647,7 +1692,11 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     label(g, `SCORE ${this.score}`, 240, 401, 11, '#fff')
     label(
       g,
-      this.atelierActive ? 'UNRANKED' : `HEARTS ${this.lives}`,
+      this.relayActive
+        ? `P${this.relayTurn} SHOOT`
+        : this.atelierActive
+          ? 'UNRANKED'
+          : `HEARTS ${this.lives}`,
       55,
       417,
       11,
@@ -1664,7 +1713,14 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       '#fff0ad',
     )
     const rank = rankForXp(this.career.xp)
-    label(g, `COLOR RANK ${rank}`, 236, 417, 11, '#9df8f0')
+    label(
+      g,
+      this.relayActive ? `COMBO ${this.relayCombo}` : `COLOR RANK ${rank}`,
+      236,
+      417,
+      11,
+      '#9df8f0',
+    )
     label(
       g,
       this.atelierActive
@@ -1686,7 +1742,14 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       g.fillRect(14, 145, W - 28, 235)
       g.strokeStyle = '#fe8fc9'
       g.strokeRect(14, 145, W - 28, 235)
-      label(g, 'PUZZLE ATELIER', W / 2, 172, 18, '#fff0ad')
+      label(
+        g,
+        this.relayActive ? 'CO-OP RELAY' : 'PUZZLE ATELIER',
+        W / 2,
+        172,
+        18,
+        '#fff0ad',
+      )
       label(g, ATELIER_PUZZLES[this.atelierIndex]!.title, W / 2, 198, 14)
       if (this.atelierResult) {
         label(
@@ -1698,7 +1761,17 @@ class SuperkateSpectrum implements ArcadeGameInstance {
           230,
           13,
         )
-        label(g, 'A / TAP: RETRY', W / 2, 275, 13)
+        label(
+          g,
+          this.relayActive && this.atelierResult === 'cleared'
+            ? this.atelierIndex === ATELIER_PUZZLES.length - 1
+              ? 'A / TAP: FINISH RELAY'
+              : 'A / TAP: NEXT ROUND'
+            : 'A / TAP: RETRY',
+          W / 2,
+          275,
+          13,
+        )
         label(g, 'B / TAP: BACK', W / 2, 325, 13)
       } else {
         label(
@@ -1764,6 +1837,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       g.fillStyle = '#713a7c'
       g.fillRect(26, 380, W - 52, 40)
       label(g, 'RIGHT / TAP: PUZZLE ATELIER', W / 2, 405, 12)
+      g.fillStyle = '#255a67'
+      g.fillRect(26, 422, W - 52, 35)
+      label(g, 'LEFT / TAP: TWO-PLAYER RELAY', W / 2, 444, 12)
       this.renderMenuTabs(g)
       return
     }
@@ -1837,6 +1913,8 @@ const game: ArcadeGameModule = {
         'MODE MENU: UP/DOWN STORY OR CLASSIC',
         'B ON MODE MENU CHANGES BUBBLE LOOK',
         'CLASSIC MENU: RIGHT OR TAP FOR ATELIER',
+        'LEFT OR TAP: LOCAL TWO-PLAYER RELAY',
+        'RELAY: TAKE TURNS AFTER EACH SHOT',
         'ATELIER: FIXED SHOTS, NO RANKED SCORE',
         'A SHOOTS YOUR COLOR ORB',
         'LEFT/RIGHT AIM; BANK OFF THE WALLS',

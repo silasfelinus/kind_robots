@@ -134,6 +134,9 @@ function fly(
     players,
     demo: false,
     rng: seeded(1234),
+    // These scripted pilots are steered against Act II's authored lanes, so they fly them without the run's
+    // seeded wave mirrors (D9; verifyRainbowWaveVariation covers the mirrors).
+    rainbowAuthoredWaves: true,
     sound: { play() {} },
     hiScore: 0,
   })

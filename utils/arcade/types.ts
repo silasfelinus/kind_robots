@@ -224,6 +224,8 @@ export type ArcadeGameOptions = {
    * test can fly a saved road with real lanes. The cabinet never sets it.
    */
   rainbowDemoResume?: boolean
+  /** Rainbow Space Princess: fly every authored wave in its authored lanes, without this run's seeded mirrors (D9). The attract demo always does. */
+  rainbowAuthoredWaves?: boolean
   /** Earned, per-save-slot Palace Hangar upgrades for Rainbow Space Princess. */
   rainbowHangar?: { shield: boolean; charge: boolean; life: boolean }
   /** Rainbow's call sign and per-pilot paint schemes from the save slot's Hangar (t-044); drawing only. */

@@ -100,6 +100,11 @@ jobs:
         run: node utils/scripts/verifySuperkateSpectrumCabinet.browser.test.mjs
         env:
           SPECTRUM_CABINET_SHOTS: cabinet-contract-shots/superkate-spectrum
+      - name: Superkate Spectrum — hub scrapbook, trophies, settings and save state at 390/768/1440
+        if: always()
+        run: node utils/scripts/verifySuperkateSpectrumHub.browser.test.mjs
+        env:
+          SPECTRUM_HUB_SHOTS: cabinet-contract-shots/superkate-spectrum-hub
       - name: Preserve cabinet states
         if: always()
         uses: actions/upload-artifact@v4

@@ -3,6 +3,7 @@ import type {
   ArcadeGameModule,
   ArcadeGameOptions,
   ArcadeAudioSettings,
+  ArcadeSaveStatus,
   ArcadeStagePointer,
   InputFrame,
 } from '../types'
@@ -720,6 +721,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   trophyPage = 0
   optionRow = 0
   settings: SpectrumSettings
+  /** Where this career is kept (the cabinet's account sync state), shown on the hub pages. */
+  saveStatus: ArcadeSaveStatus = 'local'
   power: SpectrumPower | null = null
   powerTip: SpectrumPower | null = null
   powerTipTicks = 0
@@ -767,6 +770,18 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.next = chooseHue(this.board, this.rng)
     this.message = CHAPTERS[Math.min(5, Math.floor((this.level - 1) / 5))]!.kate
     this.choosingMode = !this.demo
+  }
+  setSaveStatus(status: ArcadeSaveStatus) {
+    this.saveStatus = status
+  }
+  get saveStatusLabel() {
+    return this.saveStatus === 'synced'
+      ? 'CAREER SYNCED TO YOUR ACCOUNT'
+      : this.saveStatus === 'checking' || this.saveStatus === 'saving'
+        ? 'SYNCING YOUR CAREER...'
+        : this.saveStatus === 'offline'
+          ? 'OFFLINE · SAVED ON THIS DEVICE'
+          : 'SAVED ON THIS DEVICE · SIGN IN TO SYNC'
   }
   /** Both the host switches and the game Settings page control this mixer. */
   setAudio(settings: ArcadeAudioSettings) {
@@ -1924,7 +1939,19 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     // The run's HUD and launcher sit under the home pages; cover them so the hint reads alone.
     g.fillStyle = '#100d27'
     g.fillRect(0, 388, W, 459 - 388)
-    label(g, 'X: NEXT TAB  Y: PREVIOUS', W / 2, 412, 11, '#f3d78d')
+    label(
+      g,
+      this.saveStatusLabel,
+      W / 2,
+      404,
+      10,
+      this.saveStatus === 'synced'
+        ? '#9ff2e5'
+        : this.saveStatus === 'offline'
+          ? '#ffb48a'
+          : '#d8d3f0',
+    )
+    label(g, 'X: NEXT TAB  Y: PREVIOUS', W / 2, 430, 11, '#f3d78d')
     this.renderMenuTabs(g)
   }
 

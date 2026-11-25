@@ -1629,7 +1629,19 @@ function adopt<T extends ArcadePlayableInstance>(instance: T): T {
     instance.mount(stage)
     sizeStage(instance)
   }
+  pushSaveStatus(instance)
   return instance
+}
+
+/** Tell a game that shows its own save state where its career is kept (see setSaveStatus). */
+function pushSaveStatus(instance: ArcadePlayableInstance | null) {
+  if (
+    instance &&
+    'setSaveStatus' in instance &&
+    typeof instance.setSaveStatus === 'function' &&
+    store.spectrumCloudStatus
+  )
+    instance.setSaveStatus(store.spectrumCloudStatus)
 }
 
 /** Free a WebGL game's GPU, physics and audio resources (2D games hold none). */
@@ -2830,6 +2842,11 @@ watch(
       void store.syncSuperkateCareer()
     }
   },
+)
+
+watch(
+  () => store.spectrumCloudStatus,
+  () => pushSaveStatus(game),
 )
 
 watch(

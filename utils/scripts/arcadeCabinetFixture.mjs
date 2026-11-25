@@ -369,6 +369,7 @@ export async function openCabinet(
     storage = null,
     audioProbe = false,
     serveArt = false,
+    mediaDir = null,
     containedHeight = 0,
   },
 ) {
@@ -409,6 +410,26 @@ export async function openCabinet(
           }
         },
       )
+    // Opt-in: serve /images/... (the site's external media origin) from a local copy, for visual QA.
+    if (mediaDir)
+      await page.route(new RegExp(`^${ORIGIN}images/(.+)$`), (route) => {
+        const file = path.join(
+          mediaDir,
+          decodeURIComponent(new URL(route.request().url()).pathname).slice(
+            '/images/'.length,
+          ),
+        )
+        try {
+          route.fulfill({
+            body: readFileSync(file),
+            contentType: file.endsWith('.webp')
+              ? 'image/webp'
+              : 'application/octet-stream',
+          })
+        } catch {
+          route.fulfill({ status: 404, body: '' })
+        }
+      })
     await page.goto(ORIGIN)
   } else {
     await page.setContent(PAGE)

@@ -209,6 +209,33 @@ export const SPECTRUM_BOSS_ART = [
   'boss-palette-keeper',
 ].map((name) => `/images/arcade/superkate-spectrum/${name}.webp`)
 
+export function chapterMemoryEarned(career: SpectrumCareer, chapter: number) {
+  return chapter >= 0 && chapter < 6 && (career.stars[chapter * 5 + 4] ?? 0) > 0
+}
+
+export const SPECTRUM_TROPHIES = [
+  {
+    id: 'rainbow-rescue',
+    name: 'RAINBOW RESCUE',
+    hint: 'DROP FIVE FLOATING BUBBLES',
+  },
+  {
+    id: 'color-alchemist',
+    name: 'COLOR ALCHEMIST',
+    hint: 'POP SIX MATCHING BUBBLES',
+  },
+  {
+    id: 'true-spectrum',
+    name: 'EVERY SHADE BELONGS',
+    hint: 'RESTORE ALL 30 LEVELS',
+  },
+  ...CHAPTERS.map((chapter, index) => ({
+    id: `chapter-${index + 1}`,
+    name: chapter.name,
+    hint: 'DEFEAT THE DISTRICT BOSS',
+  })),
+]
+
 export function newlyUnlockedStyles(beforeXp: number, afterXp: number) {
   const before = unlockedStyles(rankForXp(beforeXp))
   return unlockedStyles(rankForXp(afterXp)).filter(
@@ -418,6 +445,7 @@ type PointerAction =
   | { kind: 'tab'; tab: HomeTab }
   | { kind: 'mode' }
   | { kind: 'album'; by: number }
+  | { kind: 'trophies'; by: number }
   | { kind: 'option'; row: number; by: number }
 
 function stepShot(shot: Shot) {
@@ -560,6 +588,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   atelierResult: 'cleared' | 'retry' | null = null
   menuTab: HomeTab = 'play'
   albumChapter = 0
+  trophyPage = 0
   optionRow = 0
   settings: SpectrumSettings
   power: SpectrumPower | null = null
@@ -650,6 +679,17 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       this.cosmeticUnlockTicks = 240
       this.playEffect('level')
     }
+  }
+  trophyEarned(id: string) {
+    if (this.earned.has(id)) return true
+    if (id === 'true-spectrum') return this.storyEndings.length > 0
+    if (id.startsWith('chapter-'))
+      return chapterMemoryEarned(this.career, Number(id.slice(8)) - 1)
+    return false
+  }
+  private changeTrophyPage(by: number) {
+    const pages = Math.ceil(SPECTRUM_TROPHIES.length / 3)
+    this.trophyPage = (this.trophyPage + by + pages) % pages
   }
   private remember() {
     this.stored = {
@@ -1067,6 +1107,11 @@ class SuperkateSpectrum implements ArcadeGameInstance {
           return { kind: 'album', by: x < W / 2 ? -1 : 1 }
         return null
       }
+      if (this.menuTab === 'achievements') {
+        if (y >= 326 && y <= 358)
+          return { kind: 'trophies', by: x < W / 2 ? -1 : 1 }
+        return null
+      }
       if (this.menuTab === 'settings') {
         if (x < 28 || x > W - 28) return null
         for (let row = 0; row < 7; row++) {
@@ -1168,6 +1213,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       this.playEffect('blip')
     } else if (action.kind === 'album') {
       this.albumChapter = (this.albumChapter + action.by + 6) % 6
+    } else if (action.kind === 'trophies') {
+      this.changeTrophyPage(action.by)
     } else if (action.kind === 'option') {
       this.optionRow = action.row
       this.changeOption(action.by)
@@ -1265,6 +1312,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       } else if (this.menuTab === 'scrapbook') {
         if (input.pressed.left) this.albumChapter = (this.albumChapter + 5) % 6
         if (input.pressed.right) this.albumChapter = (this.albumChapter + 1) % 6
+      } else if (this.menuTab === 'achievements') {
+        if (input.pressed.left) this.changeTrophyPage(-1)
+        if (input.pressed.right) this.changeTrophyPage(1)
       } else if (this.menuTab === 'settings') {
         if (input.pressed.up) this.optionRow = (this.optionRow + 6) % 7
         if (input.pressed.down) this.optionRow = (this.optionRow + 1) % 7
@@ -1464,33 +1514,47 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         12,
         '#99f5ee',
       )
+      const memory = chapterMemoryEarned(this.career, this.albumChapter)
+      g.fillStyle = '#151b36'
+      g.fillRect(28, 192, W - 56, 90)
+      if (memory) {
+        const src = SPECTRUM_BOSS_ART[this.albumChapter]!
+        const art = loadedImage(src)
+        if (art) {
+          const scale = Math.max(
+            (W - 56) / art.naturalWidth,
+            90 / art.naturalHeight,
+          )
+          const sw = (W - 56) / scale
+          const sh = 90 / scale
+          g.drawImage(
+            art,
+            (art.naturalWidth - sw) / 2,
+            (art.naturalHeight - sh) / 2,
+            sw,
+            sh,
+            28,
+            192,
+            W - 56,
+            90,
+          )
+          g.fillStyle = '#100d2777'
+          g.fillRect(28, 259, W - 56, 23)
+        }
+        label(g, '★ DISTRICT RESTORED', W / 2, 275, 11, '#ffe6a0')
+      } else {
+        label(g, '◇ MEMORY LOCKED', W / 2, 231, 14, '#b6ebe6')
+        label(g, 'DEFEAT THE DISTRICT BOSS', W / 2, 252, 10)
+      }
+      g.strokeStyle = '#ffffff77'
+      g.strokeRect(28, 192, W - 56, 90)
       for (let i = 0; i < 5; i++) {
         const at = first + i
         const earned = this.career.stars[at] ?? 0
         const x = 42 + i * 59
-        g.fillStyle = at < this.career.highestStage ? '#de62a6' : '#3b395b'
-        g.fillRect(x - 19, 204, 38, 52)
-        g.strokeStyle = '#ffffff77'
-        g.strokeRect(x - 19, 204, 38, 52)
-        label(g, String(at + 1), x, 221, 11)
-        label(g, earned ? '★'.repeat(earned) : '· · ·', x, 242, 10)
+        label(g, String(at + 1), x, 297, 11)
+        label(g, earned ? '★'.repeat(earned) : '· · ·', x, 313, 10)
       }
-      label(
-        g,
-        unlocked ? chapter.kate : 'PLAY MORE TO RESTORE THESE COLORS',
-        W / 2,
-        289,
-        10,
-        '#ffe5e9',
-      )
-      label(
-        g,
-        `★ ${this.career.stars.reduce((n, value) => n + value, 0)}/90 TOTAL`,
-        W / 2,
-        317,
-        13,
-        '#ffe18e',
-      )
       label(g, '‹ PREV', 60, 343, 11)
       label(g, 'CHAPTERS', W / 2, 343, 10)
       label(g, 'NEXT ›', W - 60, 343, 11)
@@ -1503,26 +1567,13 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         '#ffe39e',
       )
     } else if (this.menuTab === 'achievements') {
-      const milestones = [
-        {
-          id: 'rainbow-rescue',
-          name: 'RAINBOW RESCUE',
-          hint: 'DROP FIVE FLOATING BUBBLES',
-        },
-        {
-          id: 'color-alchemist',
-          name: 'COLOR ALCHEMIST',
-          hint: 'POP SIX MATCHING BUBBLES',
-        },
-        {
-          id: 'true-spectrum',
-          name: 'EVERY SHADE BELONGS',
-          hint: 'RESTORE ALL 30 LEVELS',
-        },
-      ]
+      const milestones = SPECTRUM_TROPHIES.slice(
+        this.trophyPage * 3,
+        this.trophyPage * 3 + 3,
+      )
       for (const [index, medal] of milestones.entries()) {
         const y = 185 + index * 58
-        const earned = this.earned.has(medal.id)
+        const earned = this.trophyEarned(medal.id)
         g.fillStyle = earned ? '#146a68' : '#292d52'
         g.fillRect(31, y - 17, W - 62, 49)
         label(
@@ -1535,7 +1586,20 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         )
         label(g, medal.hint, W / 2, y + 19, 9, '#b6ebe6')
       }
-      label(g, `COLOR RANK ${rank}`, W / 2, 361, 11, '#ffdf92')
+      label(g, '‹ PREV', 60, 343, 11)
+      label(g, `${this.trophyPage + 1}/3`, W / 2, 343, 11)
+      label(g, 'NEXT ›', W - 60, 343, 11)
+      const count = SPECTRUM_TROPHIES.filter((medal) =>
+        this.trophyEarned(medal.id),
+      ).length
+      label(
+        g,
+        `${count}/9 TROPHIES · RANK ${rank}`,
+        W / 2,
+        367,
+        11,
+        '#ffdf92',
+      )
     } else {
       const choices = [
         ['AIM GUIDE', this.settings.aimGuide ? 'ON' : 'OFF'],

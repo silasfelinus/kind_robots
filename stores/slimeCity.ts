@@ -1804,7 +1804,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   )
   function duelDeck(
     team: TeamId,
-    mode: 'faction-classic' | 'faction-constructed' | 'alliance-classic' | 'alliance-constructed',
+    mode:
+      | 'faction-classic'
+      | 'faction-constructed'
+      | 'alliance-classic'
+      | 'alliance-constructed',
     ally?: TeamId,
     deckId?: string,
   ): ClashRewardSetup | null {
@@ -1812,7 +1816,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       return { format: 'solo', cards: soloStarter(team) }
     if (mode === 'faction-constructed') {
       const cards = savedSolo.value[team]
-      return cards && !soloProblems(team, cards).length && cards.every(isCardUnlocked)
+      return cards &&
+        !soloProblems(team, cards).length &&
+        cards.every(isCardUnlocked)
         ? { format: 'solo', cards: [...cards] }
         : null
     }
@@ -1830,7 +1836,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     return entry
       ? {
           format: 'alliance',
-          deck: { general: entry.general, ally: entry.ally, cards: [...entry.cards] },
+          deck: {
+            general: entry.general,
+            ally: entry.ally,
+            cards: [...entry.cards],
+          },
         }
       : null
   }

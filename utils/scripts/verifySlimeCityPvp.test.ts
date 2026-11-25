@@ -1046,12 +1046,26 @@ assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
 
 // Every human duel entry point uses the same four-way deck picker.
 {
-  const picker = readFileSync('components/slime-city-duel-deck-picker.vue', 'utf8')
-  for (const mode of ['faction-classic', 'faction-constructed', 'alliance-classic', 'alliance-constructed'])
+  const picker = readFileSync(
+    'components/slime-city-duel-deck-picker.vue',
+    'utf8',
+  )
+  for (const mode of [
+    'faction-classic',
+    'faction-constructed',
+    'alliance-classic',
+    'alliance-constructed',
+  ])
     assert.ok(picker.includes(mode))
-  for (const path of ['components/slime-city-vs.vue', 'components/slime-city-pvp-game.vue'])
+  for (const path of [
+    'components/slime-city-vs.vue',
+    'components/slime-city-pvp-game.vue',
+  ])
     assert.match(readFileSync(path, 'utf8'), /<SlimeCityDuelDeckPicker/)
   const store = readFileSync('stores/slimeCity.ts', 'utf8')
-  assert.match(store, /mode === 'faction-classic'\)\s*return \{ format: 'solo', cards: soloStarter\(team\) \}/)
+  assert.match(
+    store,
+    /mode === 'faction-classic'\)\s*return \{ format: 'solo', cards: soloStarter\(team\) \}/,
+  )
   assert.match(store, /allianceStarter\(team, ally\)/)
 }

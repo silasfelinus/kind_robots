@@ -180,10 +180,7 @@
             {{ pvp.tally.draw }}D</small
           >
         </h3>
-        <SlimeCityDuelDeckPicker
-          v-model="duelDeck"
-          :team="lab.activeTeam"
-        />
+        <SlimeCityDuelDeckPicker v-model="duelDeck" :team="lab.activeTeam" />
         <section
           class="vs-friends"
           aria-label="Challenge a friend"

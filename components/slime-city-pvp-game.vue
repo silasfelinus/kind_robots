@@ -83,10 +83,7 @@
             :team-id="selectedTeam"
             @picked="selectedTeam = $event"
           />
-          <SlimeCityDuelDeckPicker
-            v-model="duelDeck"
-            :team="selectedTeam"
-          />
+          <SlimeCityDuelDeckPicker v-model="duelDeck" :team="selectedTeam" />
           <div class="scpvp-lobby-power">
             <b>{{ factionPower(selectedTeam).name }}</b>
             <p>{{ factionPower(selectedTeam).text }}</p>

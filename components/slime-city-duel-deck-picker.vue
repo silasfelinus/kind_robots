@@ -47,8 +47,13 @@ import { useSlimeCityStore } from '~/stores/slimeCity'
 import type { ClashRewardSetup } from '~/utils/slimeCity/clashRewards'
 import { TEAMS, type TeamId } from '~/utils/slimeCity/prototypes'
 
-const props = defineProps<{ team: TeamId; modelValue: ClashRewardSetup | null }>()
-const emit = defineEmits<{ 'update:modelValue': [setup: ClashRewardSetup | null] }>()
+const props = defineProps<{
+  team: TeamId
+  modelValue: ClashRewardSetup | null
+}>()
+const emit = defineEmits<{
+  'update:modelValue': [setup: ClashRewardSetup | null]
+}>()
 const lab = useSlimeCityStore()
 const modes = [
   { id: 'faction-classic', name: 'Faction Classic' },

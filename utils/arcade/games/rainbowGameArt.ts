@@ -115,6 +115,13 @@ export function rainbowDoodleLoadedArt(path: string): HTMLImageElement | null {
  */
 export const RAINBOW_IDLE_ATLASES: Readonly<Record<string, number>> = {
   'enemies/angler': 8,
+  'enemies/clawstrike': 8,
+  'enemies/courier': 8,
+  'enemies/cutter': 8,
+  'enemies/dolphin': 8,
+  'enemies/guardian-armory-siren': 8,
+  'enemies/guardian-bellkeeper': 8,
+  'enemies/guardian-comet-herder': 8,
 }
 /** Idle atlases play at four frames a second, like the enemy cycles. */
 export const RAINBOW_IDLE_FPS = 4

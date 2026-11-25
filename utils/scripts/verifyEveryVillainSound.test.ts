@@ -128,6 +128,143 @@ sound.setHidden(false)
 sound.dispose()
 assert.equal(sound.unlocked, false)
 
+// Exercise real scheduler decisions with a deterministic WebAudio stand-in.
+class FakeGain {
+  gain = {
+    setTargetAtTime() {},
+    setValueAtTime() {},
+    exponentialRampToValueAtTime() {},
+  }
+  connect() {}
+  disconnect() {}
+}
+
+class FakeTone {
+  type = 'sine'
+  frequency = { setValueAtTime() {} }
+  onended: (() => void) | null = null
+  cancelled = false
+  connect() {}
+  disconnect() {}
+  start() {}
+  stop(at?: number) {
+    if (at === undefined) this.cancelled = true
+  }
+}
+
+class FakeContext {
+  static latest: FakeContext
+  state = 'suspended'
+  currentTime = 1
+  destination = new FakeGain()
+  tones: FakeTone[] = []
+
+  constructor() {
+    FakeContext.latest = this
+  }
+
+  createGain() {
+    return new FakeGain()
+  }
+
+  createOscillator() {
+    const tone = new FakeTone()
+    this.tones.push(tone)
+    return tone
+  }
+
+  resume() {
+    this.state = 'running'
+    return Promise.resolve()
+  }
+
+  suspend() {
+    this.state = 'suspended'
+    return Promise.resolve()
+  }
+
+  close() {
+    this.state = 'closed'
+    return Promise.resolve()
+  }
+}
+
+const oldWindow = Object.getOwnPropertyDescriptor(globalThis, 'window')
+Object.defineProperty(globalThis, 'window', {
+  configurable: true,
+  value: { AudioContext: FakeContext },
+})
+const player = new TacticsSound()
+const pump = () => (player as unknown as { pump(): void }).pump()
+try {
+  assert.equal(player.unlock(), true)
+  const ctx = FakeContext.latest
+  pump()
+  assert.ok(ctx.tones.length > 0, 'unlocked score schedules notes')
+  const firstScore = [...ctx.tones]
+  player.setMood('battle')
+  assert.ok(firstScore.every((tone) => tone.cancelled))
+  pump()
+  assert.ok(ctx.tones.length > firstScore.length)
+  player.play(['power'])
+  player.setMix({ ...DEFAULT_TACTICS_MIX, muted: true })
+  assert.ok(ctx.tones.every((tone) => tone.cancelled))
+  const mutedCount = ctx.tones.length
+  ctx.currentTime += 10
+  pump()
+  player.play(['victory'])
+  assert.equal(ctx.tones.length, mutedCount, 'mute schedules no voices')
+  player.setMix({ ...DEFAULT_TACTICS_MIX, music: 0 })
+  pump()
+  assert.equal(ctx.tones.length, mutedCount)
+  player.play(['select'])
+  assert.ok(ctx.tones.length > mutedCount, 'SFX remain independently enabled')
+  const effectsCount = ctx.tones.length
+  player.setMix({ ...DEFAULT_TACTICS_MIX, effects: 0 })
+  assert.ok(ctx.tones.slice(mutedCount).every((tone) => tone.cancelled))
+  player.play(['select'])
+  assert.equal(ctx.tones.length, effectsCount)
+  pump()
+  assert.ok(ctx.tones.length > effectsCount, 'music resumes independently')
+  player.setHidden(true)
+  assert.equal(ctx.state, 'suspended')
+  assert.ok(ctx.tones.every((tone) => tone.cancelled))
+  const hiddenCount = ctx.tones.length
+  player.play(['damage'])
+  pump()
+  assert.equal(ctx.tones.length, hiddenCount)
+  player.setHidden(false)
+  assert.equal(ctx.state, 'running')
+  pump()
+  assert.ok(ctx.tones.length > hiddenCount)
+  ctx.state = 'suspended'
+  const suspendedCount = ctx.tones.length
+  player.play(['rescue'])
+  pump()
+  assert.equal(ctx.tones.length, suspendedCount)
+  assert.ok(ctx.tones.every((tone) => tone.cancelled))
+  player.unlock()
+  pump()
+  assert.ok(ctx.tones.length > suspendedCount)
+  player.setEnabled(false)
+  assert.ok(ctx.tones.every((tone) => tone.cancelled))
+  const disabledCount = ctx.tones.length
+  pump()
+  player.play(['power'])
+  assert.equal(ctx.tones.length, disabledCount)
+  player.setEnabled(true)
+  pump()
+  assert.ok(ctx.tones.length > disabledCount)
+  player.dispose()
+  assert.equal(ctx.state, 'closed')
+  assert.ok(ctx.tones.every((tone) => tone.cancelled))
+  assert.equal(player.unlocked, false)
+} finally {
+  player.dispose()
+  if (oldWindow) Object.defineProperty(globalThis, 'window', oldWindow)
+  else Reflect.deleteProperty(globalThis, 'window')
+}
+
 const page = readFileSync('pages/admin/every-villain-tactics.vue', 'utf8')
 assert.match(page, /@pointerdown\.capture="onAudioGesture"/)
 assert.match(page, /@keydown\.capture="onAudioGesture"/)

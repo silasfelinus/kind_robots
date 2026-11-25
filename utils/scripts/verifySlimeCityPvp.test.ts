@@ -13,6 +13,7 @@ import {
   pvpTally,
   sortPvpGames,
   pvpCardRow,
+  visibleClashTrapAt,
   pvpClashView,
   pvpRevision,
   pvpTakeBack,
@@ -145,6 +146,23 @@ const redacted = pvpBoard(trapped, 'player')
 assert.equal(redacted.traps.length, 1, 'enemy traps may not leak')
 assert.equal(redacted.traps[0]?.cardId, 'scentmine')
 assert.equal(pvpBoard(trapped, 'enemy').traps[0]?.cardId, 'bloodwire')
+assert.equal(pvpCardRow(cardById('scentmine')), 'rival')
+assert.equal(pvpCardRow(cardById('bloodwire')), 'rival')
+assert.equal(
+  visibleClashTrapAt(trapped.traps, 'player', 'enemy', 2)?.cardId,
+  'scentmine',
+)
+assert.equal(
+  visibleClashTrapAt(trapped.traps, 'player', 'player', 2),
+  undefined,
+)
+assert.equal(visibleClashTrapAt(trapped.traps, 'player', 'enemy', 1), undefined)
+assert.equal(
+  visibleClashTrapAt(trapped.traps, 'enemy', 'player', 1)?.cardId,
+  'bloodwire',
+)
+assert.equal(visibleClashTrapAt(trapped.traps, 'enemy', 'enemy', 1), undefined)
+assert.equal(visibleClashTrapAt(trapped.traps, 'enemy', 'player', 2), undefined)
 trapped.log.push({
   round: 1,
   kind: 'trap',
@@ -871,17 +889,27 @@ console.log('Slime City VS take-backs, strike trail and board animations PASS')
 }
 console.log('Slime City Chromebook duel layout contract PASS')
 
-// Silas, 2026-11-24 PT: "The card enlarged is fully blocking the middle
-// lane." The VS duel docks the held card to the side (over the boss rail on
-// wide screens) instead of standing it over the middle alley.
+// Slime City VS focus modes keep the battlefield clear when closed and
+// center all enlarged previews between the two combat rows.
 {
   const read = (file: string) =>
     readFileSync(new URL('../../components/' + file, import.meta.url), 'utf8')
   const duel = read('slime-city-pvp-game.vue')
   const hand = read('slime-city-clash-hand.vue')
   assert.match(duel, /<SlimeCityClashHand[^>]*\bdock-held\b/)
-  assert.match(duel, /--held-reach:/, 'the held card docks over the rail')
-  assert.match(hand, /\.cxh-card\.big\.held-dock \{\s*--x: calc\(50cqw/)
+  assert.match(duel, /<SlimeCityClashHand[^>]*\bfocus-toggle\b/)
+  assert.match(hand, /const userClosed = ref\(!!props\.focusToggle\)/)
+  assert.match(hand, /if \(props\.focusToggle\) return/)
+  assert.match(hand, /isOpen \? 'BATTLE' : 'CARDS'/)
+  assert.match(
+    duel,
+    /\.cxh:not\(\.open\) \.cxh-card:not\(\.big\)\) \{\s*opacity: 0;\s*visibility: hidden;/,
+  )
+  assert.match(duel, /--pvp-preview-width: min\(18rem, 42cqw, 38cqh\)/)
+  assert.match(duel, /--x: 22cqw;/)
+  assert.match(duel, /--y: calc\(var\(--pvp-preview-width\) \* 0\.75 - 50cqh\)/)
+  assert.match(duel, /\.cxh-card\.cxh-inspect\) \{\s*left: 72%;/)
+  assert.match(duel, /\.cxh-levels\.docked\) \{\s*left: 72%;/)
   assert.doesNotMatch(
     duel,
     /SlimeCityTakebackChoice/,
@@ -945,9 +973,9 @@ for (const file of [
   )
   assert.match(duel, /'arena arena'\s*'rail console'/)
   assert.match(duel, /'arena'\s*'rail'\s*'console'/)
-  assert.match(duel, /--W: min\(18rem, 42cqw, 28cqh\)/)
-  assert.match(duel, /--rest: 0\.84;/)
-  assert.match(duel, /50cqw - 1\.2rem - var\(--W\) \* var\(--rest\) \/ 2/)
+  assert.match(duel, /--W: min\(20rem, 36cqw, 46cqh\)/)
+  assert.match(duel, /--rest: 1;/)
+  assert.match(duel, /--y: calc\(var\(--W\) \* 1\.5 - 2\.5rem\)/)
   assert.match(
     duel,
     /\.scpvp-unit-label \{\s*position: absolute;\s*inset: calc\(0\.8rem/,

@@ -571,6 +571,46 @@ for (const [saved, expectedGuard, expectedMark] of [
   })
   assert.ok(loadSave(checkpoint).ok, 'earned support survives save/restore')
 }
+// First Bell can earn rescue and evidence independently. Do not discard
+// one reward when both were earned, even though the debrief chooses one beat.
+const dualHistory = chapterHistory([0, 1, 2], [0, 3])
+const dualCarry = crossfireCarryover(dualHistory[0]!, 0)
+assert.equal(dualCarry.guarded, true)
+assert.equal(dualCarry.marked, true)
+assert.match(dualCarry.note, /people you protected/)
+assert.match(dualCarry.note, /Evidence from your previous mission/)
+const dualStage = clonePreset('science-lab')
+const dualBattle = trainingState(123, dualStage, {
+  lead: 'accident-fire',
+  foil: 'accident-air',
+})
+applyCrossfireCarryover(dualBattle, dualHistory[0]!, 0)
+assert.ok(
+  dualBattle.units
+    .find((unit) => unit.id === 'backdraft')
+    ?.statuses.includes('guarded'),
+)
+assert.ok(
+  dualBattle.units
+    .find((unit) => unit.team === 'rival' && unit.hp > 0)
+    ?.statuses.includes('marked'),
+)
+const dualSave = createSave({
+  slot: 'auto',
+  perspective: 'hero',
+  leadSignature: 'accident-fire',
+  foilSignature: 'accident-air',
+  stage: dualStage,
+  state: dualBattle,
+  story: { ...createStory(), current: null },
+})
+assert.ok(loadSave(dualSave).ok)
+assert.deepEqual(crossfireFinaleNetwork(dualHistory), {
+  rescues: 3,
+  evidence: 2,
+  squadGuarded: true,
+  enemiesExposed: true,
+})
 // Even with a full slate of flags, a loss never earns battlefield supporters.
 const forgedSupport = structuredClone(mixedHistory)
 forgedSupport[2]!.state.phase = 'defeat'

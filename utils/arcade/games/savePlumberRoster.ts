@@ -31,6 +31,8 @@ export type RosterHeroine = {
   signature: string
   /** Her move on the Y button. */
   special: { key: PlumberSpecial; name: string; does: string }
+  /** One finale line in her own voice, told through her special. */
+  epilogue: string
   /** Sprite height relative to Pip; the hitbox never changes. */
   scale: number
   look: Omit<Heroine, 'seed' | 'name' | 'roster'>
@@ -57,6 +59,8 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
       name: 'Dash',
       does: 'A quick burst forward, once in the air too',
     },
+    epilogue:
+      'Marisol dashes the good news down every valve line before dinner.',
     scale: 1,
     look: {
       skin: '#8a5636',
@@ -81,6 +85,8 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
       name: 'Double jump',
       does: 'A second jump in mid-air',
     },
+    epilogue:
+      'Pip double-jumps onto the water tower to watch the rivers come home.',
     scale: 1,
     look: {
       skin: '#fbd9c0',
@@ -105,6 +111,8 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
       name: 'Ground pound',
       does: 'Slam down: knocks out foes nearby and breaks crates',
     },
+    epilogue:
+      'Tala ground-pounds the last stuck gate open, just to hear it ring.',
     scale: 1.08,
     look: {
       skin: '#c98e64',
@@ -129,6 +137,8 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
       name: 'Shoulder charge',
       does: 'Plow through foes and crates',
     },
+    epilogue:
+      'Ji-woo shoulders the old pump-house door off its hinges for good.',
     scale: 0.9,
     look: {
       skin: '#f1c4a0',
@@ -153,6 +163,8 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
       name: 'Parasol float',
       does: 'Hold to drift down slowly',
     },
+    epilogue:
+      'Odette floats over the town square, parasol up, as the fountains wake.',
     scale: 0.96,
     look: {
       skin: '#4e2c1c',
@@ -177,6 +189,7 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
       name: 'Spin',
       does: 'Whirl to strike all around, with a hover in the air',
     },
+    epilogue: 'Hodan spins the master wheel until every tap in town sings.',
     scale: 1.12,
     look: {
       skin: '#6b3f27',
@@ -201,6 +214,7 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
       name: 'Dodge roll',
       does: 'Roll forward; nothing can hurt you mid-roll',
     },
+    epilogue: 'Priya rolls under the last falling pipe and comes up laughing.',
     scale: 0.92,
     look: {
       skin: '#a86e48',
@@ -225,6 +239,8 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
       name: 'Blade vault',
       does: 'Spring off the running blade, far higher than a jump',
     },
+    epilogue:
+      'Nova vaults the floodwall and plants her blade where the tide stops.',
     scale: 1.02,
     look: {
       skin: '#b8774a',

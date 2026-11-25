@@ -24,7 +24,12 @@ assert.ok(
   'the roster spans clearly different heights',
 )
 
+assert.equal(new Set(PLUMBER_ROSTER.map((m) => m.epilogue)).size, 8)
+
 for (const member of PLUMBER_ROSTER) {
+  // Each finale epilogue names her and stays short enough for the 480px canvas.
+  assert.ok(member.epilogue.startsWith(member.name), member.key)
+  assert.ok(member.epilogue.length <= 72, `${member.key} epilogue too long`)
   assert.match(
     member.run,
     /^\/images\/arcade\/save-the-plumber\/anim\/heroine-[a-z0-9-]+-run(-v\d+)?\.webp$/,

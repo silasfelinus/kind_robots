@@ -24,7 +24,13 @@
     <span class="ccf-head">
       <span class="ccf-top">
         <b class="ccf-cost">{{ plays }} PLAY{{ plays === 2 ? 'S' : '' }}</b>
-        <em class="ccf-badge">{{ clashCardBadge(card, level) }}</em>
+        <span class="ccf-combat">
+          <em class="ccf-badge">{{ clashCardBadge(card, level) }}</em>
+          <SlimeCityArmorStat
+            v-if="card.kind === 'creature'"
+            :armor="balance.armor"
+          />
+        </span>
       </span>
       <strong class="ccf-name">{{ card.name }}</strong>
       <span class="ccf-level" :aria-label="'Level ' + level + ' of ' + maxLevel"
@@ -55,7 +61,9 @@
               @pointerleave="leaveTerm"
               @pointerdown="termPointerDown"
               @click="toggleTerm($event, part.entry)"
-              >{{ part.text }}</span
+              >
+              <SlimeCityAbilityIcon :term="part.text.trim()" />
+              {{ part.text }}</span
             >
             <span v-else :class="{ 'ccf-label': part.label }">{{
               part.text
@@ -76,7 +84,10 @@
       @pointerdown.stop
       @click.stop="clearTerm"
     >
-      <b>{{ activeTerm.term }} · GLOSSARY</b>
+      <b>
+        <SlimeCityAbilityIcon :term="activeTerm.aliases[0]!" />
+        {{ activeTerm.term }} · GLOSSARY
+      </b>
       <span>{{ activeTerm.definition }}</span>
       <small>Tap to close</small>
     </span>
@@ -94,6 +105,7 @@ import { slimeArtId, slimeCardArtId } from '~/utils/slimeCity/artManifest'
 import { cardById } from '~/utils/slimeCity/prototypes'
 import {
   CLASH_MAX_LEVEL,
+  clashBalance,
   clashCardBadge,
   clashCardText,
   clashPlayCost,
@@ -136,7 +148,12 @@ const card = computed(() => cardById(props.cardId))
 const stageTitle = computed(() =>
   clashStageTitle(props.cardId, props.level, props.pick),
 )
-const rules = computed(() => clashCardText(card.value, props.level, props.pick))
+const balance = computed(() => clashBalance(card.value, props.level))
+const rules = computed(() =>
+  clashCardText(card.value, props.level, props.pick)
+    .replace(/^Armor: blocks 1 per hit\.\s*/, '')
+    .trim(),
+)
 const flavorText = computed(() => clashCardFlavor(props.cardId))
 /**
  * The rules as one line per sentence, with a leading "Label:" (Armor, Regen,
@@ -301,7 +318,17 @@ const kind = computed(() =>
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  flex-wrap: wrap;
   gap: 2cqw;
+}
+.ccf-combat {
+  --sc-armor-size: 10cqw;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1cqw;
+  min-width: 0;
 }
 .ccf-cost,
 .ccf-badge {
@@ -313,14 +340,14 @@ const kind = computed(() =>
   line-height: 1.1;
   white-space: nowrap;
   box-shadow: 0 2px 6px #0009;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  max-width: 100%;
 }
 .ccf-cost {
   background: #b9ef56;
   color: #071115;
 }
 .ccf-badge {
+  white-space: normal;
   background: #071a20ee;
   color: #ffe6a6;
 }

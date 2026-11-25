@@ -2729,7 +2729,16 @@ for (const keyword of Object.keys(CLASH_TRAIT_TEXT)) {
     CLASH_GLOSSARY.some((entry) => entry.aliases.includes(keyword)),
     'Glossary must cover ' + keyword,
   )
+  assert.ok(
+    CLASH_GLOSSARY.find((entry) => entry.aliases.includes(keyword))?.icon,
+    'Every battlefield keyword has a glossary icon: ' + keyword,
+  )
 }
+assert.equal(
+  CLASH_GLOSSARY.find((entry) => entry.term === 'Armor')?.icon,
+  undefined,
+  'Armor belongs in the stat display, not the ability icon row',
+)
 const glossarySample = 'Tap (skip strike): grant BULLDOZE and faction power.'
 const glossaryParts = clashGlossaryParts(glossarySample)
 assert.equal(glossaryParts.map((part) => part.text).join(''), glossarySample)

@@ -392,6 +392,12 @@
                   </span>
                 </span>
                 <span class="scpvp-tags">
+                  <SlimeCityAbilityIcon
+                    v-for="keyword in unit(side, lane)!.keywords"
+                    :key="keyword"
+                    :term="keyword"
+                    class="scpvp-tag"
+                  />
                   <span
                     v-for="tag in fighterTags(unit(side, lane)!).filter(
                       (tag) => tag.kind !== 'new' && tag.kind !== 'guard',
@@ -987,12 +993,6 @@ function fighterTags(
       kind: 'new',
       text: '⏳ NEW',
       title: 'Summoning sickness: cannot attack this turn, but still blocks',
-    })
-  else if (fighter.keywords.includes('ambush') && fighter.fresh)
-    tags.push({
-      kind: 'ambush',
-      text: '⚡ AMBUSH',
-      title: 'Ambush: strikes on the turn it lands',
     })
   const stage = tapStage(fighter)
   if (stage && !fighter.token)

@@ -379,7 +379,7 @@ export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
   swarm: 'Swarm: +1 power next to an ally.',
   leech: 'Leech: heals 1 when it hits.',
   bulldoze: 'Bulldoze: extra damage hits boss.',
-  volatile: 'Volatile: damages the foe across on defeat (boss if empty).',
+  volatile: 'Volatile: bursts on defeat.',
   pierce: 'Pierce: ignores 1 armor.',
   snare: 'Snare: struck rivals skip a strike.',
   collect: 'Collect: gains +1 power on a kill.',
@@ -604,7 +604,7 @@ function clashBaseText(card: Card, level: number): string {
       'Next foe: ' +
       b.power +
       ' damage.' +
-      (card.roots ? ' Stun: no attack or counterattack.' : '') +
+      (card.roots ? ' Stuns foe.' : '') +
       (isArmorCutterSnare(card)
         ? ' Cuts armor; removes Volatile.'
         : '')

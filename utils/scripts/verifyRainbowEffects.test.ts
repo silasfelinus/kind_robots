@@ -74,6 +74,7 @@ import {
   rainbowBossWindup,
   rainbowCraftWindup,
   rainbowHitFlinch,
+  rainbowPickupBob,
   rainbowShipHover,
   rainbowShipJolt,
   rainbowShipPose,
@@ -855,5 +856,49 @@ assert.match(
     previewSource,
     /rainbowBarrelRoll\(ship\.evade, RAINBOW_EVADE\.roll, calm\)/,
     'the barrel roll draw honours calm motion',
+  )
+}
+
+// t-011: loose pickups bob and pulse; calm motion keeps a fifth, and the fallback badge rides the same bob.
+{
+  let peak = 0
+  for (let t = 0; t < 400; t++) {
+    const full = rainbowPickupBob(t, 120)
+    const calm = rainbowPickupBob(t, 120, true)
+    peak = Math.max(peak, Math.abs(full.bob))
+    assert.ok(
+      Math.abs(full.pulse - 1) <= 0.1 + 1e-9,
+      'the ring pulse stays within 10%',
+    )
+    assert.ok(
+      Math.abs(calm.bob) <= Math.abs(full.bob) * 0.2 + 1e-9,
+      'calm keeps a fifth of the pickup bob',
+    )
+    assert.ok(
+      Math.abs(calm.pulse - 1) <= Math.abs(full.pulse - 1) * 0.2 + 1e-9,
+      'calm keeps a fifth of the ring pulse',
+    )
+    assert.ok(
+      calm.glow > 0.3 && calm.glow < 0.4,
+      'calm keeps the ring visible and steady',
+    )
+  }
+  assert.ok(
+    peak > 2.4 && peak <= 2.5,
+    'a pickup bobs about two and a half pixels',
+  )
+  const preview = readFileSync(
+    'utils/arcade/games/rainbowPrincessPreview.ts',
+    'utf8',
+  )
+  assert.match(
+    preview,
+    /rainbowPickupBob\(tick, pickup\.x, calm\)/,
+    'pickups use the calm-aware bob',
+  )
+  assert.match(
+    preview,
+    /g\.arc\(pickup\.x, pickup\.y \+ bob, 9,/,
+    'the fallback badge rides the bob',
   )
 }

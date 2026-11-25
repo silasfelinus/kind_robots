@@ -221,3 +221,22 @@ export function rainbowBarrelRoll(
   )
   return calm ? 1 - 0.2 * ((1 - turn) / 2) : turn
 }
+
+/**
+ * Conductor rainbow t-011: a loose pickup bobs and its ring pulses so it reads as something to grab. Calm motion
+ * keeps a fifth of the bob and pulse, the same share the swimmers and the parked craft keep, so a pickup still
+ * shimmers without sliding. The fallback badge and the ring share this one bob, so neither drifts off the other.
+ */
+export function rainbowPickupBob(
+  tick: number,
+  x: number,
+  calm = false,
+): { bob: number; pulse: number; glow: number } {
+  const share = calm ? 0.2 : 1
+  const wave = Math.sin(tick / 6)
+  return {
+    bob: Math.sin(tick / 9 + x / 40) * 2.5 * share,
+    pulse: 1 + wave * 0.1 * share,
+    glow: 0.35 + 0.2 * wave * share,
+  }
+}

@@ -67,6 +67,7 @@ import {
   rainbowBossWindup,
   rainbowShipJolt,
   rainbowBarrelRoll,
+  rainbowPickupBob,
   rainbowShipHover,
   rainbowShipPose,
   rainbowCraftWindup,
@@ -8970,11 +8971,10 @@ export function createRainbowPrincessPreview(
         g.restore()
       }
       for (const pickup of pickups) {
-        // Pickups bob and pulse so they read as something to grab.
-        const bob = Math.sin(tick / 9 + pickup.x / 40) * 2.5
-        const pulse = 1 + Math.sin(tick / 6) * 0.1
+        // Pickups bob and pulse so they read as something to grab (a fifth of it in calm motion).
+        const { bob, pulse, glow } = rainbowPickupBob(tick, pickup.x, calm)
         g.save()
-        g.globalAlpha = 0.35 + 0.2 * Math.sin(tick / 6)
+        g.globalAlpha = glow
         g.strokeStyle = '#ffffff'
         g.lineWidth = 1.5
         g.beginPath()
@@ -8998,7 +8998,7 @@ export function createRainbowPrincessPreview(
               ? '#f9a8d4'
               : '#fde68a'
         g.beginPath()
-        g.arc(pickup.x, pickup.y, 9, 0, Math.PI * 2)
+        g.arc(pickup.x, pickup.y + bob, 9, 0, Math.PI * 2)
         g.fill()
         g.fillStyle = '#21133b'
         g.font = 'bold 10px sans-serif'
@@ -9006,7 +9006,7 @@ export function createRainbowPrincessPreview(
         g.fillText(
           pickup.kind === 'power' ? 'P' : pickup.kind === 'shield' ? 'S' : '★',
           pickup.x,
-          pickup.y + 4,
+          pickup.y + bob + 4,
         )
         g.textAlign = 'left'
       }

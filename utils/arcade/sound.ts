@@ -263,6 +263,14 @@ export function loopNotesBetween(
 const MUSIC_AHEAD = 0.3
 const MUSIC_TICK_MS = 100
 
+/** A preset's loudest note level (its gain at onset, before the decay). */
+export function presetPeak(name: ArcadeSoundName): number {
+  return PRESETS[name].reduce(
+    (peak, note) => Math.max(peak, note.vol ?? 0.08),
+    0,
+  )
+}
+
 /** Seconds a preset sounds for, from its first note to the end of its last. */
 export function presetSeconds(name: ArcadeSoundName): number {
   return PRESETS[name].reduce(

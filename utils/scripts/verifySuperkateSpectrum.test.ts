@@ -41,6 +41,7 @@ import {
 } from '../arcade/superkateSpectrum/story'
 import {
   BOSS_PATTERNS,
+  SPECTRUM_BOSS_ART,
   bossContact,
   bossTarget,
   create,
@@ -851,6 +852,15 @@ assert.equal((finaleRun.save.career.stars[29] ?? 0) > 0, true)
 assert.equal(validSpectrumCloudSave(finaleRun.save), true)
 assert.ok(finaleRun.mastered.includes('true-spectrum'))
 
+assert.deepEqual(SPECTRUM_BOSS_ART, [
+  '/images/arcade/superkate-spectrum/boss-greyscale-dryer.webp',
+  '/images/arcade/superkate-spectrum/boss-pruner.webp',
+  '/images/arcade/superkate-spectrum/boss-neon-inspector.webp',
+  '/images/arcade/superkate-spectrum/boss-archivist.webp',
+  '/images/arcade/superkate-spectrum/boss-sorting-machine.webp',
+  '/images/arcade/superkate-spectrum/boss-palette-keeper.webp',
+])
+assert.equal(SPECTRUM_BOSS_ART.length, BOSS_PATTERNS.length)
 for (let chapter = 0; chapter < BOSS_PATTERNS.length; chapter++) {
   const stage = (chapter + 1) * 5
   const run = create({

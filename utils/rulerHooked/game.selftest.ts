@@ -12,6 +12,8 @@ import { takeTurn, eligibleEnding, findArcStep, dismissedFinaleFlag, FINALE_MIN_
 import { resolveChoice } from '~/utils/rulerHooked/applyEffects'
 import { resolveScene } from '~/utils/rulerHooked/compositor'
 import { makeRng } from '~/utils/rulerHooked/seed'
+import { readCourtCheckpoint } from '~/utils/rulerHooked/courtCheckpoint'
+import { royalBackup } from '~/utils/rulerHooked/accountBackup'
 import {
   loadIndex, loadSave, writeSave, renameSlot, deleteSlot, makeSaveId,
   SAVE_SCHEMA_VERSION,
@@ -173,6 +175,58 @@ const fresh = (id = 'sv_a'): RunSave =>
   const migratedPartial = loadSave('sv_partial_cosmetics')
   assert.equal(migratedPartial?.ruler.cosmetics?.presetId, HERO_RULER_PRESET_ID, 'a presetId-less cosmetics bag also gets the hero default')
   assert.equal(migratedPartial?.ruler.cosmetics?.crownTilt, true, 'existing cosmetics fields survive migration untouched')
+}
+
+// A pending court interruption survives both local saves and private backups.
+{
+  let found: ReturnType<typeof takeTurn> | undefined
+  for (let i = 0; i < 64 && !found; i++) {
+    const turn = takeTurn(C, fresh('sv_court'), makeRng(`court-${i}`), 1)
+    if (turn.card) found = turn
+  }
+  assert.ok(found?.card)
+  const turn = found
+  turn.save.pendingCardId = turn.card.id
+  turn.save.createdAt = '2026-11-25T00:00:00Z'
+  writeSave(turn.save, '2026-11-25T00:01:00Z')
+  const loaded = loadSave(turn.save.saveId)!
+  const checkpoint = readCourtCheckpoint(C, loaded)
+  assert.equal(checkpoint.card?.id, turn.card.id)
+  assert.equal(checkpoint.arcId, turn.arcId ?? null)
+  assert.equal(loaded.turnCount, turn.save.turnCount)
+  assert.equal(loaded.counters.fishCaught, turn.save.counters.fishCaught)
+  const backup = royalBackup([loaded], {})
+  assert.equal(
+    readCourtCheckpoint(C, backup.reigns[0]!).card?.id,
+    turn.card.id,
+  )
+  const answered = resolveChoice(loaded, checkpoint.card!, turn.card.choices[0]!)
+  delete answered.pendingCardId
+  writeSave(answered, '2026-11-25T00:02:00Z')
+  assert.equal(readCourtCheckpoint(C, loadSave(answered.saveId)!).card, null)
+}
+
+// Only a known, outstanding court or finale offer may reopen on resume.
+{
+  const s = fresh('sv_pending')
+  const step = findArcStep(C, 'elope-1')!
+  s.deckState.activeArcs[step.arcId] = { step: step.card.id, flags: {} }
+  s.pendingCardId = step.card.id
+  assert.equal(readCourtCheckpoint(C, s).arcId, step.arcId)
+  s.deckState.seenCardIds.push(step.card.id)
+  assert.equal(readCourtCheckpoint(C, s).card, null)
+  s.pendingCardId = 'removed-card'
+  assert.equal(readCourtCheckpoint(C, s).card, null)
+  delete s.pendingCardId
+  s.pendingFinaleKey = C.endings[0]!.outcomeKey
+  assert.equal(readCourtCheckpoint(C, s).ending, s.pendingFinaleKey)
+  s.flags[dismissedFinaleFlag(s.pendingFinaleKey)] = true
+  assert.equal(readCourtCheckpoint(C, s).ending, null)
+  s.pendingFinaleKey = 'removed-ending'
+  assert.equal(readCourtCheckpoint(C, s).ending, null)
+  s.status = 'COMPLETE'
+  s.pendingFinaleKey = C.endings[0]!.outcomeKey
+  assert.equal(readCourtCheckpoint(C, s).ending, null)
 }
 
 console.log('ruler-hooked GAME self-test: ALL PASS')

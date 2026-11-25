@@ -1802,26 +1802,37 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const playSolo = computed<string[]>(
     () => savedSolo.value[activeTeam.value] ?? soloStarter(activeTeam.value),
   )
-  function duelDeck(team: TeamId, deckId?: string): ClashRewardSetup {
+  function duelDeck(
+    team: TeamId,
+    mode: 'faction-classic' | 'faction-constructed' | 'alliance-classic' | 'alliance-constructed',
+    ally?: TeamId,
+    deckId?: string,
+  ): ClashRewardSetup | null {
+    if (mode === 'faction-classic')
+      return { format: 'solo', cards: soloStarter(team) }
+    if (mode === 'faction-constructed') {
+      const cards = savedSolo.value[team]
+      return cards && !soloProblems(team, cards).length && cards.every(isCardUnlocked)
+        ? { format: 'solo', cards: [...cards] }
+        : null
+    }
+    if (mode === 'alliance-classic')
+      return ally && ally !== team
+        ? { format: 'alliance', deck: allianceStarter(team, ally) }
+        : null
     const entry = library.value.find(
       (item) =>
         item.id === deckId &&
         item.general === team &&
-        libraryDeckReady(item.id),
+        libraryDeckReady(item.id) &&
+        item.cards.every(isCardUnlocked),
     )
-    if (entry)
-      return {
-        format: 'alliance',
-        deck: {
-          general: entry.general,
-          ally: entry.ally,
-          cards: [...entry.cards],
-        },
-      }
-    return {
-      format: 'solo',
-      cards: [...(savedSolo.value[team] ?? soloStarter(team))],
-    }
+    return entry
+      ? {
+          format: 'alliance',
+          deck: { general: entry.general, ally: entry.ally, cards: [...entry.cards] },
+        }
+      : null
   }
   const soloCards = computed(() => soloCardPool(activeTeam.value))
   function commitSolo(cards: string[], done: string): void {

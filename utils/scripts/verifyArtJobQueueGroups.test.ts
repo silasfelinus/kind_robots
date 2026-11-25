@@ -162,6 +162,46 @@ check(
   },
 )
 
+check('later preview pages never replace a newer preview', () => {
+  const summary = summarizeArtJobQueueGroups(rows)
+  const preview = {
+    finishedAt: '2026-11-25T10:00:00Z',
+    isMature: false,
+    isPublic: true,
+    priority: 0,
+  }
+  const total = summary.groups.length
+  const left = attachArtJobGroupPreviews(summary, [
+    { ...preview, id: 50, projectSlug: 'hybridizer', artImageId: 150 },
+  ])
+  assert.equal(left, total - 1)
+  const after = attachArtJobGroupPreviews(summary, [
+    { ...preview, id: 40, projectSlug: 'hybridizer', artImageId: 140 },
+  ])
+  assert.equal(after, total - 1)
+  assert.equal(
+    summary.groups.find((g) => g.name === 'hybridizer')?.preview?.artImageId,
+    150,
+  )
+})
+
+check('preview rows are a bounded page, never every DONE payload', () => {
+  const source = readFileSync('server/utils/artJobQueueGroupRows.ts', 'utf8')
+  const previews = source.slice(
+    source.indexOf('loadCompletedArtJobGroupPreviewRows'),
+  )
+  assert.match(previews, /ORDER BY j\.id DESC\s+LIMIT \$\{limit\}/)
+  assert.match(previews, /j\.id < \$\{beforeId\}/)
+  const inner = previews.slice(previews.indexOf('FROM ('))
+  assert.doesNotMatch(
+    inner.slice(0, inner.indexOf('LIMIT')),
+    /payload/,
+    'payloads must only be parsed after the LIMIT',
+  )
+  const route = readFileSync('server/api/art/queue/groups/index.get.ts', 'utf8')
+  assert.match(route, /ART_JOB_GROUP_PREVIEW_MAX_PAGES/)
+})
+
 check('groups are ordered the way the relay claims them', () => {
   const names = summarizeArtJobQueueGroups(rows).groups.map((g) => g.name)
   assert.deepEqual(names, [

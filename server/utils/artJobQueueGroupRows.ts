@@ -34,22 +34,35 @@ export async function loadPendingArtJobGroupRows(): Promise<
   `
 }
 
+// Previews come from recent completions only. DONE is most of the table, and
+// each payload is a whole ComfyUI workflow, so this reads one bounded page at a
+// time, newest job id first: the LIMITed derived table picks cheap columns and
+// only those rows' payloads are parsed. The caller pages with `beforeId` until
+// every pending group has a preview or the page budget runs out.
+export const ART_JOB_GROUP_PREVIEW_PAGE_SIZE = 400
+export const ART_JOB_GROUP_PREVIEW_MAX_PAGES = 10
+
 export async function loadCompletedArtJobGroupPreviewRows(
   userId: number,
   maturity: GalleryMaturityFilter,
+  beforeId: number = Number.MAX_SAFE_INTEGER,
+  limit: number = ART_JOB_GROUP_PREVIEW_PAGE_SIZE,
 ): Promise<ArtJobGroupPreviewRow[]> {
   return prisma.$queryRaw<ArtJobGroupPreviewRow[]>`
     SELECT
-      completed.id,
-      completed.priority,
-      completed.projectSlug,
-      completed.artImageId,
-      completed.finishedAt,
-      completed.isMature,
-      completed.isPublic,
-      JSON_EXTRACT(completed.doc, '$.title') AS title,
-      JSON_EXTRACT(completed.doc, '$.label') AS label,
-      JSON_EXTRACT(completed.doc, '$.name') AS name
+      recent.id,
+      recent.priority,
+      recent.projectSlug,
+      recent.artImageId,
+      recent.finishedAt,
+      recent.isMature,
+      recent.isPublic,
+      IF(JSON_VALID(p.payload), JSON_EXTRACT(p.payload, '$.title'), NULL)
+        AS title,
+      IF(JSON_VALID(p.payload), JSON_EXTRACT(p.payload, '$.label'), NULL)
+        AS label,
+      IF(JSON_VALID(p.payload), JSON_EXTRACT(p.payload, '$.name'), NULL)
+        AS name
     FROM (
       SELECT
         j.id,
@@ -58,11 +71,11 @@ export async function loadCompletedArtJobGroupPreviewRows(
         j.artImageId,
         COALESCE(j.updatedAt, j.createdAt) AS finishedAt,
         a.isMature,
-        a.isPublic,
-        IF(JSON_VALID(j.payload), j.payload, NULL) AS doc
+        a.isPublic
       FROM ArtJob j
       INNER JOIN ArtImage a ON a.id = j.artImageId
       WHERE j.status = 'DONE'
+        AND j.id < ${beforeId}
         AND a.isActive = TRUE
         AND (a.isPublic = TRUE OR a.userId = ${userId})
         AND (${maturity} = 'all'
@@ -72,7 +85,10 @@ export async function loadCompletedArtJobGroupPreviewRows(
           'png', 'jpg', 'jpeg', 'webp', 'gif', 'avif',
           'image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/avif'
         )
-    ) AS completed
-    ORDER BY completed.finishedAt DESC, completed.id DESC
+      ORDER BY j.id DESC
+      LIMIT ${limit}
+    ) AS recent
+    INNER JOIN ArtJob p ON p.id = recent.id
+    ORDER BY recent.id DESC
   `
 }

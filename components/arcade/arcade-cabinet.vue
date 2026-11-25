@@ -183,18 +183,6 @@
         >
           <span aria-hidden="true">⟳</span> Turn sideways for a bigger view
         </p>
-        <!-- Upright, the game's HUD in large type under its stage (ArcadeGameInstance.readout). -->
-        <dl
-          v-if="readout && touchPlan?.readout"
-          class="cabinet-readout"
-          aria-label="Game status"
-          :style="placedAt(touchPlan.readout, true)"
-        >
-          <div v-for="line in readout" :key="line.label">
-            <dt>{{ line.label }}</dt>
-            <dd>{{ line.value }}</dd>
-          </div>
-        </dl>
         <!-- Always on screen while locked: the way out, and fullscreen. -->
         <div
           class="cabinet-corner-chips"
@@ -711,7 +699,6 @@ import {
   type ArcadeGuidePage,
   type ArcadeMasteryGoal,
   type ArcadePlayableInstance,
-  type ArcadeReadoutLine,
   type InputFrame,
 } from '~/utils/arcade/types'
 
@@ -1033,23 +1020,6 @@ const wrapStyle = computed<CSSProperties | undefined>(() => {
     alignItems: plan.align,
   }
 })
-
-/** The game's HUD lines while the plan has room for them under an upright stage (P-09). */
-const readout = ref<readonly ArcadeReadoutLine[] | null>(null)
-let readoutKey = ''
-function syncReadout(instance: ArcadePlayableInstance | null) {
-  const lines =
-    instance && touchPlan.value?.readout
-      ? ((instance as { readout?: readonly ArcadeReadoutLine[] | null })
-          .readout ?? null)
-      : null
-  const key = lines
-    ? lines.map((l) => `${l.label}\u0000${l.value}`).join('\u0001')
-    : ''
-  if (key === readoutKey) return
-  readoutKey = key
-  readout.value = lines ? lines.map((line) => ({ ...line })) : null
-}
 
 /** Inline position for a planned control (none without a plan, so the stylesheet places it). */
 function placedAt(box: TouchBox | null | undefined, sized = false) {
@@ -1868,8 +1838,6 @@ function tick() {
     .map((seatIn) => seatIn.poll())
   const frame = frames.length > 1 ? eitherFrame(frames) : frames[0]!
   const current = machine.phase
-  // The upright readout belongs to a game in play (or paused); it leaves with it.
-  if (current !== 'playing' && current !== 'paused') syncReadout(null)
   // The table guide holds the cabinet where it was (attract or paused).
   if (guide.value) {
     stepGuide(frame)
@@ -1908,7 +1876,6 @@ function tick() {
     gameMenu.value = menuOpenOf(game)
     paddleActions.value =
       'touchActions' in game ? (game.touchActions ?? {}) : {}
-    syncReadout(game)
     const feats = game.drainFeats?.()
     if (!isRainbowReplay.value && feats?.length)
       void store.awardFeats(props.slug, feats)
@@ -3268,44 +3235,6 @@ onBeforeUnmount(() => {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-align: center;
-}
-
-/* The game's HUD under an upright stage, in type the phone can read. */
-.cabinet-overlay .cabinet-readout {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 0.35rem;
-  margin: 0;
-  overflow: hidden;
-  pointer-events: none;
-  color: #fdf2ff;
-  font-family: ui-monospace, monospace;
-  font-size: clamp(0.85rem, 4.2vw, 1.15rem);
-  font-weight: 700;
-  line-height: 1.2;
-}
-.cabinet-overlay .cabinet-readout > div {
-  display: flex;
-  gap: 0.6rem;
-  align-items: baseline;
-  min-width: 0;
-}
-.cabinet-overlay .cabinet-readout dt {
-  flex: none;
-  min-width: 4.5em;
-  color: rgba(253, 230, 138, 0.9);
-  font-size: 0.8em;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-/* A long value (a comms line) wraps to three lines rather than trailing off. */
-.cabinet-overlay .cabinet-readout dd {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  margin: 0;
-  overflow: hidden;
 }
 
 /* Upright, the screen sits at the top so the controls get the room below it,

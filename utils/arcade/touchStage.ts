@@ -48,11 +48,6 @@ export type TouchStagePlan = {
   pauseChip: TouchBox
   /** Room under an upright stage for a prompt to turn the device sideways. */
   hint: TouchBox | null
-  /**
-   * The rest of the room between that prompt and the controls, for the game's HUD in large type
-   * (ArcadeGameInstance.readout), or null when the stage is not upright or the room is too small.
-   */
-  readout: TouchBox | null
 }
 
 const MARGIN = 8
@@ -61,8 +56,6 @@ const TAG = 14
 const CHIP = 41.6
 const CHIP_GAP = 8
 const HINT = 28
-/** The smallest room worth a readout: two lines of its type. */
-const READOUT_MIN = 56
 const REM = 16
 /** Smaller keys are tried when they buy a larger stage, never below this share of the usual key. */
 const KEY_STEPS = [1, 0.9, 0.8]
@@ -232,7 +225,6 @@ function rails(request: TouchStageRequest, p: Parts): TouchStagePlan | null {
       height: CHIP,
     },
     hint: null,
-    readout: null,
   }
 }
 
@@ -317,9 +309,6 @@ function band(
     : area.left + MARGIN
   const hintTop = chipsTop + CHIP + MARGIN
   const hintRoom = bandTop - MARGIN - hintTop
-  const hinted = upright && request.aspect > 1 && hintRoom >= HINT
-  const readoutTop = hinted ? hintTop + HINT + MARGIN : hintTop
-  const readoutRoom = bandTop - MARGIN - readoutTop
   return {
     kind: 'band',
     key: p.key,
@@ -340,25 +329,13 @@ function band(
       width: CHIP,
       height: CHIP,
     },
-    // The prompt sits at the top of the room when a readout takes the rest, centred otherwise.
-    hint: hinted
-      ? {
-          left: area.left + MARGIN,
-          top:
-            upright && readoutRoom >= READOUT_MIN
-              ? hintTop
-              : hintTop + (hintRoom - HINT) / 2,
-          width: area.width - MARGIN * 2,
-          height: HINT,
-        }
-      : null,
-    readout:
-      upright && readoutRoom >= READOUT_MIN
+    hint:
+      upright && request.aspect > 1 && hintRoom >= HINT
         ? {
             left: area.left + MARGIN,
-            top: readoutTop,
+            top: hintTop + (hintRoom - HINT) / 2,
             width: area.width - MARGIN * 2,
-            height: readoutRoom,
+            height: HINT,
           }
         : null,
   }

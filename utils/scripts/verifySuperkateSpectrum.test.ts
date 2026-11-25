@@ -44,6 +44,7 @@ import {
   atelierBoard,
   BOSS_PATTERNS,
   SPECTRUM_BOSS_ART,
+  newlyUnlockedStyles,
   bossContact,
   bossTarget,
   create,
@@ -435,6 +436,56 @@ function tapStage(
 ) {
   run.stagePointer({ phase: 'down', ...point })
   run.stagePointer({ phase: 'up', ...point })
+}
+
+// Cosmetic celebrations use actual XP threshold crossings, never loaded saves.
+assert.deepEqual(newlyUnlockedStyles(1079, 1080), ['candy'])
+assert.deepEqual(newlyUnlockedStyles(7679, 7680), ['starlight'])
+assert.deepEqual(newlyUnlockedStyles(23519, 23520), ['prismatic'])
+assert.deepEqual(newlyUnlockedStyles(0, 23520), [
+  'candy',
+  'starlight',
+  'prismatic',
+])
+assert.deepEqual(newlyUnlockedStyles(1080, 1090), [])
+for (const mode of ['story', 'classic'] as const) {
+  const reward = create({
+    ...options,
+    resume: readSpectrumSave({
+      ...cloudB,
+      mode,
+      stage: 1,
+      career: {
+        ...cloudB.career,
+        highestStage: 1,
+        xp: mode === 'story' ? 900 : 1070,
+      },
+      style: 'glass',
+      settings: { ...cloudB.settings, particles: false },
+    }),
+  } as Parameters<typeof create>[0])
+  assert.equal(reward.cosmeticUnlock, null)
+  reward.update(mapStart)
+  reward.board = emptyBoard()
+  reward.board[0]![4] = 'pink'
+  reward.board[0]![5] = 'pink'
+  reward.loaded = 'pink'
+  reward.next = 'pink'
+  tapStage(reward, { x: 148, y: 40 })
+  for (let tick = 0; tick < 400 && reward.shot; tick++)
+    reward.update(emptyInput())
+  assert.equal(reward.cosmeticUnlock, 'candy')
+  assert.equal(reward.cosmeticUnlockTicks, 240)
+  assert.equal(reward.selectedStyle, 'glass')
+  assert.ok(reward.save.career.xp >= 1080)
+  assert.equal(reward.settings.particles, false)
+  const loaded = create({
+    ...options,
+    resume: reward.save,
+  } as Parameters<typeof create>[0])
+  assert.equal(loaded.cosmeticUnlock, null)
+  for (let tick = 0; tick < 240; tick++) reward.update(emptyInput())
+  assert.equal(reward.cosmeticUnlock, null)
 }
 
 const touchRun = create({

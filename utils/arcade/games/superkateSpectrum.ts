@@ -209,6 +209,47 @@ export const SPECTRUM_BOSS_ART = [
   'boss-palette-keeper',
 ].map((name) => `/images/arcade/superkate-spectrum/${name}.webp`)
 
+export function newlyUnlockedStyles(beforeXp: number, afterXp: number) {
+  const before = unlockedStyles(rankForXp(beforeXp))
+  return unlockedStyles(rankForXp(afterXp)).filter(
+    (style) => !before.includes(style),
+  )
+}
+
+function drawDistrictArt(
+  g: CanvasRenderingContext2D,
+  chapter: number,
+  y: number,
+  highContrast: boolean,
+) {
+  const src = SPECTRUM_BOSS_ART[chapter]
+  const image = src ? loadedImage(src) : null
+  if (!image) return
+  const width = W - 34
+  const height = 43
+  const scale = Math.max(
+    width / image.naturalWidth,
+    height / image.naturalHeight,
+  )
+  const sw = width / scale
+  const sh = height / scale
+  g.save()
+  g.drawImage(
+    image,
+    (image.naturalWidth - sw) / 2,
+    (image.naturalHeight - sh) / 2,
+    sw,
+    sh,
+    17,
+    y - 18,
+    width,
+    height,
+  )
+  g.fillStyle = highContrast ? '#100d27e8' : '#100d27a6'
+  g.fillRect(17, y - 18, width, height)
+  g.restore()
+}
+
 function drawBossArt(
   g: CanvasRenderingContext2D,
   chapter: number,
@@ -506,6 +547,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   choosingMode = true
   menuStage = 1
   atelierMenu = false
+  cosmeticUnlock: BubbleStyle | null = null
+  cosmeticUnlockTicks = 0
   relayActive = false
   relayTurn: 1 | 2 = 1
   relayCombo = 0
@@ -597,6 +640,16 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     return this.choosingMode || this.demo || this.atelierActive
       ? null
       : spectrumRankedBoard(this.mode, this.runStartStage)
+  }
+  private updateCareer(next: SpectrumCareer) {
+    const unlocked = newlyUnlockedStyles(this.career.xp, next.xp)
+    this.career = next
+    const style = unlocked.at(-1)
+    if (style && !this.demo) {
+      this.cosmeticUnlock = style
+      this.cosmeticUnlockTicks = 240
+      this.playEffect('level')
+    }
   }
   private remember() {
     this.stored = {
@@ -791,7 +844,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     }
     if (result.matched) {
       this.playEffect(power ? 'boom' : 'pop')
-      this.career = recordPop(this.career, result.matched, result.dropped)
+      this.updateCareer(recordPop(this.career, result.matched, result.dropped))
       this.poppedThisBoard += result.matched + result.dropped
       const pos = center(landing)
       this.burstSparks(pos.x, pos.y, hue, result.matched + result.dropped)
@@ -860,11 +913,13 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.score += 1500 + this.level * 150
     this.playEffect('level')
     if (this.mode === 'story')
-      this.career = recordClear(
-        this.career,
-        this.level,
-        this.shotsThisBoard,
-        this.poppedThisBoard,
+      this.updateCareer(
+        recordClear(
+          this.career,
+          this.level,
+          this.shotsThisBoard,
+          this.poppedThisBoard,
+        ),
       )
     if (this.mode === 'story' && this.level % 5 === 0) {
       this.score += 2500
@@ -1231,6 +1286,10 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       }
       return
     }
+    if (this.cosmeticUnlockTicks > 0) {
+      this.cosmeticUnlockTicks--
+      if (this.cosmeticUnlockTicks === 0) this.cosmeticUnlock = null
+    }
     if (this.banner > 0) this.banner--
     if (input.held.left) this.angle -= 0.035
     if (input.held.right) this.angle += 0.035
@@ -1289,6 +1348,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       const y = 82 + chapter * 48
       g.fillStyle = '#ffffff0c'
       g.fillRect(17, y - 18, W - 34, 43)
+      drawDistrictArt(g, chapter, y, this.settings.highContrast)
       label(g, names[chapter]!, W / 2, y - 20, 9, PALETTE[colors[chapter]!])
     }
     g.lineWidth = 3
@@ -1733,6 +1793,30 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       11,
       '#ffe4a0',
     )
+    if (this.cosmeticUnlock && !this.atelierActive && !this.choosingMode) {
+      g.fillStyle = '#25153d'
+      g.fillRect(8, 454, W - 16, 25)
+      g.strokeStyle = '#ffe6a0'
+      g.strokeRect(8, 454, W - 16, 25)
+      bubble(
+        g,
+        24,
+        466,
+        'gold',
+        8,
+        this.cosmeticUnlock,
+        this.settings.particles ? this.tick : 0,
+        this.settings.highContrast,
+      )
+      label(
+        g,
+        `UNLOCKED: ${this.cosmeticUnlock.toUpperCase()} · IN COLLECTION`,
+        W / 2 + 7,
+        470,
+        10,
+        '#ffe6a0',
+      )
+    }
     if (this.pendingChoice !== null) {
       this.renderStoryChoice(g)
       return

@@ -254,6 +254,12 @@ export type ArcadeReadoutRow = {
   color?: string
 }
 
+export type ArcadeStagePointer = {
+  phase: 'down' | 'move' | 'up' | 'cancel'
+  x: number
+  y: number
+}
+
 export interface ArcadeGameInstance {
   readonly score: number
   readonly level: number
@@ -292,6 +298,7 @@ export interface ArcadeGameInstance {
   readonly menuOpen?: boolean
   /** Contextual touch actions (shown only when they can do something). */
   readonly touchActions?: Readonly<Partial<Record<'a' | 'b', string>>>
+  stagePointer?(event: ArcadeStagePointer): void
   /**
    * The run's status in words, for a cabinet that shows it in large type off the stage (an upright
    * phone, where the canvas HUD is too small to read). null while there is nothing to report

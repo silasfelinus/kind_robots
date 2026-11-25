@@ -428,8 +428,9 @@ export function worldCompletion(
     stages: built.length,
     stagesDone: built.filter((n) => done.has(n.id)).length,
     gears: built.filter((n) => n.stage).length,
-    gearsFound: built.filter((n) => n.stage && progress.gears?.includes(n.stage))
-      .length,
+    gearsFound: built.filter(
+      (n) => n.stage && progress.gears?.includes(n.stage),
+    ).length,
     secrets: secrets.length,
     secretsFound: secrets.filter((n) => progress.secrets?.includes(n.id))
       .length,

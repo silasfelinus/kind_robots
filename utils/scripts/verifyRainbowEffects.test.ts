@@ -78,6 +78,7 @@ import {
   rainbowPickupBob,
   rainbowShipHover,
   rainbowShipJolt,
+  rainbowSignalPulse,
   rainbowShipPose,
   rainbowSwimPose,
   stackRainbowBossPose,
@@ -953,5 +954,38 @@ assert.match(
     preview,
     /Math\.sin\(tick \+ k \* 2\) \* 2\.5/,
     'no raw barrier jitter is left',
+  )
+}
+
+// t-011: the small signal lights (captive collar, prism core, relay lamp, dolphin daze ring) keep a fifth
+// of their pulse under calm motion.
+{
+  let peak = 0
+  for (let t = 0; t < 400; t++) {
+    for (const period of [3, 6]) {
+      const full = rainbowSignalPulse(t, period)
+      const calm = rainbowSignalPulse(t, period, true)
+      peak = Math.max(peak, Math.abs(full))
+      assert.ok(Math.abs(full) <= 1 + 1e-9, 'the full pulse swings at most one')
+      assert.ok(
+        Math.abs(calm - full * 0.2) <= 1e-9,
+        'calm keeps a fifth of the signal pulse',
+      )
+    }
+  }
+  assert.ok(peak > 0.99, 'the full signal pulse swings all the way')
+  const preview = readFileSync(
+    'utils/arcade/games/rainbowPrincessPreview.ts',
+    'utf8',
+  )
+  assert.equal(
+    (preview.match(/rainbowSignalPulse\(tick, [36], calm\)/g) ?? []).length,
+    4,
+    'collar, prism core, relay lamp and daze ring use the calm-aware pulse',
+  )
+  assert.doesNotMatch(
+    preview,
+    /Math\.sin\(tick \/ [36]\)/,
+    'no raw fast signal pulse is left',
   )
 }

@@ -72,6 +72,7 @@ import {
   rainbowShipPose,
   rainbowCraftWindup,
   rainbowCurrentCrackle,
+  rainbowSignalPulse,
   stackRainbowBossPose,
 } from './rainbowSwimMotion'
 import { drawRainbowBossBloom } from './rainbowBossBloom'
@@ -7191,7 +7192,7 @@ export function createRainbowPrincessPreview(
             g.setLineDash([])
             g.strokeStyle = '#ff5ac8'
             g.lineWidth = 3
-            g.globalAlpha = 0.75 + 0.25 * Math.sin(tick / 6)
+            g.globalAlpha = 0.75 + 0.25 * rainbowSignalPulse(tick, 6, calm)
             g.beginPath()
             g.arc(
               0,
@@ -7222,7 +7223,8 @@ export function createRainbowPrincessPreview(
           g.fill()
           g.stroke()
           g.fillStyle = '#ffffff'
-          g.globalAlpha = 0.5 + (glow ? 0.4 * Math.sin(tick / 3) : 0)
+          g.globalAlpha =
+            0.5 + (glow ? 0.4 * rainbowSignalPulse(tick, 3, calm) : 0)
           g.beginPath()
           g.moveTo(0, -14)
           g.lineTo(4, 0)
@@ -7263,7 +7265,7 @@ export function createRainbowPrincessPreview(
             g.fill()
             g.stroke()
             g.fillStyle = '#ffd27a'
-            g.globalAlpha = 0.6 + 0.4 * Math.sin(tick / 6)
+            g.globalAlpha = 0.6 + 0.4 * rainbowSignalPulse(tick, 6, calm)
             g.beginPath()
             g.arc(0, -19, 5, 0, Math.PI * 2)
             g.fill()
@@ -7631,7 +7633,13 @@ export function createRainbowPrincessPreview(
           g.strokeStyle = '#fff49c'
           g.lineWidth = 2
           g.beginPath()
-          g.arc(0, 0, 17 + Math.sin(tick / 3) * 2, 0, Math.PI * 2)
+          g.arc(
+            0,
+            0,
+            17 + rainbowSignalPulse(tick, 3, calm) * 2,
+            0,
+            Math.PI * 2,
+          )
           g.stroke()
         } else if (reef.kind === 'courier' && reef.charge) {
           // The cargo light flickers before the dash.

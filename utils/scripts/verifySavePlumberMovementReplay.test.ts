@@ -733,8 +733,7 @@ console.log(
 }
 
 const rampRows = [...lab.rows]
-rampRows[20] =
-  rampRows[20]!.slice(0, 12) + '/####\\' + rampRows[20]!.slice(18)
+rampRows[20] = rampRows[20]!.slice(0, 12) + '/####\\' + rampRows[20]!.slice(18)
 const rampLab = { ...lab, rows: rampRows, name: 'Ramp replay lab' }
 const rampStage = parseStage(rampLab)
 assert.equal(rampStage.solid[20 * 80 + 12], SOLID_SLOPE_UP)

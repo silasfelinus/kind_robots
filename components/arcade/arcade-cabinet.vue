@@ -1963,8 +1963,7 @@ function tick() {
           score: lastScore,
           level: lastLevel,
         })
-        const rankedKey =
-          'scoreBoard' in game ? game.scoreBoard : undefined
+        const rankedKey = 'scoreBoard' in game ? game.scoreBoard : undefined
         if (props.slug === 'superkate-spectrum') {
           spectrumRankMode.value =
             rankedKey === spectrumBoardKey('classic') ? 'classic' : 'story'

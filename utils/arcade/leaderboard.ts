@@ -98,7 +98,6 @@ export function formatChampion(
   return `${who} ${entry.score.toLocaleString('en-US')}`
 }
 
-
 export type SpectrumRankedMode = 'story' | 'classic'
 
 export function spectrumBoardKey(mode: SpectrumRankedMode): string {

@@ -12,7 +12,10 @@ import {
   findArcadeGame,
   isPlausibleScore,
 } from '~/utils/arcade/games'
-import { spectrumBoardKey, type HallOfFameEntry } from '~/utils/arcade/leaderboard'
+import {
+  spectrumBoardKey,
+  type HallOfFameEntry,
+} from '~/utils/arcade/leaderboard'
 import { isAllowedInitials } from '~/utils/arcade/initials'
 
 export const ARCADE_BOARD_SIZE = 10

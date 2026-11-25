@@ -577,9 +577,10 @@ for (const id of QUESTS)
       after.kingdomHealth.joy = 50
       assert.ok(eligiblePool(after, cards).includes(followup))
       assert.ok(
-        !eligiblePool({ ...after, turnCount: scenario.earlyTurn }, cards).includes(
-          followup,
-        ),
+        !eligiblePool(
+          { ...after, turnCount: scenario.earlyTurn },
+          cards,
+        ).includes(followup),
       )
 
       const restored = resolveChoice(

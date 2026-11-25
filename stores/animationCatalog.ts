@@ -1267,6 +1267,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'prism-sun-catcher',
+    label: 'Prism Sun-Catcher',
+    reveal: 'Crystal sun-catchers twirl in a sunny window and scatter rainbows',
+    icon: 'kind-icon:rainbow',
+    tooltip:
+      'Cut-glass crystals twist on their threads and throw drifting rainbows across the wall 🌈 sweep the pointer to stir a draught, click to flick a crystal into a spin',
+    color: '#f2c27a',
+    releasedAt: '2026-11-25T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

@@ -61,7 +61,7 @@
               @pointerleave="leaveTerm"
               @pointerdown="termPointerDown"
               @click="toggleTerm($event, part.entry)"
-              >
+            >
               <SlimeCityAbilityIcon :term="part.text.trim()" />
               {{ part.text }}</span
             >

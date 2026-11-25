@@ -47,7 +47,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   frogtrooper: [
     'Tongue snare interrupts a rival.',
-    'Gains +1 strike power versus a rooted defender.',
+    'Gains +1 strike power versus a stunned defender.',
     'On a damaging strike, stun rival fighters in adjacent alleys.',
   ],
   broker: [
@@ -228,9 +228,9 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Grant the target fighter +4 temporary power; it takes 3 recoil and nearby foes take 2.',
   ],
   shocktrap: [
-    'Hidden plate damages and roots its visitor.',
+    'Hidden plate damages and stuns its visitor (no attack or counterattack).',
     'On trigger, arcs 1 damage to one adjacent rival.',
-    'When sprung, root its visitor and deal 2 damage and stun to both adjacent rivals.',
+    'When sprung, stun its visitor and deal 2 damage and stun to both adjacent rivals.',
   ],
   ducttape: [
     'Repair one friendly fighter.',
@@ -259,13 +259,13 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   grate: [
     'Hidden grate wounds one intruder.',
-    'When sprung, damage and root the intruder.',
-    'When sprung, root and damage the intruder; deal 2 to both adjacent rivals.',
+    'When sprung, damage and stun the intruder (no attack or counterattack).',
+    'When sprung, stun and damage the intruder; deal 2 to both adjacent rivals.',
   ],
   drysuit: [
     'Add armor to a friendly fighter.',
-    'Wearer blocks the next root or snare and sheds current stun.',
-    'Wearer and adjacent friends each block their next root or snare.',
+    'Wearer ignores the next stun and sheds current stun.',
+    'Wearer and adjacent friends each ignore their next stun.',
   ],
   collection: [
     'Damage one rival fighter; this is a collection spell.',
@@ -315,7 +315,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   wreckingfist: [
     'Permanently sharpen a friendly fighter.',
-    'Permanently sharpen a fighter and grant BULLDOZE (overkill hits boss).',
+    'Permanently sharpen a fighter and grant BULLDOZE (extra damage hits boss).',
     'Sharpen and grant BULLDOZE; damaging a blocker deals 2 to boss and 1 to an adjacent rival.',
   ],
   slap: [

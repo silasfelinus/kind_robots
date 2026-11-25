@@ -469,6 +469,13 @@ function staticText(r: EvoStatic, kind: Kind): string[] {
   return out
 }
 /** Rules text for a stage, generated from the same data the engine runs. */
+export function evoTapText(st: EvoStage): string {
+  return st.abilities
+    .filter((ability) => ability.when === 'tap')
+    .map((ability) => abilityText(ability, 'creature'))
+    .join(' ')
+}
+
 export function evoStageText(st: EvoStage, kind: Kind): string {
   return [
     ...st.abilities.map((ab) => abilityText(ab, kind)),

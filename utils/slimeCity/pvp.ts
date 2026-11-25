@@ -3,6 +3,7 @@ import {
   createClash,
   nextClashStrike,
   clashPower,
+  clashPlayLimit,
   replayClash,
   type ClashCommand,
   type ClashOptions,
@@ -219,6 +220,7 @@ export interface PvpBoard {
   active: Side
   phase: ClashState['phase']
   plays: ClashState['plays']
+  playLimit?: number
   freePlays: ClashState['freePlays']
   boss: ClashState['boss']
   units: Array<ClashState['units'][number] & { power: number }>
@@ -430,6 +432,7 @@ export function pvpBoard(state: ClashState, seat: Side): PvpBoard {
     active: state.active,
     phase: state.phase,
     plays: { ...state.plays },
+    playLimit: clashPlayLimit(state, state.active),
     freePlays: {
       player: state.freePlays?.player ?? 0,
       enemy: state.freePlays?.enemy ?? 0,

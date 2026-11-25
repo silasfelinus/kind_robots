@@ -68,6 +68,7 @@
         >
           <SlimeCityClashCardFace
             :card-id="cardId"
+            :glossary-interactive="big === index && !drag?.moved"
             :pick="held === index ? choicePick : undefined"
             :level="
               big === index && previewLevel
@@ -99,24 +100,41 @@
         data-testid="clash-peek"
         aria-hidden="true"
       >
+        <span
+          v-if="peekStats"
+          class="cxh-live-stats"
+          data-testid="clash-live-stats"
+        >
+          CURRENT · ⚔ {{ peekStats.attack }} · ♥ {{ peekStats.hp }}/{{
+            peekStats.maxHp
+          }}
+        </span>
         <SlimeCityClashCardFace
           :card-id="peekCard.id"
-          :note="peekCard.note"
           :level="peekCard.level"
           :pick="peekCard.pick"
         />
       </div>
       <div
         v-else-if="inspectCard"
-        :key="inspectCard.id + inspectCard.note"
+        :key="inspectCard.id"
         class="cxh-card big cxh-inspect"
         :class="'dock-' + (inspectCard.dock ?? 'right')"
         data-testid="clash-detail"
         aria-live="polite"
       >
+        <span
+          v-if="inspectStats"
+          class="cxh-live-stats"
+          data-testid="clash-live-stats"
+        >
+          CURRENT · ⚔ {{ inspectStats.attack }} · ♥ {{ inspectStats.hp }}/{{
+            inspectStats.maxHp
+          }}
+        </span>
         <SlimeCityClashCardFace
           :card-id="inspectCard.id"
-          :note="previewLevel ? '' : inspectCard.note"
+          glossary-interactive
           :level="previewLevel ?? inspectCard.level"
           :pick="previewLevel ? undefined : inspectCard.pick"
           :preview="!!previewLevel && previewLevel !== inspectCard.level"
@@ -217,6 +235,7 @@ import { cardById, type Side } from '~/utils/slimeCity/prototypes'
 import {
   CLASH_MAX_LEVEL,
   clashPlayLimit,
+  clashBalance,
   canClashPlay,
   CLASH_LANES,
   clashCardText,
@@ -231,7 +250,7 @@ const props = defineProps<{
   choicePick?: 0 | 1
   inspect: {
     id: string
-    note: string
+    liveStats?: { attack: number; hp: number; maxHp: number }
     level: number
     pick?: 0 | 1
     hover?: boolean
@@ -320,7 +339,7 @@ watch(isOpen, (open) => {
 })
 const peekCard = computed<{
   id: string
-  note: string
+  liveStats?: { attack: number; hp: number; maxHp: number }
   level: number
   pick?: 0 | 1
   dock: 'left' | 'right'
@@ -334,7 +353,6 @@ const peekCard = computed<{
   if (id && !drag.value)
     return {
       id,
-      note: '',
       level: clashLevel(props.game, me.value, id),
       dock: index! < cards.value.length / 2 ? 'right' : 'left',
     }
@@ -342,6 +360,25 @@ const peekCard = computed<{
     ? { ...props.inspect, dock: props.inspect.dock ?? 'right' }
     : null
 })
+function changedStats(card: typeof peekCard.value) {
+  if (!card?.liveStats) return null
+  const printed = clashBalance(cardById(card.id), card.level)
+  const stats = card.liveStats
+  return stats.attack !== printed.attack ||
+    stats.hp !== printed.hp ||
+    stats.maxHp !== printed.hp
+    ? stats
+    : null
+}
+const peekStats = computed(() => changedStats(peekCard.value))
+const inspectStats = computed(() =>
+  previewLevel.value || !inspectCard.value
+    ? null
+    : changedStats({
+        ...inspectCard.value,
+        dock: inspectCard.value.dock ?? 'right',
+      }),
+)
 const shown = computed<{ id: string; level: number } | null>(() => {
   const id = big.value === null ? null : cards.value[big.value]
   if (id) return { id, level: clashLevel(props.game, me.value, id) }
@@ -734,6 +771,22 @@ function tap(index: number): void {
   pointer-events: none;
   z-index: 10;
 }
+.cxh-live-stats {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  padding: 0.3rem 0.2rem;
+  border: 1px solid #e9c969;
+  border-radius: 0.5rem;
+  background: #111e29;
+  color: #fff3ca;
+  text-align: center;
+  font-size: clamp(0.65rem, 1.6cqw, 0.95rem);
+  font-weight: 850;
+  white-space: nowrap;
+}
 .cxh-inspect.dock-right {
   left: auto;
   right: 0.6rem;
@@ -751,7 +804,7 @@ function tap(index: number): void {
   left: auto;
   right: calc(0.6rem + var(--W) / 2);
   bottom: auto;
-  top: calc(50% - var(--W) * 0.75 - 2.9rem);
+  top: calc(50% - var(--W) * 0.75 - 4.6rem);
   transform: translateX(50%);
   animation: none;
 }
@@ -926,6 +979,15 @@ function tap(index: number): void {
   .cxh-card {
     --rest: 0.4;
     --peek: 0.72;
+  }
+}
+
+@media (min-width: 691px) and (orientation: landscape) {
+  @container (min-width: 30rem) and (min-aspect-ratio: 1 / 1) {
+    .cxh-card {
+      --rest: 0.78;
+      --peek: 0.85;
+    }
   }
 }
 /*

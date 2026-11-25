@@ -1792,8 +1792,19 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               effects: {
                 sliders: { treasury: -12, nature: 12, joy: 10, order: 4 },
                 flags: {
-                  set: ['publicTrust', 'moatHonour', 'sluiceOpened', 'waterStewardsPaid'],
-                  clear: ['waterMonopoly', 'runBlocked', 'runStillBlocked', 'moatFishedOut', 'moatRoachTrade'],
+                  set: [
+                    'publicTrust',
+                    'moatHonour',
+                    'sluiceOpened',
+                    'waterStewardsPaid',
+                  ],
+                  clear: [
+                    'waterMonopoly',
+                    'runBlocked',
+                    'runStillBlocked',
+                    'moatFishedOut',
+                    'moatRoachTrade',
+                  ],
                 },
                 regionOverride: { near_bank: 'grassy', far_shore: 'pristine' },
               },
@@ -1805,10 +1816,27 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               reactionMood: 'alarmed',
               text: 'Sell exclusive fishing permits and make the company pay its own patrol.',
               effects: {
-                sliders: { treasury: 14, prosperity: 6, order: 7, nature: -10, joy: -8 },
+                sliders: {
+                  treasury: 14,
+                  prosperity: 6,
+                  order: 7,
+                  nature: -10,
+                  joy: -8,
+                },
                 flags: {
-                  set: ['waterMonopoly', 'moatFishedOut', 'runBlocked', 'runStillBlocked', 'moatRoachTrade'],
-                  clear: ['publicTrust', 'moatHonour', 'sluiceOpened', 'waterStewardsPaid'],
+                  set: [
+                    'waterMonopoly',
+                    'moatFishedOut',
+                    'runBlocked',
+                    'runStillBlocked',
+                    'moatRoachTrade',
+                  ],
+                  clear: [
+                    'publicTrust',
+                    'moatHonour',
+                    'sluiceOpened',
+                    'waterStewardsPaid',
+                  ],
                 },
                 regionOverride: { near_bank: 'dead', far_shore: 'industrial' },
               },
@@ -1820,12 +1848,28 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               reactionMood: 'concerned',
               text: 'Share patrol costs with net makers. Permit commercial boats only beyond the moat.',
               effects: {
-                sliders: { treasury: -3, prosperity: 6, nature: 7, joy: 3, order: -3 },
+                sliders: {
+                  treasury: -3,
+                  prosperity: 6,
+                  nature: 7,
+                  joy: 3,
+                  order: -3,
+                },
                 flags: {
                   set: ['moatHonour', 'sluiceOpened', 'sharedWaterPatrol'],
-                  clear: ['waterMonopoly', 'publicTrust', 'runBlocked', 'runStillBlocked', 'moatFishedOut', 'moatRoachTrade'],
+                  clear: [
+                    'waterMonopoly',
+                    'publicTrust',
+                    'runBlocked',
+                    'runStillBlocked',
+                    'moatFishedOut',
+                    'moatRoachTrade',
+                  ],
                 },
-                regionOverride: { near_bank: 'grassy', far_shore: 'industrial' },
+                regionOverride: {
+                  near_bank: 'grassy',
+                  far_shore: 'industrial',
+                },
               },
               result:
                 'The net makers nominate wardens and the fleet pays for the crossing. Nix dislikes the engines but accepts the open sluice. Brack is appointed to both committees and attends whichever serves lunch. The moat recovers, though the special trust shoals find no dedicated nursery.',

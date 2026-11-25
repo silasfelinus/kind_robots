@@ -767,7 +767,9 @@ for (const id of QUESTS)
     assert.ok(!eligiblePool(base, cards).includes(followup))
     const previous = resolveChoice(base, parent, policy)
     assert.ok(eligiblePool(previous, cards).includes(followup))
-    assert.ok(!eligiblePool({ ...previous, turnCount: 47 }, cards).includes(followup))
+    assert.ok(
+      !eligiblePool({ ...previous, turnCount: 47 }, cards).includes(followup),
+    )
     const choices = followup.choices.map((choice) =>
       resolveChoice(previous, followup, choice),
     )

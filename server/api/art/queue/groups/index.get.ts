@@ -29,7 +29,9 @@ export default defineEventHandler(async (event) => {
 
     if (summary.groups.length) {
       const access = await getArtImageAccessContext(event)
-      const requested = readGalleryMaturityFilter(getQuery(event).maturity)
+      const requested = readGalleryMaturityFilter(
+        getQuery(event).maturity as string | undefined,
+      )
       if (access.showMature || requested !== 'mature') {
         const maturity = access.showMature ? requested : 'safe'
         attachArtJobGroupPreviews(

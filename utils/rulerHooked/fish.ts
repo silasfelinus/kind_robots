@@ -282,7 +282,12 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
       'Appeared after the crown negotiated borders and tariffs hard enough for the lake to notice.',
     unlock: {
       all: [{ sliders: { treasury: { gte: 60 } } }],
-      any: [{ flags: ['envoyTreatyHard'] }, { flags: ['riverConcession'] }],
+      any: [
+        { flags: ['envoyTreatyHard'] },
+        { flags: ['riverConcession'] },
+        { flags: ['floodToll'] },
+      ],
+      closes: [{ flags: ['floodplainRestored'] }],
     },
   },
   {

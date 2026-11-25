@@ -40,8 +40,8 @@
       </button>
     </div>
 
-    <div class="vs-columns">
-      <div class="vs-left kr-scroll">
+    <div class="vs-columns kr-panes">
+      <div class="vs-left kr-pane-scroll">
         <article
           class="vs-showcase"
           aria-live="polite"
@@ -55,7 +55,7 @@
               compact
             />
           </div>
-          <div class="vs-faction-copy kr-scroll">
+          <div class="vs-faction-copy">
             <small class="vs-label">{{ lab.team.district }} · YOUR CREW</small>
             <h2>{{ lab.team.name }}</h2>
             <em>{{ lab.team.motto }}</em>
@@ -159,7 +159,7 @@
       </div>
 
       <article
-        class="vs-card vs-players kr-scroll"
+        class="vs-card vs-players kr-pane-scroll"
         data-testid="slime-vs-players"
       >
         <h3>
@@ -282,7 +282,7 @@
         <p v-if="pvp.error || pvp.gamesError" class="vs-error" role="alert">
           {{ pvp.error || pvp.gamesError }}
         </p>
-        <ol class="vs-games kr-scroll" aria-label="Your games against players">
+        <ol class="vs-games" aria-label="Your games against players">
           <template v-if="pvp.openDuels.length">
             <li class="vs-list-label">OPEN CHALLENGES · ANYONE CAN JOIN</li>
             <li
@@ -630,8 +630,8 @@ onMounted(() => {
   gap: 0.6rem;
 }
 .vs-showcase {
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 1 0 auto;
+  min-height: 16rem;
   min-width: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -655,7 +655,6 @@ onMounted(() => {
   flex-direction: column;
   gap: 0.45rem;
   padding: clamp(0.55rem, 1.5cqw, 1rem);
-  overflow-y: auto;
   font-size: clamp(0.75rem, 1.5cqw, 1rem);
   line-height: 1.35;
 }
@@ -733,8 +732,8 @@ onMounted(() => {
   overflow-y: auto;
 }
 .vs-players .vs-games {
+  flex: none;
   min-height: 5rem;
-  overflow-y: auto;
 }
 .vs-card h3 {
   margin: 0;
@@ -1127,7 +1126,7 @@ onMounted(() => {
   }
   .vs-showcase {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) minmax(0, 0.9fr);
+    grid-template-rows: minmax(10rem, 1fr) auto;
   }
 }
 @container (max-width: 640px) {
@@ -1141,7 +1140,6 @@ onMounted(() => {
     gap: 0.4rem;
   }
   .vs-left {
-    overflow-y: auto;
     gap: 0.4rem;
   }
   .vs-showcase {

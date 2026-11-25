@@ -75,7 +75,13 @@
             <h3 class="text-lg font-black leading-tight text-base-content">
               {{ step.title }}
             </h3>
-            <p class="font-semibold leading-relaxed text-base-content/70">
+            <dl v-if="step.key === 'slime-city-glossary'" class="flex flex-col gap-3">
+              <div v-for="entry in CLASH_GLOSSARY" :key="entry.term">
+                <dt class="font-bold text-base-content">{{ entry.term }}</dt>
+                <dd class="text-sm leading-relaxed text-base-content/80">{{ entry.definition }}</dd>
+              </div>
+            </dl>
+            <p v-else class="font-semibold leading-relaxed text-base-content/70">
               {{ step.body }}
             </p>
           </div>
@@ -539,6 +545,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { CLASH_GLOSSARY } from '~/utils/slimeCity/glossary'
 import { achievementGameForPath } from '~/utils/achievements/gameAchievements'
 import { useBuilderStore } from '@/stores/builderStore'
 import { useChannelContentStore } from '@/stores/channelContentStore'

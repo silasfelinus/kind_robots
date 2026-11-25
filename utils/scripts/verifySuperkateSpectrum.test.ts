@@ -44,6 +44,8 @@ import {
   atelierBoard,
   BOSS_PATTERNS,
   SPECTRUM_BOSS_ART,
+  SPECTRUM_TROPHIES,
+  chapterMemoryEarned,
   newlyUnlockedStyles,
   bossContact,
   bossTarget,
@@ -487,6 +489,47 @@ for (const mode of ['story', 'classic'] as const) {
   for (let tick = 0; tick < 240; tick++) reward.update(emptyInput())
   assert.equal(reward.cosmeticUnlock, null)
 }
+
+assert.equal(SPECTRUM_TROPHIES.length, 9)
+assert.equal(new Set(SPECTRUM_TROPHIES.map((item) => item.id)).size, 9)
+const albumSave = readSpectrumSave({
+  ...cloudB,
+  career: {
+    ...cloudB.career,
+    highestStage: 30,
+    stars: Array.from({ length: 30 }, (_, i) => (i === 4 || i === 29 ? 3 : 0)),
+  },
+})
+assert.equal(chapterMemoryEarned(albumSave.career, 0), true)
+assert.equal(chapterMemoryEarned(albumSave.career, 1), false)
+assert.equal(chapterMemoryEarned(albumSave.career, 5), true)
+assert.equal(chapterMemoryEarned(albumSave.career, -1), false)
+assert.equal(chapterMemoryEarned(albumSave.career, 6), false)
+const collection = create({
+  ...options,
+  resume: albumSave,
+} as Parameters<typeof create>[0])
+const collectionSave = JSON.stringify(collection.save)
+assert.equal(collection.trophyEarned('chapter-1'), true)
+assert.equal(collection.trophyEarned('chapter-2'), false)
+assert.equal(collection.trophyEarned('chapter-6'), true)
+assert.equal(collection.trophyEarned('rainbow-rescue'), false)
+assert.equal(collection.trophyEarned('true-spectrum'), false)
+tapStage(collection, { x: 200, y: 470 })
+assert.equal(collection.menuTab, 'achievements')
+assert.equal(collection.trophyPage, 0)
+tapStage(collection, { x: 260, y: 343 })
+assert.equal(collection.trophyPage, 1)
+tapStage(collection, { x: 260, y: 343 })
+assert.equal(collection.trophyPage, 2)
+tapStage(collection, { x: 260, y: 343 })
+assert.equal(collection.trophyPage, 0)
+const previousTrophies = emptyInput()
+previousTrophies.pressed.left = true
+collection.update(previousTrophies)
+assert.equal(collection.trophyPage, 2)
+assert.equal(JSON.stringify(collection.save), collectionSave)
+assert.deepEqual(collection.drainFeats(), [])
 
 const touchRun = create({
   ...options,

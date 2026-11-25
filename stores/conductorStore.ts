@@ -7,6 +7,7 @@ import type {
   ConductorProject,
   ConductorTask,
 } from '@/server/api/conductor/projects.get'
+import type { ProjectProgressHistory } from '@/utils/projectProgressHistory'
 import { CONDUCTOR_CARDS } from '@/stores/helpers/conductorCards'
 import { performFetch } from '@/stores/utils'
 import {
@@ -123,6 +124,28 @@ export const useConductorStore = defineStore('conductor', () => {
   const updatingPitchSlugs = ref<string[]>([])
   const updatingTaskKeys = ref<string[]>([])
   const optimisticPitchStatuses = ref<Record<string, PitchStatus>>({})
+  const progressHistory = ref<ProjectProgressHistory | null>(null)
+  const historyPending = ref(false)
+  const historyError = ref<string | null>(null)
+  async function fetchProgressHistory(): Promise<void> {
+    historyPending.value = true
+    historyError.value = null
+    try {
+      const response = await performFetch<ProjectProgressHistory>(
+        '/api/conductor/progress-history',
+      )
+      if (!response.success) {
+        historyError.value = 'Could not load roadmap history.'
+        return
+      }
+      progressHistory.value = response.data ?? null
+    } catch {
+      historyError.value = 'Could not load roadmap history.'
+    } finally {
+      historyPending.value = false
+    }
+  }
+
   const progressBySlug = ref<Record<string, number>>({})
   const memberParents = ref<Record<string, string>>({})
   let progressLoadedAt = 0
@@ -512,6 +535,10 @@ export const useConductorStore = defineStore('conductor', () => {
     archivedPitches,
     fetchProjects,
     fetchProgress,
+    fetchProgressHistory,
+    progressHistory,
+    historyPending,
+    historyError,
     progressBySlug,
     progressForSlug,
     memberParents,

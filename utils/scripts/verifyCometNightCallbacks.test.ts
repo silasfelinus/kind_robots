@@ -23,6 +23,7 @@ import {
   dispatchModifier,
   incidentsFor,
   nextSchoolDay,
+  patrolInjuryNotice,
   playerPowerCallback,
   recoveringFollower,
   resolveDispatch,
@@ -161,6 +162,8 @@ const stripTreatment = (run: AcademyRun): AcademyRun => ({
 // Seeded: going out alone is never better and sometimes visibly worse.
 {
   let worse = 0
+  let injuredRuns = 0
+  let uninjuredRuns = 0
   let pinned: { seed: number; treated: Grade; rested: Grade } | null = null
   for (let seed = 1; seed <= 120; seed++) {
     const treated = tendInfirmary(hurtMorning(seed), 'mina')
@@ -173,17 +176,38 @@ const stripTreatment = (run: AcademyRun): AcademyRun => ({
     )
     const gradeOf = (run: AcademyRun) =>
       resolveDispatch(run).reports.find((r) => r.caseId === cases[1]!.id)!.grade
-    const a = gradeOf(night)
+    const resolved = resolveDispatch(night)
+    const report = resolved.reports.find((r) => r.caseId === cases[1]!.id)!
+    const a = report.grade
     const b = gradeOf(stripTreatment(night))
+    if (resolved.injuries?.mina === DAY + 2) {
+      injuredRuns++
+      assert.ok(report.text.includes(patrolInjuryNotice('Mina Quill', DAY)))
+      const morning = nextSchoolDay(roundTrip(resolved))
+      assert.ok(morning.scene.includes('Infirmary roll call: Mina Quill'))
+      assert.equal(studentAvailable(morning, 'mina'), false)
+      assert.ok(studentAvailable(tendInfirmary(morning, 'mina'), 'mina'))
+      roundTrip(morning)
+    } else {
+      uninjuredRuns++
+      assert.ok(!report.text.includes('INJURED:'))
+    }
     assert.ok(rank[a] <= rank[b], `seed ${seed}: ${a} vs ${b}`)
     if (rank[a] < rank[b]) {
       worse++
       pinned ??= { seed, treated: a, rested: b }
     }
   }
+  assert.ok(injuredRuns > 0)
+  assert.ok(uninjuredRuns > 0)
   assert.ok(worse >= 5, `${worse} seeds where a lone return costs a grade`)
   assert.deepEqual(pinned, { seed: 2, treated: 'failed', rested: 'partial' })
 }
+
+assert.match(patrolInjuryNotice('Mina Quill', 27), /until day 29/)
+assert.match(patrolInjuryNotice('Mina Quill', 27), /Infirmary treatment/)
+assert.doesNotMatch(patrolInjuryNotice('Mina Quill', 28), /treatment/)
+assert.doesNotMatch(patrolInjuryNotice('Mina Quill', 29), /tomorrow|day 31/)
 
 // Visual-novel nights: healthy contacts fill solo calls first, and the
 // rushed-back follower joins the player instead of going out alone.

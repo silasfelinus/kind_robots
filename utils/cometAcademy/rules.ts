@@ -2088,6 +2088,15 @@ export function dispatchChance(
   )
 }
 
+export function patrolInjuryNotice(name: string, day: number): string {
+  const recoveryDay = day + 2
+  if (day >= 29)
+    return `INJURED: ${name} was hurt on the final patrol and needs recovery.`
+  const treatment =
+    day < 28 ? ' Infirmary treatment tomorrow can bring them back early.' : ''
+  return `INJURED: ${name} is out tomorrow, recovering until day ${recoveryDay}.${treatment}`
+}
+
 export function resolveDispatch(run: AcademyRun): AcademyRun {
   if (
     run.phase !== 'dispatch' ||
@@ -2328,6 +2337,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
     ]
       .filter(Boolean)
       .join(' ')
+    let injuryNotice = ''
     if (
       run.flowVersion === 3 &&
       run.day > 2 &&
@@ -2339,12 +2349,16 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         assignment.students.length
       const injured = assignment.students[index]!
       injuries[injured] = Math.max(injuries[injured] ?? 0, run.day + 2)
+      injuryNotice = patrolInjuryNotice(
+        STUDENTS.find((student) => student.id === injured)!.name,
+        run.day,
+      )
     }
     return {
       caseId: incident.id,
       title: incident.title,
       grade,
-      text: resolvedText,
+      text: [resolvedText, injuryNotice].filter(Boolean).join(' '),
       names: [
         ...(run.playerCaseId === incident.id ? ['YOU · on patrol'] : []),
         ...assignment.students.map(
@@ -2380,7 +2394,16 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       caseId: `patrol-${run.day}-${zone.id}`,
       title: `${zone.title}: ${story.title}`,
       grade: STORY_REPORT_GRADE[storyResult.grade],
-      text: storyResult.text,
+      text: storyResult.teammate
+        ? [
+            storyResult.text,
+            patrolInjuryNotice(
+              STUDENTS.find((member) => member.id === storyResult.teammate)!
+                .name,
+              run.day,
+            ),
+          ].join(' ')
+        : storyResult.text,
       names: storyResult.teammate
         ? `YOU · ${STUDENTS.find((member) => member.id === storyResult.teammate)?.name ?? ''} (injured)`
         : 'YOU · night neighborhood patrol',
@@ -2751,6 +2774,15 @@ export function nextSchoolDay(current: AcademyRun): AcademyRun {
   const pending = pendingArcBeat(current)
   const run = pending ? answerArcBeat(current, pending.silent) : current
   const arcMorning = arcMorningFor(run)
+  const injuredNames =
+    run.flowVersion === 3
+      ? STUDENTS.filter(
+          (student) => (run.injuries?.[student.id] ?? 0) > run.day + 1,
+        ).map((student) => student.name)
+      : []
+  const injuryMorning = injuredNames.length
+    ? ` Infirmary roll call: ${injuredNames.join(', ')}. ${run.day < 28 ? 'They need rest tonight unless you spend a daytime action on treatment.' : 'They need rest; the infirmary treatment action is closed for graduation.'}`
+    : ''
   if (run.flowVersion === 3 && run.day >= 29)
     return {
       ...run,
@@ -2818,7 +2850,8 @@ export function nextSchoolDay(current: AcademyRun): AcademyRun {
                 run.reports.some((report) => report.text.includes('casebook'))
               ? 'The next bell rings. The evidence you saved on night patrol has reached the morning bulletin board; somebody else has seen the same clue.'
               : 'The next bell rings. Yesterday has already changed who will answer your calls.') +
-      arcMorning,
+      arcMorning +
+      injuryMorning,
   }
 }
 

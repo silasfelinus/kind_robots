@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { findArcadeGame } from '../arcade/games'
 import {
+  CRAFT_WINDUP_FRAMES,
   RAINBOW_EFFECTS,
   createRainbowPrincessPreview,
 } from '../arcade/games/rainbowPrincessPreview'
@@ -69,6 +70,7 @@ import {
   applyRainbowSwimMotion,
   rainbowBossRecoil,
   rainbowBossWindup,
+  rainbowCraftWindup,
   rainbowHitFlinch,
   rainbowShipPose,
   rainbowSwimPose,
@@ -717,3 +719,43 @@ console.log(
     )
   }
 }
+
+// t-011: a craft that charges before it acts tenses its body across that warning, half the boss windup.
+for (const [kind, warn] of Object.entries(CRAFT_WINDUP_FRAMES)) {
+  assert.ok(warn && warn > 0, `${kind} has a warning length`)
+  assert.deepEqual(
+    rainbowCraftWindup(warn + 1, warn),
+    { pull: 0, scaleX: 1, scaleY: 1 },
+    `${kind} rests before its warning`,
+  )
+  const deep = rainbowCraftWindup(1, warn)
+  const boss = rainbowBossWindup(1, warn)
+  assert.ok(
+    deep.pull > rainbowCraftWindup(warn, warn).pull &&
+      deep.pull === boss.pull / 2 &&
+      deep.scaleY > 1 &&
+      deep.scaleY < boss.scaleY,
+    `${kind} tenses deepest just before it acts, at half the boss's pose`,
+  )
+  assert.ok(
+    rainbowCraftWindup(1, warn, true).pull < deep.pull,
+    `calm motion damps ${kind}'s windup`,
+  )
+}
+assert.deepEqual(Object.keys(CRAFT_WINDUP_FRAMES).sort(), [
+  'brood',
+  'hammerhead',
+  'harbinger',
+  'squid',
+  'turret',
+])
+assert.match(
+  previewSource,
+  /rainbowCraftWindup\(reef\.charge, craftWarn, calm\)/,
+  'the craft draw uses the shared windup',
+)
+assert.match(
+  previewSource,
+  /craftWarn && !reef\.truce && reef\.charge/,
+  'a truce craft never tenses',
+)

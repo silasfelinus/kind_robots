@@ -353,6 +353,7 @@
                     :aria-label="unit(side, lane)!.power + ' attack'"
                     >⚔ {{ unit(side, lane)!.power }}</b
                   >
+                  <span class="scpvp-defense">
                   <b
                     class="is-life"
                     :class="{
@@ -361,10 +362,17 @@
                     :aria-label="unit(side, lane)!.hp + ' life'"
                     >♥ {{ unit(side, lane)!.hp }}</b
                   >
+                  <SlimeCityArmorStat
+                    :armor="unit(side, lane)!.armor"
+                    :guard="unit(side, lane)!.guard"
+                  />
+                  </span>
                 </span>
                 <span class="scpvp-tags">
                   <span
-                    v-for="tag in fighterTags(unit(side, lane)!)"
+                    v-for="tag in fighterTags(unit(side, lane)!).filter(
+                      (entry) => entry.kind !== 'armor' && entry.kind !== 'guard',
+                    )"
                     :key="tag.text"
                     class="scpvp-tag"
                     :class="'is-' + tag.kind"
@@ -372,7 +380,9 @@
                     >{{ tag.text }}</span
                   >
                 </span>
-                <span class="scpvp-unit-label"
+                <span
+                  class="scpvp-unit-label"
+                  :class="{ 'has-armor': unit(side, lane)!.armor + (unit(side, lane)!.guard ?? 0) > 0 }"
                   ><i :class="'lv-' + unit(side, lane)!.level">{{
                     '★'.repeat(unit(side, lane)!.level)
                   }}</i
@@ -941,7 +951,7 @@ function fighterTags(
   if (fighter.armor)
     tags.push({
       kind: 'armor',
-      text: '🛡 ' + fighter.armor,
+      text: 'ARMOR ' + fighter.armor,
       title: fighter.armor + ' armor',
     })
   if (fighter.guard)
@@ -1350,7 +1360,7 @@ function showChanges(before: PvpBoard, after: PvpBoard, struck: boolean) {
       float(
         unit.side,
         unit.lane,
-        '+' + (unit.armor - was.armor) + ' 🛡',
+        '+' + (unit.armor - was.armor) + ' ARMOR',
         'buffed',
       )
   }
@@ -1994,6 +2004,14 @@ watch(
   font-weight: 950;
   line-height: 1;
 }
+.scpvp-defense {
+  --sc-armor-size: clamp(1.1rem, 2.4vw, 1.8rem);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  z-index: 2;
+}
 .scpvp-stats b {
   padding: 0.15rem 0.3rem;
   border-radius: 0.4rem;
@@ -2038,10 +2056,6 @@ watch(
 .scpvp-tag.is-stun {
   color: #ff9aa0;
 }
-.scpvp-tag.is-armor,
-.scpvp-tag.is-guard {
-  color: #cfe7ff;
-}
 .scpvp-unit-label {
   position: absolute;
   inset: calc(0.8rem + clamp(0.72rem, 1.9vw, 1.2rem)) 0 auto;
@@ -2055,6 +2069,9 @@ watch(
   line-height: 1.1;
   text-align: center;
   text-shadow: 0 1px 3px #000;
+}
+.scpvp-unit-label.has-armor {
+  right: clamp(1.35rem, 3vw, 2.1rem);
 }
 .scpvp-unit-label i {
   color: #8af2c2;

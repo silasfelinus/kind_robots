@@ -7,6 +7,7 @@
 import { defineStore } from 'pinia'
 import { RULER_HOOKED_CONTENT as BUNDLE } from '~/utils/rulerHooked/content'
 import { createRun } from '~/utils/rulerHooked/newGame'
+import { readCourtCheckpoint } from '~/utils/rulerHooked/courtCheckpoint'
 import {
   advanceAfterFishingAttempt,
   takeTurn,
@@ -161,13 +162,25 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     lastEscape.value = null
   }
 
+  function restoreCourtState() {
+    clearTransientPlayState()
+    if (!save.value) return
+    const checkpoint = readCourtCheckpoint(bundle, save.value)
+    activeCard.value = checkpoint.card
+    activeArcId.value = checkpoint.arcId
+    pendingEnding.value = checkpoint.ending
+  }
+
   /** Load the last active slot (or leave null for the title screen). */
   function init() {
     refreshSlots()
     const idx = loadIndex()
     if (idx.activeSaveId) {
       const s = loadSave(idx.activeSaveId)
-      if (s) save.value = s
+      if (s) {
+        save.value = s
+        restoreCourtState()
+      }
     }
   }
 
@@ -259,7 +272,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     const s = loadSave(saveId)
     if (!s) return
     save.value = s
-    clearTransientPlayState()
+    restoreCourtState()
     setActive(saveId)
     refreshSlots()
   }
@@ -428,14 +441,21 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     restoreRoyalBackup(backup)
     if (activeId) {
       const restored = loadSave(activeId)
-      if (restored) save.value = restored
+      if (restored) {
+        save.value = restored
+        restoreCourtState()
+      }
     }
     refreshSlots()
     return true
   }
 
   function persist() {
-    if (save.value) writeSave(save.value, nowStamp())
+    if (save.value) {
+      save.value.pendingCardId = activeCard.value?.id
+      save.value.pendingFinaleKey = pendingEnding.value ?? undefined
+      writeSave(save.value, nowStamp())
+    }
     refreshSlots()
   }
 

@@ -9362,7 +9362,8 @@ export function createRainbowPrincessPreview(
             (150 - Math.max(0, nextLamp.at - frame)) / 45,
           )
           g.save()
-          g.globalAlpha = fade * (0.65 + Math.sin(frame / 8) * 0.12)
+          g.globalAlpha =
+            fade * (0.65 + rainbowSignalPulse(frame, 8, calm) * 0.12)
           g.strokeStyle = '#fff0b0'
           g.lineWidth = 2
           g.setLineDash([6, 5])
@@ -10115,7 +10116,7 @@ export function createRainbowPrincessPreview(
         ) {
           // The fork: the relay above the line, the shield cache below it.
           g.save()
-          g.globalAlpha = 0.6 + 0.25 * Math.sin(frame / 8)
+          g.globalAlpha = 0.6 + 0.25 * rainbowSignalPulse(frame, 8, calm)
           g.strokeStyle = '#ffe2fa'
           g.lineWidth = 1
           g.setLineDash([8, 6])
@@ -10154,7 +10155,7 @@ export function createRainbowPrincessPreview(
         if (frame >= WRECK_FORK.markFrom && frame < WRECK_FORK.decideAt) {
           // The fork: the depot above the line, the armory below it.
           g.save()
-          g.globalAlpha = 0.6 + 0.25 * Math.sin(frame / 8)
+          g.globalAlpha = 0.6 + 0.25 * rainbowSignalPulse(frame, 8, calm)
           g.strokeStyle = '#ffe2fa'
           g.lineWidth = 1
           g.setLineDash([8, 6])
@@ -10192,7 +10193,7 @@ export function createRainbowPrincessPreview(
         if (frame >= TRENCH_FORK.markFrom && frame < TRENCH_FORK.decideAt) {
           // The fork: a channel line with the vault above it and the safe passage below.
           g.save()
-          g.globalAlpha = 0.6 + 0.25 * Math.sin(frame / 8)
+          g.globalAlpha = 0.6 + 0.25 * rainbowSignalPulse(frame, 8, calm)
           g.strokeStyle = '#ffe2fa'
           g.lineWidth = 1
           g.setLineDash([8, 6])

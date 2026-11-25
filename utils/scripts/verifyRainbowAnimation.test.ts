@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict'
 import { readFileSync, statSync } from 'node:fs'
 import {
+  RAINBOW_ENDING_MOTION,
   RAINBOW_ENEMY_ATLASES,
+  rainbowEndingMotionPath,
+  rainbowEndingPlateName,
   RAINBOW_HIT_CARD_FRAMES,
   RAINBOW_PILOT_POSES,
   rainbowPosePath,
@@ -12,7 +15,11 @@ import {
   rainbowInterludePath,
 } from '../arcade/games/rainbowAnimation'
 import {
+  RAINBOW_IDLE_ATLASES,
   RAINBOW_STAGE_STRIPS,
+  rainbowIdleAtlasKey,
+  rainbowIdleCell,
+  setRainbowAnimationClock,
   setRainbowLook,
 } from '../arcade/games/rainbowGameArt'
 
@@ -175,6 +182,60 @@ assert.match(
   'losing a life raises the hit card',
 )
 assert.match(engineSource, /drawRainbowPose\(g, pilotName, 'hit'/)
+
+// P-01: every Fever Dream sprite (guardians, ships, bosses, pickups, hazards) plays its reviewed idle atlas through
+// one engine clock; calm motion holds the first cell, and a sprite without an atlas keeps its still.
+setRainbowAnimationClock(0, false)
+assert.deepEqual(
+  [0, 15, 30, 45, 120].map((tick) => rainbowIdleCell(8, tick)),
+  [0, 1, 2, 3, 0],
+  'four frames a second, looping over eight cells',
+)
+setRainbowAnimationClock(999, true)
+assert.equal(rainbowIdleCell(8, 999), 0, 'calm motion holds the first cell')
+setRainbowAnimationClock(0, false)
+assert.equal(
+  rainbowIdleAtlasKey('/rainbow-princess-art/enemies/angler.webp'),
+  null,
+  'Classic sprites never animate',
+)
+for (const [key, frames] of Object.entries(RAINBOW_IDLE_ATLASES)) {
+  assert.ok(frames >= 4 && frames <= 12, `${key} has a sensible frame count`)
+  assert.equal(
+    rainbowIdleAtlasKey(`/rainbow-princess-art/doodle/${key}.webp`),
+    key,
+  )
+  const bytes = readFileSync(
+    new URL(
+      `../../public/rainbow-princess-art/doodle/anim/${key.split('/')[1]}-idle.webp`,
+      import.meta.url,
+    ),
+  )
+  assert.equal(bytes.subarray(8, 12).toString('latin1'), 'WEBP')
+  assert.ok(bytes.length / 1024 < 200, `${key} atlas stays small`)
+}
+// P-03: endings move where a reviewed clip shipped, and each clip is named after the plate its ending shows.
+assert.equal(rainbowEndingPlateName('restore', 'loyal'), 'loyal-restore')
+assert.equal(rainbowEndingPlateName('sever', 'rebel'), 'sever-open')
+assert.equal(rainbowEndingPlateName('evacuate', null), 'evacuate')
+for (const name of RAINBOW_ENDING_MOTION) {
+  const clip = readFileSync(
+    new URL(`../../public${rainbowEndingMotionPath(name)}`, import.meta.url),
+  )
+  assert.equal(
+    clip.subarray(4, 8).toString('latin1'),
+    'ftyp',
+    `${name} is an MP4`,
+  )
+  assert.ok(clip.length / 1024 < 600, `${name} clip stays small`)
+}
+
+const engineClock = readFileSync(
+  new URL('../arcade/games/rainbowPrincessPreview.ts', import.meta.url),
+  'utf8',
+)
+assert.match(engineClock, /setRainbowAnimationClock\(tick, calm\)/)
+assert.match(engineClock, /drawRainbowEndingMotion\(/)
 
 console.log(
   `rainbow animation: ok (interludes ${RAINBOW_INTERLUDES.join(', ')}; idle atlases ${Object.keys(RAINBOW_ENEMY_ATLASES).join(', ')}; poses ${Object.values(RAINBOW_PILOT_POSES).flat().length})`,

@@ -20,6 +20,8 @@ import {
   pushCeiling,
 } from '../arcade/superkateSpectrum/board'
 import { emptyInput } from '../arcade/types'
+import { spectrumBoardKey, spectrumRankedBoard } from '../arcade/leaderboard'
+import { findArcadeGame, isPlausibleScore } from '../arcade/games'
 import {
   rankForXp,
   recordClassicEnd,
@@ -42,6 +44,7 @@ import {
   bossContact,
   bossTarget,
   create,
+  storyMapPosition,
 } from '../arcade/games/superkateSpectrum'
 import {
   SPECTRUM_BOSS_MUSIC,
@@ -389,6 +392,18 @@ const mapStart = emptyInput()
 mapStart.pressed.a = true
 mapRun.update(mapStart)
 assert.equal(mapRun.level, 2, 'Map selection starts the selected replay')
+assert.equal(mapRun.scoreBoard, null, 'Late-stage replay is not ranked')
+assert.equal(spectrumRankedBoard('story', 1), spectrumBoardKey('story'))
+assert.equal(spectrumRankedBoard('story', 2), null)
+assert.equal(spectrumRankedBoard('classic', 1), spectrumBoardKey('classic'))
+assert.notEqual(spectrumBoardKey('story'), spectrumBoardKey('classic'))
+for (const mode of ['story', 'classic'] as const) {
+  const key = spectrumBoardKey(mode)
+  assert.equal(findArcadeGame(key)?.slug, key)
+  assert.equal(isPlausibleScore(key, 100), true)
+  assert.equal(isPlausibleScore(key, 10_000_001), false)
+}
+assert.equal(isPlausibleScore('superkate-spectrum-other', 100), false)
 assert.equal(mapRun.save.career.highestStage, 12)
 assert.deepEqual(mapRun.save.career.stars, cloudB.career.stars)
 
@@ -410,6 +425,77 @@ for (let stage = 2; stage <= 30; stage++) {
 }
 fullMap.update(mapRight)
 assert.equal(fullMap.menuStage, 30)
+
+function tapStage(
+  run: ReturnType<typeof create>,
+  point: { x: number; y: number },
+) {
+  run.stagePointer({ phase: 'down', ...point })
+  run.stagePointer({ phase: 'up', ...point })
+}
+
+const touchRun = create({
+  ...options,
+  resume: cloudB,
+} as Parameters<typeof create>[0])
+tapStage(touchRun, storyMapPosition(13))
+assert.equal(touchRun.menuOpen, true, 'Locked nodes cannot start a run')
+assert.equal(touchRun.menuStage, 12)
+tapStage(touchRun, { x: 268, y: 400 })
+assert.notEqual(touchRun.selectedStyle, 'prismatic')
+tapStage(touchRun, { x: 124, y: 400 })
+assert.equal(touchRun.selectedStyle, 'candy')
+assert.equal(touchRun.save.style, 'candy')
+touchRun.stagePointer({ phase: 'down', ...storyMapPosition(2) })
+touchRun.stagePointer({ phase: 'up', ...storyMapPosition(3) })
+assert.equal(touchRun.menuOpen, true, 'Sliding between nodes cannot launch')
+tapStage(touchRun, storyMapPosition(2))
+assert.equal(touchRun.menuOpen, false)
+assert.equal(touchRun.level, 2)
+assert.equal(touchRun.save.career.highestStage, 12)
+assert.deepEqual(touchRun.save.career.stars, cloudB.career.stars)
+const currentTouchShot = () => touchRun.shot
+touchRun.stagePointer({ phase: 'down', x: 160, y: 130 })
+assert.equal(currentTouchShot(), null, 'Touch-down aims without shooting')
+touchRun.stagePointer({ phase: 'move', x: 80, y: 180 })
+assert.ok(touchRun.angle < -Math.PI / 2)
+touchRun.stagePointer({ phase: 'cancel', x: 80, y: 180 })
+touchRun.stagePointer({ phase: 'up', x: 80, y: 180 })
+assert.equal(currentTouchShot(), null, 'Canceled touch cannot fire')
+touchRun.stagePointer({ phase: 'down', x: 80, y: 180 })
+touchRun.stagePointer({ phase: 'up', x: 80, y: 450 })
+assert.equal(currentTouchShot(), null, 'Release outside the field cannot fire')
+touchRun.loaded = 'pink'
+touchRun.next = 'teal'
+tapStage(touchRun, { x: 44, y: 441 })
+assert.equal(touchRun.loaded, 'teal')
+assert.equal(touchRun.next, 'pink')
+touchRun.stagePointer({ phase: 'down', x: 160, y: 130 })
+touchRun.stagePointer({ phase: 'move', x: 240, y: 180 })
+assert.ok(touchRun.angle > -Math.PI / 2)
+touchRun.stagePointer({ phase: 'up', x: 240, y: 180 })
+const touchShot = currentTouchShot()
+assert.ok(touchShot, 'Release launches the aimed shot')
+assert.ok(touchShot.vx > 0 && touchShot.vy < 0)
+assert.equal(touchShot.hue, 'teal')
+tapStage(touchRun, { x: 80, y: 180 })
+assert.equal(touchRun.shot, touchShot, 'Cannot fire while a shot is active')
+for (let stage = 1; stage <= 30; stage++) {
+  const nodeRun = create({
+    ...options,
+    resume: readSpectrumSave({
+      ...cloudB,
+      career: { ...cloudB.career, highestStage: 30 },
+    }),
+  } as Parameters<typeof create>[0])
+  tapStage(nodeRun, storyMapPosition(stage))
+  assert.equal(nodeRun.level, stage)
+  assert.equal(nodeRun.menuOpen, false)
+  assert.equal(
+    nodeRun.scoreBoard,
+    stage === 1 ? spectrumBoardKey('story') : null,
+  )
+}
 
 const hub = create({
   ...options,
@@ -491,6 +577,52 @@ const audioReload = create({
 } as Parameters<typeof create>[0])
 assert.equal(audioReload.music, null)
 assert.equal(audioReload.settings.effects, false)
+
+const touchMenu = create({
+  ...options,
+  resume: readSpectrumSave({ ...cloudB, mode: 'story' }),
+  audio: { muted: false, volume: 0.4 },
+} as Parameters<typeof create>[0])
+tapStage(touchMenu, { x: 120, y: 470 })
+assert.equal(touchMenu.menuTab, 'scrapbook')
+tapStage(touchMenu, { x: 260, y: 343 })
+assert.equal(touchMenu.albumChapter, 1)
+tapStage(touchMenu, { x: 60, y: 343 })
+assert.equal(touchMenu.albumChapter, 0)
+tapStage(touchMenu, { x: 200, y: 470 })
+assert.equal(touchMenu.menuTab, 'achievements')
+tapStage(touchMenu, { x: 280, y: 470 })
+assert.equal(touchMenu.menuTab, 'settings')
+const oldContrast = touchMenu.settings.highContrast
+tapStage(touchMenu, { x: 250, y: 227 })
+assert.equal(touchMenu.settings.highContrast, !oldContrast)
+assert.equal(touchMenu.save.settings.highContrast, !oldContrast)
+tapStage(touchMenu, { x: 250, y: 314 })
+assert.equal(touchMenu.audio.muted, true)
+tapStage(touchMenu, { x: 250, y: 343 })
+assert.equal(touchMenu.audio.volume, 0.5)
+tapStage(touchMenu, { x: 60, y: 343 })
+assert.equal(touchMenu.audio.volume, 0.4)
+touchMenu.stagePointer({ phase: 'down', x: 40, y: 470 })
+touchMenu.stagePointer({ phase: 'up', x: 120, y: 470 })
+assert.equal(touchMenu.menuTab, 'settings')
+tapStage(touchMenu, { x: 40, y: 470 })
+assert.equal(touchMenu.menuTab, 'play')
+tapStage(touchMenu, { x: 160, y: 450 })
+assert.equal(touchMenu.mode, 'classic')
+assert.equal(touchMenu.menuOpen, true)
+tapStage(touchMenu, { x: 160, y: 220 })
+assert.equal(touchMenu.mode, 'story')
+assert.equal(touchMenu.menuOpen, true)
+
+const classicRanked = create({
+  ...options,
+  resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),
+} as Parameters<typeof create>[0])
+assert.equal(classicRanked.scoreBoard, null)
+classicRanked.update(mapStart)
+assert.equal(classicRanked.scoreBoard, spectrumBoardKey('classic'))
+assert.equal(classicRanked.save.career.classicBest, cloudB.career.classicBest)
 
 const deepClassic = create({
   ...options,
@@ -758,6 +890,33 @@ for (let chapter = 0; chapter < BOSS_PATTERNS.length; chapter++) {
     bossContact(target, { ...target, banked: false }),
     target.bank ? 'blocked' : 'hit',
   )
+  for (let hit = 0; hit < BOSS_PATTERNS[chapter]!.targets.length; hit++) {
+    const core = bossTarget(chapter, hit)
+    for (const guard of core.guards) {
+      assert.equal(
+        bossContact(core, { ...guard, hue: core.hue, banked: true }),
+        'blocked',
+        'Even a correctly colored bank shot cannot pass a shield',
+      )
+    }
+  }
+  const guard = target.guards[0]
+  if (guard) {
+    run.shot = {
+      x: guard.x,
+      y: guard.y,
+      vx: 0,
+      vy: 0,
+      hue: target.hue,
+      power: null,
+      banked: true,
+    }
+    run.update(emptyInput())
+    assert.equal(run.shot, null)
+    assert.equal(run.boss?.hits, 0)
+    assert.equal(run.boss?.misses, 1)
+    assert.equal(run.save.career.stars[stage - 1], 0)
+  }
   finishBoss(run)
   assert.ok((run.save.career.stars[stage - 1] ?? 0) > 0)
   assert.equal(run.won, stage === 30)

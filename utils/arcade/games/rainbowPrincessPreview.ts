@@ -4,6 +4,7 @@ import type {
   ArcadeGameInstance,
   ArcadeGameModule,
   ArcadeGameOptions,
+  ArcadeReadoutRow,
   InputFrame,
 } from '../types'
 import type { MusicLoop } from '../sound'
@@ -56,6 +57,7 @@ import {
   loadRainbowLook,
   rainbowActStage,
   rainbowLook,
+  setRainbowAnimationClock,
 } from './rainbowGameArt'
 import { drawFeverSky, drawFeverTrail } from './rainbowFeverDream'
 import {
@@ -64,6 +66,7 @@ import {
   rainbowBossRecoil,
   rainbowBossWindup,
   rainbowShipPose,
+  rainbowCraftWindup,
   stackRainbowBossPose,
 } from './rainbowSwimMotion'
 import { drawRainbowBossBloom } from './rainbowBossBloom'
@@ -86,6 +89,8 @@ import {
 import {
   RAINBOW_HIT_CARD_FRAMES,
   drawRainbowEnemyFrame,
+  drawRainbowEndingMotion,
+  rainbowEndingPlateName,
   drawRainbowInterlude,
   drawRainbowPose,
 } from './rainbowAnimation'
@@ -715,6 +720,17 @@ const ACT_FIVE_CHECKPOINTS = actCheckpoints(WRECK_SECTIONS, WRECK.bossStarts)
 const CUTTER = { jawFrames: 36, chargeSpeed: 5 } as const
 /** E17 hammerheads lock both fin pods before each fires; a pod sits this far above or below the body. */
 const HAMMERHEAD = { lockFrames: 36, podReach: 14 } as const
+/**
+ * Conductor rainbow t-011: craft whose `charge` counts down to a shot (or a brood's drones), and the warning
+ * each starts from. Their bodies tense across it with rainbowCraftWindup.
+ */
+export const CRAFT_WINDUP_FRAMES: Readonly<Partial<Record<string, number>>> = {
+  squid: SQUID.glintFrames,
+  harbinger: HARBINGER.warmFrames,
+  turret: TURRET.unfoldFrames,
+  hammerhead: HAMMERHEAD.lockFrames,
+  brood: BROOD_SHADOW_FRAMES,
+}
 /** E18 salvagers point four arms before they fire along them and grab the nearest loose pickup. */
 const SALVAGER = { armFrames: 36, grabReach: 110, grabArmour: 3 } as const
 const ACT_FOUR_CHECKPOINTS = actCheckpoints(
@@ -1748,6 +1764,29 @@ export function createRainbowPrincessPreview(
   function finaleFrame() {
     return finaleStart === null ? 0 : tick - finaleStart
   }
+  /** The HUD bar's heading: the detour or the Act and its name. */
+  function hudTitle(): string {
+    if (lighthouseActive()) return 'X3 / SUNKEN LIGHTHOUSE'
+    if (shoalActive()) return 'X4 / MIRROR SHOAL'
+    return [
+      'ACT I / PINKWAKE',
+      'ACT II / MOONJELLY',
+      'ACT III / TRENCH',
+      'ACT IV / EXPRESS',
+      'ACT V / WRECKYARD',
+      'ACT VI / CROWN REEF',
+      'ACT VII / GLASS CURRENT',
+      'ACT VIII / ECLIPSE PALACE',
+      'FINALE / ECLIPSE CROWN',
+    ][currentAct() - 1]!
+  }
+
+  /** One pilot's status, as the HUD bar and the upright readout both show it. */
+  function pilotStatus(seat: number): string {
+    const ship = ships[seat]!
+    return `${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${ship.charge}%${ship.specialCooldown ? '' : ' X'}${ship.evadeCooldown ? '' : ' Y'}`
+  }
+
   function currentAct(): 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 {
     return finaleStart !== null
       ? 9
@@ -6329,6 +6368,25 @@ export function createRainbowPrincessPreview(
     get over() {
       return over
     },
+    /**
+     * The HUD bar in words, for an upright phone's large-type readout under the stage (presentation
+     * critic P-09): the Act, the score, shoals and novas, then each pilot's lives, shields, power,
+     * charge and ready moves. Nothing in the demo, the menus or after the run.
+     */
+    get readout(): ArcadeReadoutRow[] | null {
+      if (options.demo || over || resumeMenu || selectMenu) return null
+      const [where, name] = hudTitle().split(' / ')
+      return [
+        { label: where!, value: name ?? '' },
+        { label: 'SCORE', value: String(Math.round(score * level.score)) },
+        { label: 'SHOALS · NOVAS', value: `${clearCount} · ${supers}` },
+        ...ships.slice(0, activePlayers).map((_, seat) => ({
+          label: SHIP_NAMES[pilotOf(seat)]!,
+          value: pilotStatus(seat),
+          color: PILOT_COLORS[pilotOf(seat)]!,
+        })),
+      ]
+    },
     /** Mastery goals earned this game (t-010). */
     get mastered() {
       return options.demo || replaySave ? [] : earned
@@ -6610,6 +6668,8 @@ export function createRainbowPrincessPreview(
     },
     update,
     render(g: CanvasRenderingContext2D) {
+      // One animation clock for every sprite's idle atlas (P-01); calm motion holds the first cell.
+      setRainbowAnimationClock(tick, calm)
       /** Calm motion slows every scenery plane alike, so their parallax still reads. */
       const drift = calm ? RAINBOW_EFFECTS.calmDrift : 1
       const sky = g.createLinearGradient(0, 0, 0, H)
@@ -7392,6 +7452,12 @@ export function createRainbowPrincessPreview(
                         : '#d09ffd'
         g.save()
         applyRainbowSwimMotion(g, reef.kind, tick, calm)
+        const craftWarn = CRAFT_WINDUP_FRAMES[reef.kind]
+        if (craftWarn && !reef.truce && reef.charge) {
+          const tense = rainbowCraftWindup(reef.charge, craftWarn, calm)
+          g.translate(tense.pull, 0)
+          g.scale(tense.scaleX, tense.scaleY)
+        }
         if (reef.flash) {
           const flinch = rainbowHitFlinch(reef.flash, HIT_FLASH_FRAMES, calm)
           g.scale(flinch.x, flinch.y)
@@ -9587,25 +9653,7 @@ export function createRainbowPrincessPreview(
         g.fillRect(0, 0, W, 29)
         g.fillStyle = '#ffe7f5'
         g.font = 'bold 10px monospace'
-        g.fillText(
-          lighthouseActive()
-            ? 'X3 / SUNKEN LIGHTHOUSE'
-            : shoalActive()
-              ? 'X4 / MIRROR SHOAL'
-              : [
-                  'ACT I / PINKWAKE',
-                  'ACT II / MOONJELLY',
-                  'ACT III / TRENCH',
-                  'ACT IV / EXPRESS',
-                  'ACT V / WRECKYARD',
-                  'ACT VI / CROWN REEF',
-                  'ACT VII / GLASS CURRENT',
-                  'ACT VIII / ECLIPSE PALACE',
-                  'FINALE / ECLIPSE CROWN',
-                ][act - 1]!,
-          HUD_LEFT,
-          12,
-        )
+        g.fillText(hudTitle(), HUD_LEFT, 12)
         g.font = '9px monospace'
         // The button legend teaches Act I, then gives the bar back (presentation critic P-21); with three or
         // four pilots their status needs the room.
@@ -9626,11 +9674,10 @@ export function createRainbowPrincessPreview(
         // Every pilot's status lives inside the 29 px bar, never over the playfield or the boss bar
         // (gameplay critic D4, presentation critic P-08): pilots 1-2 in the right column, 3-4 beside them.
         for (let seat = 0; seat < activePlayers; seat++) {
-          const ship = ships[seat]!
           const slot = rainbowHudStatusSlot(seat, activePlayers)
           g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
           g.fillText(
-            `${SHIP_NAMES[pilotOf(seat)]} ${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${ship.charge}%${ship.specialCooldown ? '' : ' X'}${ship.evadeCooldown ? '' : ' Y'}`,
+            `${SHIP_NAMES[pilotOf(seat)]} ${pilotStatus(seat)}`,
             HUD_RIGHT - slot.column * HUD_STATUS_COLUMN,
             slot.y,
           )
@@ -9681,14 +9728,25 @@ export function createRainbowPrincessPreview(
           g.textAlign = 'left'
           // The painted plate for the choice the crew flew sits under the ending's lines, captioned by road.
           const plateX = (W - ENDING_PLATE_WIDTH) / 2
-          const plateHeight = drawRainbowEndingPlate(
-            g,
-            finalChoice ?? 'evacuate',
-            plateX,
-            ENDING_PLATE_TOP,
-            ENDING_PLATE_WIDTH,
-            allegiance,
-          )
+          // A reviewed one-shot clip of the plate plays where one shipped (P-03); otherwise the still.
+          const plateHeight =
+            drawRainbowEndingMotion(
+              g,
+              rainbowEndingPlateName(finalChoice ?? 'evacuate', allegiance),
+              plateX,
+              ENDING_PLATE_TOP,
+              ENDING_PLATE_WIDTH,
+              calm,
+              endingFrame ?? 0,
+            ) ||
+            drawRainbowEndingPlate(
+              g,
+              finalChoice ?? 'evacuate',
+              plateX,
+              ENDING_PLATE_TOP,
+              ENDING_PLATE_WIDTH,
+              allegiance,
+            )
           if (plateHeight) {
             const captionY = ENDING_PLATE_TOP + plateHeight - 15
             g.fillStyle = '#160b34d9'

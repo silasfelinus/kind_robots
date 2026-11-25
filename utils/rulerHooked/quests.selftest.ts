@@ -527,4 +527,81 @@ for (const id of QUESTS)
   }
 }
 
+// Late follow-ups remain reachable after either initial policy, and offer a
+// meaningful chance to revise that policy rather than replaying its decision.
+{
+  const cards = allDeckCards(C)
+  const cases = [
+    {
+      parent: 'river-commons-vote',
+      followup: 'flood-debt-council',
+      first: 'fund-floodplain',
+      second: 'mortgage-crossing',
+      good: 'bridgeback-sturgeon',
+      other: 'tollbell-sturgeon',
+      earlyTurn: 37,
+    },
+    {
+      parent: 'marina-family-charter',
+      followup: 'harbour-apprentice-hearing',
+      first: 'share-the-launch',
+      second: 'sell-apprentice-licenses',
+      good: 'orchardjaw-perch',
+      other: 'ironmandate-skate',
+      earlyTurn: 38,
+    },
+  ] as const
+
+  for (const scenario of cases) {
+    const parent = cards.find((c) => c.id === scenario.parent)!
+    const followup = cards.find((c) => c.id === scenario.followup)!
+    assert.ok(parent && followup)
+    assert.ok(CARD_PROMPTS[followup.id])
+    for (const parentChoice of parent.choices) {
+      const base = createRun(C, {
+        saveId: 'late-policy-test',
+        name: 'Late policy',
+        seed: 'late-policy',
+        rulerName: 'Mo',
+        stamp: 'T0',
+      })
+      base.turnCount = scenario.earlyTurn + 1
+      base.kingdomHealth.nature = 80
+      base.kingdomHealth.joy = 50
+      base.kingdomHealth.order = 70
+      base.kingdomHealth.treasury = 80
+      assert.ok(!eligiblePool(base, cards).includes(followup))
+
+      const after = resolveChoice(base, parent, parentChoice)
+      // Neutral intervening joy isolates each late decree's habitat effect.
+      after.kingdomHealth.joy = 50
+      assert.ok(eligiblePool(after, cards).includes(followup))
+      assert.ok(
+        !eligiblePool(
+          { ...after, turnCount: scenario.earlyTurn },
+          cards,
+        ).includes(followup),
+      )
+
+      const restored = resolveChoice(
+        after,
+        followup,
+        followup.choices.find((c) => c.id === scenario.first)!,
+      )
+      const licensed = resolveChoice(
+        after,
+        followup,
+        followup.choices.find((c) => c.id === scenario.second)!,
+      )
+      assert.notDeepEqual(restored.kingdomHealth, licensed.kingdomHealth)
+      assert.notDeepEqual(restored.regionOverrides, licensed.regionOverrides)
+      assert.ok(has(restored, scenario.good))
+      assert.ok(!has(restored, scenario.other))
+      assert.ok(has(licensed, scenario.other))
+      assert.ok(!eligiblePool(restored, cards).includes(followup))
+      assert.ok(!eligiblePool(licensed, cards).includes(followup))
+    }
+  }
+}
+
 console.log('ruler-hooked QUESTS self-test: ALL PASS')

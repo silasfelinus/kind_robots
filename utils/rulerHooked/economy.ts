@@ -15,7 +15,8 @@
 // save fields, and both already existed as concepts (see fish.ts's
 // `counters.fishCaught` and content.ts's `counters: { treasuresFound: +1 }`).
 
-import type { AxisKey, Rarity } from '~/types/ruler-hooked'
+import type { AxisKey, Rarity, RunSave } from '~/types/ruler-hooked'
+import { applyEffect, cloneSave } from './applyEffects'
 import type { RngStream } from './seed'
 
 // --- treasure -----------------------------------------------------------
@@ -184,3 +185,43 @@ export const KINGDOM_CATALOG: KingdomItem[] = [
     sliders: { order: 7 },
   },
 ]
+
+export function shopAvailable(save: RunSave | null, busy: boolean): boolean {
+  return save?.status === 'ACTIVE' && !busy
+}
+
+function canAfford(save: RunSave, cost: number): boolean {
+  const coins = save.counters.coins ?? 0
+  return Number.isFinite(coins) && coins >= cost
+}
+
+export function purchaseGearFor(save: RunSave, itemId: string): RunSave {
+  const item = GEAR_CATALOG.find((gear) => gear.id === itemId)
+  if (
+    !shopAvailable(save, false) ||
+    !item ||
+    ownsGear(save.flags, itemId) ||
+    !canAfford(save, item.cost)
+  )
+    return save
+
+  const next = cloneSave(save)
+  applyEffect(next, {
+    counters: { coins: -item.cost },
+    flags: { set: [item.flagKey] },
+  })
+  return next
+}
+
+export function purchaseKingdomFor(save: RunSave, itemId: string): RunSave {
+  const item = KINGDOM_CATALOG.find((work) => work.id === itemId)
+  if (!shopAvailable(save, false) || !item || !canAfford(save, item.cost))
+    return save
+
+  const next = cloneSave(save)
+  applyEffect(next, {
+    counters: { coins: -item.cost },
+    sliders: item.sliders,
+  })
+  return next
+}

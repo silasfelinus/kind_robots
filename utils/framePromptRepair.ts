@@ -95,6 +95,17 @@ const LEGACY_FRAME_COMPOSITION: Array<[RegExp, string]> = [
   [/\bthe same (?:frame|picture)\b/gi, 'the same scene'],
   [/\bedge of the (?:frame|picture)\b/gi, 'edge of the scene'],
   [/\bedges of the (?:frame|picture)\b/gi, 'edges of the scene'],
+  /*
+   * "keep the whole creature inside the frame" (2026-11-25): Conductor's
+   * Kontext sprite edits asked for the subject not to be cropped, and claim
+   * judges a Kontext graph as flux, so ArtJobs 77110-77113 failed on
+   * frame-noun. Only after "whole/entire <noun>", because "a pressed flower
+   * inside the frame" is a real frame holding something.
+   */
+  [
+    /(?<=\b(?:whole|entire) [a-z-]+ )(?:inside|within) the (?:frame|picture)\b/gi,
+    'in full view',
+  ],
 ]
 
 const LEGACY_FRAME_ANATOMY: Array<[string, string]> = [

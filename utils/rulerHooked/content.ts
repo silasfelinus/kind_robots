@@ -1664,6 +1664,112 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
             },
           ],
         },
+        {
+          id: 'flood-debt-council',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          once: true,
+          weight: 6,
+          characters: ['envoy-thistle', 'warlock-vex', 'lake-spirit-nix'],
+          title: 'The Flood Sends an Invoice',
+          body: 'A flood has carried off the river crossing. Thistle brings a bill from both villages; Vex offers a new bridge if his company gets the tolls for twenty years. Nix puts a waterlogged nest on the table. Someone has to pay, and none of the three agrees who.',
+          art: 'card-flood-debt-council',
+          trigger: {
+            minTurn: 38,
+            requires: { cardsSeen: ['river-commons-vote'] },
+          },
+          choices: [
+            {
+              id: 'fund-floodplain',
+              reactionMood: 'pleased',
+              text: 'Pay the builders directly and give the river a floodplain.',
+              effects: {
+                sliders: { treasury: -14, nature: 12, order: 4, joy: 5 },
+                flags: {
+                  set: ['riverCommons', 'floodplainRestored'],
+                  clear: ['riverConcession', 'floodToll'],
+                },
+                regionOverride: {
+                  far_shore: 'pristine',
+                  near_bank: 'grassy',
+                },
+              },
+              result:
+                'Vex accepts the smaller contract. Villagers shift their market uphill, and the river gains a stretch of bank where spring water can spread. Thistle sends a smaller bill next year. The old sturgeon return to the crossing.',
+            },
+            {
+              id: 'mortgage-crossing',
+              reactionMood: 'concerned',
+              text: 'Let Vex finance the bridge. Cap the toll, but grant the lease.',
+              effects: {
+                sliders: { treasury: 10, prosperity: 8, nature: -6, joy: -4 },
+                flags: {
+                  set: ['riverConcession', 'floodToll'],
+                  clear: ['riverCommons', 'floodplainRestored'],
+                },
+                regionOverride: {
+                  far_shore: 'industrial',
+                  near_bank: 'trampled',
+                },
+              },
+              result:
+                'The new bridge opens before winter and the ferries resume. Its toll cap looks fair until the villages discover that every return journey counts twice. Tollbell Sturgeon gather below the piers, ringing in time with the collector.',
+            },
+          ],
+        },
+        {
+          id: 'harbour-apprentice-hearing',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          once: true,
+          weight: 6,
+          characters: ['heir-robin', 'sweetheart-ash', 'captain-cordelia'],
+          title: 'The Children Want Their Own Boats',
+          body: 'Robin and Ash have trained a dozen apprentices. Their little boats now compete with the harbour fleet for space. Cordelia has a sensible safety plan, and the established skippers have a very expensive licensing plan. Ash asks you to look at the apprentices before reading either document.',
+          art: 'card-harbour-apprentice-hearing',
+          trigger: {
+            minTurn: 39,
+            requires: { cardsSeen: ['marina-family-charter'] },
+          },
+          choices: [
+            {
+              id: 'share-the-launch',
+              reactionMood: 'pleased',
+              text: 'Build a communal launch and pay the old skippers to teach.',
+              effects: {
+                sliders: { treasury: -9, joy: 11, nature: 7, order: 3 },
+                flags: {
+                  set: ['workingWaterfront', 'apprenticeLaunch'],
+                  clear: ['exclusivePier'],
+                },
+                regionOverride: {
+                  near_bank: 'grassy',
+                  village_edge: 'township',
+                },
+              },
+              result:
+                'Cordelia supervises the first launch. The old skippers grumble until an apprentice repairs a cracked oar they had written off. Robin keeps the orchard pier open, and the perch return beneath the youngest boats.',
+            },
+            {
+              id: 'sell-apprentice-licenses',
+              reactionMood: 'alarmed',
+              text: 'Require licenses and sell the remaining berths to the fleet.',
+              effects: {
+                sliders: { treasury: 12, order: 8, joy: -10, nature: -5 },
+                flags: {
+                  set: ['exclusivePier', 'apprenticeLicenses'],
+                  clear: ['workingWaterfront'],
+                },
+                regionOverride: {
+                  near_bank: 'trampled',
+                  village_edge: 'boomtown',
+                },
+              },
+              result:
+                'The harbour becomes orderly and profitable. The apprentices pool their wages to rent one boat between them. Ash takes them fishing beyond the gate, where the fenced waters grow quiet enough for strange skates.',
+            },
+          ],
+        },
       ],
     },
     {

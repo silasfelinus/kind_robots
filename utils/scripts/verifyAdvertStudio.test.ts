@@ -493,6 +493,7 @@ assert.match(
   'project conversations keep their route-to-project fallback',
 )
 assert.match(tutorialSheet, /data-testid="workspace-silas-says"/)
+assert.doesNotMatch(tutorialSheet, /to="\/silas"/)
 assert.match(tutorialSheet, /data-testid="workspace-conversation"/)
 assert.match(tutorialSheet, /data-testid="silas-says-edit"/)
 assert.match(tutorialSheet, /data-testid="silas-says-save-draft"/)

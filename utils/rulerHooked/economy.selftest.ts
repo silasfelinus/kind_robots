@@ -15,7 +15,10 @@ import {
   TREASURE_BY_RARITY,
   gearBonusFromFlags,
   ownsGear,
+  purchaseGearFor,
+  purchaseKingdomFor,
   rollTreasure,
+  shopAvailable,
 } from '~/utils/rulerHooked/economy'
 import { applyEffect, cloneSave } from '~/utils/rulerHooked/applyEffects'
 import { timingProfileFor } from '~/utils/rulerHooked/timingBar'
@@ -194,6 +197,76 @@ const fresh = (id = 'sv_econ'): RunSave =>
       before[axis as keyof typeof before] + (delta ?? 0),
       `${axis} moved by exactly the kingdom item's authored delta`,
     )
+  }
+}
+
+// The exact shop reducers used by the store must resist duplicate purchases,
+// invalid balances and spending after a completed reign.
+{
+  const gear = GEAR_CATALOG[0]!
+  const work = KINGDOM_CATALOG[0]!
+  const save = fresh()
+  assert.equal(shopAvailable(null, false), false)
+  assert.equal(shopAvailable(save, true), false)
+  assert.equal(shopAvailable(save, false), true)
+
+  for (const balance of [0, -1, NaN, Infinity, gear.cost - 1]) {
+    const poor = fresh()
+    poor.counters.coins = balance
+    assert.equal(purchaseGearFor(poor, gear.id), poor)
+    assert.equal(purchaseKingdomFor(poor, work.id), poor)
+  }
+
+  save.counters.coins = gear.cost + 2 * work.cost
+  const before = cloneSave(save)
+  assert.equal(purchaseGearFor(save, 'unknown'), save)
+  assert.equal(purchaseKingdomFor(save, 'unknown'), save)
+
+  let next = purchaseGearFor(save, gear.id)
+  assert.deepEqual(save, before, 'purchases do not mutate their input')
+  assert.equal(next.counters.coins, 2 * work.cost)
+  assert.equal(ownsGear(next.flags, gear.id), true)
+  for (let i = 0; i < 100; i++) {
+    assert.equal(purchaseGearFor(next, gear.id), next)
+  }
+
+  next = purchaseKingdomFor(next, work.id)
+  assert.equal(next.counters.coins, work.cost)
+  next = purchaseKingdomFor(next, work.id)
+  assert.equal(next.counters.coins, 0)
+  assert.equal(purchaseKingdomFor(next, work.id), next)
+  assert.equal(
+    next.kingdomHealth.prosperity,
+    before.kingdomHealth.prosperity + 12,
+  )
+
+  const completed = { ...before, status: 'COMPLETE' as const }
+  assert.equal(shopAvailable(completed, false), false)
+  assert.equal(purchaseGearFor(completed, gear.id), completed)
+  assert.equal(purchaseKingdomFor(completed, work.id), completed)
+}
+
+// All purchase orders respect the finite purse and grant each tackle item
+// at most once, even when re-entering the shop and replaying the same clicks.
+{
+  for (const startingCoins of [0, 39, 40, 89, 90, 160, 290, 1000]) {
+    for (let offset = 0; offset < GEAR_CATALOG.length; offset++) {
+      let save = fresh()
+      save.counters.coins = startingCoins
+      for (let i = 0; i < GEAR_CATALOG.length * 3; i++) {
+        const gear = GEAR_CATALOG[(offset + i) % GEAR_CATALOG.length]!
+        const before = save
+        save = purchaseGearFor(save, gear.id)
+        if (save !== before) {
+          assert.equal(save.counters.coins, before.counters.coins! - gear.cost)
+        }
+        assert.ok(save.counters.coins! >= 0)
+      }
+      const spent = GEAR_CATALOG.filter((gear) =>
+        ownsGear(save.flags, gear.id),
+      ).reduce((sum, gear) => sum + gear.cost, 0)
+      assert.equal(save.counters.coins, startingCoins - spent)
+    }
   }
 }
 

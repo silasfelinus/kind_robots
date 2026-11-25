@@ -152,7 +152,10 @@ assert.equal(
   visibleClashTrapAt(trapped.traps, 'player', 'enemy', 2)?.cardId,
   'scentmine',
 )
-assert.equal(visibleClashTrapAt(trapped.traps, 'player', 'player', 2), undefined)
+assert.equal(
+  visibleClashTrapAt(trapped.traps, 'player', 'player', 2),
+  undefined,
+)
 assert.equal(visibleClashTrapAt(trapped.traps, 'player', 'enemy', 1), undefined)
 assert.equal(
   visibleClashTrapAt(trapped.traps, 'enemy', 'player', 1)?.cardId,

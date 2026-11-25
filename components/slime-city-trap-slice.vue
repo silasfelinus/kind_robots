@@ -1,5 +1,10 @@
 <template>
-  <span v-if="trap" class="trap-slice" aria-hidden="true" data-testid="clash-trap-slice">
+  <span
+    v-if="trap"
+    class="trap-slice"
+    aria-hidden="true"
+    data-testid="clash-trap-slice"
+  >
     <SlimeCityArtwork
       :image-id="slimeCardArtId(trap.cardId, trap.level)"
       :alt="cardById(trap.cardId).name"

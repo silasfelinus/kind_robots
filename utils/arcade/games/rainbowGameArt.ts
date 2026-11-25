@@ -114,14 +114,28 @@ export function rainbowDoodleLoadedArt(path: string): HTMLImageElement | null {
  * (conductor ANIM-BACKLOG-2026-11-24), matte keyed and sized to its still. Listed only once reviewed.
  */
 export const RAINBOW_IDLE_ATLASES: Readonly<Record<string, number>> = {
+  'bosses/b01-phase1': 8,
+  'bosses/b01-phase2': 8,
+  'bosses/b03-phase2': 8,
+  'bosses/b03-phase3': 8,
+  'bosses/b05-phase1': 8,
+  'bosses/b05-phase2': 8,
+  'bosses/b06-phase1': 8,
+  'bosses/b06-phase2': 8,
+  'bosses/b08-phase2': 8,
+  'bosses/b08-phase3': 8,
   'enemies/angler': 8,
   'enemies/clawstrike': 8,
+  'enemies/coral': 8,
   'enemies/courier': 8,
   'enemies/cutter': 8,
   'enemies/dolphin': 8,
   'enemies/guardian-armory-siren': 8,
   'enemies/guardian-bellkeeper': 8,
   'enemies/guardian-comet-herder': 8,
+  'enemies/guardian-courier': 8,
+  'enemies/guardian-mirror': 8,
+  'enemies/hammerhead': 8,
 }
 /** Idle atlases play at four frames a second, like the enemy cycles. */
 export const RAINBOW_IDLE_FPS = 4

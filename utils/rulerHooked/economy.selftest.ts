@@ -235,7 +235,10 @@ const fresh = (id = 'sv_econ'): RunSave =>
   next = purchaseKingdomFor(next, work.id)
   assert.equal(next.counters.coins, 0)
   assert.equal(purchaseKingdomFor(next, work.id), next)
-  assert.equal(next.kingdomHealth.prosperity, before.kingdomHealth.prosperity + 12)
+  assert.equal(
+    next.kingdomHealth.prosperity,
+    before.kingdomHealth.prosperity + 12,
+  )
 
   const completed = { ...before, status: 'COMPLETE' as const }
   assert.equal(shopAvailable(completed, false), false)

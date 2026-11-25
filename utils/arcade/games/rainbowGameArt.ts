@@ -125,6 +125,7 @@ export const RAINBOW_IDLE_ATLASES: Readonly<Record<string, number>> = {
   'bosses/b08-phase2': 8,
   'bosses/b08-phase3': 8,
   'enemies/angler': 8,
+  'enemies/captive': 8,
   'enemies/clawstrike': 8,
   'enemies/coral': 8,
   'enemies/courier': 8,
@@ -134,6 +135,7 @@ export const RAINBOW_IDLE_ATLASES: Readonly<Record<string, number>> = {
   'enemies/guardian-bellkeeper': 8,
   'enemies/guardian-comet-herder': 8,
   'enemies/guardian-courier': 8,
+  'enemies/guardian-herald': 8,
   'enemies/guardian-mirror': 8,
   'enemies/hammerhead': 8,
 }

@@ -95,13 +95,13 @@
               <p
                 class="kr-text-eyebrow truncate text-xs tracking-widest text-primary"
               >
-                Workspace
+                Tutorial
               </p>
 
               <button
                 type="button"
                 class="btn btn-ghost btn-xs btn-square"
-                aria-label="Close workspace"
+                aria-label="Close tutorial"
                 @click="setWorkspaceSheetOpen(false)"
               >
                 <Icon name="kind-icon:close" class="kr-icon-4" />
@@ -116,7 +116,7 @@
                   <div
                     class="kr-text-dim-sm rounded-2xl border border-dashed border-base-300 p-4"
                   >
-                    Loading workspace...
+                    Loading tutorial...
                   </div>
                 </template>
               </ClientOnly>

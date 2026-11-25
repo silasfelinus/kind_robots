@@ -263,10 +263,10 @@ const workspaceSheetOpen = computed(() => navStore.workspaceSheetOpen)
 const tutorialStore = useTutorialStore()
 
 const workspaceToggleLabel = computed(() => {
-  if (workspaceSheetOpen.value) return 'Close workspace'
+  if (workspaceSheetOpen.value) return 'Close tutorial'
   return tutorialUnseen.value
     ? 'New here? Open the tutorial for this page'
-    : 'Open workspace'
+    : 'Open tutorial'
 })
 
 const slimeCityVsPage = computed(

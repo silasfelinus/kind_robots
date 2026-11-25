@@ -17,9 +17,22 @@ tutorial:
     Six crews, five alleys. Knock the rival boss from 40 to zero, or hold
     more boss life when the bell rings after round 24.
   body: >-
+    Win by reducing the rival boss to zero health. Both bosses normally start
+    at 40. Ready fighters hit the rival boss when their opposing alley is
+    empty and no trap stops them. If both bosses survive round 24, the boss
+    with more health wins; equal health is a draw.
     Pick a crew on HOME. VS is a quick match, JOURNEY is your crew's story,
     TOWER is a twelve-floor climb, and COLLECTION builds 20-card decks.
   sections:
+    - key: victory
+      title: How to win
+      body: >-
+        Clear the opposing alley so your fighters can hit the rival boss.
+        For example, a ready fighter with 5 attack in an empty, untrapped
+        alley takes 5 health from the rival boss. Keep fighters opposite
+        enemy attackers to protect your own boss. Reduce the rival boss to
+        zero to win; at the end of round 24, higher boss health wins (equal
+        health is a draw).
     - key: plays
       title: Two plays a turn
       image: /slime-city/tutorial/two-plays.webp

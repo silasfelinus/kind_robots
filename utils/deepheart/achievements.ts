@@ -87,9 +87,7 @@ export function achievementsProven(
     if (courted.includes('brannoc') && courted.includes('thessaly'))
       earned.add(C.hearth)
     if (run.oaths.length) earned.add(C.sworn)
-    if (
-      activeSynergies(partyIds(run), run.hero).length >= PERFECT_SYNERGIES
-    )
+    if (activeSynergies(partyIds(run), run.hero).length >= PERFECT_SYNERGIES)
       earned.add(C.perfectParty)
     if (run.mimics > 0) earned.add(C.mimic)
     if (run.peakGold >= HOARD_GOLD) earned.add(C.hoard)

@@ -16,7 +16,12 @@
  * stage before its resume point cleared. Nobody loses a run to the upgrade.
  */
 import { CAMPAIGN } from './savePlumberLevels'
-import { mapNode, stageNode, startId } from './savePlumberOverworld'
+import {
+  SECRET_EXITS_READY,
+  mapNode,
+  stageNode,
+  startId,
+} from './savePlumberOverworld'
 import { PLUMBER_ROSTER, rosterIndex } from './savePlumberRoster'
 
 /** One save slot: a heroine's whole adventure. */
@@ -61,7 +66,97 @@ export type PlumberAlbum = {
   secrets: string[]
   gears: string[]
   heroines: number[]
-  endings: 'rivers-run-home'[]
+  endings: PlumberEnding[]
+}
+
+/**
+ * The finales a cleared run can earn, in gallery order (conductor save-the-plumber t-028, main-game standard
+ * "multiple endings"). Every clear earns the base ending; finishing with every Golden Gear adds Teo's
+ * clockwork gift, and finding every playable secret exit adds Lady Spigot opening the tap for good.
+ */
+export const PLUMBER_ENDINGS = [
+  'rivers-run-home',
+  'clockwork-gift',
+  'open-tap',
+] as const
+export type PlumberEnding = (typeof PLUMBER_ENDINGS)[number]
+
+/**
+ * What each ending shows. `plate` is its painted cutscene; until a plate is delivered the finale and gallery fall
+ * back to `finale-reversal`, so an ending never draws a blank.
+ */
+export const PLUMBER_ENDING_COPY: Readonly<
+  Record<
+    PlumberEnding,
+    {
+      title: string
+      lines: readonly [string, string]
+      gallery: string
+      hint: string
+      plate: string
+    }
+  >
+> = {
+  'rivers-run-home': {
+    title: 'THE RIVERS RUN HOME!',
+    lines: [
+      'Lady Spigot lets the last river go, and {name} frees Teo.',
+      'Every stolen stream tumbles back down to the land.',
+    ],
+    gallery: 'Lady Spigot releases the last river. Your heroine frees Teo.',
+    hint: 'Reach the end of World 8 to unlock this memory.',
+    plate: 'finale-reversal',
+  },
+  'clockwork-gift': {
+    title: "TEO'S CLOCKWORK GIFT",
+    lines: [
+      'Teo winds every Golden Gear into a singing clockwork fountain.',
+      '{name} hears every river in the land chime home at once.',
+    ],
+    gallery:
+      'Every Golden Gear found: Teo builds a fountain that sings for each river.',
+    hint: 'Clear World 8 on a file that holds every Golden Gear.',
+    plate: 'finale-clockwork-gift',
+  },
+  'open-tap': {
+    title: 'LADY SPIGOT OPENS THE TAP',
+    lines: [
+      'Shown every hidden stream, Lady Spigot unbolts her valve for good.',
+      '{name} and Teo watch the Upstream Sky pour gently home.',
+    ],
+    gallery:
+      'Every secret exit found: Lady Spigot opens her valve and keeps it open.',
+    hint: 'Clear World 8 on a file that found every secret exit.',
+    plate: 'finale-open-tap',
+  },
+}
+
+/** The endings a run has earned: none before the last castle falls, otherwise the base plus each completion. */
+export function earnedPlumberEndings(run: {
+  cleared?: boolean
+  gears?: Iterable<string>
+  secrets?: Iterable<string>
+}): PlumberEnding[] {
+  if (!run.cleared) return []
+  const gears = new Set(run.gears ?? [])
+  const secrets = new Set(run.secrets ?? [])
+  const endings: PlumberEnding[] = ['rivers-run-home']
+  if (CAMPAIGN.every((def) => gears.has(def.code)))
+    endings.push('clockwork-gift')
+  if (
+    SECRET_EXITS_READY.size > 0 &&
+    [...SECRET_EXITS_READY].every((id) => secrets.has(id))
+  )
+    endings.push('open-tap')
+  return endings
+}
+
+/** The ending a finale shows: the rarest one the run earned. */
+export function plumberFinaleEnding(run: {
+  gears?: Iterable<string>
+  secrets?: Iterable<string>
+}): PlumberEnding {
+  return earnedPlumberEndings({ ...run, cleared: true }).at(-1)!
 }
 
 /** What the cabinet actually stores: three slots and the Endless best. */
@@ -187,10 +282,11 @@ export function mergePlumberAlbum(
         .map((slot) => rosterIndex(slot.heroine)),
     ]),
   ]
-  const finale =
-    array(a.endings).includes('rivers-run-home') ||
-    slots.some((slot) => slot?.cleared === true)
-  const endings: PlumberAlbum['endings'] = finale ? ['rivers-run-home'] : []
+  const earned = new Set<unknown>([
+    ...array(a.endings),
+    ...slots.flatMap((slot) => (slot ? earnedPlumberEndings(slot) : [])),
+  ])
+  const endings = PLUMBER_ENDINGS.filter((ending) => earned.has(ending))
   return { done, secrets, gears, heroines, endings }
 }
 

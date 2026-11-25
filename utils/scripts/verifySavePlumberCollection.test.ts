@@ -1,10 +1,18 @@
 import assert from 'node:assert/strict'
 import {
+  PLUMBER_ENDINGS,
+  PLUMBER_ENDING_COPY,
+  earnedPlumberEndings,
   mergePlumberAlbum,
+  plumberFinaleEnding,
   readPlumberFile,
   type PlumberSlot,
 } from '../arcade/games/savePlumberSave'
-import { stageNode } from '../arcade/games/savePlumberOverworld'
+import {
+  SECRET_EXITS_READY,
+  stageNode,
+} from '../arcade/games/savePlumberOverworld'
+import { CAMPAIGN } from '../arcade/games/savePlumberLevels'
 import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
 import { rosterIndex } from '../arcade/games/savePlumberRoster'
 
@@ -105,6 +113,75 @@ assert.equal(legacy.v, 3)
 assert.deepEqual(legacy.album.gears, ['1-1'])
 assert.ok(legacy.album.done.includes(stageNode('1-1')!.id))
 assert.deepEqual(legacy.album.endings, [])
+
+// Multiple endings (conductor save-the-plumber t-028): every clear earns the base ending; every Golden Gear and
+// every playable secret exit each add their own, and the finale shows the rarest.
+const allGears = CAMPAIGN.map((def) => def.code)
+const allSecrets = [...SECRET_EXITS_READY]
+assert.ok(allSecrets.length > 0, 'at least one secret exit is playable')
+assert.deepEqual(
+  earnedPlumberEndings({ gears: allGears, secrets: allSecrets }),
+  [],
+)
+assert.deepEqual(earnedPlumberEndings({ cleared: true }), ['rivers-run-home'])
+assert.deepEqual(
+  earnedPlumberEndings({ cleared: true, gears: allGears.slice(1) }),
+  ['rivers-run-home'],
+  'one missing gear withholds the clockwork gift',
+)
+assert.deepEqual(earnedPlumberEndings({ cleared: true, gears: allGears }), [
+  'rivers-run-home',
+  'clockwork-gift',
+])
+assert.deepEqual(earnedPlumberEndings({ cleared: true, secrets: allSecrets }), [
+  'rivers-run-home',
+  'open-tap',
+])
+assert.equal(plumberFinaleEnding({}), 'rivers-run-home')
+assert.equal(plumberFinaleEnding({ gears: allGears }), 'clockwork-gift')
+assert.equal(
+  plumberFinaleEnding({ gears: allGears, secrets: allSecrets }),
+  'open-tap',
+)
+const completionist = readPlumberFile({
+  v: 3,
+  active: 0,
+  slots: [
+    { ...finale, gears: allGears },
+    { ...finale, secrets: allSecrets },
+    null,
+  ],
+  endlessBest: 0,
+})
+assert.deepEqual(completionist.album.endings, [...PLUMBER_ENDINGS])
+assert.deepEqual(
+  readPlumberFile({ ...completionist, slots: [null, null, null] }).album
+    .endings,
+  [...PLUMBER_ENDINGS],
+  'erasing the files keeps every discovered ending',
+)
+for (const key of PLUMBER_ENDINGS) {
+  const copy = PLUMBER_ENDING_COPY[key]
+  assert.ok(copy.title && copy.gallery && copy.hint && copy.plate, key)
+  assert.ok(
+    copy.lines.every(
+      (line) => line.replace('{name}', 'Marigold-Spark').length <= 70,
+    ),
+    `${key} finale lines fit the canvas`,
+  )
+}
+const finaleRun = createSavePlumberPreview({
+  rng: () => 0.5,
+  sound: { play() {} },
+  demo: false,
+  hiScore: 0,
+  resume: completionist,
+})
+assert.equal(
+  (finaleRun as unknown as { finaleEnding: string }).finaleEnding,
+  'clockwork-gift',
+  'the finale reads the active file: slot 1 holds every gear',
+)
 
 console.log(
   'Save the Plumber persistent collection and ending gallery contract passed',

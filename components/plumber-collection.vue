@@ -81,33 +81,25 @@
     <template v-else>
       <h2 class="plumber-album-heading">THE ENDING GALLERY</h2>
       <p class="plumber-album-summary">
-        {{ album.endings.length }} discovered ending · More outcomes are being
-        developed
+        {{ album.endings.length }} of {{ endings.length }} endings discovered
       </p>
       <figure
+        v-for="ending in endings"
+        :key="ending.key"
         class="plumber-album-finale"
-        :class="{ 'is-locked': !finaleEarned }"
+        :class="{ 'is-locked': !ending.earned }"
       >
         <img
-          :src="finaleArt"
-          :alt="
-            finaleEarned
-              ? 'The rivers return home'
-              : 'Undiscovered finale artwork'
-          "
+          :src="ending.art"
+          :alt="ending.earned ? ending.title : 'Undiscovered ending artwork'"
           loading="lazy"
+          @error="useFallbackPlate"
         />
         <figcaption>
           <strong>{{
-            finaleEarned ? 'THE RIVERS RUN HOME' : 'ENDING UNDISCOVERED'
+            ending.earned ? ending.title : 'ENDING UNDISCOVERED'
           }}</strong>
-          <span>
-            {{
-              finaleEarned
-                ? 'Lady Spigot releases the last river. Your heroine frees Teo.'
-                : 'Reach the end of World 8 to unlock this memory.'
-            }}
-          </span>
+          <span>{{ ending.earned ? ending.gallery : ending.hint }}</span>
         </figcaption>
       </figure>
       <h3 class="plumber-album-subheading">BOSS MEMORIES</h3>
@@ -134,9 +126,11 @@ import {
   rosterHeroine,
   rosterPortrait,
 } from '~/utils/arcade/games/savePlumberRoster'
-import type {
-  PlumberAlbum,
-  PlumberSlot,
+import {
+  PLUMBER_ENDINGS,
+  PLUMBER_ENDING_COPY,
+  type PlumberAlbum,
+  type PlumberSlot,
 } from '~/utils/arcade/games/savePlumberSave'
 import { PLUMBER_WORLDS } from '~/utils/arcade/games/savePlumberWorlds'
 
@@ -178,10 +172,20 @@ const heroines = computed(() =>
     played: props.album.heroines.includes(index),
   })),
 )
-const finaleEarned = computed(() =>
-  props.album.endings.includes('rivers-run-home'),
-)
 const finaleArt = PLUMBER_ART.cutscene('finale-reversal')
+const endings = computed(() =>
+  PLUMBER_ENDINGS.map((key) => ({
+    key,
+    ...PLUMBER_ENDING_COPY[key],
+    art: PLUMBER_ART.cutscene(PLUMBER_ENDING_COPY[key].plate),
+    earned: props.album.endings.includes(key),
+  })),
+)
+/** An ending whose painted plate is not delivered yet shows the base finale plate. */
+function useFallbackPlate(event: Event) {
+  const img = event.target as HTMLImageElement
+  if (!img.src.endsWith(finaleArt)) img.src = finaleArt
+}
 
 function heroineName(seed: number): string {
   return rosterHeroine(seed).name
@@ -302,6 +306,9 @@ function playedTime(seconds: number): string {
 }
 .plumber-album-finale {
   max-width: 42rem;
+}
+.plumber-album-finale + .plumber-album-finale {
+  margin-top: 0.75rem;
 }
 .plumber-album-finale img {
   width: 100%;

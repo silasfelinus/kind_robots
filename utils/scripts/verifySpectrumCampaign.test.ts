@@ -15,7 +15,9 @@ import type { StoryChoice } from '../arcade/superkateSpectrum/story'
 // each of the three choice routes from a fresh save and checks the ending, the career (stage 30
 // unlocked, every stage starred, chapter trophies earned) and that the save never goes missing.
 
-type Game = ReturnType<typeof create> & Record<string, unknown>
+// The bot reads and copies the game's private run state, so it sees the instance as a plain record.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Game = Record<string, any>
 type Snapshot = {
   level: number
   lives: number
@@ -25,6 +27,7 @@ type Snapshot = {
   bossHits: number
   bossMisses: number
   score: number
+  result: unknown
 }
 
 const ANGLES = Array.from(
@@ -67,6 +70,7 @@ function snapshot(game: Game): Snapshot {
     bossHits: boss?.hits ?? 0,
     bossMisses: boss?.misses ?? 0,
     score: game.score,
+    result: game.atelierResult,
   }
 }
 
@@ -85,6 +89,7 @@ function copy(game: Game): Game {
   twin.storyChoices = [...(game.storyChoices as unknown[])]
   twin.storyEndings = [...(game.storyEndings as unknown[])]
   twin.powerTipsShown = new Set(game.powerTipsShown as Set<string>)
+  twin.relayUsed = [...(game.relayUsed as number[])]
   twin.rng = () => 0.5
   return twin
 }
@@ -106,7 +111,8 @@ function shoot(game: Game, angle: number) {
 
 /** How much good a shot did, from the bot's point of view. */
 function value(before: Snapshot, after: Snapshot) {
-  if (after.won) return 1e9
+  if (after.won || (after.result === 'cleared' && !before.result)) return 1e9
+  if (after.result === 'retry') return -1e8
   if (after.level > before.level) return 1e8
   if (after.lives < before.lives || after.over) return -1e8
   if (before.bossHits + before.bossMisses > 0 || after.bossHits > 0) {
@@ -130,7 +136,9 @@ function bestAngle(game: Game, swap: boolean) {
 }
 
 function playCampaign(route: readonly [StoryChoice, StoryChoice, StoryChoice]) {
-  const game = create(options(route.join('').length * 977 + 31)) as Game
+  const game = create(
+    options(route.join('').length * 977 + 31),
+  ) as unknown as Game
   game.update(press('a'))
   assert.equal(game.choosingMode, false, 'Story stage 1 starts from the hub')
   let shots = 0
@@ -217,7 +225,7 @@ assert.equal(endings.size, 3, 'the three routes reach all three endings')
     const game = create({
       ...options(games + 1),
       resume: career,
-    } as Parameters<typeof create>[0]) as Game
+    } as Parameters<typeof create>[0]) as unknown as Game
     assert.equal(
       game.menuStage,
       furthest,
@@ -231,8 +239,9 @@ assert.equal(endings.size, 3, 'the three routes reach all three endings')
       const input = emptyInput()
       if (roll < 0.15) input.pressed.b = true
       if (roll > 0.9) input.pressed.x = true
-      if (chaos() < 0.3) input.held.left = true
-      else if (chaos() < 0.3) input.held.right = true
+      const lean = chaos()
+      if (lean < 0.3) input.held.left = true
+      else if (lean < 0.55) input.held.right = true
       game.update(input)
       if (game.pendingChoice !== null) {
         game.choiceCursor = chaos() < 0.5 ? 0 : 1
@@ -269,3 +278,92 @@ assert.equal(endings.size, 3, 'the three routes reach all three endings')
 console.log(
   'Superkate Spectrum: full 30-stage campaign played to all three endings',
 )
+
+// Co-op Relay (t-183): two players alternate their own orbs through all six relay boards and the
+// duet boss, through the real update loop. Every board must fall with the orbs it gives.
+{
+  const game = create({
+    ...options(77),
+    resume: readSpectrumSave({
+      ...readSpectrumSave(null),
+      mode: 'classic',
+    }),
+  } as Parameters<typeof create>[0]) as unknown as Game
+  const left = emptyInput()
+  left.pressed.left = true
+  game.update(left)
+  assert.equal(game.relayActive, true, 'relay starts from the Classic menu')
+  let rounds = 0
+  let shots = 0
+  let bossShots = 0
+  let gifts = 0
+  const turns: number[] = []
+  while (game.relayActive) {
+    if (game.atelierResult) {
+      assert.equal(
+        game.atelierResult,
+        'cleared',
+        `relay round ${(game.atelierIndex as number) + 1} (${game.puzzleTitle}) is solvable with its orbs`,
+      )
+      rounds++
+      game.update(press('a'))
+      continue
+    }
+    turns.push(game.relayTurn as number)
+    if (game.power === 'prism') gifts++
+    shoot(game, bestAngle(game, false).angle)
+    shots++
+    if (game.relayFinale || game.boss) bossShots++
+    assert.ok(shots < 200, 'the relay finishes')
+  }
+  const career = game.career as { relayRounds: number; relayBest: number }
+  assert.equal(rounds, 6, 'all six relay rounds (the last with its boss)')
+  assert.equal(career.relayRounds, 6)
+  assert.ok(career.relayBest >= game.score - 1, 'the best relay score is kept')
+  assert.ok(
+    turns.some((turn, i) => i > 0 && turn !== turns[i - 1]),
+    'turns alternate',
+  )
+  assert.ok(bossShots > 0, 'the duet boss was fought')
+  assert.equal(game.choosingMode, true, 'the relay finishes back at the menu')
+  console.log(
+    `relay: 6 rounds + duet boss in ${shots} shots (${bossShots} at the boss, ${gifts} gifted prisms), best ${career.relayBest}`,
+  )
+}
+
+// Puzzle Atelier (t-183): every puzzle, introductory and advanced, falls to its own fixed orbs
+// through the real update loop, and none touches the career.
+{
+  const { ATELIER_PUZZLES } = await import('../arcade/games/superkateSpectrum')
+  assert.equal(ATELIER_PUZZLES.length, 12)
+  let total = 0
+  for (let index = 0; index < ATELIER_PUZZLES.length; index++) {
+    const game = create({
+      ...options(index + 5),
+      resume: readSpectrumSave({ ...readSpectrumSave(null), mode: 'classic' }),
+    } as Parameters<typeof create>[0]) as unknown as Game
+    const right = emptyInput()
+    right.pressed.right = true
+    game.update(right)
+    assert.equal(game.atelierMenu, true, 'the Atelier opens from Classic')
+    for (let i = 0; i < index; i++) game.update(right)
+    const career = JSON.stringify(game.career)
+    game.update(press('a'))
+    assert.equal(game.atelierActive, true)
+    assert.equal(game.atelierIndex, index)
+    let shots = 0
+    while (!game.atelierResult) {
+      shoot(game, bestAngle(game, false).angle)
+      shots++
+    }
+    assert.equal(
+      game.atelierResult,
+      'cleared',
+      `Atelier ${index + 1} (${ATELIER_PUZZLES[index]!.title}) is solvable with its orbs`,
+    )
+    assert.ok(shots <= ATELIER_PUZZLES[index]!.shots.length)
+    assert.equal(JSON.stringify(game.career), career, 'Atelier is unranked')
+    total += shots
+  }
+  console.log(`atelier: all 12 puzzles solved in ${total} shots`)
+}

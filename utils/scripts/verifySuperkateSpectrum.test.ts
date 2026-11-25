@@ -671,6 +671,8 @@ assert.equal(touchMenu.menuOpen, true)
 
 // Atelier uses the actual projectile loop, not direct mutation of board cells.
 for (const [index, puzzle] of ATELIER_PUZZLES.entries()) {
+  // Advanced (row-drawn) puzzles are solved by the campaign bot in verifySpectrumCampaign.
+  if (puzzle.rows) continue
   const run = create({
     ...options,
     resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),
@@ -718,60 +720,95 @@ tapStage(failedAtelier, { x: 160, y: 325 })
 assert.equal(failedAtelier.menuOpen, true)
 assert.equal(failedAtelier.atelierActive, false)
 
-const relay = create({
-  ...options,
-  resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),
-} as Parameters<typeof create>[0])
-const relaySave = JSON.stringify(relay.save)
-tapStage(relay, { x: 160, y: 444 })
-assert.equal(relay.relayActive, true)
-assert.equal(relay.relayTurn, 1)
-let expectedTurn = 1
-let expectedScore = 0
-for (const [index, puzzle] of ATELIER_PUZZLES.entries()) {
-  assert.equal(relay.atelierIndex, index)
-  assert.equal(relay.scoreBoard, null)
-  assert.equal(relay.score, expectedScore)
-  assert.equal(relay.relayTurn, expectedTurn)
-  for (const [shotIndex, hue] of puzzle.shots.entries()) {
-    assert.equal(relay.loaded, hue)
-    const col = relay.board[0]!.indexOf(hue)
-    assert.ok(col >= 0)
-    tapStage(relay, { x: center({ row: 0, col }).x + 14, y: 40 })
-    assert.equal(relay.relayTurn, expectedTurn)
-    for (let tick = 0; tick < 400 && relay.shot; tick++)
-      relay.update(emptyInput())
-    expectedTurn = expectedTurn === 1 ? 2 : 1
-    expectedScore += 300 + shotIndex * 100
-    assert.equal(relay.relayTurn, expectedTurn)
-    assert.equal(relay.relayCombo, shotIndex + 1)
-    assert.equal(relay.score, expectedScore)
+// Co-op Relay (t-183): its own boards, each player's own orbs, turns after each shot, records kept.
+{
+  const { RELAY_ROUNDS } = await import('../arcade/games/superkateSpectrum')
+  type Relay = ReturnType<typeof create> & {
+    relayUsed: [number, number]
+    relayFinale: boolean
   }
-  assert.equal(relay.atelierResult, 'cleared')
-  assert.equal(JSON.stringify(relay.save), relaySave)
-  assert.deepEqual(relay.drainFeats(), [])
+  const relay = create({
+    ...options,
+    resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),
+  } as Parameters<typeof create>[0]) as Relay
+  const before = relay.save.career
+  tapStage(relay, { x: 160, y: 444 })
+  assert.equal(relay.relayActive, true)
+  assert.equal(relay.scoreBoard, null, 'relay is never ranked')
+  assert.equal(relay.puzzleTitle, RELAY_ROUNDS[0]!.title)
+  assert.equal(relay.relayTurn, 1)
+  assert.equal(relay.loaded, RELAY_ROUNDS[0]!.ammo[0][0])
+  assert.equal(relay.next, RELAY_ROUNDS[0]!.ammo[0][1])
+  assert.equal(RELAY_ROUNDS.length, 6)
+  for (const round of RELAY_ROUNDS) {
+    assert.equal(round.ammo.length, 2)
+    assert.ok(round.rows.length >= 1 && round.rows.length <= 5)
+    assert.ok(round.rows.every((row) => row.length === COLS))
+  }
+  // Any shot spends that player's orb and passes the turn to the partner's own orb.
+  tapStage(relay, { x: 40, y: 380 })
+  for (let tick = 0; tick < 400 && relay.shot; tick++)
+    relay.update(emptyInput())
+  assert.deepEqual(relay.relayUsed, [1, 0])
+  assert.equal(relay.relayTurn, 2)
+  assert.equal(relay.loaded, RELAY_ROUNDS[0]!.ammo[1][0], "P2 loads P2's orb")
+  // Three matches in a row gift the next player a Prism.
+  relay.relayCombo = 2
+  ;(relay as unknown as { settleRelay: (r: object) => void }).settleRelay({
+    matched: 3,
+    dropped: 0,
+    cleared: false,
+  })
+  assert.equal(relay.relayCombo, 3)
+  assert.equal(relay.power, 'prism')
+  assert.equal(relay.relayTurn, 1)
+  // Spending every orb without clearing ends the round for a retry, and records the attempt.
+  relay.relayUsed = [
+    RELAY_ROUNDS[0]!.ammo[0].length,
+    RELAY_ROUNDS[0]!.ammo[1].length - 1,
+  ]
+  relay.relayTurn = 2
+  relay.loaded = 'lime'
+  relay.power = null
+  tapStage(relay, { x: 40, y: 380 })
+  for (let tick = 0; tick < 400 && relay.shot; tick++)
+    relay.update(emptyInput())
+  assert.equal(relay.atelierResult, 'retry')
+  assert.ok(relay.save.career.relayBest > before.relayBest, 'relay best kept')
+  assert.equal(relay.save.career.xp, before.xp, 'relay leaves Story XP alone')
+  assert.deepEqual(relay.save.career.stars, before.stars)
   tapStage(relay, { x: 160, y: 275 })
+  assert.equal(relay.atelierResult, null, 'retry restarts the round')
+  assert.deepEqual(relay.relayUsed, [0, 0])
+  assert.equal(relay.score, 0)
+  tapStage(relay, { x: 160, y: 444 })
+  // Relay records survive a save round trip and merge by maximum.
+  const kept = readSpectrumSave(JSON.parse(JSON.stringify(relay.save)))
+  assert.equal(kept.career.relayBest, relay.save.career.relayBest)
+  const merged = mergeSpectrumSaves(
+    { ...kept, career: { ...kept.career, relayBest: 10, relayRounds: 4 } },
+    { ...kept, career: { ...kept.career, relayBest: 900, relayRounds: 2 } },
+  )
+  assert.equal(merged.career.relayBest, 900)
+  assert.equal(merged.career.relayRounds, 4)
+  assert.ok(validSpectrumCloudSave(kept))
+  assert.equal(
+    validSpectrumCloudSave({
+      ...kept,
+      career: { ...kept.career, relayRounds: 7 },
+    }),
+    false,
+    'relay rounds are bounded',
+  )
+  const legacy = JSON.parse(JSON.stringify(kept))
+  delete legacy.career.relayBest
+  delete legacy.career.relayRounds
+  assert.ok(
+    validSpectrumCloudSave(legacy),
+    'older saves without relay records pass',
+  )
+  assert.equal(readSpectrumSave(legacy).career.relayBest, 0)
 }
-assert.equal(relay.menuOpen, true)
-assert.equal(relay.relayActive, false)
-assert.equal(relay.scoreBoard, null)
-assert.equal(JSON.stringify(relay.save), relaySave)
-
-const retryRelay = create({
-  ...options,
-  resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),
-} as Parameters<typeof create>[0])
-tapStage(retryRelay, { x: 160, y: 444 })
-tapStage(retryRelay, { x: 22, y: 40 })
-for (let tick = 0; tick < 400 && retryRelay.shot; tick++)
-  retryRelay.update(emptyInput())
-assert.equal(retryRelay.atelierResult, 'retry')
-assert.equal(retryRelay.relayTurn, 2)
-tapStage(retryRelay, { x: 160, y: 275 })
-assert.equal(retryRelay.relayTurn, 1)
-assert.equal(retryRelay.score, 0)
-assert.equal(retryRelay.atelierIndex, 0)
-assert.equal(retryRelay.scoreBoard, null)
 
 const classicRanked = create({
   ...options,
@@ -1190,9 +1227,15 @@ console.log(
 // a card that firing dismisses; a repeat grant, or the attract demo, shows none.
 {
   const { POWER_TIPS } = await import('../arcade/games/superkateSpectrum')
-  type Tipped = ReturnType<typeof create> & {
+  type Tipped = {
     grantPower: (power: 'prism' | 'burst' | 'ribbon') => void
     banner: number
+    choosingMode: boolean
+    power: string | null
+    powerTip: string | null
+    shot: unknown
+    update: ReturnType<typeof create>['update']
+    render: ReturnType<typeof create>['render']
   }
   const recorder = () => {
     const text: string[] = []
@@ -1216,7 +1259,7 @@ console.log(
   const tipped = create({
     ...options,
     resume: readSpectrumSave(null),
-  } as Parameters<typeof create>[0]) as Tipped
+  } as Parameters<typeof create>[0]) as unknown as Tipped
   const play = emptyInput()
   play.pressed.a = true
   tipped.update(play)
@@ -1244,7 +1287,7 @@ console.log(
   const timed = create({
     ...options,
     resume: readSpectrumSave(null),
-  } as Parameters<typeof create>[0]) as Tipped
+  } as Parameters<typeof create>[0]) as unknown as Tipped
   timed.update(play)
   timed.banner = 0
   timed.grantPower('burst')
@@ -1253,7 +1296,7 @@ console.log(
   const demo = create({
     ...options,
     demo: true,
-  } as Parameters<typeof create>[0]) as Tipped
+  } as Parameters<typeof create>[0]) as unknown as Tipped
   demo.grantPower('prism')
   assert.equal(demo.powerTip, null, 'the attract demo shows no tutorial')
 }

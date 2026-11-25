@@ -404,8 +404,43 @@ try {
       game = await start(page, touch)
       assert.equal(game.highest, 2, `${tag}: game over did not erase progress`)
 
+      // Co-op Relay from the Classic card: P1 shoots, then the turn passes to P2's own orb.
+      if (touch) {
+        await tapStage(page, 160, 450) // the Story map's Classic switch
+        await tapStage(page, 160, 444) // the relay card
+      } else {
+        await tapKey(page, 'ArrowDown')
+        await tapKey(page, 'ArrowLeft')
+      }
+      let relay = await page.evaluate(() => {
+        const game = (window.__spectrums ?? [])
+          .filter((entry) => !entry.demo)
+          .at(-1).game
+        return { active: game.relayActive, turn: game.relayTurn }
+      })
+      assert.deepEqual(relay, { active: true, turn: 1 }, `${tag}: relay opens`)
+      await snap('relay')
+      if (touch) await tapStage(page, 160, 200)
+      else await tapKey(page, 'KeyZ')
+      await page.waitForFunction(() => {
+        const game = (window.__spectrums ?? [])
+          .filter((entry) => !entry.demo)
+          .at(-1).game
+        return !game.shot && game.relayUsed[0] === 1
+      })
+      relay = await page.evaluate(() => {
+        const game = (window.__spectrums ?? [])
+          .filter((entry) => !entry.demo)
+          .at(-1).game
+        return { active: game.relayActive, turn: game.relayTurn }
+      })
+      assert.ok(relay.active, `${tag}: relay continues`)
+      assert.equal(relay.turn, 2, `${tag}: P2's turn after P1 shoots`)
+
       assert.deepEqual(errors, [], `${tag}: no page errors`)
-      console.log(`ok ${tag}: hub, stage, aim/fire, save, reopen, game over`)
+      console.log(
+        `ok ${tag}: hub, stage, aim/fire, save, reopen, game over, relay`,
+      )
     } finally {
       await context.close()
     }

@@ -24,6 +24,7 @@ import {
   makeBoard,
   nearestSnap,
   pushCeiling,
+  layoutBoard,
 } from '../superkateSpectrum/board'
 import type { Board, Hue, SpectrumPower } from '../superkateSpectrum/board'
 import {
@@ -39,6 +40,7 @@ import {
   rankForXp,
   recordClassicEnd,
   recordClear,
+  recordRelay,
   recordPop,
   readSpectrumSave,
   unlockedStyles,
@@ -123,6 +125,8 @@ const CHAPTERS = [
 export const ATELIER_PUZZLES: readonly {
   title: string
   pairs: readonly { col: number; hue: Hue }[]
+  /** Advanced puzzles are drawn from rows instead (cascades, banks and ordering). */
+  rows?: readonly string[]
   shots: readonly Hue[]
 }[] = [
   {
@@ -177,10 +181,108 @@ export const ATELIER_PUZZLES: readonly {
     ],
     shots: ['blue', 'violet', 'pink', 'gold', 'lime'],
   },
+  // Advanced Atelier (t-183): exact orbs, so each needs a plan.
+  {
+    title: 'CASCADE CURL',
+    pairs: [],
+    rows: ['...pp.....', '...g......', '...gg.....', '....t.....'],
+    shots: ['pink'],
+  },
+  {
+    title: 'HIDDEN HINGE',
+    pairs: [],
+    rows: ['tt..vv..tt', '.t..v...t.', '.gg.vv.gg.'],
+    shots: ['violet', 'teal', 'teal'],
+  },
+  {
+    title: 'WALL FLOWER',
+    pairs: [],
+    rows: ['l.bbbbbb.l', 'l.bbbbbb.l', '..bbbbbb..'],
+    shots: ['lime', 'lime', 'blue'],
+  },
+  {
+    title: 'ORDER OF OPERATIONS',
+    pairs: [],
+    rows: ['ggppggpp..', '.g.p.g.p..', '..ttttt...'],
+    shots: ['teal', 'pink', 'gold', 'pink', 'gold'],
+  },
+  {
+    title: 'TWIN BRIDGES',
+    pairs: [],
+    rows: ['vv......bb', 'v.pppppp.b', '..l....l..'],
+    shots: ['violet', 'blue', 'pink'],
+  },
+  {
+    title: 'GRAND SALON',
+    pairs: [],
+    rows: ['ppttggllvv', 'p.t.g.l.v.', '.pp.tt.gg.', '..l....v..'],
+    shots: ['lime', 'violet', 'pink', 'teal', 'gold', 'pink'],
+  },
+]
+
+/**
+ * Co-op Relay (t-183): six two-player boards. Each player has their own fixed orbs and the turn
+ * passes after every shot; three matches in a row gift the next player a Prism. Clearing the last
+ * board calls the duet boss (the Palette Keeper's cores, taken in turns).
+ */
+export const RELAY_ROUNDS: readonly {
+  title: string
+  rows: readonly string[]
+  ammo: readonly [readonly Hue[], readonly Hue[]]
+}[] = [
+  {
+    title: 'HAND IN HAND',
+    rows: ['pp..tt..gg'],
+    ammo: [
+      ['pink', 'gold', 'teal'],
+      ['teal', 'pink', 'gold'],
+    ],
+  },
+  {
+    title: 'PASS THE COMB',
+    rows: ['ttppggttpp', '.t..g..p..'],
+    ammo: [
+      ['teal', 'gold', 'pink', 'teal'],
+      ['pink', 'teal', 'gold', 'pink'],
+    ],
+  },
+  {
+    title: 'MIRROR MIRROR',
+    rows: ['vvbb..bbvv', 'v.b....b.v', '.l......l.'],
+    ammo: [
+      ['violet', 'blue', 'lime', 'violet', 'blue'],
+      ['blue', 'violet', 'lime', 'blue', 'violet'],
+    ],
+  },
+  {
+    title: 'TWO-TONE TWIST',
+    rows: ['ggllggllgg', 'g.l.g.l.g.', '.tt..tt...'],
+    ammo: [
+      ['gold', 'lime', 'teal', 'gold', 'lime'],
+      ['lime', 'gold', 'teal', 'lime', 'gold'],
+    ],
+  },
+  {
+    title: 'CHAIN OF FRIENDS',
+    rows: ['ppvvbbttgg', 'p.v.b.t.g.', '.ll..ll...', '..p....g..'],
+    ammo: [
+      ['pink', 'blue', 'gold', 'lime', 'violet', 'teal'],
+      ['violet', 'teal', 'lime', 'pink', 'gold', 'blue'],
+    ],
+  },
+  {
+    title: 'DUET FINALE',
+    rows: ['llggbbvvpp', 'l.g.b.v.p.', 'tt..tt..tt', '.p..g..b..'],
+    ammo: [
+      ['lime', 'blue', 'teal', 'pink', 'gold', 'violet', 'teal'],
+      ['gold', 'violet', 'teal', 'pink', 'lime', 'blue', 'gold'],
+    ],
+  },
 ]
 
 export function atelierBoard(index: number): Board {
   const puzzle = ATELIER_PUZZLES[index]!
+  if (puzzle.rows) return layoutBoard(puzzle.rows)
   const board = emptyBoard()
   for (const { col, hue } of puzzle.pairs) {
     board[0]![col] = hue
@@ -578,7 +680,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   relayTurn: 1 | 2 = 1
   relayCombo = 0
   relayRoundScore = 0
-  relayRoundTurn: 1 | 2 = 1
+  /** Orbs each relay player has fired this round, and whether the duet boss is up. */
+  relayUsed: [number, number] = [0, 0]
+  relayFinale = false
   atelierActive = false
   atelierIndex = 0
   atelierUsed = 0
@@ -691,21 +795,45 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       endings: [...this.storyEndings],
     }
   }
+  private relayLeft(player: 1 | 2) {
+    const round = RELAY_ROUNDS[this.atelierIndex]!
+    return round.ammo[player - 1]!.length - this.relayUsed[player - 1]!
+  }
+  /** Load the orb of whichever player shoots next (the other, unless they are out). */
+  private loadRelayTurn() {
+    const round = RELAY_ROUNDS[this.atelierIndex]!
+    if (this.relayLeft(this.relayTurn) === 0)
+      this.relayTurn = this.relayTurn === 1 ? 2 : 1
+    const queue = round.ammo[this.relayTurn - 1]!
+    const used = this.relayUsed[this.relayTurn - 1]!
+    this.loaded = queue[used] ?? this.loaded
+    this.next = queue[used + 1] ?? this.loaded
+  }
+  private recordRelayProgress(roundsCleared: number) {
+    this.career = recordRelay(this.career, this.score, roundsCleared)
+    this.remember()
+  }
+  private get puzzleCount() {
+    return this.relayActive ? RELAY_ROUNDS.length : ATELIER_PUZZLES.length
+  }
+  get puzzleTitle() {
+    return this.relayActive
+      ? RELAY_ROUNDS[this.atelierIndex]!.title
+      : ATELIER_PUZZLES[this.atelierIndex]!.title
+  }
   private startRelay() {
     this.relayActive = true
     this.relayRoundScore = 0
-    this.relayRoundTurn = 1
     this.atelierIndex = 0
     this.startAtelier()
   }
   private continuePuzzle() {
     if (this.relayActive && this.atelierResult === 'cleared') {
-      if (this.atelierIndex === ATELIER_PUZZLES.length - 1) {
+      if (this.atelierIndex === this.puzzleCount - 1) {
         this.backFromAtelier()
         return
       }
       this.relayRoundScore = this.score
-      this.relayRoundTurn = this.relayTurn
       this.atelierIndex++
     }
     this.startAtelier()
@@ -716,7 +844,11 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.atelierActive = true
     this.atelierResult = null
     this.atelierUsed = 0
-    this.board = atelierBoard(this.atelierIndex)
+    this.relayUsed = [0, 0]
+    this.relayFinale = false
+    this.board = this.relayActive
+      ? layoutBoard(RELAY_ROUNDS[this.atelierIndex]!.rows)
+      : atelierBoard(this.atelierIndex)
     this.loaded = puzzle.shots[0]!
     this.next = puzzle.shots[1] ?? this.loaded
     this.shot = null
@@ -725,15 +857,23 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.power = null
     this.banner = 0
     this.score = this.relayActive ? this.relayRoundScore : 0
-    this.relayTurn = this.relayRoundTurn
+    // P1 opens every relay board, so each board's interleaved orbs play in their authored order.
+    this.relayTurn = 1
     this.relayCombo = 0
     this.over = false
     this.won = false
     this.angle = -Math.PI / 2
     this.pointerAction = null
+    if (this.relayActive) this.loadRelayTurn()
   }
   private backFromAtelier() {
+    if (this.relayActive && this.score > 0)
+      this.recordRelayProgress(
+        this.atelierIndex + (this.atelierResult === 'cleared' ? 1 : 0),
+      )
     this.relayActive = false
+    this.relayFinale = false
+    this.boss = null
     this.atelierActive = false
     this.atelierResult = null
     this.atelierMenu = false
@@ -843,6 +983,10 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.shot = null
     this.shotsThisBoard++
     if (!landing) {
+      if (this.atelierActive && this.relayActive) {
+        this.settleRelay({ matched: 0, dropped: 0, cleared: false })
+        return
+      }
       if (this.atelierActive) {
         this.atelierResult = 'retry'
         return
@@ -853,19 +997,14 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     const result = power
       ? fireSpecial(this.board, landing, hue, power)
       : attachAndPop(this.board, landing, hue)
+    if (this.atelierActive && this.relayActive) {
+      this.settleRelay(result)
+      return
+    }
     if (this.atelierActive) {
       const puzzle = ATELIER_PUZZLES[this.atelierIndex]!
       this.atelierUsed++
       if (result.matched) this.playEffect('pop')
-      if (this.relayActive) {
-        this.relayTurn = this.relayTurn === 1 ? 2 : 1
-        this.relayCombo = result.matched ? this.relayCombo + 1 : 0
-        if (result.matched)
-          this.score +=
-            result.matched * 100 +
-            result.dropped * 175 +
-            Math.max(0, this.relayCombo - 1) * 100
-      }
       if (result.cleared) {
         this.atelierResult = 'cleared'
         this.playEffect('level')
@@ -941,6 +1080,87 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     }
     if (this.board[ROWS - 1]!.some(Boolean)) this.lose()
   }
+  private settleRelay(result: {
+    matched: number
+    dropped: number
+    cleared: boolean
+  }) {
+    this.relayUsed[this.relayTurn - 1]!++
+    this.relayCombo = result.matched ? this.relayCombo + 1 : 0
+    if (result.matched) {
+      this.playEffect('pop')
+      this.score +=
+        result.matched * 100 +
+        result.dropped * 175 +
+        Math.max(0, this.relayCombo - 1) * 100
+    }
+    const shooter = this.relayTurn
+    this.relayTurn = shooter === 1 ? 2 : 1
+    if (result.cleared) {
+      this.power = null
+      if (this.atelierIndex === RELAY_ROUNDS.length - 1) {
+        // The duet boss: the Palette Keeper's cores, taken in turns.
+        this.relayFinale = true
+        this.level = 30
+        this.boss = { hits: 0, misses: 0 }
+        this.message = 'THE PALETTE KEEPER! TAKE TURNS ON THE CORES.'
+        this.prepareBossShot()
+        this.playEffect('level')
+        return
+      }
+      this.atelierResult = 'cleared'
+      this.score += 1000
+      this.recordRelayProgress(this.atelierIndex + 1)
+      this.playEffect('level')
+      return
+    }
+    if (this.relayLeft(1) === 0 && this.relayLeft(2) === 0) {
+      this.atelierResult = 'retry'
+      this.power = null
+      this.recordRelayProgress(this.atelierIndex)
+      this.playEffect('die')
+      return
+    }
+    this.loadRelayTurn()
+    // Three matches in a row: the partner gets a Prism for their next shot.
+    if (result.matched && this.relayCombo > 0 && this.relayCombo % 3 === 0) {
+      this.power = 'prism'
+      this.message = `GIFT: A PRISM ORB FOR P${this.relayTurn}!`
+      this.playEffect('level')
+    } else if (!result.matched) this.power = null
+  }
+  private resolveRelayBoss(hit: boolean) {
+    const pattern = BOSS_PATTERNS[chapterIndex(this.level)]!
+    this.relayTurn = this.relayTurn === 1 ? 2 : 1
+    if (hit) {
+      this.boss!.hits++
+      this.score += 500
+      this.playEffect('pop')
+      if (this.boss!.hits === pattern.targets.length) {
+        this.boss = null
+        this.relayFinale = false
+        this.level = 1
+        this.score += 2500
+        this.atelierResult = 'cleared'
+        this.recordRelayProgress(RELAY_ROUNDS.length)
+        this.playEffect('level')
+        return
+      }
+    } else {
+      this.boss!.misses++
+      this.playEffect('blip')
+      if (this.boss!.misses >= pattern.limit) {
+        this.boss = null
+        this.relayFinale = false
+        this.level = 1
+        this.atelierResult = 'retry'
+        this.recordRelayProgress(this.atelierIndex)
+        this.playEffect('die')
+        return
+      }
+    }
+    this.prepareBossShot()
+  }
   private completeBoard() {
     const replayChoiceIndex = STORY_DECISIONS.findIndex(
       (scene) =>
@@ -1000,6 +1220,13 @@ class SuperkateSpectrum implements ArcadeGameInstance {
 
   private resolveBossShot(hit: boolean) {
     if (!this.boss || !this.shot) return
+    if (this.relayFinale) {
+      const target = bossTarget(chapterIndex(this.level), this.boss.hits)
+      this.shot = null
+      if (hit) this.burstSparks(target.x, target.y, target.hue, 12)
+      this.resolveRelayBoss(hit)
+      return
+    }
     const chapter = chapterIndex(this.level)
     const target = bossTarget(chapter, this.boss.hits)
     const pattern = BOSS_PATTERNS[chapter]!
@@ -1048,7 +1275,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       vx: Math.cos(this.angle) * SHOT_SPEED,
       vy: Math.sin(this.angle) * SHOT_SPEED,
       hue: this.loaded,
-      power: this.mode === 'story' ? this.power : null,
+      power: this.mode === 'story' || this.relayActive ? this.power : null,
     }
   }
 
@@ -1857,9 +2084,13 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     )
     label(
       g,
-      this.atelierActive
-        ? `SHOTS ${ATELIER_PUZZLES[this.atelierIndex]!.shots.length - this.atelierUsed}`
-        : `DROP ${this.shots}/${pressureLimit(this.level, this.mode)}`,
+      this.relayActive
+        ? this.relayFinale
+          ? 'DUET BOSS'
+          : `P1 ${this.relayLeft(1)} · P2 ${this.relayLeft(2)}`
+        : this.atelierActive
+          ? `SHOTS ${ATELIER_PUZZLES[this.atelierIndex]!.shots.length - this.atelierUsed}`
+          : `DROP ${this.shots}/${pressureLimit(this.level, this.mode)}`,
       150,
       417,
       10,
@@ -1877,7 +2108,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     label(
       g,
       this.atelierActive
-        ? ATELIER_PUZZLES[this.atelierIndex]!.title
+        ? this.puzzleTitle
         : this.mode === 'classic'
           ? `CLASSIC BEST ${this.career.classicBest}`
           : chapter.name,
@@ -1927,7 +2158,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         18,
         '#fff0ad',
       )
-      label(g, ATELIER_PUZZLES[this.atelierIndex]!.title, W / 2, 198, 14)
+      label(g, this.puzzleTitle, W / 2, 198, 14)
       if (this.atelierResult) {
         label(
           g,
@@ -1941,7 +2172,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         label(
           g,
           this.relayActive && this.atelierResult === 'cleared'
-            ? this.atelierIndex === ATELIER_PUZZLES.length - 1
+            ? this.atelierIndex === this.puzzleCount - 1
               ? 'A / TAP: FINISH RELAY'
               : 'A / TAP: NEXT ROUND'
             : 'A / TAP: RETRY',
@@ -2016,7 +2247,15 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       label(g, 'RIGHT / TAP: PUZZLE ATELIER', W / 2, 405, 12)
       g.fillStyle = '#255a67'
       g.fillRect(26, 422, W - 52, 35)
-      label(g, 'LEFT / TAP: TWO-PLAYER RELAY', W / 2, 444, 12)
+      label(
+        g,
+        this.career.relayBest
+          ? `LEFT / TAP: RELAY · BEST ${this.career.relayBest}`
+          : 'LEFT / TAP: TWO-PLAYER RELAY',
+        W / 2,
+        444,
+        12,
+      )
       this.renderMenuTabs(g)
       return
     }
@@ -2100,6 +2339,9 @@ const game: ArcadeGameModule = {
         'CLASSIC MENU: RIGHT OR TAP FOR ATELIER',
         'LEFT OR TAP: LOCAL TWO-PLAYER RELAY',
         'RELAY: TAKE TURNS AFTER EACH SHOT',
+        'RELAY: EACH PLAYER HAS THEIR OWN ORBS',
+        'THREE MATCHES IN A ROW GIFT A PRISM',
+        'RELAY FINALE: A DUET BOSS',
         'ATELIER: FIXED SHOTS, NO RANKED SCORE',
         'A SHOOTS YOUR COLOR ORB',
         'LEFT/RIGHT AIM; BANK OFF THE WALLS',

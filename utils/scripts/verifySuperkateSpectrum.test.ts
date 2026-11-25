@@ -1149,6 +1149,22 @@ assert.deepEqual(SPECTRUM_BOSS_ART, [
   '/images/arcade/superkate-spectrum/boss-palette-keeper.webp',
 ])
 assert.equal(SPECTRUM_BOSS_ART.length, BOSS_PATTERNS.length)
+{
+  // t-189: the six district Scrapbook memories (ArtJobs 76811-76816), one per chapter.
+  const { SPECTRUM_SCRAPBOOK_ART } =
+    await import('../arcade/games/superkateSpectrum')
+  assert.deepEqual(
+    SPECTRUM_SCRAPBOOK_ART,
+    [
+      'salon',
+      'botanic-dome',
+      'night-market',
+      'cloud-library',
+      'prism-workshop',
+      'heart-of-hue',
+    ].map((name) => `/images/arcade/superkate-spectrum/scrapbook-${name}.webp`),
+  )
+}
 for (let chapter = 0; chapter < BOSS_PATTERNS.length; chapter++) {
   const stage = (chapter + 1) * 5
   const run = create({

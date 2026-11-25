@@ -9,7 +9,7 @@ import assert from 'node:assert/strict'
 import { RULER_HOOKED_CONTENT as C } from '~/utils/rulerHooked/content'
 import { createRun } from '~/utils/rulerHooked/newGame'
 import { resolveChoice } from '~/utils/rulerHooked/applyEffects'
-import { eligiblePool } from '~/utils/rulerHooked/select'
+import { eligiblePool, tickCooldowns } from '~/utils/rulerHooked/select'
 import { allDeckCards, findArcStep, takeTurn } from '~/utils/rulerHooked/loop'
 import { makeRng } from '~/utils/rulerHooked/seed'
 import { CARD_PROMPTS } from '~/utils/rulerHooked/artPrompts'
@@ -114,9 +114,18 @@ for (const [id, { turn, path }] of Object.entries(WITNESS)) {
   assert.ok(eligible(ready, id), `${id} is reachable through real choices`)
   for (const choice of c.choices) {
     const after = resolveChoice(ready, c, choice)
-    assert.ok(after.deckState.seenCardIds.includes(id))
     assert.ok(choice.result?.trim(), `${id}/${choice.id} has result text`)
-    if (c.once) assert.ok(!eligible(after, id), `${id} fires once`)
+    if (choice.requeue) {
+      assert.ok(!after.deckState.seenCardIds.includes(id))
+      assert.ok(!eligible(after, id), `${id} has a deferral cooldown`)
+      while ((after.deckState.cooldowns[id] ?? 0) > 0) {
+        tickCooldowns(after)
+      }
+      assert.ok(eligible(after, id), `${id} can return after deferral`)
+    } else {
+      assert.ok(after.deckState.seenCardIds.includes(id))
+      if (c.once) assert.ok(!eligible(after, id), `${id} fires once`)
+    }
   }
 }
 

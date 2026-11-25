@@ -374,7 +374,9 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     const choice = card.choices.find((c) => c.id === choiceId)
     if (!choice) return
     const next = resolveChoice(save.value, card, choice)
-    next.counters.cardsResolved = (next.counters.cardsResolved ?? 0) + 1
+    if (!choice.requeue) {
+      next.counters.cardsResolved = (next.counters.cardsResolved ?? 0) + 1
+    }
     save.value = next
     activeCard.value = null
     activeArcId.value = null

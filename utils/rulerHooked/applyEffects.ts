@@ -108,7 +108,12 @@ export function resolveChoice(
     effects: effect,
     resultText: choice.result,
   })
-  if (!next.deckState.seenCardIds.includes(card.id)) {
+  if (choice.requeue) {
+    next.deckState.cooldowns[card.id] = Math.max(
+      next.deckState.cooldowns[card.id] ?? 0,
+      3,
+    )
+  } else if (!next.deckState.seenCardIds.includes(card.id)) {
     next.deckState.seenCardIds.push(card.id)
   }
   next.updatedAt = save.updatedAt // stamped by the caller/store, not game logic

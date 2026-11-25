@@ -865,4 +865,44 @@ function baseSave(): RunSave {
   assert.equal(save.choiceLog.length, 0)
 }
 
+// Deferrals are recorded as decisions, but must not retire once-only cards
+// or satisfy downstream resolved-card conditions.
+{
+  const cards = RULER_HOOKED_CONTENT.decks.flatMap((deck) => deck.cards)
+  const deferredCards = cards.filter((card) =>
+    card.choices.some((choice) => choice.requeue),
+  )
+  assert.ok(deferredCards.length >= 10)
+  for (const card of deferredCards) {
+    for (const choice of card.choices.filter((item) => item.requeue)) {
+      const save = baseSave()
+      const deferred = resolveChoice(save, card, choice)
+      assert.equal(deferred.choiceLog.length, 1, card.id)
+      assert.ok(!deferred.deckState.seenCardIds.includes(card.id), card.id)
+      assert.ok(
+        !triggerHolds(deferred, { requires: { cardsSeen: [card.id] } }),
+        card.id,
+      )
+      // Isolate cooldown behavior from the card's other authored prerequisites.
+      const isolated = { ...card, trigger: undefined }
+      assert.ok(!eligiblePool(deferred, [isolated]).length, card.id)
+      tickCooldowns(deferred)
+      tickCooldowns(deferred)
+      assert.ok(!eligiblePool(deferred, [isolated]).length, card.id)
+      tickCooldowns(deferred)
+      assert.equal(eligiblePool(deferred, [isolated]).length, 1, card.id)
+      const answer = card.choices.find((item) => !item.requeue)
+      assert.ok(answer, card.id)
+      const resolved = resolveChoice(deferred, card, answer)
+      assert.ok(resolved.deckState.seenCardIds.includes(card.id), card.id)
+      assert.ok(
+        triggerHolds(resolved, { requires: { cardsSeen: [card.id] } }),
+        card.id,
+      )
+      if (card.once) assert.ok(!eligiblePool(resolved, [isolated]).length)
+      assert.equal(save.choiceLog.length, 0, 'original save untouched')
+    }
+  }
+}
+
 console.log('ruler-hooked engine self-test: ALL PASS')

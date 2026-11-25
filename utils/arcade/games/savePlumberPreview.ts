@@ -608,6 +608,7 @@ export class PlumberRun implements ArcadeGameInstance {
    */
   reserve: PlumberPower | null = null
   carrying = false
+  heldRoller: Foe | null = null
   /** The heroine's special on Y: ticks left in it, its cooldown, and one use per airtime. */
   specialTimer = 0
   specialCooldown = 0
@@ -1189,6 +1190,7 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     this.platforms = []
     this.foes = []
+    this.heldRoller = null
     this.vents = []
     this.icicles = []
     this.snowballs = []
@@ -1927,7 +1929,8 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     this.crackIce()
     if (keys.pressed.down && this.ground && !climbed) this.tryDoor()
-    if (!this.stage.space && keys.pressed.x && !this.cooldown) this.useTool()
+    if (!this.stage.space && keys.pressed.x && !this.cooldown)
+      this.useTool(keys.held.down)
     this.collectTokens()
     this.collectPickups()
     this.updateKeys()
@@ -2505,10 +2508,25 @@ export class PlumberRun implements ArcadeGameInstance {
     }
   }
 
-  private useTool() {
+  private useTool(grab = false) {
     this.cooldown = 20
     this.swing = 14
     const hero = this.hero
+    if (this.heldRoller) {
+      if (this.ducking && !this.headroom()) {
+        this.sound.play('warn')
+        return
+      }
+      const roller = this.heldRoller
+      this.heldRoller = null
+      roller.x = hero.x
+      roller.y = hero.y + TALL
+      roller.vy = Math.min(0, hero.vy)
+      this.foes.push(roller)
+      this.kick(roller, this.facing)
+      return
+    }
+    if (grab && !this.carrying && this.grabRoller()) return
     if (this.carrying) {
       this.carrying = false
       this.thrown.push({
@@ -2584,6 +2602,39 @@ export class PlumberRun implements ArcadeGameInstance {
       struck = true
     }
     playPlumberCue(this.sound, struck ? 'strike' : 'wrench')
+  }
+
+  private grabRoller(): boolean {
+    const hero = this.hero
+    const index = this.foes.findIndex((foe) => {
+      const dx = (foe.x - hero.x) * this.facing
+      return (
+        foe.kind === 'rivet-roller' &&
+        foe.state === 'stunned' &&
+        !foe.giant &&
+        !foe.glide &&
+        !foe.fade &&
+        dx >= 0 &&
+        dx <= 42 &&
+        Math.abs(foe.y - hero.y - TALL) <= 20
+      )
+    })
+    if (index < 0) return false
+    this.heldRoller = this.foes.splice(index, 1)[0]!
+    this.sound.play('pickup')
+    return true
+  }
+
+  private returnHeldRoller() {
+    const roller = this.heldRoller
+    if (!roller) return
+    this.heldRoller = null
+    roller.x = roller.homeX
+    roller.y = roller.homeY
+    roller.vx = 0
+    roller.vy = 0
+    roller.timer = 300
+    this.foes.push(roller)
   }
 
   /** A wrench or a gust landing on a foe. */
@@ -2684,7 +2735,7 @@ export class PlumberRun implements ArcadeGameInstance {
     const held = this.heldKey
     if (held) {
       held.x = hero.x
-      held.y = hero.y - (this.carrying ? 22 : 8)
+      held.y = hero.y - (this.carrying || this.heldRoller ? 28 : 8)
       const left = Math.floor((hero.x - HALF - 2) / TILE)
       const right = Math.floor((hero.x + HALF + 2) / TILE)
       const top = Math.floor((hero.y - 2) / TILE)
@@ -3654,6 +3705,7 @@ export class PlumberRun implements ArcadeGameInstance {
       this.carrying = false
       this.dropReserve()
     } else this.hearts--
+    this.returnHeldRoller()
     this.sendKeyHome()
     this.immune = 90
     this.hero.vx = dir * 3.2
@@ -3671,6 +3723,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.specialTimer = 0
     this.power = null
     this.carrying = false
+    this.heldRoller = null
     playPlumberCue(this.sound, 'death')
     this.setMode('dying', 80)
   }
@@ -6194,7 +6247,15 @@ export class PlumberRun implements ArcadeGameInstance {
       'chimney-spirit': 34,
       'tea-kettle-knight': 34,
     }
-    for (const foe of this.foes) {
+    const held = this.heldRoller
+    const visibleFoes =
+      held && this.mode === 'play'
+        ? [
+            ...this.foes,
+            { ...held, x: this.hero.x, y: this.hero.y - 4 },
+          ]
+        : this.foes
+    for (const foe of visibleFoes) {
       if (foe.state === 'gone') continue
       if (foe.kind === 'minnow' && foe.y >= foe.homeY && !foe.fade) {
         g.fillStyle = 'rgba(220, 245, 255, 0.7)'

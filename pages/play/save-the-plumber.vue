@@ -682,7 +682,7 @@ const controls = [
     keyboard: 'E / C',
     pad: 'X',
     label: 'WRENCH',
-    does: 'Strike enemies, crates and valves',
+    does: 'Strike enemies, crates and valves. Hold Down + Wrench to lift a stunned Rivet Roller; Wrench again to throw.',
   },
   {
     keyboard: 'F / V',

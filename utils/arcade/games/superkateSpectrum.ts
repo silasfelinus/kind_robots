@@ -131,7 +131,7 @@ type Shot = {
 export const BOSS_PATTERNS = [
   {
     name: 'GREYSCALE DRYER',
-    rule: 'MATCH THE CORE',
+    rule: 'SHOOT AROUND THE DRYER SHIELD',
     targets: [160, 160, 160],
     y: [112, 112, 112],
     radius: 23,
@@ -139,7 +139,7 @@ export const BOSS_PATTERNS = [
   },
   {
     name: 'THE PRUNER',
-    rule: 'FOLLOW THE SIDE SHOOTS',
+    rule: 'DODGE THE ALTERNATING PRUNER',
     targets: [76, 244, 76, 244],
     y: [150, 150, 150, 150],
     radius: 21,
@@ -155,7 +155,7 @@ export const BOSS_PATTERNS = [
   },
   {
     name: 'THE ARCHIVIST',
-    rule: 'CLIMB THE MEMORY STACK',
+    rule: 'WEAVE PAST THE MEMORY SHELVES',
     targets: [160, 104, 216, 160],
     y: [230, 180, 130, 80],
     radius: 20,
@@ -163,7 +163,7 @@ export const BOSS_PATTERNS = [
   },
   {
     name: 'SORTING MACHINE',
-    rule: 'MATCH THE CHANGING GLYPH',
+    rule: 'DODGE THE SORTING PADDLES',
     targets: [72, 160, 248, 160, 72],
     y: [120, 180, 120, 180, 120],
     radius: 19,
@@ -171,13 +171,42 @@ export const BOSS_PATTERNS = [
   },
   {
     name: 'PALETTE KEEPER',
-    rule: 'RESTORE SIX COLOR CORES',
+    rule: 'BYPASS THE PRISM BARRIERS',
     targets: [160, 80, 240, 112, 208, 160],
     y: [85, 140, 140, 205, 205, 100],
     radius: 19,
     limit: 3,
   },
 ] as const
+
+type BossGuard = { x: number; y: number; radius: number }
+
+function bossGuards(chapter: number, hit: number): BossGuard[] {
+  const odd = hit % 2 !== 0
+  switch (chapter) {
+    case 0:
+      return [{ x: 160, y: 260, radius: 27 }]
+    case 1:
+      return [{ x: odd ? 224 : 96, y: 263, radius: 25 }]
+    case 3:
+      return [
+        { x: 160, y: 306, radius: 20 },
+        { x: odd ? 245 : 75, y: 260, radius: 14 },
+      ]
+    case 4:
+      return [
+        { x: odd ? 225 : 95, y: 282, radius: 23 },
+        { x: odd ? 95 : 225, y: 230, radius: 16 },
+      ]
+    case 5:
+      return [
+        { x: 160, y: 315, radius: 23 },
+        { x: odd ? 84 : 236, y: 260, radius: 20 },
+      ]
+    default:
+      return []
+  }
+}
 
 export function bossTarget(chapter: number, hit: number) {
   const pattern = BOSS_PATTERNS[chapter]!
@@ -188,6 +217,7 @@ export function bossTarget(chapter: number, hit: number) {
     hue: COLORS[(chapter + hit) % COLORS.length]!,
     radius: pattern.radius,
     bank: chapter === 2,
+    guards: bossGuards(chapter, index),
   }
 }
 
@@ -195,6 +225,14 @@ export function bossContact(
   target: ReturnType<typeof bossTarget>,
   shot: Pick<Shot, 'x' | 'y' | 'hue' | 'banked'>,
 ) {
+  if (
+    target.guards.some(
+      (guard) =>
+        (guard.x - shot.x) ** 2 + (guard.y - shot.y) ** 2 <=
+        (guard.radius + 13) ** 2,
+    )
+  )
+    return 'blocked'
   if (
     (target.x - shot.x) ** 2 + (target.y - shot.y) ** 2 >
     (target.radius + 13) ** 2
@@ -1176,6 +1214,16 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       const target = bossTarget(chapter, this.boss.hits)
       label(g, pattern.name, W / 2, 50, 15, '#fff0ad')
       label(g, pattern.rule, W / 2, 67, 10)
+      for (const guard of target.guards) {
+        g.fillStyle = '#28243f'
+        g.strokeStyle = '#ffe293'
+        g.lineWidth = 2
+        g.beginPath()
+        g.arc(guard.x, guard.y, guard.radius, 0, Math.PI * 2)
+        g.fill()
+        g.stroke()
+        label(g, 'SHIELD', guard.x, guard.y + 3, 8, '#ffe293')
+      }
       bubble(
         g,
         target.x,

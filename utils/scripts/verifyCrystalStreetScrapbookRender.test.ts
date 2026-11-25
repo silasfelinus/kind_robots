@@ -317,8 +317,8 @@ try {
       )
       for (const slot of locked ?? []) {
         const label = slot.match(/<span[^>]*cs-label[^>]*>([^<]*)<\/span>\s*$/)
-        if (label)
-          assert.equal(label[1]!.trim(), '???', `${where}: locked label`)
+        if (!label) continue
+        assert.equal(label[1]?.trim() ?? '', '???', `${where}: locked label`)
       }
     }
   }

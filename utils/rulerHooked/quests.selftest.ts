@@ -710,10 +710,7 @@ for (const id of QUESTS)
           reached.actions.includes(`${family.parent}:${parentChoice}`),
           'The earlier policy must have been played, not injected',
         )
-        assert.equal(
-          reached.actions.at(-1),
-          `${family.target}:${outcome}`,
-        )
+        assert.equal(reached.actions.at(-1), `${family.target}:${outcome}`)
         assert.deepEqual(
           witness(reached.seed, policy, family.target),
           reached,

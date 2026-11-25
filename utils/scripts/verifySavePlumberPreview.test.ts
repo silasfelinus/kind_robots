@@ -237,10 +237,7 @@ const newFile = createSavePlumberPreview({
   resume: shortcutSave,
   plumberLaunch: 'new',
 })
-const tap = (
-  run: typeof newFile,
-  key: 'a' | 'b' | 'y' | 'up' | 'down',
-) => {
+const tap = (run: typeof newFile, key: 'a' | 'b' | 'y' | 'up' | 'down') => {
   const keys = emptyInput()
   keys.pressed[key] = true
   run.update(keys)

@@ -66,6 +66,8 @@ import {
   rainbowBossRecoil,
   rainbowBossWindup,
   rainbowShipJolt,
+  rainbowBarrelRoll,
+  rainbowShipHover,
   rainbowShipPose,
   rainbowCraftWindup,
   stackRainbowBossPose,
@@ -9189,11 +9191,8 @@ export function createRainbowPrincessPreview(
           g.restore()
         }
         if (ship.evade > 0 && pilotOf(seat) === 0)
-          // Barrel Roll: the ship turns over once.
-          g.scale(
-            1,
-            Math.cos((1 - ship.evade / RAINBOW_EVADE.roll) * Math.PI * 2),
-          )
+          // Barrel Roll: the ship turns over once (calm keeps a shallow squash, t-011).
+          g.scale(1, rainbowBarrelRoll(ship.evade, RAINBOW_EVADE.roll, calm))
         if (ship.evade > 0 && pilotOf(seat) === 2) g.globalAlpha = 0.55
         // Bank into a climb or a dive and lean into a surge (t-011): a draw-only pose, so the hitbox never moves.
         const pose = rainbowShipPose(ship.bank, ship.thrust, calm)
@@ -9206,6 +9205,11 @@ export function createRainbowPrincessPreview(
         g.scale(jolt.scaleX, jolt.scaleY)
         g.shadowColor = PILOT_COLORS[pilotOf(seat)]!
         g.shadowBlur = 10
+        // A craft holding still hovers (t-011): the hull alone bobs, so the core marker stays on the hitbox.
+        const hover = rainbowShipHover(tick, seat, ship.bank, ship.thrust, calm)
+        g.save()
+        g.translate(0, hover.bob)
+        g.rotate(hover.tilt)
         // Paint recolours the painting only (t-044); the seat glow above keeps the pilot's own colour.
         g.filter = rainbowShipFilter(livery, pilotOf(seat))
         const painted = drawRainbowShipSprite(g, pilotOf(seat))
@@ -9224,6 +9228,7 @@ export function createRainbowPrincessPreview(
           g.lineWidth = 2
           g.stroke()
         }
+        g.restore()
         g.shadowBlur = 0
         g.fillStyle = '#44235c'
         g.fillRect(-3, -3, 6, 6)

@@ -36,9 +36,7 @@
       >
         <div class="scpvp-poster">
           <SlimeCityArtwork
-            :image-id="
-              slimeArtId('crews', answering ? pvp.duel!.hostTeam : selectedTeam)
-            "
+            :image-id="slimeArtId('crews', selectedTeam)"
             :alt="nameOf(selectedTeam) + ' crew poster'"
             fallback="⚔"
             compact
@@ -69,28 +67,15 @@
           </div>
         </div>
         <div class="scpvp-lobby-tools">
-          <div
-            class="scpvp-crew-grid"
-            role="group"
-            aria-label="Choose your crew"
-          >
-            <button
-              v-for="team in TEAMS"
-              :key="team.id"
-              type="button"
-              :class="{ chosen: selectedTeam === team.id }"
-              :aria-pressed="selectedTeam === team.id"
-              :aria-label="team.name"
-              @click="selectedTeam = team.id"
-            >
-              <SlimeCityArtwork
-                :image-id="slimeArtId('crews', team.id)"
-                :alt="team.name"
-                :fallback="team.insignia"
-                compact
-              />
-              <span>{{ team.name }}</span>
-            </button>
+          <SlimeCityCrewSelect
+            class="scpvp-lobby-crew"
+            label="Your crew"
+            :team-id="selectedTeam"
+            @picked="selectedTeam = $event"
+          />
+          <div class="scpvp-lobby-power">
+            <b>{{ factionPower(selectedTeam).name }}</b>
+            <p>{{ factionPower(selectedTeam).text }}</p>
           </div>
           <div
             v-if="!invitedId"
@@ -334,6 +319,7 @@
               @pointerenter="hoverSlot($event, side, lane)"
               @pointerleave="hoverUid = null"
             >
+              <SlimeCityTrapSlice :trap="trapAt(side, lane)" />
               <template v-if="unit(side, lane)">
                 <SlimeCityArtwork
                   :image-id="
@@ -387,16 +373,7 @@
                     : 'TARGET'
                   : lane + 1
               }}</span>
-              <span
-                v-if="
-                  board.traps.some(
-                    (trap) => trap.side === side && trap.lane === lane,
-                  )
-                "
-                class="scpvp-own-trap"
-                aria-label="Your hidden trap in this alley"
-                >✦ ARMED</span
-              >
+
               <span
                 v-for="pop in floatsAt(side, lane)"
                 :key="pop.key"
@@ -680,7 +657,12 @@ import {
   clashPowerSpent,
   type ClashStrike,
 } from '~/utils/slimeCity/clash'
-import { pvpCardRow, pvpClashView, type PvpBoard } from '~/utils/slimeCity/pvp'
+import {
+  pvpCardRow,
+  pvpClashView,
+  visibleClashTrapAt,
+  type PvpBoard,
+} from '~/utils/slimeCity/pvp'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { CLASH_SPEED_PACE } from '~/stores/helpers/slimeCityClashPreference'
 import { OVERCHARGE_RULE, factionPower } from '~/utils/slimeCity/factionPowers'
@@ -891,6 +873,9 @@ function unit(side: Side, lane: number) {
   return board.value?.units.find(
     (item) => item.side === side && item.lane === lane,
   )
+}
+function trapAt(side: Side, lane: number) {
+  return visibleClashTrapAt(board.value?.traps ?? [], seat.value, side, lane)
 }
 type BoardUnit = NonNullable<ReturnType<typeof unit>>
 function tapStage(fighter: BoardUnit) {
@@ -1117,7 +1102,9 @@ function whyNot(side: Side, lane: number): string {
       card.name +
       (rowFor(id) === seat.value
         ? ' goes in one of your own alleys.'
-        : ' targets a rival fighter.')
+        : card.kind === 'trap'
+          ? ' goes in a rival alley.'
+          : ' targets a rival fighter.')
     )
   if (!canClashPlay(view.value, seat.value, id, lane))
     return card.name + ' cannot go in alley ' + (lane + 1) + '.'
@@ -1248,6 +1235,9 @@ function slotLabel(side: Side, lane: number): string {
           .map((tag) => ', ' + tag.title)
           .join('')
       : ', empty') +
+    (trapAt(side, lane)
+      ? ', your armed trap: ' + cardById(trapAt(side, lane)!.cardId).name
+      : '') +
     (targetable(side, lane) ? ', playable target' : '')
   )
 }
@@ -1673,31 +1663,27 @@ watch(
   justify-content: center;
   gap: 1rem;
 }
-.scpvp-crew-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
-}
-.scpvp-crew-grid button {
-  border: 2px solid #416264;
-  border-radius: 0.75rem;
-  overflow: hidden;
-  text-align: left;
-  background: #112933;
-}
-.scpvp-crew-grid button.chosen {
-  border-color: #d4f960;
-  box-shadow: 0 0 0 2px #d4f96044;
-}
-.scpvp-crew-grid button > :first-child {
+.scpvp-lobby-crew :deep(.scs-current) {
   width: 100%;
-  aspect-ratio: 4/3;
+  min-height: 3.5rem;
 }
-.scpvp-crew-grid button span {
-  display: block;
-  padding: 0.35rem;
-  font-size: 0.75rem;
-  font-weight: 800;
+.scpvp-lobby-crew :deep(.scs-current .slime-art) {
+  width: 3rem;
+  height: 3rem;
+}
+.scpvp-lobby-crew :deep(.scs-name b) {
+  max-width: none;
+  font-size: 1rem;
+}
+.scpvp-lobby-power {
+  padding: 0.65rem;
+  border: 2px solid #d4f960;
+  background: #112933;
+  font-size: 0.85rem;
+}
+.scpvp-lobby-power b {
+  color: #d4f960;
+  font-weight: 900;
 }
 .scpvp-primary {
   padding: 0.7rem 1rem;
@@ -1889,12 +1875,6 @@ watch(
   .scpvp-poster-copy {
     padding: 0.6rem;
   }
-  .scpvp-crew-grid button > :first-child {
-    aspect-ratio: 2/1;
-  }
-  .scpvp-crew-grid button span {
-    font-size: 0.59rem;
-  }
   .scpvp-lobby-tools {
     gap: 0.4rem;
   }
@@ -1987,6 +1967,7 @@ watch(
 }
 .scpvp-stats {
   position: absolute;
+  z-index: 2;
   inset: 0.25rem 0.25rem auto;
   display: flex;
   justify-content: space-between;
@@ -2012,6 +1993,7 @@ watch(
 }
 .scpvp-tags {
   position: absolute;
+  z-index: 2;
   inset: auto 0.25rem 0.25rem;
   display: flex;
   flex-wrap: wrap;
@@ -2046,6 +2028,7 @@ watch(
 .scpvp-unit-label {
   position: absolute;
   inset: calc(0.8rem + clamp(0.72rem, 1.9vw, 1.2rem)) 0 auto;
+  z-index: 2;
   display: flex;
   flex-direction: column-reverse;
   align-items: center;
@@ -2072,6 +2055,7 @@ watch(
 }
 .scpvp-empty {
   position: absolute;
+  z-index: 2;
   inset: 0;
   display: grid;
   place-items: center;
@@ -2085,17 +2069,6 @@ watch(
   font-size: clamp(0.6rem, 1.4vw, 0.9rem);
   letter-spacing: 0.1em;
   opacity: 1;
-}
-.scpvp-own-trap {
-  position: absolute;
-  left: 0.25rem;
-  bottom: 2.4rem;
-  padding: 0.1rem 0.3rem;
-  border-radius: 0.3rem;
-  background: #152632ea;
-  color: #e8f787;
-  font-size: 0.6rem;
-  font-weight: 900;
 }
 .scpvp-float {
   position: absolute;

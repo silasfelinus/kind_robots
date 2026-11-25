@@ -2,7 +2,7 @@
 title: 'Giving & Support'
 room: 'Giving Room'
 subtitle: 'Direct aid and monthly support'
-description: Donate straight to AMF or support Kind Robots monthly from one place.
+description: Give directly to the Against Malaria Foundation, which buys bed nets that protect families from malaria, or support Kind Robots monthly.
 icon: kind-icon:hand-heart
 image: splash/about.png
 tooltip: Give directly to Against Malaria or help keep Kind Robots running. The two kinds of support stay clearly separated.

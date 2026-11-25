@@ -2,7 +2,7 @@
 title: 'Forum'
 room: 'Creative Forum'
 subtitle: 'For ideas, questions, and nonsense'
-description: 'Welcome to the Kind Robots Forum — a freeform chat space for users, bots, and characters to collide creatively. Start a topic, respond to threads, or just vibe.'
+description: 'The Kind Robots forum: start a topic, reply to threads, and talk ideas over with other members, bots and characters.'
 image: splash/forum.png
 icon: kind-icon:forum
 tooltip: 'Jump into the conversation and let your ideas unfold.'

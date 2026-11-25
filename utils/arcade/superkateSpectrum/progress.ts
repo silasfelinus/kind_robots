@@ -21,6 +21,9 @@ export type SpectrumSettings = {
   highContrast: boolean
   music: boolean
   effects: boolean
+  /** Music and effects levels under the Arcade master volume, 0..1 in tenths (t-188). */
+  musicLevel: number
+  effectsLevel: number
 }
 export const DEFAULT_SPECTRUM_SETTINGS: SpectrumSettings = {
   aimGuide: true,
@@ -28,7 +31,14 @@ export const DEFAULT_SPECTRUM_SETTINGS: SpectrumSettings = {
   highContrast: false,
   music: true,
   effects: true,
+  musicLevel: 1,
+  effectsLevel: 1,
 }
+const validLevel = (n: unknown) =>
+  typeof n === 'number' && Number.isFinite(n) && n >= 0 && n <= 1
+/** A saved level, in tenths; anything else is full level. */
+export const readLevel = (n: unknown) =>
+  validLevel(n) ? Math.round((n as number) * 10) / 10 : 1
 export type SpectrumSave = {
   version: 2
   career: SpectrumCareer
@@ -199,6 +209,8 @@ export function readSpectrumSave(raw: unknown): SpectrumSave {
       highContrast: settings.highContrast === true,
       music: settings.music !== false,
       effects: settings.effects !== false,
+      musicLevel: readLevel(settings.musicLevel),
+      effectsLevel: readLevel(settings.effectsLevel),
     },
   }
 }
@@ -328,7 +340,11 @@ export function validSpectrumCloudSave(raw: unknown): raw is SpectrumSave {
       typeof settings.particles !== 'boolean' ||
       typeof settings.highContrast !== 'boolean' ||
       (settings.music !== undefined && typeof settings.music !== 'boolean') ||
-      (settings.effects !== undefined && typeof settings.effects !== 'boolean')
+      (settings.effects !== undefined &&
+        typeof settings.effects !== 'boolean') ||
+      (settings.musicLevel !== undefined && !validLevel(settings.musicLevel)) ||
+      (settings.effectsLevel !== undefined &&
+        !validLevel(settings.effectsLevel))
     )
       return false
   }

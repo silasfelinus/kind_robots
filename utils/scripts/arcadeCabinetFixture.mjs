@@ -84,7 +84,13 @@ const stores = {
 // saves, seats and preferences go through the store itself and this page's localStorage.
 const realStoreNeighbours = {
   arcadeFetch: `export async function performFetch() { return { success: false, message: 'fixture: offline', status: 0 } }`,
-  arcadeAchievements: `export function useAchievementStore() { return { hasEarnedCode: () => true, rewardAchievementByCode: async () => {} } }`,
+  // Opt-in (window.__recordAwards): record each site achievement the cabinet awards in window.__awarded.
+  arcadeAchievements: `export function useAchievementStore() {
+    return {
+      hasEarnedCode: (code) => (window.__recordAwards ? (window.__awarded ?? []).includes(code) : true),
+      rewardAchievementByCode: async (code) => { if (window.__recordAwards) (window.__awarded ||= []).push(code) },
+    }
+  }`,
 }
 
 const entryFor = (realStore) => `
@@ -242,6 +248,20 @@ export async function bundleCabinetFixture({ realArcadeStore = false } = {}) {
           }
         },
       )
+      // Record each soundtrack mixer the cabinet creates, so a test can read its game mix.
+      builder.onLoad({ filter: /soundtrackMixer\.ts$/ }, ({ path: file }) => {
+        const source = readFileSync(file, 'utf8')
+        const marker = 'export function createArcadeSoundtrack('
+        if (!source.includes(marker))
+          throw new Error('Soundtrack fixture hook lost createArcadeSoundtrack')
+        return {
+          contents:
+            source.replace(marker, 'function createArcadeSoundtrackInner(') +
+            '\nexport function createArcadeSoundtrack(base: ArcadeSound, options: SoundtrackOptions): ArcadeSoundtrack {\n  const mixer = createArcadeSoundtrackInner(base, options)\n  ;(window.__soundtracks ||= []).push(mixer)\n  return mixer\n}\n',
+          loader: 'ts',
+          resolveDir: path.dirname(file),
+        }
+      })
       // Superkate's Spectrum: the cabinet calls the module's named create export.
       builder.onLoad(
         { filter: /games\/superkateSpectrum\.ts$/ },

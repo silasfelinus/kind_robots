@@ -16,6 +16,7 @@ on:
       - 'utils/scripts/verifySavePlumberAudio.test.ts'
       - 'utils/scripts/verifySuperkateSpectrum.test.ts'
       - 'utils/scripts/verifySpectrumCampaign.test.ts'
+      - 'utils/scripts/verifyArcadeSoundtrackMixer.test.ts'
       - 'utils/scripts/verifySpectrumRecordedMusic.test.ts'
       - 'utils/scripts/verifyCabinetSpectrumSaveRace.test.ts'
       - 'public/audio/arcade/superkate-spectrum/**'
@@ -89,6 +90,9 @@ jobs:
       - name: Superkate Spectrum — full 30-stage campaign to all three endings, and careless play
         if: always()
         run: npx tsx utils/scripts/verifySpectrumCampaign.test.ts
+      - name: Soundtrack mixer — recorded/oscillator buses, ducking, cues and game mix levels
+        if: always()
+        run: npx tsx utils/scripts/verifyArcadeSoundtrackMixer.test.ts
       - name: Superkate Spectrum — recorded music masters
         if: always()
         run: npx tsx utils/scripts/verifySpectrumRecordedMusic.test.ts

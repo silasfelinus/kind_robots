@@ -288,6 +288,8 @@ export interface ArcadeGameInstance {
    * shows it in its own menus, where the cabinet's title plate is hidden on a pinned phone.
    */
   setSaveStatus?(status: ArcadeSaveStatus): void
+  /** The game's own music and effects levels (0..1) under the Arcade volume, read as it plays. */
+  readonly audioMix?: { music: number; effects: number }
   /** Mastery goals earned this game, for a cabinet with a ladder. */
   readonly mastered?: readonly string[]
   /** Achievement deeds performed since the last call, for a table that reports them. */

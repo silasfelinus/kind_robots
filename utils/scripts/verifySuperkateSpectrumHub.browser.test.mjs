@@ -219,7 +219,7 @@ try {
         'effects',
       ]
       for (const [row, name] of switches.entries()) {
-        if (touch) await tap(page, 250, 150 + row * 29 + 13)
+        if (touch) await tap(page, 250, 158 + row * 23 + 10)
         else {
           while ((await hub(page)).optionRow !== row)
             await key(page, 'ArrowDown')
@@ -233,13 +233,39 @@ try {
       }
       await snap('settings')
       const volume = (await hub(page)).audio.volume
-      if (touch) await tap(page, 60, 150 + 6 * 29 + 13)
+      if (touch) await tap(page, 60, 158 + 6 * 23 + 10)
       else {
         while ((await hub(page)).optionRow !== 6) await key(page, 'ArrowDown')
         await key(page, 'ArrowLeft')
       }
       const lowered = (await hub(page)).audio.volume
       assert.ok(lowered < volume, `${tag}: volume steps down`)
+
+      // Music and effects levels: the cabinet's soundtrack mixer takes the game's mix as it plays.
+      for (const row of [7, 8]) {
+        if (touch) await tap(page, 60, 158 + row * 23 + 10)
+        else {
+          while ((await hub(page)).optionRow !== row)
+            await key(page, 'ArrowDown')
+          await key(page, 'ArrowLeft')
+        }
+      }
+      await wait(200)
+      const mix = await page.evaluate(() => {
+        const game = (window.__spectrums ?? [])
+          .filter((entry) => !entry.demo)
+          .at(-1).game
+        return {
+          game: game.audioMix,
+          cabinet: (window.__soundtracks ?? []).at(-1)?.mix,
+        }
+      })
+      assert.deepEqual(mix.game, { music: 0.9, effects: 0.9 })
+      assert.deepEqual(
+        mix.cabinet,
+        mix.game,
+        `${tag}: the cabinet mixer applies the game's levels`,
+      )
 
       // The hub shows where the career is kept, driven by the real store's account sync state.
       const saveStatus = () =>
@@ -287,6 +313,29 @@ try {
         stars,
         `${tag}: browsing the hub never changes the medals`,
       )
+      // Site achievements: a feat performed in play reaches its global code once, never twice.
+      const awarded = await page.evaluate(async () => {
+        window.__recordAwards = true
+        window.__awarded = []
+        const game = (window.__spectrums ?? [])
+          .filter((entry) => !entry.demo)
+          .at(-1).game
+        game.earn('rainbow-rescue')
+        game.earn('color-alchemist')
+        await new Promise((resolve) => setTimeout(resolve, 300))
+        game.earn('rainbow-rescue')
+        await new Promise((resolve) => setTimeout(resolve, 200))
+        return window.__awarded
+      })
+      assert.deepEqual(
+        awarded,
+        [
+          'arcade-superkate-spectrum-rainbow-rescue',
+          'arcade-superkate-spectrum-color-alchemist',
+        ],
+        `${tag}: feats award the site achievements once`,
+      )
+
       assert.deepEqual(errors, [], `${tag}: no page errors`)
       console.log(`ok ${tag}: scrapbook, trophies, settings, reopen`)
     } finally {

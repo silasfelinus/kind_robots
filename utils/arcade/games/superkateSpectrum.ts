@@ -33,6 +33,7 @@ import {
 } from '../superkateSpectrum/music'
 import type { MusicLoop } from '../sound'
 import { spectrumRankedBoard } from '../leaderboard'
+import { loadedImage } from '../ghostTrail/bake'
 import {
   rankForXp,
   recordClassicEnd,
@@ -129,6 +130,51 @@ type Shot = {
   power: SpectrumPower | null
   banked?: boolean
 }
+export const SPECTRUM_BOSS_ART = [
+  'boss-greyscale-dryer',
+  'boss-pruner',
+  'boss-neon-inspector',
+  'boss-archivist',
+  'boss-sorting-machine',
+  'boss-palette-keeper',
+].map((name) => `/images/arcade/superkate-spectrum/${name}.webp`)
+
+function drawBossArt(
+  g: CanvasRenderingContext2D,
+  chapter: number,
+  highContrast: boolean,
+) {
+  const src = SPECTRUM_BOSS_ART[chapter]
+  const image = src ? loadedImage(src) : null
+  if (!image) return
+  const width = W - 16
+  const height = 264
+  const scale = Math.max(
+    width / image.naturalWidth,
+    height / image.naturalHeight,
+  )
+  const sw = width / scale
+  const sh = height / scale
+  g.save()
+  g.drawImage(
+    image,
+    (image.naturalWidth - sw) / 2,
+    (image.naturalHeight - sh) / 2,
+    sw,
+    sh,
+    8,
+    76,
+    width,
+    height,
+  )
+  g.fillStyle = highContrast ? '#100d27df' : '#100d2799'
+  g.fillRect(8, 76, width, height)
+  g.strokeStyle = '#ffe29380'
+  g.lineWidth = 1
+  g.strokeRect(8, 76, width, height)
+  g.restore()
+}
+
 export const BOSS_PATTERNS = [
   {
     name: 'GREYSCALE DRYER',
@@ -1278,6 +1324,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       const chapter = chapterIndex(this.level)
       const pattern = BOSS_PATTERNS[chapter]!
       const target = bossTarget(chapter, this.boss.hits)
+      drawBossArt(g, chapter, this.settings.highContrast)
       label(g, pattern.name, W / 2, 50, 15, '#fff0ad')
       label(g, pattern.rule, W / 2, 67, 10)
       for (const guard of target.guards) {

@@ -208,6 +208,22 @@ const now = 1_800_000_000_000
   assert.match(vs, /@click="lab\.resumeVsBout\(\)"/)
   assert.match(vs, /data-testid="slime-vs-forget-cpu"/)
   assert.match(vs, /lab\.hydrateVsBout\(\)/)
+  assert.match(vs, /data-testid="slime-vs-roster"/)
+  assert.match(vs, /v-for="team in lab\.teams"/)
+  assert.match(vs, /@click="selectCrew\(team\.id\)"/)
+  assert.match(vs, /lab\.chooseTeam\(id\)/)
+  assert.match(vs, /slimeArtId\('crews', lab\.activeTeam\)/)
+  assert.match(vs, /lab\.team\.hook/)
+  assert.match(vs, /factionPower\(lab\.activeTeam\)/)
+  assert.match(vs, /power\.text/)
+  assert.match(vs, /power\.overcharge/)
+  assert.match(vs, /v-for="game in activeGames"/)
+  assert.match(
+    vs,
+    /game\.stage === 'waiting' \|\| game\.stage === 'battle'/,
+  )
+  assert.doesNotMatch(vs, /v-for="game in pvp\.games"/)
+  assert.doesNotMatch(vs, /<SlimeCityCrewSelect/)
 }
 
 console.log('verifySlimeCityVsResume: ok')

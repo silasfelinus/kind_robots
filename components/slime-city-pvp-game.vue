@@ -339,19 +339,26 @@
                     :aria-label="unit(side, lane)!.power + ' attack'"
                     >⚔ {{ unit(side, lane)!.power }}</b
                   >
-                  <b
-                    class="is-life"
-                    :class="{
-                      low: unit(side, lane)!.hp * 3 <= unit(side, lane)!.maxHp,
-                    }"
-                    :aria-label="unit(side, lane)!.hp + ' life'"
-                    >♥ {{ unit(side, lane)!.hp }}</b
-                  >
+                  <span class="scpvp-defense">
+                    <b
+                      class="is-life"
+                      :class="{
+                        low:
+                          unit(side, lane)!.hp * 3 <= unit(side, lane)!.maxHp,
+                      }"
+                      :aria-label="unit(side, lane)!.hp + ' life'"
+                      >♥ {{ unit(side, lane)!.hp }}</b
+                    >
+                    <SlimeCityArmorStat
+                      :armor="unit(side, lane)!.armor"
+                      :guard="unit(side, lane)!.guard"
+                    />
+                  </span>
                 </span>
                 <span class="scpvp-tags">
                   <span
                     v-for="tag in fighterTags(unit(side, lane)!).filter(
-                      (tag) => tag.kind !== 'new',
+                      (tag) => tag.kind !== 'new' && tag.kind !== 'guard',
                     )"
                     :key="tag.text"
                     class="scpvp-tag"
@@ -360,21 +367,18 @@
                     >{{ tag.text }}</span
                   >
                 </span>
-                <span class="scpvp-unit-label">
+                <span
+                  class="scpvp-unit-label"
+                  :class="{
+                    'has-armor':
+                      unit(side, lane)!.armor + (unit(side, lane)!.guard ?? 0) >
+                      0,
+                  }"
+                >
                   {{ cardById(unit(side, lane)!.cardId).name }}
                   <i :class="'lv-' + unit(side, lane)!.level">{{
                     '★'.repeat(unit(side, lane)!.level)
                   }}</i>
-                  <span
-                    v-if="unit(side, lane)!.armor > 0"
-                    class="scpvp-armor-badge"
-                    :title="
-                      'Armor: reduces damage by ' + unit(side, lane)!.armor
-                    "
-                    :aria-label="unit(side, lane)!.armor + ' armor'"
-                    data-testid="slime-pvp-armor"
-                    >🛡 {{ unit(side, lane)!.armor }}</span
-                  >
                 </span>
                 <SlimeCityLevelFrame :level="unit(side, lane)!.level" />
                 <SlimeCitySummoningSickness
@@ -1356,7 +1360,7 @@ function showChanges(before: PvpBoard, after: PvpBoard, struck: boolean) {
       float(
         unit.side,
         unit.lane,
-        '+' + (unit.armor - was.armor) + ' 🛡',
+        '+' + (unit.armor - was.armor) + ' ARMOR',
         'buffed',
       )
   }
@@ -1991,6 +1995,14 @@ watch(
   font-weight: 950;
   line-height: 1;
 }
+.scpvp-defense {
+  --sc-armor-size: clamp(1.1rem, 2.4vw, 1.8rem);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  z-index: 2;
+}
 .scpvp-stats b {
   padding: 0.15rem 0.3rem;
   border-radius: 0.4rem;
@@ -2055,15 +2067,8 @@ watch(
   text-align: center;
   text-shadow: 0 1px 3px #000;
 }
-.scpvp-armor-badge {
-  padding: 0.15rem 0.35rem;
-  border: 1px solid #9fd3ff88;
-  border-radius: 0.35rem;
-  background: #102339ee;
-  color: #d7edff;
-  font-size: clamp(0.65rem, 1.4vw, 0.95rem);
-  font-weight: 950;
-  white-space: nowrap;
+.scpvp-unit-label.has-armor {
+  right: clamp(1.35rem, 3vw, 2.1rem);
 }
 .scpvp-unit-label i {
   color: #8af2c2;

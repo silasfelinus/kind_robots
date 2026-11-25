@@ -73,20 +73,26 @@
                       ><i aria-hidden="true">⚔</i
                       >{{ clashPower(game, unit(side, lane)!) }}</b
                     >
-                    <b
-                      :key="'hp-' + unit(side, lane)!.hp"
-                      class="clash-stat is-life"
-                      :class="{
-                        low:
-                          unit(side, lane)!.hp * 3 <= unit(side, lane)!.maxHp,
-                      }"
-                      :aria-label="unit(side, lane)!.hp + ' life'"
-                      ><svg viewBox="0 0 24 22" aria-hidden="true">
-                        <path
-                          d="M12 21.2S1.6 14.9.4 8.4C-.5 3.8 2.6.5 6.3.5c2.4 0 4.3 1.3 5.7 3.3C13.4 1.8 15.3.5 17.7.5c3.7 0 6.8 3.3 5.9 7.9C22.4 14.9 12 21.2 12 21.2z"
-                        /></svg
-                      ><span>{{ unit(side, lane)!.hp }}</span></b
-                    >
+                    <span class="clash-defense">
+                      <b
+                        :key="'hp-' + unit(side, lane)!.hp"
+                        class="clash-stat is-life"
+                        :class="{
+                          low:
+                            unit(side, lane)!.hp * 3 <= unit(side, lane)!.maxHp,
+                        }"
+                        :aria-label="unit(side, lane)!.hp + ' life'"
+                        ><svg viewBox="0 0 24 22" aria-hidden="true">
+                          <path
+                            d="M12 21.2S1.6 14.9.4 8.4C-.5 3.8 2.6.5 6.3.5c2.4 0 4.3 1.3 5.7 3.3C13.4 1.8 15.3.5 17.7.5c3.7 0 6.8 3.3 5.9 7.9C22.4 14.9 12 21.2 12 21.2z"
+                          /></svg
+                        ><span>{{ unit(side, lane)!.hp }}</span></b
+                      >
+                      <SlimeCityArmorStat
+                        :armor="unit(side, lane)!.armor"
+                        :guard="unit(side, lane)!.guard"
+                      />
+                    </span>
                   </span>
                   <span class="clash-fighter-label"
                     ><i
@@ -100,11 +106,6 @@
                     >{{ cardById(unit(side, lane)!.cardId).name }}</span
                   >
                   <span class="clash-tags">
-                    <span
-                      v-if="unit(side, lane)!.armor"
-                      class="clash-tag is-armor"
-                      >🛡 {{ unit(side, lane)!.armor }}</span
-                    >
                     <span
                       v-if="status(unit(side, lane)!)"
                       class="clash-status"
@@ -1528,6 +1529,13 @@ function forecast(lane: number): string {
   align-items: flex-start;
   pointer-events: none;
 }
+.clash-defense {
+  --sc-armor-size: calc(var(--stat) * 0.63);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.12rem;
+}
 .clash-stat {
   position: relative;
   display: grid;
@@ -1645,9 +1653,6 @@ function forecast(lane: number): string {
   border-radius: 0.25rem;
   background: #03141af0;
   color: #d7ff89;
-}
-.clash-tag.is-armor {
-  color: #bfe3ff;
 }
 .clash-empty {
   color: #c6dcd4;

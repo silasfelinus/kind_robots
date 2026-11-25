@@ -989,5 +989,5 @@ for (const file of [
 }
 
 const armorView = readFileSync('components/slime-city-pvp-game.vue', 'utf8')
-assert.match(armorView, /data-testid="slime-pvp-armor"/)
-assert.match(armorView, /v-if="unit\(side, lane\)!\.armor > 0"/)
+assert.match(armorView, /<SlimeCityArmorStat/)
+assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)

@@ -251,12 +251,6 @@
         Developer notes, behind-the-scenes stories and plans for this corner
         of Kind Robots will appear here as they're written.
       </p>
-      <NuxtLink
-        to="/silas"
-        class="mt-3 inline-flex text-sm font-bold text-primary hover:underline"
-      >
-        Meet Silas, the human behind Kind Robots →
-      </NuxtLink>
     </section>
 
     <section

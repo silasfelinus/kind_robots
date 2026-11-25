@@ -1190,7 +1190,7 @@ console.log(
 // a card that firing dismisses; a repeat grant, or the attract demo, shows none.
 {
   const { POWER_TIPS } = await import('../arcade/games/superkateSpectrum')
-  type Tipped = ReturnType<typeof create> & {
+  type Tipped = Omit<ReturnType<typeof create>, 'grantPower' | 'banner'> & {
     grantPower: (power: 'prism' | 'burst' | 'ribbon') => void
     banner: number
   }
@@ -1216,7 +1216,7 @@ console.log(
   const tipped = create({
     ...options,
     resume: readSpectrumSave(null),
-  } as Parameters<typeof create>[0]) as Tipped
+  } as Parameters<typeof create>[0]) as unknown as Tipped
   const play = emptyInput()
   play.pressed.a = true
   tipped.update(play)
@@ -1244,7 +1244,7 @@ console.log(
   const timed = create({
     ...options,
     resume: readSpectrumSave(null),
-  } as Parameters<typeof create>[0]) as Tipped
+  } as Parameters<typeof create>[0]) as unknown as Tipped
   timed.update(play)
   timed.banner = 0
   timed.grantPower('burst')
@@ -1253,7 +1253,7 @@ console.log(
   const demo = create({
     ...options,
     demo: true,
-  } as Parameters<typeof create>[0]) as Tipped
+  } as Parameters<typeof create>[0]) as unknown as Tipped
   demo.grantPower('prism')
   assert.equal(demo.powerTip, null, 'the attract demo shows no tutorial')
 }

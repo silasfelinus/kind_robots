@@ -42,7 +42,13 @@
             :alt="endingTitle"
           />
           <h2 class="rh-title rh-title--big">{{ endingTitle }}</h2>
-          <p class="rh-scroll__body">{{ endingBody }}</p>
+          <p
+            v-for="(paragraph, i) in endingParagraphs(store.pendingEnding)"
+            :key="i"
+            class="rh-scroll__body"
+          >
+            {{ paragraph }}
+          </p>
           <p class="rh-scroll__body">
             Your choices have unlocked a possible conclusion to this reign.
             Ending the story closes this save for fishing and new decrees. You
@@ -75,6 +81,13 @@
           <h2 class="rh-title rh-title--big">
             {{ endingTitleFor(store.save.endingKey) }}
           </h2>
+          <p
+            v-for="(paragraph, i) in endingParagraphs(store.save.endingKey)"
+            :key="i"
+            class="rh-scroll__body"
+          >
+            {{ paragraph }}
+          </p>
           <button
             type="button"
             class="rh-btn rh-btn--gold"
@@ -170,11 +183,11 @@ function endingTitleFor(key: string | null): string {
   )
 }
 const endingTitle = computed(() => endingTitleFor(store.pendingEnding))
-const endingBody = computed(
-  () =>
-    store.bundle.endings.find((x) => x.outcomeKey === store.pendingEnding)
-      ?.body ?? '',
-)
+function endingParagraphs(key: string | null): string[] {
+  return (
+    store.bundle.endings.find((x) => x.outcomeKey === key)?.body ?? ''
+  ).split('\n\n').filter(Boolean)
+}
 </script>
 
 <style scoped>

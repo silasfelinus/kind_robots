@@ -1592,14 +1592,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       const count = SPECTRUM_TROPHIES.filter((medal) =>
         this.trophyEarned(medal.id),
       ).length
-      label(
-        g,
-        `${count}/9 TROPHIES · RANK ${rank}`,
-        W / 2,
-        367,
-        11,
-        '#ffdf92',
-      )
+      label(g, `${count}/9 TROPHIES · RANK ${rank}`, W / 2, 367, 11, '#ffdf92')
     } else {
       const choices = [
         ['AIM GUIDE', this.settings.aimGuide ? 'ON' : 'OFF'],

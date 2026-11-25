@@ -550,6 +550,16 @@ console.log(
     { team: 'riot', friendId: 7 },
     'the guest rematches the host with the guest crew',
   )
+  assert.deepEqual(
+    pvpRematch({ ...final, seat: 'player', rivalId: 8 }, 'undertow'),
+    { team: 'undertow', friendId: 8 },
+    'host can change crew without changing rival',
+  )
+  assert.deepEqual(
+    pvpRematch({ ...final, seat: 'enemy', rivalId: 7 }, 'exchange'),
+    { team: 'exchange', friendId: 7 },
+    'guest can change crew without changing rival',
+  )
   assert.equal(
     pvpRematch({ ...final, stage: 'battle', seat: 'player', rivalId: 8 }),
     null,
@@ -589,6 +599,13 @@ console.log(
   const board = readFileSync('components/slime-city-pvp-game.vue', 'utf8')
   assert.match(board, /data-testid="slime-pvp-result"/)
   assert.match(board, /data-testid="slime-pvp-rematch"/)
+  assert.match(board, /@click="chooseRematch"/)
+  assert.match(board, /pvp\.rematch\(selectedTeam\.value\)/)
+  assert.match(board, /data-testid="slime-pvp-rematch-back"/)
+  assert.match(board, /<details[^>]*data-testid="slime-pvp-share-menu"/)
+  const bulletin = readFileSync('components/slime-city-vs.vue', 'utf8')
+  assert.match(bulletin, /async function challengeFriend[\s\S]*?if \(duel\) await pvp\.loadGames\(\)/)
+  assert.doesNotMatch(bulletin, /if \(duel\) open\(duel\.id\)/)
   assert.match(board, /to="\/play\/slime-city\?vs=1"[\s\S]*?BACK TO VS/)
   assert.match(
     readFileSync('components/slime-city-vs.vue', 'utf8'),

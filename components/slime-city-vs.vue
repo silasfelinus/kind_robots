@@ -431,7 +431,7 @@ function joinInvite(): void {
 }
 async function challenge(isPublic: boolean): Promise<void> {
   const duel = await pvp.start(lab.activeTeam, { isPublic })
-  if (duel) open(duel.id)
+  if (duel) await Promise.all([pvp.loadGames(), pvp.loadOpen()])
 }
 /** Cancelling a duel or declining a challenge takes two taps. */
 const cancelArmed = ref<string | null>(null)
@@ -448,7 +448,7 @@ async function challengeFriend(friendId: number): Promise<void> {
   challenging.value = friendId
   const duel = await pvp.start(lab.activeTeam, { friendId })
   challenging.value = null
-  if (duel) open(duel.id)
+  if (duel) await pvp.loadGames()
 }
 function initialOf(name: string): string {
   return (name.trim()[0] ?? '?').toUpperCase()

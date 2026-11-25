@@ -175,12 +175,13 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     }
   }
 
-  /** Challenge the same rival again with the same crew, privately. */
-  async function rematch(): Promise<PvpSnapshot | null> {
-    const next = duel.value ? pvpRematch(duel.value) : null
+  /** Challenge the same rival privately with the selected crew. */
+  async function rematch(team?: TeamId): Promise<PvpSnapshot | null> {
+    const next = duel.value ? pvpRematch(duel.value, team) : null
     if (!next || sending.value) return null
-    stopWatching()
-    return start(next.team, { friendId: next.friendId })
+    const data = await start(next.team, { friendId: next.friendId })
+    if (data) stopWatching()
+    return data
   }
 
   async function join(id: string, team: TeamId): Promise<PvpSnapshot | null> {

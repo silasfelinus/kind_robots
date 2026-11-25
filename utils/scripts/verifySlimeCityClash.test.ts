@@ -1885,7 +1885,7 @@ assert.ok(
 )
 assert.match(clashCardText(cardById('bloodwire')), /removes Volatile/)
 assert.ok(clashCardText(cardById('amp-tripwire'), 2).length <= 160)
-assert.match(clashCardText(cardById('shocktrap')), /Stuns foe/)
+assert.match(clashCardText(cardById('shocktrap')), /no attack or counterattack/)
 const rootTerms = clashGlossaryParts('Roots a rival and removes Volatile.')
 assert.deepEqual(
   rootTerms.flatMap((part) => (part.entry ? [part.entry.term] : [])),

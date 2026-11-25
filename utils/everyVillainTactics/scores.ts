@@ -164,6 +164,16 @@ export function scoreFromSave(save: EvtSave): BattleResult | null {
   }
 }
 
+const MEDAL_LINES: Readonly<Record<string, string>> = {
+  'no-knockouts': 'survival',
+  'healthy-extraction': 'healthy',
+  untouched: 'flawless',
+  'every-civilian': 'evacuated',
+  'quick-clear': 'tempo',
+  'evidence-recovered': 'evidence',
+  'secret-route': 'secret',
+}
+
 function validResult(value: unknown): value is BattleResult {
   if (!value || typeof value !== 'object') return false
   const r = value as BattleResult
@@ -189,27 +199,26 @@ function validResult(value: unknown): value is BattleResult {
     r.lines.length <= 10 &&
     r.lines.every(
       (l) =>
+        !!l &&
+        typeof l === 'object' &&
         typeof l.id === 'string' &&
+        l.id.length > 0 &&
         typeof l.label === 'string' &&
         l.label.length <= 120 &&
         Number.isInteger(l.points) &&
         l.points >= 0 &&
         l.points <= 10000,
     ) &&
+    new Set(r.lines.map((l) => l.id)).size === r.lines.length &&
     r.lines.reduce((n, l) => n + l.points, 0) === r.total &&
     Array.isArray(r.medals) &&
+    new Set(r.medals).size === r.medals.length &&
+    (r.outcome === 'victory' || r.medals.length === 0) &&
     r.medals.every(
       (m) =>
         typeof m === 'string' &&
-        [
-          'no-knockouts',
-          'healthy-extraction',
-          'untouched',
-          'every-civilian',
-          'quick-clear',
-          'evidence-recovered',
-          'secret-route',
-        ].includes(m),
+        Object.hasOwn(MEDAL_LINES, m) &&
+        r.lines.some((l) => l.id === MEDAL_LINES[m] && l.points > 0),
     )
   )
 }

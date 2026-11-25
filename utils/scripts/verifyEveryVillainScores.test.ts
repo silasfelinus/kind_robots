@@ -325,6 +325,30 @@ assert.deepEqual(
   'bad local history is discarded',
 )
 assert.deepEqual(mergeBattleResults([], [{ ...score, total: 999999 }]), [])
+
+// A damaged local record must not crash startup or discard valid neighbours.
+const corruptResults = [
+  { ...score, lines: [null, ...score.lines.slice(1)] },
+  { ...score, lines: [score.lines[0], ...score.lines.slice(0, -1)] },
+  { ...score, medals: [...score.medals, score.medals[0]] },
+  { ...defeat, medals: ['untouched'] },
+  { ...defeat, medals: ['secret-route'] },
+  { ...score, medals: [...score.medals, 'secret-route'] },
+  { ...score, medals: ['toString'] },
+]
+for (const corrupt of corruptResults) {
+  const restored = sanitizeScrapbook(
+    JSON.stringify({ ...freshBook, results: [corrupt, secretResult] }),
+  )
+  assert.deepEqual(restored.results, [secretResult])
+  assert.equal(identityBattleLedger(restored.results)[0]!.heroWins, 1)
+}
+assert.deepEqual(
+  sanitizeScrapbook(JSON.stringify({ ...freshBook, results: [score, defeat] }))
+    .results,
+  mergeBattleResults([], [score, defeat]),
+  'valid historical victory and defeat records remain readable',
+)
 assert.equal(
   mergeBattleResults(
     [],

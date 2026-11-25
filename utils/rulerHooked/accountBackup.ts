@@ -74,6 +74,8 @@ function validReign(v: unknown): v is RunSave {
     date(v.createdAt) &&
     date(v.updatedAt) &&
     (v.endingKey === null || text(v.endingKey)) &&
+    (v.pendingCardId === undefined || text(v.pendingCardId)) &&
+    (v.pendingFinaleKey === undefined || text(v.pendingFinaleKey)) &&
     typeof v.openingSeen === 'boolean' &&
     object(ruler) &&
     text(ruler.name) &&

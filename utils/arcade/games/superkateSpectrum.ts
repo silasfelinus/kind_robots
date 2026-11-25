@@ -32,6 +32,7 @@ import {
   SPECTRUM_THEMES,
 } from '../superkateSpectrum/music'
 import type { MusicLoop } from '../sound'
+import { spectrumRankedBoard } from '../leaderboard'
 import {
   rankForXp,
   recordClassicEnd,
@@ -391,6 +392,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   sparks: Spark[] = []
   boss: BossState | null = null
   private pointerAction: PointerAction | null = null
+  private runStartStage = 1
   private specialMeter = 0
   private specialCount = 0
   private shotsThisBoard = 0
@@ -460,6 +462,11 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   get menuOpen(): boolean {
     return this.choosingMode
   }
+  get scoreBoard(): string | null {
+    return this.choosingMode || this.demo
+      ? null
+      : spectrumRankedBoard(this.mode, this.runStartStage)
+  }
   private remember() {
     this.stored = {
       version: 2,
@@ -479,6 +486,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.score = 0
     this.lives = 3
     this.level = this.mode === 'classic' ? 1 : this.menuStage
+    this.runStartStage = this.level
     this.pendingChoice =
       this.mode === 'story'
         ? pendingStoryDecision(this.level, this.storyChoices)
@@ -1063,7 +1071,13 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       11,
       '#fff0ad',
     )
-    label(g, 'TAP LEVEL · LEFT/RIGHT SELECT · A PLAY', W / 2, 371, 10)
+    label(
+      g,
+      this.menuStage === 1 ? 'STAGE 1 · RANKED RUN' : 'PRACTICE · NOT RANKED',
+      W / 2,
+      371,
+      10,
+    )
     const styles = ['glass', 'candy', 'starlight', 'prismatic'] as const
     const unlocks = unlockedStyles(rank)
     styles.forEach((style, index) => {

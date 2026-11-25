@@ -296,6 +296,7 @@ export interface ArcadeGameInstance {
    * gives the arrow keys back to moving the cursor instead of aiming (kr-arcade t-147).
    */
   readonly menuOpen?: boolean
+  readonly scoreBoard?: string | null
   /** Contextual touch actions (shown only when they can do something). */
   readonly touchActions?: Readonly<Partial<Record<'a' | 'b', string>>>
   stagePointer?(event: ArcadeStagePointer): void

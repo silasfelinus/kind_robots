@@ -67,11 +67,13 @@ import {
 import { setRainbowLook } from '../arcade/games/rainbowGameArt'
 import {
   BOSS_RECOIL_FRAMES,
+  SHIP_JOLT_FRAMES,
   applyRainbowSwimMotion,
   rainbowBossRecoil,
   rainbowBossWindup,
   rainbowCraftWindup,
   rainbowHitFlinch,
+  rainbowShipJolt,
   rainbowShipPose,
   rainbowSwimPose,
   stackRainbowBossPose,
@@ -759,3 +761,39 @@ assert.match(
   /craftWarn && !reef\.truce && reef\.charge/,
   'a truce craft never tenses',
 )
+
+// t-011: a hit knocks the pilot's craft back, twists and squashes it, then settles; calm keeps it still.
+{
+  const rest = { pull: 0, rotate: 0, scaleX: 1, scaleY: 1 }
+  const fresh = rainbowShipJolt(0)
+  const later = rainbowShipJolt(SHIP_JOLT_FRAMES - 3)
+  assert.ok(
+    fresh.pull > later.pull && later.pull > 0 && fresh.scaleX < 1,
+    'the jolt is deepest on the hit frame and eases out',
+  )
+  assert.ok(
+    fresh.pull <= 3 &&
+      Math.abs(fresh.rotate) <= 0.12 &&
+      fresh.scaleX >= 0.92 &&
+      fresh.scaleY <= 1.05,
+    'the jolt stays a small draw-only pose',
+  )
+  assert.ok(
+    SHIP_JOLT_FRAMES < 90,
+    'the jolt settles inside the invulnerability',
+  )
+  assert.deepEqual(rainbowShipJolt(SHIP_JOLT_FRAMES), rest, 'settled')
+  assert.deepEqual(rainbowShipJolt(-1), rest, 'no jolt before a hit')
+  assert.deepEqual(rainbowShipJolt(Number.NaN), rest, 'never hit')
+  assert.deepEqual(rainbowShipJolt(0, true), rest, 'calm keeps it still')
+  assert.match(
+    previewSource,
+    /ship\.invulnerable = 90\n\s+shipHitAt\.set\(ship, tick\)/,
+    'a landed hit records the jolt',
+  )
+  assert.match(
+    previewSource,
+    /const jolt = shipJolt\(ship, calm\)/,
+    'the ship draw applies the jolt',
+  )
+}

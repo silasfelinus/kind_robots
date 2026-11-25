@@ -155,3 +155,27 @@ export function rainbowCraftWindup(
     scaleY: 1 + (boss.scaleY - 1) / 2,
   }
 }
+
+/** Frames the pilot's craft jolts after a hit lands (well inside the 90-frame invulnerability). */
+export const SHIP_JOLT_FRAMES = 10
+
+/**
+ * Conductor rainbow t-011: when a shot gets through, the pilot's craft is knocked back against its heading,
+ * twists and squashes, then settles over SHIP_JOLT_FRAMES, so the hit reads on her ship and not only on the
+ * shield count and blink. Draw-only: the hitbox never moves. Calm motion keeps it still.
+ */
+export function rainbowShipJolt(
+  framesSinceHit: number,
+  calm = false,
+): { pull: number; rotate: number; scaleX: number; scaleY: number } {
+  if (calm || !(framesSinceHit >= 0) || framesSinceHit >= SHIP_JOLT_FRAMES)
+    return { pull: 0, rotate: 0, scaleX: 1, scaleY: 1 }
+  const t = 1 - framesSinceHit / SHIP_JOLT_FRAMES
+  const k = t * t
+  return {
+    pull: 3 * k,
+    rotate: 0.12 * k * Math.cos(framesSinceHit * 0.9),
+    scaleX: 1 - 0.08 * k,
+    scaleY: 1 + 0.05 * k,
+  }
+}

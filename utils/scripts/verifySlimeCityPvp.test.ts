@@ -889,7 +889,9 @@ console.log('Slime City VS take-backs, strike trail and board animations PASS')
   assert.match(header, /header-account shrink-0 xl:ml-auto/)
   assert.match(header, /route\.path === '\/play\/slime-city-pvp'/)
   assert.match(picker, /route\.path === '\/play\/slime-city-pvp'/)
-  assert.match(picker, /route\.path\.startsWith\('\/play\/slime-city'\)/)
+  assert.doesNotMatch(picker, /isSlimeCityPage|slime-nav-title/)
+  assert.match(picker, /\{\{ currentPageTitle \}\}/)
+  assert.match(picker, /v-if="currentPageSubtitle"/)
 }
 console.log('Slime City Chromebook duel layout contract PASS')
 

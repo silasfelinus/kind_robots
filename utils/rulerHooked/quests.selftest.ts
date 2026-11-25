@@ -573,6 +573,8 @@ for (const id of QUESTS)
       assert.ok(!eligiblePool(base, cards).includes(followup))
 
       const after = resolveChoice(base, parent, parentChoice)
+      // Neutral intervening joy isolates each late decree's habitat effect.
+      after.kingdomHealth.joy = 50
       assert.ok(eligiblePool(after, cards).includes(followup))
       assert.ok(
         !eligiblePool({ ...after, turnCount: scenario.earlyTurn }, cards).includes(

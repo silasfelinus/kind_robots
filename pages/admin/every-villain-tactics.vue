@@ -514,6 +514,14 @@
                   data-testid="tactics-crossfire-epilogue"
                   aria-live="polite"
                 >
+                  <span
+                    v-if="store.crossfireScore"
+                    class="evt-aftermath-stats"
+                    data-testid="tactics-crossfire-score"
+                  >
+                    CROSSFIRE · {{ store.crossfireScore.total }} PTS ·
+                    {{ store.crossfireScore.cleared }}/6 CLEARED
+                  </span>
                   <span class="evt-overline">THE CITY REMEMBERS</span>
                   <h3>{{ store.crossfireAftermath.title }}</h3>
                   <p>{{ store.crossfireAftermath.text }}</p>

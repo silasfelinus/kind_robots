@@ -41,6 +41,7 @@ import {
 import {
   advanceCrossfire as advanceCrossfireJournal,
   crossfireCarryover,
+  crossfireCampaignScore,
   crossfireChapterTitle,
   crossfireScrapbookSaves,
   evtCrossfireKey,
@@ -560,6 +561,24 @@ export const useEveryVillainTacticsStore = defineStore(
         state: state.value,
         story: story.value,
       })
+    })
+    const crossfireScore = computed(() => {
+      const journal = crossfire.value
+      if (!journal || !crossfireActive.value) return null
+      if (journal.finished) return crossfireCampaignScore(journal)
+      const checkpoint = snapshotCrossfire(
+        journal,
+        createSave({
+          slot: 'auto',
+          perspective: perspective.value,
+          leadSignature: leadSignature.value,
+          foilSignature: foilSignature.value,
+          stage: isPlaytest.value ? draft.value : null,
+          state: state.value,
+          story: story.value,
+        }),
+      )
+      return crossfireCampaignScore(checkpoint)
     })
     const canAdvanceCrossfire = computed(
       () =>
@@ -1403,6 +1422,7 @@ export const useEveryVillainTacticsStore = defineStore(
       crossfirePreviousBeat,
       crossfireAftermath,
       crossfireEnding,
+      crossfireScore,
       canAdvanceCrossfire,
       startCrossfire,
       continueCrossfire,

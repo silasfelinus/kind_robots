@@ -14,102 +14,154 @@
     aria-label="Slime City VS"
     data-testid="slime-vs"
   >
-    <header class="vs-head">
-      <h2>VS</h2>
-      <SlimeCityCrewSelect label="Your crew" align="right" />
-    </header>
-
-    <div class="vs-columns">
-      <article class="vs-card vs-cpu" data-testid="slime-vs-cpu">
+    <div
+      class="vs-roster"
+      role="group"
+      aria-label="Choose your faction"
+      data-testid="slime-vs-roster"
+    >
+      <button
+        v-for="team in lab.teams"
+        :key="team.id"
+        type="button"
+        class="vs-crew"
+        :aria-pressed="lab.activeTeam === team.id"
+        :title="team.name"
+        :data-testid="'slime-vs-crew-' + team.id"
+        @click="selectCrew(team.id)"
+      >
         <SlimeCityArtwork
-          class="vs-cpu-art"
-          :image-id="slimeArtId('boards', 'pitworks-blackout')"
+          :image-id="slimeArtId('crews', team.id)"
           alt=""
-          fallback=""
+          :fallback="team.insignia"
           compact
         />
-        <h3><span aria-hidden="true">🤖</span> VS CPU</h3>
-        <div class="vs-format" role="group" aria-label="Deck format">
-          <button
-            type="button"
-            :aria-pressed="lab.clashFormat === 'solo'"
-            data-testid="slime-vs-solo"
-            @click="lab.clashFormat = 'solo'"
-          >
-            SOLO
-          </button>
-          <button
-            type="button"
-            :aria-pressed="lab.clashFormat === 'alliance'"
-            data-testid="slime-vs-alliance"
-            @click="lab.clashFormat = 'alliance'"
-          >
-            ALLIANCE
-          </button>
-        </div>
-        <label v-if="lab.clashFormat === 'alliance'" class="vs-deck">
-          <span>DECK</span>
-          <select
-            :value="lab.libraryId ?? ''"
-            data-testid="slime-vs-deck"
-            @change="pickDeck"
-          >
-            <option value="">{{ lab.team.name }} starter alliance</option>
-            <option v-for="deck in readyDecks" :key="deck.id" :value="deck.id">
-              {{ deck.name }}
-            </option>
-          </select>
-        </label>
-        <p class="vs-note">
-          {{
-            lab.progressLoaded
-              ? 'Signed in: wins pay XP and Meat and count toward bounties.'
-              : 'Sign in to earn XP and Meat from CPU wins.'
-          }}
-        </p>
-        <div
-          v-if="lab.vsBout"
-          class="vs-resume"
-          data-testid="slime-vs-resume-panel"
+        <span>{{ team.name }}</span>
+      </button>
+    </div>
+
+    <div class="vs-columns kr-panes">
+      <div class="vs-left kr-pane-scroll">
+        <article
+          class="vs-showcase"
+          aria-live="polite"
+          data-testid="slime-vs-faction"
         >
-          <p class="vs-note">
-            Unfinished match vs {{ teamName(lab.vsBout.launch.enemy) }} ·
-            {{ lab.vsBout.launch.format === 'alliance' ? 'ALLIANCE' : 'SOLO' }}
-            · {{ lab.vsBout.commands.length }} moves in
-          </p>
-          <div class="vs-resume-row">
+          <div class="vs-cover">
+            <SlimeCityArtwork
+              :image-id="slimeArtId('crews', lab.activeTeam)"
+              :alt="lab.team.name + ' faction poster'"
+              :fallback="lab.team.insignia"
+              compact
+            />
+          </div>
+          <div class="vs-faction-copy">
+            <small class="vs-label">{{ lab.team.district }} · YOUR CREW</small>
+            <h2>{{ lab.team.name }}</h2>
+            <em>{{ lab.team.motto }}</em>
+            <p>{{ lab.team.hook }}</p>
+            <section class="vs-power" data-testid="slime-vs-faction-power">
+              <span class="vs-label">SIGNATURE POWER · ONCE PER MATCH</span>
+              <h3>{{ power.symbol }} {{ power.name }}</h3>
+              <p>{{ power.text }}</p>
+              <p><b>OVERCHARGED:</b> {{ power.overcharge }}</p>
+              <small>{{ OVERCHARGE_RULE }}</small>
+            </section>
+          </div>
+        </article>
+        <article class="vs-card vs-cpu" data-testid="slime-vs-cpu">
+          <h3><span aria-hidden="true">🤖</span> VS CPU</h3>
+          <div class="vs-format" role="group" aria-label="Deck format">
             <button
               type="button"
-              class="vs-go"
-              data-testid="slime-vs-resume-cpu"
-              :disabled="lab.progressBusy"
-              @click="lab.resumeVsBout()"
+              :aria-pressed="lab.clashFormat === 'solo'"
+              data-testid="slime-vs-solo"
+              @click="lab.clashFormat = 'solo'"
             >
-              RESUME MATCH ›
+              SOLO
             </button>
             <button
               type="button"
-              class="vs-go is-quiet"
-              data-testid="slime-vs-forget-cpu"
-              @click="lab.forgetVsBout()"
+              :aria-pressed="lab.clashFormat === 'alliance'"
+              data-testid="slime-vs-alliance"
+              @click="lab.clashFormat = 'alliance'"
             >
-              ABANDON
+              ALLIANCE
             </button>
           </div>
-        </div>
-        <button
-          type="button"
-          class="vs-go"
-          :class="{ 'is-quiet': lab.vsBout }"
-          data-testid="slime-vs-fight-cpu"
-          :disabled="lab.progressBusy"
-          @click="lab.playClashFormat()"
-        >
-          FIGHT THE CPU ›
-        </button>
-      </article>
+          <label v-if="lab.clashFormat === 'alliance'" class="vs-deck">
+            <span>DECK</span>
+            <select
+              :value="lab.libraryId ?? ''"
+              data-testid="slime-vs-deck"
+              @change="pickDeck"
+            >
+              <option value="">{{ lab.team.name }} starter alliance</option>
+              <option
+                v-for="deck in readyDecks"
+                :key="deck.id"
+                :value="deck.id"
+              >
+                {{ deck.name }}
+              </option>
+            </select>
+          </label>
+          <p class="vs-note">
+            {{
+              lab.progressLoaded
+                ? 'Signed in: wins pay XP and Meat and count toward bounties.'
+                : 'Sign in to earn XP and Meat from CPU wins.'
+            }}
+          </p>
+          <div
+            v-if="lab.vsBout"
+            class="vs-resume"
+            data-testid="slime-vs-resume-panel"
+          >
+            <p class="vs-note">
+              Unfinished match vs {{ teamName(lab.vsBout.launch.enemy) }} ·
+              {{
+                lab.vsBout.launch.format === 'alliance' ? 'ALLIANCE' : 'SOLO'
+              }}
+              · {{ lab.vsBout.commands.length }} moves in
+            </p>
+            <div class="vs-resume-row">
+              <button
+                type="button"
+                class="vs-go"
+                data-testid="slime-vs-resume-cpu"
+                :disabled="lab.progressBusy"
+                @click="lab.resumeVsBout()"
+              >
+                RESUME MATCH ›
+              </button>
+              <button
+                type="button"
+                class="vs-go is-quiet"
+                data-testid="slime-vs-forget-cpu"
+                @click="lab.forgetVsBout()"
+              >
+                ABANDON
+              </button>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="vs-go"
+            :class="{ 'is-quiet': lab.vsBout }"
+            data-testid="slime-vs-fight-cpu"
+            :disabled="lab.progressBusy"
+            @click="lab.playClashFormat()"
+          >
+            FIGHT THE CPU ›
+          </button>
+        </article>
+      </div>
 
-      <article class="vs-card vs-players" data-testid="slime-vs-players">
+      <article
+        class="vs-card vs-players kr-pane-scroll"
+        data-testid="slime-vs-players"
+      >
         <h3>
           <span aria-hidden="true">⚔</span> VS PLAYERS
           <small
@@ -230,7 +282,7 @@
         <p v-if="pvp.error || pvp.gamesError" class="vs-error" role="alert">
           {{ pvp.error || pvp.gamesError }}
         </p>
-        <ol class="vs-games kr-scroll" aria-label="Your games against players">
+        <ol class="vs-games" aria-label="Your games against players">
           <template v-if="pvp.openDuels.length">
             <li class="vs-list-label">OPEN CHALLENGES · ANYONE CAN JOIN</li>
             <li
@@ -253,10 +305,10 @@
                 <span class="vs-game-join">JOIN ›</span>
               </button>
             </li>
-            <li v-if="pvp.games.length" class="vs-list-label">YOUR GAMES</li>
+            <li v-if="activeGames.length" class="vs-list-label">YOUR GAMES</li>
           </template>
           <li
-            v-for="game in pvp.games"
+            v-for="game in activeGames"
             :key="game.id"
             :class="[
               'is-' + game.stage,
@@ -314,10 +366,12 @@
             </button>
           </li>
           <li
-            v-if="pvp.gamesLoaded && !pvp.games.length && !pvp.openDuels.length"
+            v-if="
+              pvp.gamesLoaded && !activeGames.length && !pvp.openDuels.length
+            "
             class="vs-empty"
           >
-            No games yet. Challenge a friend above, or post an open challenge.
+            No active games. Challenge a friend or post an open challenge.
           </li>
         </ol>
         <details class="vs-link-play">
@@ -372,6 +426,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { useSlimeCityPvpStore } from '~/stores/slimeCityPvp'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
+import { factionPower, OVERCHARGE_RULE } from '~/utils/slimeCity/factionPowers'
 import type { PvpGameSummary } from '~/utils/slimeCity/pvp'
 import type { PvpPlayer } from '~/stores/slimeCityPvp'
 import { TEAMS, type TeamId } from '~/utils/slimeCity/prototypes'
@@ -383,6 +438,16 @@ const lookup = ref('')
 const mailNote = ref('')
 const challenging = ref<number | null>(null)
 const requested = ref<number[]>([])
+
+const power = computed(() => factionPower(lab.activeTeam))
+const activeGames = computed(() =>
+  pvp.games.filter(
+    (game) => game.stage === 'waiting' || game.stage === 'battle',
+  ),
+)
+function selectCrew(id: TeamId): void {
+  if (id !== lab.activeTeam) lab.chooseTeam(id)
+}
 
 const readyDecks = computed(() =>
   lab.library.filter(
@@ -405,12 +470,6 @@ function statusOf(game: PvpGameSummary): string {
       : game.open
         ? 'OPEN · WAITING FOR ANYONE'
         : 'PRIVATE LINK · WAITING'
-  if (game.stage === 'finished')
-    return game.result === 'win'
-      ? 'YOU WON'
-      : game.result === 'loss'
-        ? 'YOU LOST'
-        : 'DRAW'
   return game.myTurn
     ? 'YOUR TURN · ROUND ' + game.round
     : 'THEIR TURN · ROUND ' + game.round
@@ -519,27 +578,124 @@ onMounted(() => {
     radial-gradient(ellipse at 50% 0%, #2b4a3f99, transparent 60%), #0a0f16;
   color: #eef4ee;
 }
-.vs-head {
+.vs-roster {
   flex: none;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(5rem, 1fr));
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding: 0.15rem;
+}
+.vs-crew {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 0.35rem;
+  min-width: 0;
+  padding: 0.3rem;
+  border: 2px solid #4d6a5f;
+  border-radius: 0.6rem;
+  background: #132227;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  font-size: clamp(0.62rem, 1.3cqw, 0.85rem);
+  font-weight: 900;
+  line-height: 1.1;
+  cursor: pointer;
+}
+.vs-crew[aria-pressed='true'] {
+  border-color: #c5ff59;
+  background: #26382a;
+  box-shadow: inset 0 0 0 1px #c5ff59;
+}
+.vs-crew:focus-visible {
+  outline: 2px solid #c5ff59;
+  outline-offset: -2px;
+}
+.vs-crew :deep(.slime-art) {
+  flex: none;
+  width: clamp(1.8rem, 4cqw, 3.2rem);
+  height: clamp(1.8rem, 4cqw, 3.2rem);
+  border-radius: 0.35rem;
+}
+.vs-crew span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.vs-left {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   gap: 0.6rem;
 }
-.vs-head h2 {
+.vs-showcase {
+  flex: 1 0 auto;
+  min-height: 16rem;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  overflow: hidden;
+  border: 2px solid #a6e33c;
+  border-radius: 0.9rem;
+  background: #101c22;
+}
+.vs-cover {
+  min-height: 0;
+  min-width: 0;
+}
+.vs-cover :deep(img) {
+  object-position: center;
+  object-fit: contain;
+}
+.vs-faction-copy {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: clamp(0.55rem, 1.5cqw, 1rem);
+  font-size: clamp(0.75rem, 1.5cqw, 1rem);
+  line-height: 1.35;
+}
+.vs-faction-copy h2 {
   margin: 0;
-  font-size: clamp(1.6rem, 6cqw, 2.6rem);
+  color: #c5ff59;
+  font-size: clamp(1.05rem, 3cqw, 2.3rem);
   font-weight: 1000;
   font-style: italic;
-  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+.vs-faction-copy p {
+  margin: 0;
+}
+.vs-faction-copy em {
   color: #c5ff59;
-  text-shadow: 0 0 22px #c5ff5955;
+  font-weight: 800;
+}
+.vs-power {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.6rem;
+  border: 1px solid #a6e33c;
+  border-radius: 0.45rem;
+  background: #16262b;
+}
+.vs-power h3 {
+  margin: 0;
+  color: #c5ff59;
+  font-weight: 950;
+  font-size: 1.05em;
+}
+.vs-power small {
+  color: #a6c7bc;
+  font-size: 0.85em;
 }
 .vs-columns {
   flex: 1 1 auto;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   gap: 0.6rem;
 }
 .vs-card {
@@ -555,18 +711,29 @@ onMounted(() => {
   border-radius: 0.9rem;
   background: #0f1a1fe8;
 }
-.vs-cpu-art {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  margin: 0;
-  opacity: 0.28;
-  pointer-events: none;
+.vs-cpu {
+  flex: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 0.4rem;
 }
-.vs-cpu-art :deep(img) {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.vs-cpu .vs-deck,
+.vs-cpu .vs-note,
+.vs-cpu .vs-resume {
+  grid-column: 1 / -1;
+}
+.vs-cpu > .vs-go {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0.55rem;
+}
+.vs-players {
+  overflow-y: auto;
+}
+.vs-players .vs-games {
+  flex: none;
+  min-height: 5rem;
 }
 .vs-card h3 {
   margin: 0;
@@ -846,9 +1013,6 @@ onMounted(() => {
   border-color: #c5ff59;
   box-shadow: 0 0 12px #c5ff5944;
 }
-.vs-games li.is-finished > button {
-  opacity: 0.75;
-}
 .vs-games :deep(.slime-art) {
   flex: none;
   width: 2.4rem;
@@ -955,51 +1119,40 @@ onMounted(() => {
   font-size: 0.75rem;
   color: #a6c7bc;
 }
+@container (max-width: 1000px) {
+  .vs-crew {
+    flex-direction: column;
+    text-align: center;
+  }
+  .vs-showcase {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(10rem, 1fr) auto;
+  }
+}
 @container (max-width: 640px) {
   .sc-vs {
     gap: 0.4rem;
     padding: 0.4rem;
   }
-  .vs-head h2 {
-    font-size: 1.5rem;
-  }
   .vs-columns {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1.4fr) minmax(0, 1fr);
     gap: 0.4rem;
+  }
+  .vs-left {
+    gap: 0.4rem;
+  }
+  .vs-showcase {
+    min-height: 12rem;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
   }
   .vs-card {
     gap: 0.4rem;
     padding: 0.55rem;
   }
-  .vs-cpu {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-areas:
-      'title title'
-      'format go'
-      'deck deck';
-    align-items: center;
-  }
-  .vs-cpu h3 {
-    grid-area: title;
-  }
-  .vs-cpu .vs-format {
-    grid-area: format;
-  }
-  .vs-cpu .vs-deck {
-    grid-area: deck;
-  }
-  .vs-cpu .vs-go {
-    grid-area: go;
-  }
-  .vs-cpu .vs-deck > span,
   .vs-cpu .vs-note {
-    display: none;
-  }
-  .vs-cpu .vs-go {
-    margin: 0;
-    padding: 0.6rem;
+    font-size: 0.65rem;
   }
   .vs-players .vs-go {
     padding: 0.55rem;

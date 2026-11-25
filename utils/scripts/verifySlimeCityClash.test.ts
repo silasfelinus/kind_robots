@@ -8,6 +8,7 @@ import {
   clashEvolutionStage,
 } from '../slimeCity/clashEvolutions'
 import { alleyDeck } from '../slimeCity/alleys'
+import { CLASH_GLOSSARY, clashGlossaryParts } from '../slimeCity/glossary'
 import { CLASH_TWISTS } from '../slimeCity/clashTwists'
 import { CARDS, TEAMS, cardById, type Side } from '../slimeCity/prototypes'
 import {
@@ -2706,3 +2707,18 @@ assert.doesNotMatch(
   /localStorage/,
   'in-play settings must not persist preferences on its own',
 )
+
+for (const keyword of Object.keys(CLASH_TRAIT_TEXT)) {
+  assert.ok(
+    CLASH_GLOSSARY.some((entry) => entry.aliases.includes(keyword)),
+    'Glossary must cover ' + keyword,
+  )
+}
+const glossarySample = 'Tap (skip strike): grant BULLDOZE and faction power.'
+const glossaryParts = clashGlossaryParts(glossarySample)
+assert.equal(glossaryParts.map((part) => part.text).join(''), glossarySample)
+assert.deepEqual(
+  glossaryParts.flatMap((part) => part.entry ? [part.entry.term] : []),
+  ['Tap', 'Tap', 'Bulldoze', 'Faction power'],
+)
+assert.equal(clashGlossaryParts('attacker')[0]?.entry, undefined)

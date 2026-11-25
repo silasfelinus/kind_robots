@@ -73,10 +73,12 @@ import {
   rainbowBarrelRoll,
   rainbowBossWindup,
   rainbowCraftWindup,
+  rainbowCurrentCrackle,
   rainbowHitFlinch,
   rainbowPickupBob,
   rainbowShipHover,
   rainbowShipJolt,
+  rainbowSignalPulse,
   rainbowShipPose,
   rainbowSwimPose,
   stackRainbowBossPose,
@@ -900,5 +902,100 @@ assert.match(
     preview,
     /g\.arc\(pickup\.x, pickup\.y \+ bob, 9,/,
     'the fallback badge rides the bob',
+  )
+}
+
+// t-011: the live eel barrier's flicker and jitter and the Prism Beam's throb keep a fifth under calm motion.
+{
+  let jitterPeak = 0
+  for (let t = 0; t < 400; t++) {
+    const full = rainbowCurrentCrackle(t)
+    const calm = rainbowCurrentCrackle(t, true)
+    for (let k = 1; k <= 6; k++) {
+      jitterPeak = Math.max(jitterPeak, Math.abs(full.jitter(k)))
+      assert.ok(
+        Math.abs(calm.jitter(k)) <= Math.abs(full.jitter(k)) * 0.2 + 1e-9,
+        'calm keeps a fifth of the barrier jitter',
+      )
+    }
+    assert.ok(
+      full.alpha >= 0.7 - 1e-9 && full.alpha <= 1 + 1e-9,
+      'the live barrier stays bright',
+    )
+    assert.ok(
+      Math.abs(calm.alpha - 0.85) <= Math.abs(full.alpha - 0.85) * 0.2 + 1e-9,
+      'calm keeps a fifth of the barrier flicker',
+    )
+    assert.ok(
+      Math.abs(calm.beamWidth - 6) <= Math.abs(full.beamWidth - 6) * 0.2 + 1e-9,
+      'calm keeps a fifth of the Prism Beam throb',
+    )
+    assert.ok(calm.beamWidth >= 5.6, 'the calm Prism Beam stays a solid lane')
+  }
+  assert.ok(
+    jitterPeak > 2.4 && jitterPeak <= 2.5,
+    'the live current jitters about two and a half pixels',
+  )
+  const preview = readFileSync(
+    'utils/arcade/games/rainbowPrincessPreview.ts',
+    'utf8',
+  )
+  assert.match(
+    preview,
+    /const crackle = rainbowCurrentCrackle\(tick, calm\)/,
+    'the eel barrier uses the calm-aware crackle',
+  )
+  assert.match(
+    preview,
+    /g\.lineWidth = rainbowCurrentCrackle\(tick, calm\)\.beamWidth/,
+    'the Prism Beam uses the calm-aware throb',
+  )
+  assert.doesNotMatch(
+    preview,
+    /Math\.sin\(tick \+ k \* 2\) \* 2\.5/,
+    'no raw barrier jitter is left',
+  )
+}
+
+// t-011: the small signal lights (captive collar, prism core, relay lamp, dolphin daze ring) keep a fifth
+// of their pulse under calm motion.
+{
+  let peak = 0
+  for (let t = 0; t < 400; t++) {
+    for (const period of [3, 6, 8]) {
+      const full = rainbowSignalPulse(t, period)
+      const calm = rainbowSignalPulse(t, period, true)
+      peak = Math.max(peak, Math.abs(full))
+      assert.ok(Math.abs(full) <= 1 + 1e-9, 'the full pulse swings at most one')
+      assert.ok(
+        Math.abs(calm - full * 0.2) <= 1e-9,
+        'calm keeps a fifth of the signal pulse',
+      )
+    }
+  }
+  assert.ok(peak > 0.99, 'the full signal pulse swings all the way')
+  const preview = readFileSync(
+    'utils/arcade/games/rainbowPrincessPreview.ts',
+    'utf8',
+  )
+  assert.equal(
+    (preview.match(/rainbowSignalPulse\(tick, [36], calm\)/g) ?? []).length,
+    4,
+    'collar, prism core, relay lamp and daze ring use the calm-aware pulse',
+  )
+  assert.doesNotMatch(
+    preview,
+    /Math\.sin\(tick \/ [36]\)/,
+    'no raw fast signal pulse is left',
+  )
+  assert.equal(
+    (preview.match(/rainbowSignalPulse\(frame, 8, calm\)/g) ?? []).length,
+    4,
+    'the three route-fork lines and the lighthouse lane marker use the calm-aware pulse',
+  )
+  assert.doesNotMatch(
+    preview,
+    /Math\.sin\(frame \/ 8\)/,
+    'no raw route-marker flicker is left',
   )
 }

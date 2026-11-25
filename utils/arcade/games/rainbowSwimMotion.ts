@@ -240,3 +240,36 @@ export function rainbowPickupBob(
     glow: 0.35 + 0.2 * wave * share,
   }
 }
+
+/**
+ * Conductor rainbow t-011: a live eel barrier crackles — its alpha flickers and each link of the current
+ * jitters — and the Prism Beam's width throbs. Both run every couple of frames, the fastest flicker on the
+ * screen, so calm motion keeps a fifth of each: the barrier still reads as live current and the beam as
+ * firing, without strobing. Draw-only: the barrier's and the beam's hitboxes never change.
+ */
+export function rainbowCurrentCrackle(
+  tick: number,
+  calm = false,
+): { alpha: number; jitter: (link: number) => number; beamWidth: number } {
+  const share = calm ? 0.2 : 1
+  return {
+    alpha: 0.85 + 0.15 * Math.sin(tick / 2) * share,
+    jitter: (link: number) => Math.sin(tick + link * 2) * 2.5 * share,
+    beamWidth: 6 + Math.sin(tick / 2) * 2 * share,
+  }
+}
+
+/**
+ * Conductor rainbow t-011: the small signal lights — the captive's collar, a glowing prism pylon's core, a
+ * relay pylon's lamp and a staggered dolphin's daze ring — pulse every few frames, as do the dashed route-fork
+ * lines (trench, wreckyard, crown reef) and the lighthouse's next-lamp lane marker. Calm motion keeps a fifth
+ * of each swing, the share every other flicker keeps, so each light still reads as live without blinking.
+ * Returns the signed swing (−1..1 in full motion) to scale by the caller's own depth. Draw-only.
+ */
+export function rainbowSignalPulse(
+  tick: number,
+  period: number,
+  calm = false,
+): number {
+  return Math.sin(tick / period) * (calm ? 0.2 : 1)
+}

@@ -253,6 +253,9 @@ export const CARD_PROMPTS: Record<string, string> = {
   'flood-debt-council': scene(
     `A broken river bridge with scattered planks, ${who('envoy-thistle')} holds a soaked ledger beside ${who('warlock-vex')} offering a miniature arch bridge. ${who('lake-spirit-nix')} cradles a waterlogged bird nest. Luminous violet floodwater, coral dusk and cyan reflections, worn vintage ink grain.`,
   ),
+  'water-stewards-strike': scene(
+    `Beside a guarded moat sluice, ${who('captain-cordelia')} holds an empty purse, ${who('smuggler-brack')} carries an empty wooden bait bucket, and ${who('lake-spirit-nix')} lays three empty shells on a weathered ledger. Cyan and violet water, coral sky, rainbow ink contours and worn screenprint grain.`,
+  ),
   'harbour-apprentice-hearing': scene(
     `On a busy harbour slipway, ${who('heir-robin')} and ${who('sweetheart-ash')} help young apprentices lift a brightly painted wooden boat. ${who('captain-cordelia')} carries a life vest and a rolled plan. Emerald water, hot pink sails, rainbow fantasy light and subtle vintage print texture.`,
   ),

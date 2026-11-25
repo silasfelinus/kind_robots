@@ -3,6 +3,7 @@ import type {
   ArcadeGameModule,
   ArcadeGameOptions,
   ArcadeAudioSettings,
+  ArcadeSaveStatus,
   ArcadeStagePointer,
   InputFrame,
 } from '../types'
@@ -291,6 +292,11 @@ export function atelierBoard(index: number): Board {
   return board
 }
 
+/** Settings rows: five switches, master mute and volume, then music and effects levels. */
+export const SETTINGS_ROWS = 9
+export const settingsRowTop = (row: number) => 158 + row * 23
+const SETTINGS_ROW_HEIGHT = 21
+
 type HomeTab = 'play' | 'scrapbook' | 'achievements' | 'settings'
 const HOME_TABS: HomeTab[] = ['play', 'scrapbook', 'achievements', 'settings']
 type Shot = {
@@ -310,6 +316,47 @@ export const SPECTRUM_BOSS_ART = [
   'boss-sorting-machine',
   'boss-palette-keeper',
 ].map((name) => `/images/arcade/superkate-spectrum/${name}.webp`)
+
+/**
+ * The six district memories in the Scrapbook: Superkate restoring each neighborhood (ArtJobs
+ * 76811-76816; Silas approved showing the Superkate character in-game on 2026-11-25 PT, t-189).
+ */
+export const SPECTRUM_SCRAPBOOK_ART = [
+  'scrapbook-salon',
+  'scrapbook-botanic-dome',
+  'scrapbook-night-market',
+  'scrapbook-cloud-library',
+  'scrapbook-prism-workshop',
+  'scrapbook-heart-of-hue',
+].map((name) => `/images/arcade/superkate-spectrum/${name}.webp`)
+
+/** Draw a 2:3 memory card, cropping the art to fill it; false while the image is not loaded. */
+function drawMemoryCard(
+  g: CanvasRenderingContext2D,
+  src: string,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+) {
+  const art = loadedImage(src)
+  if (!art) return false
+  const scale = Math.max(width / art.naturalWidth, height / art.naturalHeight)
+  const sw = width / scale
+  const sh = height / scale
+  g.drawImage(
+    art,
+    (art.naturalWidth - sw) / 2,
+    (art.naturalHeight - sh) / 2,
+    sw,
+    sh,
+    x,
+    y,
+    width,
+    height,
+  )
+  return true
+}
 
 export function chapterMemoryEarned(career: SpectrumCareer, chapter: number) {
   return chapter >= 0 && chapter < 6 && (career.stars[chapter * 5 + 4] ?? 0) > 0
@@ -720,6 +767,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   trophyPage = 0
   optionRow = 0
   settings: SpectrumSettings
+  /** Where this career is kept (the cabinet's account sync state), shown on the hub pages. */
+  saveStatus: ArcadeSaveStatus = 'local'
   power: SpectrumPower | null = null
   powerTip: SpectrumPower | null = null
   powerTipTicks = 0
@@ -767,6 +816,25 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.next = chooseHue(this.board, this.rng)
     this.message = CHAPTERS[Math.min(5, Math.floor((this.level - 1) / 5))]!.kate
     this.choosingMode = !this.demo
+  }
+  /** The player's music and effects levels; the cabinet applies them under the Arcade volume. */
+  get audioMix() {
+    return {
+      music: this.settings.musicLevel,
+      effects: this.settings.effectsLevel,
+    }
+  }
+  setSaveStatus(status: ArcadeSaveStatus) {
+    this.saveStatus = status
+  }
+  get saveStatusLabel() {
+    return this.saveStatus === 'synced'
+      ? 'CAREER SYNCED TO YOUR ACCOUNT'
+      : this.saveStatus === 'checking' || this.saveStatus === 'saving'
+        ? 'SYNCING YOUR CAREER...'
+        : this.saveStatus === 'offline'
+          ? 'OFFLINE · SAVED ON THIS DEVICE'
+          : 'SAVED ON THIS DEVICE · SIGN IN TO SYNC'
   }
   /** Both the host switches and the game Settings page control this mixer. */
   setAudio(settings: ArcadeAudioSettings) {
@@ -1381,9 +1449,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       }
       if (this.menuTab === 'settings') {
         if (x < 28 || x > W - 28) return null
-        for (let row = 0; row < 7; row++) {
-          const top = 150 + row * 29
-          if (y >= top && y <= top + 26)
+        for (let row = 0; row < SETTINGS_ROWS; row++) {
+          const top = settingsRowTop(row)
+          if (y >= top && y <= top + SETTINGS_ROW_HEIGHT)
             return { kind: 'option', row, by: x < W / 2 ? -1 : 1 }
         }
         return null
@@ -1490,18 +1558,21 @@ class SuperkateSpectrum implements ArcadeGameInstance {
 
   private changeOption(by: number) {
     if (this.optionRow <= 4) {
-      const keys: (keyof SpectrumSettings)[] = [
-        'aimGuide',
-        'particles',
-        'highContrast',
-        'music',
-        'effects',
-      ]
+      const keys: (
+        'aimGuide' | 'particles' | 'highContrast' | 'music' | 'effects'
+      )[] = ['aimGuide', 'particles', 'highContrast', 'music', 'effects']
       const key = keys[this.optionRow]!
       this.settings[key] = !this.settings[key]
       this.remember()
     } else if (this.optionRow === 5) {
       this.changeAudio({ ...this.audio, muted: !this.audio.muted })
+    } else if (this.optionRow >= 7) {
+      const key = this.optionRow === 7 ? 'musicLevel' : 'effectsLevel'
+      this.settings[key] =
+        Math.round(
+          Math.max(0, Math.min(1, this.settings[key] + by * 0.1)) * 10,
+        ) / 10
+      this.remember()
     } else {
       this.changeAudio({
         ...this.audio,
@@ -1583,8 +1654,12 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         if (input.pressed.left) this.changeTrophyPage(-1)
         if (input.pressed.right) this.changeTrophyPage(1)
       } else if (this.menuTab === 'settings') {
-        if (input.pressed.up) this.optionRow = (this.optionRow + 6) % 7
-        if (input.pressed.down) this.optionRow = (this.optionRow + 1) % 7
+        if (input.pressed.up)
+          this.optionRow = (this.optionRow + SETTINGS_ROWS - 1) % SETTINGS_ROWS
+        if (input.pressed.down)
+          this.optionRow = (this.optionRow + 1) % SETTINGS_ROWS
+        if (this.optionRow >= 7 && (input.pressed.left || input.pressed.right))
+          this.changeOption(input.pressed.right ? 1 : -1)
         if (
           this.optionRow === 6 &&
           (input.pressed.left || input.pressed.right)
@@ -1815,54 +1890,79 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       const chapter = CHAPTERS[this.albumChapter]!
       const first = this.albumChapter * 5
       const unlocked = this.career.highestStage > first
+      // District name in the column beside the memory card (x 26-124).
       label(
         g,
-        unlocked ? chapter.name : 'A CHAPTER YET TO BE REVEALED',
-        W / 2,
-        181,
-        12,
+        unlocked ? chapter.name : 'NOT YET REVEALED',
+        (124 + W - 14) / 2,
+        180,
+        11,
         '#99f5ee',
       )
+      // A 2:3 memory card (the district's Scrapbook illustration) beside its five stage medals.
       const memory = chapterMemoryEarned(this.career, this.albumChapter)
+      const card = { x: 26, y: 160, width: 98, height: 147 }
       g.fillStyle = '#151b36'
-      g.fillRect(28, 192, W - 56, 90)
+      g.fillRect(card.x, card.y, card.width, card.height)
+      const src = SPECTRUM_SCRAPBOOK_ART[this.albumChapter]!
       if (memory) {
-        const src = SPECTRUM_BOSS_ART[this.albumChapter]!
-        const art = loadedImage(src)
-        if (art) {
-          const scale = Math.max(
-            (W - 56) / art.naturalWidth,
-            90 / art.naturalHeight,
-          )
-          const sw = (W - 56) / scale
-          const sh = 90 / scale
-          g.drawImage(
-            art,
-            (art.naturalWidth - sw) / 2,
-            (art.naturalHeight - sh) / 2,
-            sw,
-            sh,
-            28,
-            192,
-            W - 56,
-            90,
-          )
-          g.fillStyle = '#100d2777'
-          g.fillRect(28, 259, W - 56, 23)
+        if (drawMemoryCard(g, src, card.x, card.y, card.width, card.height)) {
+          g.fillStyle = '#100d27aa'
+          g.fillRect(card.x, card.y + card.height - 20, card.width, 20)
         }
-        label(g, '★ DISTRICT RESTORED', W / 2, 275, 11, '#ffe6a0')
+        label(
+          g,
+          '★ RESTORED',
+          card.x + card.width / 2,
+          card.y + card.height - 6,
+          10,
+          '#ffe6a0',
+        )
+      } else if (unlocked) {
+        // Reached but not yet restored: a dimmed glimpse of the memory to come.
+        if (drawMemoryCard(g, src, card.x, card.y, card.width, card.height)) {
+          g.fillStyle = this.settings.highContrast ? '#100d27f2' : '#100d27d9'
+          g.fillRect(card.x, card.y, card.width, card.height)
+        }
+        label(g, '◇', card.x + card.width / 2, card.y + 70, 22, '#b6ebe6')
+        label(g, 'BEAT THE', card.x + card.width / 2, card.y + 96, 9)
+        label(g, 'DISTRICT BOSS', card.x + card.width / 2, card.y + 109, 9)
       } else {
-        label(g, '◇ MEMORY LOCKED', W / 2, 231, 14, '#b6ebe6')
-        label(g, 'DEFEAT THE DISTRICT BOSS', W / 2, 252, 10)
+        label(g, '?', card.x + card.width / 2, card.y + 82, 30, '#5c5a7d')
       }
-      g.strokeStyle = '#ffffff77'
-      g.strokeRect(28, 192, W - 56, 90)
+      g.strokeStyle = memory ? '#ffe6a0' : '#ffffff55'
+      g.lineWidth = memory ? 2 : 1
+      g.strokeRect(card.x, card.y, card.width, card.height)
+      const column = (card.x + card.width + W - 14) / 2
+      label(
+        g,
+        memory
+          ? 'MEMORY RESTORED'
+          : unlocked
+            ? 'MEMORY LOCKED'
+            : 'NOT YET VISITED',
+        column,
+        200,
+        10,
+        memory ? '#ffe6a0' : '#b6ebe6',
+      )
       for (let i = 0; i < 5; i++) {
         const at = first + i
         const earned = this.career.stars[at] ?? 0
-        const x = 42 + i * 59
-        label(g, String(at + 1), x, 297, 11)
-        label(g, earned ? '★'.repeat(earned) : '· · ·', x, 313, 10)
+        const y = 226 + i * 18
+        label(g, `STAGE ${at + 1}`, column - 30, y, 10)
+        label(
+          g,
+          at < this.career.highestStage
+            ? earned
+              ? '★'.repeat(earned)
+              : '· · ·'
+            : 'LOCK',
+          column + 36,
+          y,
+          10,
+          earned ? '#ffe6a0' : '#a7a6b9',
+        )
       }
       label(g, '‹ PREV', 60, 343, 11)
       label(g, 'CHAPTERS', W / 2, 343, 10)
@@ -1911,20 +2011,35 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         ['SOUND EFFECTS', this.settings.effects ? 'ON' : 'OFF'],
         ['MASTER MUTE', this.audio.muted ? 'ON' : 'OFF'],
         ['MASTER VOLUME', `${Math.round(this.audio.volume * 100)}%`],
+        ['MUSIC LEVEL', `${Math.round(this.settings.musicLevel * 100)}%`],
+        ['EFFECTS LEVEL', `${Math.round(this.settings.effectsLevel * 100)}%`],
       ] as const
       for (const [index, setting] of choices.entries()) {
-        const y = 169 + index * 29
+        const top = settingsRowTop(index)
+        const y = top + 14
         g.fillStyle = index === this.optionRow ? '#6d3172e0' : '#27334ed4'
-        g.fillRect(28, y - 19, W - 56, 26)
+        g.fillRect(28, top, W - 56, SETTINGS_ROW_HEIGHT)
         label(g, setting[0], 110, y, 10)
         label(g, setting[1], 253, y, 11, '#9ff2e5')
       }
-      label(g, 'TAP ROW · VOLUME: LEFT − / RIGHT +', W / 2, 371, 10)
+      label(g, 'TAP ROW · LEVELS: LEFT − / RIGHT +', W / 2, 378, 10)
     }
     // The run's HUD and launcher sit under the home pages; cover them so the hint reads alone.
     g.fillStyle = '#100d27'
     g.fillRect(0, 388, W, 459 - 388)
-    label(g, 'X: NEXT TAB  Y: PREVIOUS', W / 2, 412, 11, '#f3d78d')
+    label(
+      g,
+      this.saveStatusLabel,
+      W / 2,
+      404,
+      10,
+      this.saveStatus === 'synced'
+        ? '#9ff2e5'
+        : this.saveStatus === 'offline'
+          ? '#ffb48a'
+          : '#d8d3f0',
+    )
+    label(g, 'X: NEXT TAB  Y: PREVIOUS', W / 2, 430, 11, '#f3d78d')
     this.renderMenuTabs(g)
   }
 

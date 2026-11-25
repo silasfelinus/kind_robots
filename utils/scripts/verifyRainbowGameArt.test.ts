@@ -471,6 +471,45 @@ for (const path of RAINBOW_STAGE_PAINTINGS) {
     `${path} has a Fever Dream twin`,
   )
 }
+// conductor rainbow t-011 acceptance: every stage, the finale's S09 included, flies at least four separately
+// moving painted planes (sky, far, mid and the near strip), each committed in both looks, and every plane drifts
+// at its own speed, slowest at the back, so the parallax reads as depth rather than one sliding sheet.
+const stripSpeed = Number(/const STRIP_SPEED = ([\d.]+)/.exec(engine)?.[1])
+const planeSpeeds = [
+  RAINBOW_PAINTED_SKY.speed,
+  ...RAINBOW_DISTANT_PAINTED_PLANES.map((plane) => plane.speed),
+  stripSpeed,
+]
+assert.equal(planeSpeeds.length, 4, 'four painted planes per stage')
+for (let i = 1; i < planeSpeeds.length; i++)
+  assert.ok(
+    planeSpeeds[i]! > planeSpeeds[i - 1]!,
+    `painted plane ${i} drifts faster than the plane behind it`,
+  )
+for (const stage of [...RAINBOW_STAGE_STRIPS, RAINBOW_FINALE_STAGE] as const)
+  for (const depth of ['sky', 'far', 'mid', 'fore'] as const) {
+    const path = `/rainbow-princess-art/stages/${stage}-${depth}.webp`
+    assert.ok(
+      existsSync(publicFile(path)),
+      `${stage} ${depth} plane is committed`,
+    )
+    assert.ok(
+      existsSync(
+        publicFile(
+          `/rainbow-princess-art/doodle/stages/${stage}-${depth}.webp`,
+        ),
+      ),
+      `${stage} ${depth} plane has a Fever Dream twin`,
+    )
+    if (depth !== 'fore')
+      assert.equal(
+        rainbowStagePlane(stage, depth, 'classic'),
+        path,
+        `${stage} ${depth} plane is listed, so it draws`,
+      )
+  }
+assert.equal(rainbowActStage(9), RAINBOW_FINALE_STAGE, 'the finale flies S09')
+
 for (const depth of ['sky', 'far', 'mid'] as const)
   for (const stage of [
     ...RAINBOW_STAGE_STRIPS,

@@ -1583,6 +1583,16 @@ function menuOpenOf(instance: ArcadePlayableInstance | null): boolean {
   return (instance as { menuOpen?: unknown } | null)?.menuOpen === true
 }
 
+/** The playing game's own music/effects levels (audioMix), or full levels without one. */
+function applyMix(instance: ArcadePlayableInstance | null) {
+  const mix = (instance as { audioMix?: unknown } | null)?.audioMix as
+    { music?: unknown; effects?: unknown } | undefined
+  sound?.setMix({
+    music: typeof mix?.music === 'number' ? mix.music : 1,
+    effects: typeof mix?.effects === 'number' ? mix.effects : 1,
+  })
+}
+
 /** Follow the real game's music (a demo plays silent; a finished game stops it). */
 function syncMusic(instance: ArcadePlayableInstance | null) {
   const playing = instance && instance === game && !instance.over
@@ -1591,6 +1601,7 @@ function syncMusic(instance: ArcadePlayableInstance | null) {
       ? asMusicLoop((instance as { music?: unknown }).music)
       : null
   const scene = playing ? musicSceneOf(instance) : 'level'
+  applyMix(playing ? instance : null)
   if (music === musicNow && scene === sceneNow) return
   musicNow = music
   sceneNow = scene
@@ -1629,7 +1640,19 @@ function adopt<T extends ArcadePlayableInstance>(instance: T): T {
     instance.mount(stage)
     sizeStage(instance)
   }
+  pushSaveStatus(instance)
   return instance
+}
+
+/** Tell a game that shows its own save state where its career is kept (see setSaveStatus). */
+function pushSaveStatus(instance: ArcadePlayableInstance | null) {
+  if (
+    instance &&
+    'setSaveStatus' in instance &&
+    typeof instance.setSaveStatus === 'function' &&
+    store.spectrumCloudStatus
+  )
+    instance.setSaveStatus(store.spectrumCloudStatus)
 }
 
 /** Free a WebGL game's GPU, physics and audio resources (2D games hold none). */
@@ -2830,6 +2853,11 @@ watch(
       void store.syncSuperkateCareer()
     }
   },
+)
+
+watch(
+  () => store.spectrumCloudStatus,
+  () => pushSaveStatus(game),
 )
 
 watch(

@@ -71,6 +71,8 @@ import {
   rainbowShipHover,
   rainbowShipPose,
   rainbowCraftWindup,
+  rainbowCurrentCrackle,
+  rainbowSignalPulse,
   stackRainbowBossPose,
 } from './rainbowSwimMotion'
 import { drawRainbowBossBloom } from './rainbowBossBloom'
@@ -119,6 +121,7 @@ import {
   type MoonjellyEnemy,
 } from './rainbowMoonjelly'
 import { RAINBOW_LANES, laneY } from './rainbowFormations'
+import { rainbowVariationSeed, rainbowVariedY } from './rainbowWaveVariation'
 import {
   KELP_CHOIR,
   NURSERY,
@@ -1411,6 +1414,10 @@ export function createRainbowPrincessPreview(
   // The look this browser last chose (Classic or Fever Dream), wherever the cabinet is hosted.
   loadRainbowLook()
   const count = Math.max(1, Math.min(4, options.players ?? 1))
+  /** D9 (t-065): the attract demo's autopilot and scripted scenarios fly the authored lanes. */
+  const authoredWaves = options.demo || options.rainbowAuthoredWaves === true
+  /** This run's wave-mirror seed: one draw from the game's rng, and none at all when the lanes are authored. */
+  const variationSeed = authoredWaves ? 0 : rainbowVariationSeed(options.rng)
   let activePlayers = count
   let difficulty: ArcadeDifficulty =
     options.difficulty && options.difficulty in RAINBOW_DIFFICULTY
@@ -2588,6 +2595,13 @@ export function createRainbowPrincessPreview(
     for (let i = shots.length - 1; i >= 0; i--) {
       if (shots[i]!.seat >= activePlayers) shots.splice(i, 1)
     }
+  }
+
+  /** An authored wave member's lane after this run's seeded mirror for its wave (D9). */
+  function variedY(y: number, wave: number) {
+    return authoredWaves
+      ? y
+      : rainbowVariedY(y, variationSeed, currentAct(), wave)
   }
 
   function spawn(
@@ -4810,7 +4824,7 @@ export function createRainbowPrincessPreview(
       }
       if (stage === 'waves') {
         for (const entry of pinkwakeSpawns(tick)) {
-          spawn(entry.kind, entry.y, entry.wave)
+          spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
         }
         for (const spire of pinkwakeSpires(tick)) spawnSpire(spire)
         if (tick === PINKWAKE.stationAppears) station = { x: W + 18, y: 190 }
@@ -4830,7 +4844,7 @@ export function createRainbowPrincessPreview(
       }
       if (stage === 'waves' || stage === 'remix') {
         for (const entry of moonjellySpawns(frame)) {
-          spawn(entry.kind, entry.y, entry.wave)
+          spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
         }
         if (frame === MOONJELLY.nemiAppears) {
           nemi = { x: W + 16, y: 158 }
@@ -4852,7 +4866,7 @@ export function createRainbowPrincessPreview(
       const stage = nurseryFlightPhase(frame)
       if (stage === 'waves') {
         for (const entry of nurserySpawns(frame))
-          spawn(entry.kind, entry.y, entry.wave)
+          spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
         const pod = choirPodAvailable(frame, nurseryChoirMask)
         if (pod) {
           const x = choirPodX(frame, pod.at)
@@ -4903,7 +4917,7 @@ export function createRainbowPrincessPreview(
       }
       if (stage === 'waves') {
         for (const entry of trenchSpawns(frame, trenchRoute, rescuedNemi)) {
-          spawn(entry.kind, entry.y, entry.wave)
+          spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
         }
       } else if (stage === 'turn' && frame === TRENCH.turnStarts) {
         reefs.length = 0
@@ -4923,7 +4937,7 @@ export function createRainbowPrincessPreview(
       const stage = cometPhase(frame)
       if (stage === 'waves')
         for (const entry of cometSpawns(frame))
-          spawn(entry.kind, entry.y, entry.wave)
+          spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
       const cadet = cometCadetAvailable(frame, cometCadetsMask)
       if (cadet) {
         const x = cometCadetX(frame, cadet.at)
@@ -4968,7 +4982,7 @@ export function createRainbowPrincessPreview(
       }
       if (stage === 'waves') {
         for (const entry of rosefinSpawns(frame)) {
-          spawn(entry.kind, entry.y, entry.wave)
+          spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
         }
         if (frame === ROSEFIN_ESCORT.podAppears && !escortDone && !escort)
           escort = {
@@ -5008,7 +5022,7 @@ export function createRainbowPrincessPreview(
       if (stage === 'waves') {
         if (armorySirenAllowsWave(frame, wreckRoute, ARMORY_SIREN_WINDOW))
           for (const entry of wreckSpawns(frame, wreckRoute)) {
-            spawn(entry.kind, entry.y, entry.wave)
+            spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
           }
         const pod = wreckPodFrames().indexOf(frame)
         if (wreckRoute === 'depot' && !wreckSettled && pod >= 0)
@@ -5039,7 +5053,7 @@ export function createRainbowPrincessPreview(
       }
       if (stage === 'waves') {
         for (const entry of lighthouseSpawns(frame))
-          spawn(entry.kind, entry.y, entry.wave)
+          spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
         const lamp = lighthouseCollectibleLamp(frame, lighthouseLamps)
         if (lamp) {
           const lit = livingShips().some(
@@ -5085,7 +5099,12 @@ export function createRainbowPrincessPreview(
         if (pearlWardenAllowsWave(frame, reefRoute, PEARL_WARDEN_WINDOW))
           for (const entry of reefSpawns(frame, reefRoute)) {
             const truce = rebelTruce(allegiance, 6, entry.kind, entry.wave)
-            spawn(entry.kind, entry.y, truce ? null : entry.wave, truce)
+            spawn(
+              entry.kind,
+              variedY(entry.y, entry.wave),
+              truce ? null : entry.wave,
+              truce,
+            )
           }
         for (const escort of rebelEscortSpawns(allegiance, 6, frame, reefRoute))
           spawn(escort.kind, escort.y)
@@ -5119,7 +5138,7 @@ export function createRainbowPrincessPreview(
       }
       if (stage === 'waves')
         for (const entry of mirrorShoalSpawns(frame))
-          spawn(entry.kind, entry.y, entry.wave)
+          spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
       if (stage === 'turn' && frame === MIRROR_SHOAL.turnStarts) {
         reefs.length = 0
         enemyShots.length = 0
@@ -5140,7 +5159,12 @@ export function createRainbowPrincessPreview(
       if (stage === 'waves') {
         for (const entry of glassSpawns(frame)) {
           const truce = rebelTruce(allegiance, 7, entry.kind, entry.wave)
-          spawn(entry.kind, entry.y, truce ? null : entry.wave, truce)
+          spawn(
+            entry.kind,
+            variedY(entry.y, entry.wave),
+            truce ? null : entry.wave,
+            truce,
+          )
         }
         for (const escort of rebelEscortSpawns(allegiance, 7, frame))
           spawn(escort.kind, escort.y)
@@ -5167,7 +5191,7 @@ export function createRainbowPrincessPreview(
           const truce = rebelTruce(allegiance, 8, entry.kind, entry.wave)
           spawn(
             entry.kind,
-            entry.y,
+            variedY(entry.y, entry.wave),
             entry.kind === 'captive' || truce ? null : entry.wave,
             truce,
           )
@@ -7086,16 +7110,17 @@ export function createRainbowPrincessPreview(
         if (reef.kind !== 'eel') continue
         // The eel's barrier: dashed while it lights, then live current between two bright ends.
         const live = reef.charge === 0
+        const crackle = rainbowCurrentCrackle(tick, calm)
         g.save()
         g.strokeStyle = live ? '#9ff3ff' : '#d8fbff'
-        g.globalAlpha = live ? 0.85 + 0.15 * Math.sin(tick / 2) : 0.55
+        g.globalAlpha = live ? crackle.alpha : 0.55
         g.lineWidth = live ? 3 : 2
         if (!live) g.setLineDash([5, 4])
         g.beginPath()
         g.moveTo(reef.x, reef.y - EEL.half)
         for (let k = 1; k <= 6; k++)
           g.lineTo(
-            reef.x + (live ? Math.sin(tick + k * 2) * 2.5 : 0),
+            reef.x + (live ? crackle.jitter(k) : 0),
             reef.y - EEL.half + (k * EEL.half) / 3,
           )
         g.stroke()
@@ -7189,7 +7214,7 @@ export function createRainbowPrincessPreview(
             g.setLineDash([])
             g.strokeStyle = '#ff5ac8'
             g.lineWidth = 3
-            g.globalAlpha = 0.75 + 0.25 * Math.sin(tick / 6)
+            g.globalAlpha = 0.75 + 0.25 * rainbowSignalPulse(tick, 6, calm)
             g.beginPath()
             g.arc(
               0,
@@ -7220,7 +7245,8 @@ export function createRainbowPrincessPreview(
           g.fill()
           g.stroke()
           g.fillStyle = '#ffffff'
-          g.globalAlpha = 0.5 + (glow ? 0.4 * Math.sin(tick / 3) : 0)
+          g.globalAlpha =
+            0.5 + (glow ? 0.4 * rainbowSignalPulse(tick, 3, calm) : 0)
           g.beginPath()
           g.moveTo(0, -14)
           g.lineTo(4, 0)
@@ -7261,7 +7287,7 @@ export function createRainbowPrincessPreview(
             g.fill()
             g.stroke()
             g.fillStyle = '#ffd27a'
-            g.globalAlpha = 0.6 + 0.4 * Math.sin(tick / 6)
+            g.globalAlpha = 0.6 + 0.4 * rainbowSignalPulse(tick, 6, calm)
             g.beginPath()
             g.arc(0, -19, 5, 0, Math.PI * 2)
             g.fill()
@@ -7629,7 +7655,13 @@ export function createRainbowPrincessPreview(
           g.strokeStyle = '#fff49c'
           g.lineWidth = 2
           g.beginPath()
-          g.arc(0, 0, 17 + Math.sin(tick / 3) * 2, 0, Math.PI * 2)
+          g.arc(
+            0,
+            0,
+            17 + rainbowSignalPulse(tick, 3, calm) * 2,
+            0,
+            Math.PI * 2,
+          )
           g.stroke()
         } else if (reef.kind === 'courier' && reef.charge) {
           // The cargo light flickers before the dash.
@@ -9144,7 +9176,7 @@ export function createRainbowPrincessPreview(
           g.save()
           g.globalCompositeOperation = 'lighter'
           g.strokeStyle = PILOT_COLORS[pilotOf(seat)]!
-          g.lineWidth = 6 + Math.sin(tick / 2) * 2
+          g.lineWidth = rainbowCurrentCrackle(tick, calm).beamWidth
           g.beginPath()
           g.moveTo(ship.x + 14, ship.y)
           g.lineTo(W, ship.y)
@@ -9352,7 +9384,8 @@ export function createRainbowPrincessPreview(
             (150 - Math.max(0, nextLamp.at - frame)) / 45,
           )
           g.save()
-          g.globalAlpha = fade * (0.65 + Math.sin(frame / 8) * 0.12)
+          g.globalAlpha =
+            fade * (0.65 + rainbowSignalPulse(frame, 8, calm) * 0.12)
           g.strokeStyle = '#fff0b0'
           g.lineWidth = 2
           g.setLineDash([6, 5])
@@ -10105,7 +10138,7 @@ export function createRainbowPrincessPreview(
         ) {
           // The fork: the relay above the line, the shield cache below it.
           g.save()
-          g.globalAlpha = 0.6 + 0.25 * Math.sin(frame / 8)
+          g.globalAlpha = 0.6 + 0.25 * rainbowSignalPulse(frame, 8, calm)
           g.strokeStyle = '#ffe2fa'
           g.lineWidth = 1
           g.setLineDash([8, 6])
@@ -10144,7 +10177,7 @@ export function createRainbowPrincessPreview(
         if (frame >= WRECK_FORK.markFrom && frame < WRECK_FORK.decideAt) {
           // The fork: the depot above the line, the armory below it.
           g.save()
-          g.globalAlpha = 0.6 + 0.25 * Math.sin(frame / 8)
+          g.globalAlpha = 0.6 + 0.25 * rainbowSignalPulse(frame, 8, calm)
           g.strokeStyle = '#ffe2fa'
           g.lineWidth = 1
           g.setLineDash([8, 6])
@@ -10182,7 +10215,7 @@ export function createRainbowPrincessPreview(
         if (frame >= TRENCH_FORK.markFrom && frame < TRENCH_FORK.decideAt) {
           // The fork: a channel line with the vault above it and the safe passage below.
           g.save()
-          g.globalAlpha = 0.6 + 0.25 * Math.sin(frame / 8)
+          g.globalAlpha = 0.6 + 0.25 * rainbowSignalPulse(frame, 8, calm)
           g.strokeStyle = '#ffe2fa'
           g.lineWidth = 1
           g.setLineDash([8, 6])

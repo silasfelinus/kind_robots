@@ -111,6 +111,12 @@ export function currentAdvisorLine(
         text: `This could be the ending, ${rulerLabel(save)}. A good one, even. Your call.`,
       }
     }
+    if (ending?.victoryType === 'SECRET') {
+      return {
+        mood: 'pleased',
+        text: 'They seem to have learned how to manage without us. Shall I bring the second rod?',
+      }
+    }
     if (ending?.victoryType === 'FAILURE') {
       return {
         mood: 'alarmed',
@@ -138,7 +144,7 @@ export function currentAdvisorLine(
     ) {
       return {
         mood: 'pleased',
-        text: `A ${c.name} like that doesn't happen twice a reign. Well hooked.`,
+        text: `A ${c.name} worth putting on the record. If another comes along, I shall be equally impressed.`,
       }
     }
     return {

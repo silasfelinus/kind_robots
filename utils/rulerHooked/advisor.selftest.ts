@@ -71,6 +71,15 @@ const fresh = (): RunSave =>
   if (ending!.victoryType === 'FAILURE') assert.equal(line.mood, 'alarmed')
 }
 
+// The secret ending has its own reaction, not the mixed-reign fallback.
+{
+  const secret = currentAdvisorLine(C, fresh(), {
+    pendingEnding: 'fishers-peace',
+  })
+  assert.equal(secret.mood, 'pleased')
+  assert.match(secret.text, /second rod/)
+}
+
 // 4. A fresh discovery catch is a pleased reaction, and beats a low axis too.
 {
   const s = fresh()

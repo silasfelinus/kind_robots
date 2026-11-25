@@ -35,7 +35,7 @@ import {
   SOLID_FRAGILE_ICE,
   TILE,
   CAMPAIGN,
-  VERDIGRIS_CHAPEL,
+  chapelCourse,
   parseStage,
   isSlope,
   slopeHeight,
@@ -55,7 +55,9 @@ import {
   type RosterHeroine,
 } from './savePlumberRoster'
 import {
+  PLUMBER_ENDING_COPY,
   SLOT_COUNT,
+  plumberFinaleEnding,
   readPlumberFile,
   mergePlumberAlbum,
   readPlumberSave,
@@ -368,7 +370,15 @@ type Pickup = {
   y: number
   kind: PlumberPower | 'heart'
   taken: boolean
+  /**
+   * Frames left for a reserve power still drifting down to her after a hit
+   * (absent for a pickup placed in the stage). It sinks and steers toward
+   * her, and is gone when the time runs out uncaught.
+   */
+  falling?: number
 }
+/** How long a dropped reserve power drifts before it is lost (frames). */
+export const RESERVE_DROP_FRAMES = 300
 type Gust = { x: number; y: number; dir: number; life: number }
 /** A brass key: carried one at a time, it opens one padlocked bolt. */
 export type BrassKey = {
@@ -591,6 +601,12 @@ export class PlumberRun implements ArcadeGameInstance {
   gearFlash = 0
   /** The power the heroine carries; a hit costs it instead of a heart. */
   power: PlumberPower | null = null
+  /**
+   * The banked spare power (the reserve box). A power picked up while she
+   * already carries one banks the old one here; when a hit costs her power,
+   * the reserve drops from the top of the screen and drifts down to her.
+   */
+  reserve: PlumberPower | null = null
   carrying = false
   /** The heroine's special on Y: ticks left in it, its cooldown, and one use per airtime. */
   specialTimer = 0
@@ -933,6 +949,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.score = chosen.score
     this.lives = chosen.lives
     this.tokens = chosen.tokens
+    this.reserve = null
     this.enterMap()
   }
 
@@ -1002,9 +1019,10 @@ export class PlumberRun implements ArcadeGameInstance {
     if (!(keys.pressed.a || keys.pressed.start)) return
     const node = mapNode(this.mapNodeId)
     if (!node || node.kind === 'start') return
-    if (node.id === VERDIGRIS_CHAPEL.code) {
+    const chapel = chapelCourse(node.id)
+    if (chapel) {
       this.sound.play('level')
-      this.loadDef(VERDIGRIS_CHAPEL)
+      this.loadDef(chapel)
       this.watchStage()
       this.setMode('intro', 150)
       return
@@ -1036,6 +1054,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.score = 0
     this.lives = START_LIVES
     this.tokens = 0
+    this.reserve = null
     this.loadSlotMemory(null)
     this.stageIndex = 0
     this.loadStage(0)
@@ -1063,6 +1082,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.score = 0
     this.lives = 1
     this.tokens = 0
+    this.reserve = null
     this.loadDef(buildEndlessZone(this.zoneSeed, 0))
     this.setMode('intro', 90)
   }
@@ -2582,8 +2602,38 @@ export class PlumberRun implements ArcadeGameInstance {
     }
   }
 
+  /** A dropped reserve power sinks toward her and expires if she misses it. */
+  private driftReserveDrops() {
+    const hero = this.hero
+    for (const pickup of this.pickups) {
+      if (pickup.taken || pickup.falling === undefined) continue
+      pickup.falling--
+      if (pickup.falling <= 0) {
+        pickup.taken = true
+        continue
+      }
+      const dx = hero.x - pickup.x
+      pickup.x += Math.max(-1.5, Math.min(1.5, dx * 0.08))
+      if (pickup.y < hero.y + TALL / 2) pickup.y += 1.25
+    }
+  }
+
+  /** A hit just cost her power: the banked reserve drops in from above. */
+  private dropReserve() {
+    if (!this.reserve) return
+    this.pickups.push({
+      x: this.hero.x,
+      y: Math.max(this.cameraY + 12, this.hero.y - 120),
+      kind: this.reserve,
+      taken: false,
+      falling: RESERVE_DROP_FRAMES,
+    })
+    this.reserve = null
+  }
+
   private collectPickups() {
     const hero = this.hero
+    this.driftReserveDrops()
     if (this.gearFlash) this.gearFlash--
     const gear = this.gear
     if (
@@ -2613,6 +2663,8 @@ export class PlumberRun implements ArcadeGameInstance {
       if (pickup.kind === 'heart')
         this.hearts = Math.min(HEARTS, this.hearts + 1)
       else {
+        // Already powered: the power she had is banked in the reserve box.
+        if (this.power) this.reserve = this.power
         this.power = pickup.kind
         this.carrying = false
       }
@@ -3600,6 +3652,7 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.power) {
       this.power = null
       this.carrying = false
+      this.dropReserve()
     } else this.hearts--
     this.sendKeyHome()
     this.immune = 90
@@ -3641,9 +3694,9 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     const flags = this.checkpoints.map((f) => f.reached)
     const stageCheckpoint = this.checkpoint
+    const chapel = chapelCourse(this.stage.code)
     if (this.customLevel) this.loadDef(this.customLevel)
-    else if (this.stage.code === VERDIGRIS_CHAPEL.code)
-      this.loadDef(VERDIGRIS_CHAPEL)
+    else if (chapel) this.loadDef(chapel)
     else this.loadStage(this.stageIndex)
     this.checkpoints.forEach((f, i) => {
       f.reached = flags[i] ?? false
@@ -4861,8 +4914,8 @@ export class PlumberRun implements ArcadeGameInstance {
       g,
       this.endless
         ? `${this.member.name}  ·  ONE LIFE  ·  HOW FAR CAN YOU RUN?`
-        : this.stage.code === VERDIGRIS_CHAPEL.code
-          ? 'REACH THE VALVE TO SOLIDIFY VERDIGRIS BLOCKS'
+        : chapelCourse(this.stage.code)
+          ? 'REACH THE VALVE TO SOLIDIFY SWITCH BLOCKS'
           : `${this.member.name}  ×${this.lives}`,
       W / 2,
       172,
@@ -4921,8 +4974,16 @@ export class PlumberRun implements ArcadeGameInstance {
     )
   }
 
+  /** The ending this run's finale shows (conductor save-the-plumber t-028). */
+  get finaleEnding() {
+    return plumberFinaleEnding({ gears: this.gears, secrets: this.secrets })
+  }
+
   private renderFinale(g: CanvasRenderingContext2D) {
-    const art = stagePlate(PLUMBER_ART.cutscene('finale-reversal'))
+    const ending = PLUMBER_ENDING_COPY[this.finaleEnding]
+    const art =
+      stagePlate(PLUMBER_ART.cutscene(ending.plate)) ??
+      stagePlate(PLUMBER_ART.cutscene('finale-reversal'))
     if (art) g.drawImage(art, 0, 0, W, H)
     else {
       g.fillStyle = '#1c2946'
@@ -4931,23 +4992,11 @@ export class PlumberRun implements ArcadeGameInstance {
     g.fillStyle = 'rgba(12, 24, 40, 0.45)'
     g.fillRect(0, 0, W, 104)
     g.fillRect(0, H - 34, W, 34)
-    this.text(g, 'THE RIVERS RUN HOME!', W / 2, 40, 28, '#ffd98a')
-    this.text(
-      g,
-      `Lady Spigot lets the last river go, and ${this.member.name} frees Teo.`,
-      W / 2,
-      66,
-      12,
-      '#fff4dc',
-    )
-    this.text(
-      g,
-      'Every stolen stream tumbles back down to the land.',
-      W / 2,
-      84,
-      12,
-      '#d6f2ee',
-    )
+    const line = (i: 0 | 1) =>
+      ending.lines[i].replace('{name}', this.member.name)
+    this.text(g, ending.title, W / 2, 40, 28, '#ffd98a')
+    this.text(g, line(0), W / 2, 66, 12, '#fff4dc')
+    this.text(g, line(1), W / 2, 84, 12, '#d6f2ee')
     const teo = drawSprite(g, PLUMBER_ART.cast('teo-helping'), 160, 236, 120)
     if (!teo) drawSprite(g, PLUMBER_ART.cast('teo-caged'), 160, 236, 120)
     this.drawHeroSprite(g, 320, 236, 'cheer', 1.95)
@@ -5141,7 +5190,7 @@ export class PlumberRun implements ArcadeGameInstance {
     const max = Math.max(1, this.stage.cols * TILE - W)
     this.plate(
       g,
-      this.stage.code === VERDIGRIS_CHAPEL.code ? '1-1' : this.stage.code,
+      chapelCourse(this.stage.code) ? `${this.world}-1` : this.stage.code,
       this.camera / max,
     )
     if (this.stage.space) this.renderSpaceBackdrop(g)
@@ -6506,6 +6555,13 @@ export class PlumberRun implements ArcadeGameInstance {
       g.arc(392, 12, 10, 0, Math.PI * 2)
       g.fill()
       drawSprite(g, PLUMBER_ART.prop(this.power), 392, 21, 18)
+    }
+    if (this.reserve) {
+      // The reserve box: a small framed spare under the power badge.
+      g.strokeStyle = 'rgba(255, 241, 206, 0.8)'
+      g.lineWidth = 1
+      g.strokeRect(385, 25, 14, 14)
+      drawSprite(g, PLUMBER_ART.prop(this.reserve), 392, 38, 12)
     }
     this.text(
       g,

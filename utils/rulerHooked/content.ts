@@ -399,7 +399,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               id: 'accept',
               text: 'Accept. Obviously.',
               effects: { counters: { fishCaught: +2 }, sliders: { joy: +4 } },
-              result: 'You win by a whisker. As kings do.',
+              result:
+                'You win by a whisker. The noble insists the scales were biased. You offer to let the fish adjudicate.',
             },
             {
               id: 'decline',
@@ -729,7 +730,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           title: 'The Newlyweds’ Garden',
           body: 'Robin and Ash ask for a plot near the lake to grow their own vegetables. “We don’t need much,” Robin says. “Just enough for us. And the fish, maybe.”',
           art: 'card-robin-ash-garden',
-          trigger: { requires: { flags: ['blessedMatch'] } },
+          trigger: { requires: { flags: ['weddingCompleted'] } },
           choices: [
             {
               id: 'grant-garden',
@@ -1475,8 +1476,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           trigger: {
             minTurn: 20,
             requires: {
-              flags: ['blessedMatch'],
-              cardsSeen: ['elope-blessing'],
+              flags: ['weddingCompleted'],
             },
           },
           choices: [
@@ -1767,6 +1767,112 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               },
               result:
                 'The harbour becomes orderly and profitable. The apprentices pool their wages to rent one boat between them. Ash takes them fishing beyond the gate, where the fenced waters grow quiet enough for strange skates.',
+            },
+          ],
+        },
+        {
+          id: 'water-stewards-strike',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          once: true,
+          weight: 6,
+          characters: ['captain-cordelia', 'smuggler-brack', 'lake-spirit-nix'],
+          title: 'Nobody Wants to Mind the Water',
+          body: 'The people who watch the moat have stopped working. Brack brings an empty bait bucket and a petition signed by the net makers. Cordelia has been paying the patrol from her own purse. Nix lays three empty shells beside the accounts: one for the fish, one for the workers, and one for the crown. Who gets paid first?',
+          art: 'card-water-stewards-strike',
+          trigger: {
+            minTurn: 48,
+            requires: { cardsSeen: ['water-rights-hearing'] },
+          },
+          choices: [
+            {
+              id: 'pay-the-stewards',
+              reactionMood: 'pleased',
+              text: 'Pay local stewards a living wage and keep the water public.',
+              effects: {
+                sliders: { treasury: -12, nature: 12, joy: 10, order: 4 },
+                flags: {
+                  set: [
+                    'publicTrust',
+                    'moatHonour',
+                    'sluiceOpened',
+                    'waterStewardsPaid',
+                  ],
+                  clear: [
+                    'waterMonopoly',
+                    'runBlocked',
+                    'runStillBlocked',
+                    'moatFishedOut',
+                    'moatRoachTrade',
+                  ],
+                },
+                regionOverride: { near_bank: 'grassy', far_shore: 'pristine' },
+              },
+              result:
+                'Cordelia receives her back pay. The net makers train as river wardens, and Brack takes the first night shift in exchange for a very official hat. Nix shows the children the tiny Oathscale Minnows returning to the moat.',
+            },
+            {
+              id: 'contract-the-patrol',
+              reactionMood: 'alarmed',
+              text: 'Sell exclusive fishing permits and make the company pay its own patrol.',
+              effects: {
+                sliders: {
+                  treasury: 14,
+                  prosperity: 6,
+                  order: 7,
+                  nature: -10,
+                  joy: -8,
+                },
+                flags: {
+                  set: [
+                    'waterMonopoly',
+                    'moatFishedOut',
+                    'runBlocked',
+                    'runStillBlocked',
+                    'moatRoachTrade',
+                  ],
+                  clear: [
+                    'publicTrust',
+                    'moatHonour',
+                    'sluiceOpened',
+                    'waterStewardsPaid',
+                  ],
+                },
+                regionOverride: { near_bank: 'dead', far_shore: 'industrial' },
+              },
+              result:
+                'The company pays every outstanding wage on condition that the wardens become permit inspectors. Brack sells his bucket and buys a uniform. Barebone Roach fill the moat; the old sturgeon stop trying the locked crossing. Cordelia files a complaint against her new employer.',
+            },
+            {
+              id: 'share-the-patrol',
+              reactionMood: 'concerned',
+              text: 'Share patrol costs with net makers. Permit commercial boats only beyond the moat.',
+              effects: {
+                sliders: {
+                  treasury: -3,
+                  prosperity: 6,
+                  nature: 7,
+                  joy: 3,
+                  order: -3,
+                },
+                flags: {
+                  set: ['moatHonour', 'sluiceOpened', 'sharedWaterPatrol'],
+                  clear: [
+                    'waterMonopoly',
+                    'publicTrust',
+                    'runBlocked',
+                    'runStillBlocked',
+                    'moatFishedOut',
+                    'moatRoachTrade',
+                  ],
+                },
+                regionOverride: {
+                  near_bank: 'grassy',
+                  far_shore: 'industrial',
+                },
+              },
+              result:
+                'The net makers nominate wardens and the fleet pays for the crossing. Nix dislikes the engines but accepts the open sluice. Brack is appointed to both committees and attends whichever serves lunch. The moat recovers, though the special trust shoals find no dedicated nursery.',
             },
           ],
         },
@@ -2093,6 +2199,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               text: 'Hand Ash a rod. Welcome home.',
               effects: {
                 arc: { complete: 'child-elopes' },
+                flags: { set: ['weddingCompleted'] },
                 sliders: { joy: +10 },
                 counters: { fishCaught: +1 },
               },
@@ -2113,10 +2220,11 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               text: 'Send the royal boat to bring them home — with a blessing.',
               effects: {
                 arc: { complete: 'child-elopes' },
+                flags: { set: ['blessedMatch', 'weddingCompleted'] },
                 sliders: { joy: +6, order: -3 },
               },
               result:
-                'They return, married, laughing. You pretend you planned it.',
+                'Robin arrives first, carrying two battered rods. Ash follows with a bundle of wedding gifts returned by the court. You apologize without a speech. Robin takes your hand for a moment, then asks where the perch are biting.',
             },
             {
               id: 'stew',
@@ -2125,7 +2233,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 arc: { complete: 'child-elopes' },
                 sliders: { joy: -4 },
               },
-              result: 'The lake is quiet. Too quiet.',
+              result:
+                'Their room remains empty. Quill forwards their letters without opening them. They are building a life somewhere beyond your orders; the dock feels larger than it used to.',
             },
           ],
         },
@@ -2630,7 +2739,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
       outcomeKey: 'druid-utopia',
       victoryType: 'VICTORY',
       title: 'The Angler’s Grove',
-      body: 'Your kingdom is a garden. You have caught every fish. Twice.',
+      body: 'People begin measuring the seasons in blossom and spawning runs instead of royal decrees. Sela brings seeds to the village market. Vex sells picnic baskets and insists the profit margin is excellent.\n\nThe lake has become a place people care for together, rather than a possession passed from one ruler to the next. There are mornings when nobody needs to ask the crown for permission.\n\nQuill sets the last ledger beside your tackle box. “No emergency today. I checked twice.”',
       trigger: {
         requires: { sliders: { nature: { gte: 80 }, joy: { gte: 65 } } },
       },
@@ -2639,14 +2748,14 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
       outcomeKey: 'warlock-metropolis',
       victoryType: 'MIXED',
       title: 'Boomtown by the Lake',
-      body: 'The skyline is impressive. The fish are… fewer. But impressive.',
+      body: 'The markets open before dawn and the lights burn late along the shore. There is work for families who used to leave in winter, and a rent notice for some who can no longer afford to stay.\n\nVex brings a model of the kingdom as he hopes it will look in ten years. Sela brings a jar of lake water. Neither asks you to choose between them this time.\n\nQuill opens the accounts. “We have built a remarkable kingdom. We should remember what it cost.”',
       trigger: { requires: { sliders: { prosperity: { gte: 80 } } } },
     },
     {
       outcomeKey: 'thistlewood-empire',
       victoryType: 'MIXED',
       title: 'The Thistlewood Empire',
-      body: 'The treasury overflows. Foreign banners fly beside your own. Somewhere, Gristle finally, genuinely smiles.',
+      body: 'Foreign merchants crowd the ferry landing. Ships arrive with spices, tools and fish nobody in the village has learned to cook. Gristle has hired three assistants and still does his own arithmetic.\n\nThistle sends a dispatch containing a fresh trade proposal and a request for a quiet week at the lake. Wealth brings opportunity, and a great many people with plans for yours.\n\nQuill removes a seal from the final ledger. “We can pay our debts. Now comes the harder question: what are we going to do with our freedom?”',
       trigger: {
         requires: {
           sliders: { treasury: { gte: 85 }, prosperity: { gte: 70 } },
@@ -2657,7 +2766,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
       outcomeKey: 'fishers-peace',
       victoryType: 'SECRET',
       title: 'The Ruler Who Never Ruled',
-      body: 'Somewhere along the way you stopped ruling and started just… fishing, and it turns out the kingdom did fine either way.',
+      body: 'The villagers have learned to settle small matters without a decree. The market committee argues over the price of bait, the fishers repair their own nets, and the crown is consulted principally when someone needs a signature.\n\nQuill comes down the steps carrying two rods instead of a ledger. “They have asked for fewer meetings,” he says. “I believe we can accommodate them.”\n\nThe day passes without a single trumpet. There is still a kingdom behind you, and there is still a lake ahead.',
       trigger: {
         requires: {
           counters: { fishCaught: { gte: 20 } },

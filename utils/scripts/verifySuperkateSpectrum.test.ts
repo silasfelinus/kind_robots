@@ -51,6 +51,7 @@ import {
   bossTarget,
   create,
   storyMapPosition,
+  settingsRowTop,
 } from '../arcade/games/superkateSpectrum'
 import {
   SPECTRUM_BOSS_MUSIC,
@@ -691,15 +692,64 @@ assert.equal(touchMenu.menuTab, 'achievements')
 tapStage(touchMenu, { x: 280, y: 470 })
 assert.equal(touchMenu.menuTab, 'settings')
 const oldContrast = touchMenu.settings.highContrast
-tapStage(touchMenu, { x: 250, y: 227 })
+tapStage(touchMenu, { x: 250, y: settingsRowTop(2) + 11 })
 assert.equal(touchMenu.settings.highContrast, !oldContrast)
 assert.equal(touchMenu.save.settings.highContrast, !oldContrast)
-tapStage(touchMenu, { x: 250, y: 314 })
+tapStage(touchMenu, { x: 250, y: settingsRowTop(5) + 11 })
 assert.equal(touchMenu.audio.muted, true)
-tapStage(touchMenu, { x: 250, y: 343 })
+tapStage(touchMenu, { x: 250, y: settingsRowTop(6) + 11 })
 assert.equal(touchMenu.audio.volume, 0.5)
-tapStage(touchMenu, { x: 60, y: 343 })
+tapStage(touchMenu, { x: 60, y: settingsRowTop(6) + 11 })
 assert.equal(touchMenu.audio.volume, 0.4)
+// Music and effects levels (t-188): their own rows, saved with the career, applied as audioMix.
+tapStage(touchMenu, { x: 60, y: settingsRowTop(7) + 11 })
+tapStage(touchMenu, { x: 60, y: settingsRowTop(7) + 11 })
+assert.equal(touchMenu.settings.musicLevel, 0.8)
+tapStage(touchMenu, { x: 60, y: settingsRowTop(8) + 11 })
+assert.equal(touchMenu.settings.effectsLevel, 0.9)
+assert.deepEqual(touchMenu.audioMix, { music: 0.8, effects: 0.9 })
+assert.equal(
+  touchMenu.audio.volume,
+  0.4,
+  'levels leave the master volume alone',
+)
+assert.equal(readSpectrumSave(touchMenu.save).settings.musicLevel, 0.8)
+assert.equal(readSpectrumSave(touchMenu.save).settings.effectsLevel, 0.9)
+for (let i = 0; i < 12; i++)
+  tapStage(touchMenu, { x: 250, y: settingsRowTop(8) + 11 })
+assert.equal(touchMenu.settings.effectsLevel, 1, 'levels stop at 100%')
+{
+  const keyboardLevels = emptyInput()
+  keyboardLevels.pressed.up = true
+  touchMenu.update(keyboardLevels)
+  assert.equal(touchMenu.optionRow, 7, 'UP from effects reaches music level')
+  const lower = emptyInput()
+  lower.pressed.left = true
+  touchMenu.update(lower)
+  assert.equal(touchMenu.settings.musicLevel, 0.7)
+  const wrap = emptyInput()
+  wrap.pressed.down = true
+  touchMenu.update(wrap)
+  touchMenu.update(wrap)
+  assert.equal(touchMenu.optionRow, 0, 'settings rows wrap')
+  // Older saves without levels play at full level; out-of-range levels are refused.
+  assert.equal(readSpectrumSave(cloudB).settings.musicLevel, 1)
+  assert.equal(
+    validSpectrumCloudSave({
+      ...cloudB,
+      settings: { ...cloudB.settings, musicLevel: 2 },
+    }),
+    false,
+  )
+  assert.ok(
+    validSpectrumCloudSave({
+      ...cloudB,
+      settings: { ...cloudB.settings, musicLevel: 0.3, effectsLevel: 0 },
+    }),
+  )
+  touchMenu.update(lower) // row 0: no level changes on a switch row
+  assert.equal(touchMenu.settings.musicLevel, 0.7)
+}
 touchMenu.stagePointer({ phase: 'down', x: 40, y: 470 })
 touchMenu.stagePointer({ phase: 'up', x: 120, y: 470 })
 assert.equal(touchMenu.menuTab, 'settings')
@@ -1099,6 +1149,22 @@ assert.deepEqual(SPECTRUM_BOSS_ART, [
   '/images/arcade/superkate-spectrum/boss-palette-keeper.webp',
 ])
 assert.equal(SPECTRUM_BOSS_ART.length, BOSS_PATTERNS.length)
+{
+  // t-189: the six district Scrapbook memories (ArtJobs 76811-76816), one per chapter.
+  const { SPECTRUM_SCRAPBOOK_ART } =
+    await import('../arcade/games/superkateSpectrum')
+  assert.deepEqual(
+    SPECTRUM_SCRAPBOOK_ART,
+    [
+      'salon',
+      'botanic-dome',
+      'night-market',
+      'cloud-library',
+      'prism-workshop',
+      'heart-of-hue',
+    ].map((name) => `/images/arcade/superkate-spectrum/scrapbook-${name}.webp`),
+  )
+}
 for (let chapter = 0; chapter < BOSS_PATTERNS.length; chapter++) {
   const stage = (chapter + 1) * 5
   const run = create({

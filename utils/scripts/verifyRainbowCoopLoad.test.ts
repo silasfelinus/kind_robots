@@ -144,6 +144,17 @@ function continueIfDown(game: Flight) {
         Math.abs(ship.y - prev.ships[0]!.y) < 3,
     )
     if (!stacked) continue
+    // Terrain is not a hazard that spends itself: a spire stays put and hits every pilot touching it, by
+    // design. With the run's seeded wave mirrors (D9) the stack can drift into one, so those frames are not
+    // the one-hazard-one-pilot case this check is about.
+    if (
+      prev.enemies.some(
+        (enemy) =>
+          enemy.kind === 'spire' &&
+          prev.ships.some((ship) => Math.abs(ship.x - enemy.x) < 30),
+      )
+    )
+      continue
     const damaged = now.ships.filter(
       (ship, seat) =>
         ship.shield < prev.ships[seat]!.shield ||

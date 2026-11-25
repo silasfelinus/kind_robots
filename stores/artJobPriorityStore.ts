@@ -67,12 +67,14 @@ export const useArtJobPriorityStore = defineStore('artJobPriorityStore', () => {
   }
 
   async function fetchGroups(): Promise<boolean> {
+    const artJobStore = useArtJobStore()
+    const maturity = artJobStore.jobMaturityFilter
     loadingGroups.value = true
     groupError.value = null
 
     try {
       const res = await performFetch<ArtJobQueueGroupSummary>(
-        '/api/art/queue/groups',
+        `/api/art/queue/groups?maturity=${maturity}`,
         {},
         1,
         30000,
@@ -83,7 +85,17 @@ export const useArtJobPriorityStore = defineStore('artJobPriorityStore', () => {
         return false
       }
 
+      if (maturity !== artJobStore.jobMaturityFilter) return false
       groupSummary.value = res.data
+      for (const group of res.data.groups) {
+        const preview = group.preview
+        if (!preview || (preview.isPublic && !preview.isMature)) continue
+        await artJobStore.loadJobImage(
+          preview.artImageId,
+          preview.version,
+          preview.isMature,
+        )
+      }
       return true
     } finally {
       loadingGroups.value = false

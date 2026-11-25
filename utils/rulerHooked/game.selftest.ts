@@ -10,6 +10,7 @@ import { RULER_HOOKED_CONTENT as C } from '~/utils/rulerHooked/content'
 import { createRun } from '~/utils/rulerHooked/newGame'
 import { takeTurn, eligibleEnding, findArcStep, dismissedFinaleFlag, FINALE_MIN_TURNS, FINALE_MIN_PETITIONS } from '~/utils/rulerHooked/loop'
 import { resolveChoice } from '~/utils/rulerHooked/applyEffects'
+import { triggerHolds } from '~/utils/rulerHooked/triggers'
 import { resolveScene } from '~/utils/rulerHooked/compositor'
 import { makeRng } from '~/utils/rulerHooked/seed'
 import { readCourtCheckpoint } from '~/utils/rulerHooked/courtCheckpoint'
@@ -101,6 +102,55 @@ const fresh = (id = 'sv_a'): RunSave =>
   s = resolveChoice(s, step2, step2.choices[0]!)
   assert.ok(!s.deckState.activeArcs['child-elopes'], 'welcome completes (removes) the arc')
   assert.ok(s.choiceLog.length === 2, 'both arc steps logged')
+}
+
+// Both completed weddings reach the family petition; estrangement does not.
+{
+  const cards = C.decks.flatMap((deck) => deck.cards)
+  const wedding = cards.find((card) => card.id === 'wedding-reckoning')!
+  const garden = cards.find((card) => card.id === 'robin-ash-garden')!
+  const charter = cards.find((card) => card.id === 'marina-family-charter')!
+  const routes = [
+    { initial: 'bless', step: 'elope-blessing', answer: 'welcome', reconciled: true },
+    { initial: 'forbid', step: 'elope-defiance', answer: 'relent', reconciled: true },
+    { initial: 'forbid', step: 'elope-defiance', answer: 'stew', reconciled: false },
+  ] as const
+  for (const route of routes) {
+    let save = fresh()
+    save.deckState.activeArcs['child-elopes'] = { step: 'elope-1', flags: {} }
+    const opening = findArcStep(C, 'elope-1')!.card
+    save = resolveChoice(save, opening, opening.choices.find((choice) => choice.id === route.initial)!)
+    assert.ok(!save.flags.weddingCompleted)
+    const step = findArcStep(C, route.step)!.card
+    assert.equal(save.deckState.activeArcs['child-elopes']!.step, step.id)
+    save = resolveChoice(save, step, step.choices.find((choice) => choice.id === route.answer)!)
+    assert.equal(!!save.flags.weddingCompleted, route.reconciled)
+    save.turnCount = 19
+    assert.ok(!triggerHolds(save, wedding.trigger))
+    save.turnCount = 20
+    assert.equal(triggerHolds(save, wedding.trigger), route.reconciled)
+    assert.equal(triggerHolds(save, garden.trigger), route.reconciled)
+    if (route.reconciled) {
+      const settled = resolveChoice(save, wedding, wedding.choices[0]!)
+      assert.ok(settled.flags.heirIndependent)
+      settled.turnCount = 29
+      assert.ok(!triggerHolds(settled, charter.trigger))
+      settled.flags.marinaCleaned = true
+      settled.deckState.seenCardIds.push('marina-reckoning')
+      assert.ok(triggerHolds(settled, charter.trigger))
+    }
+  }
+}
+
+// Every outcome retains a substantial epilogue in the canonical catalog.
+{
+  const bodies = C.endings.map((ending) => ending.body)
+  assert.equal(new Set(bodies).size, C.endings.length)
+  for (const ending of C.endings) {
+    assert.ok(ending.body.split('\n\n').length >= 3, ending.outcomeKey)
+    assert.ok(ending.body.length > 250, ending.outcomeKey)
+    assert.match(ending.body, /Quill/)
+  }
 }
 
 // 5. Endings are reachable (not forced)

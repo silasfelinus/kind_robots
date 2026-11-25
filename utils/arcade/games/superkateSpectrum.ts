@@ -9,6 +9,7 @@ import type {
 import {
   COLS,
   ROWS,
+  emptyBoard,
   COLORS,
   CHAPTER_RULES,
   activeHues,
@@ -118,6 +119,75 @@ const CHAPTERS = [
     finale: 'THE CITY CHOOSES EVERY COLOR.',
   },
 ] as const
+
+export const ATELIER_PUZZLES: readonly {
+  title: string
+  pairs: readonly { col: number; hue: Hue }[]
+  shots: readonly Hue[]
+}[] = [
+  {
+    title: 'FIRST BLUSH',
+    pairs: [{ col: 4, hue: 'pink' }],
+    shots: ['pink'],
+  },
+  {
+    title: 'GOLDEN DUET',
+    pairs: [
+      { col: 1, hue: 'teal' },
+      { col: 7, hue: 'gold' },
+    ],
+    shots: ['teal', 'gold'],
+  },
+  {
+    title: 'MIDNIGHT TRIO',
+    pairs: [
+      { col: 0, hue: 'blue' },
+      { col: 4, hue: 'violet' },
+      { col: 8, hue: 'pink' },
+    ],
+    shots: ['violet', 'blue', 'pink'],
+  },
+  {
+    title: 'SPRING MIRROR',
+    pairs: [
+      { col: 0, hue: 'lime' },
+      { col: 3, hue: 'gold' },
+      { col: 6, hue: 'lime' },
+    ],
+    shots: ['lime', 'gold', 'lime'],
+  },
+  {
+    title: 'PRISM QUARTET',
+    pairs: [
+      { col: 0, hue: 'violet' },
+      { col: 2, hue: 'teal' },
+      { col: 5, hue: 'gold' },
+      { col: 8, hue: 'blue' },
+    ],
+    shots: ['gold', 'violet', 'blue', 'teal'],
+  },
+  {
+    title: 'RAINBOW REPRISE',
+    pairs: [
+      { col: 0, hue: 'pink' },
+      { col: 2, hue: 'lime' },
+      { col: 4, hue: 'blue' },
+      { col: 6, hue: 'gold' },
+      { col: 8, hue: 'violet' },
+    ],
+    shots: ['blue', 'violet', 'pink', 'gold', 'lime'],
+  },
+]
+
+export function atelierBoard(index: number): Board {
+  const puzzle = ATELIER_PUZZLES[index]!
+  const board = emptyBoard()
+  for (const { col, hue } of puzzle.pairs) {
+    board[0]![col] = hue
+    board[0]![col + 1] = hue
+  }
+  return board
+}
 
 type HomeTab = 'play' | 'scrapbook' | 'achievements' | 'settings'
 const HOME_TABS: HomeTab[] = ['play', 'scrapbook', 'achievements', 'settings']
@@ -299,6 +369,10 @@ type PointerAction =
   | { kind: 'style'; style: BubbleStyle }
   | { kind: 'choice'; cursor: 0 | 1; scene: number }
   | { kind: 'classic' }
+  | { kind: 'atelierOpen' }
+  | { kind: 'atelierChoose'; by: number }
+  | { kind: 'atelierStart' }
+  | { kind: 'atelierBack' }
   | { kind: 'tab'; tab: HomeTab }
   | { kind: 'mode' }
   | { kind: 'album'; by: number }
@@ -430,6 +504,11 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   selectedStyle: BubbleStyle
   choosingMode = true
   menuStage = 1
+  atelierMenu = false
+  atelierActive = false
+  atelierIndex = 0
+  atelierUsed = 0
+  atelierResult: 'cleared' | 'retry' | null = null
   menuTab: HomeTab = 'play'
   albumChapter = 0
   optionRow = 0
@@ -509,7 +588,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     return this.choosingMode
   }
   get scoreBoard(): string | null {
-    return this.choosingMode || this.demo
+    return this.choosingMode || this.demo || this.atelierActive
       ? null
       : spectrumRankedBoard(this.mode, this.runStartStage)
   }
@@ -524,6 +603,40 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       storyChoices: [...this.storyChoices] as StoryChoices,
       endings: [...this.storyEndings],
     }
+  }
+  private startAtelier() {
+    const puzzle = ATELIER_PUZZLES[this.atelierIndex]!
+    this.choosingMode = false
+    this.atelierActive = true
+    this.atelierResult = null
+    this.atelierUsed = 0
+    this.board = atelierBoard(this.atelierIndex)
+    this.loaded = puzzle.shots[0]!
+    this.next = puzzle.shots[1] ?? this.loaded
+    this.shot = null
+    this.boss = null
+    this.pendingChoice = null
+    this.power = null
+    this.banner = 0
+    this.score = 0
+    this.over = false
+    this.won = false
+    this.angle = -Math.PI / 2
+    this.pointerAction = null
+  }
+  private backFromAtelier() {
+    this.atelierActive = false
+    this.atelierResult = null
+    this.atelierMenu = false
+    this.choosingMode = true
+    this.shot = null
+    this.pointerAction = null
+    this.level = 1
+    this.resetBoard()
+  }
+  private chooseAtelier(by: number) {
+    this.atelierIndex =
+      (this.atelierIndex + by + ATELIER_PUZZLES.length) % ATELIER_PUZZLES.length
   }
   private beginRun() {
     this.choosingMode = false
@@ -613,12 +726,32 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.shot = null
     this.shotsThisBoard++
     if (!landing) {
+      if (this.atelierActive) {
+        this.atelierResult = 'retry'
+        return
+      }
       this.lose()
       return
     }
     const result = power
       ? fireSpecial(this.board, landing, hue, power)
       : attachAndPop(this.board, landing, hue)
+    if (this.atelierActive) {
+      const puzzle = ATELIER_PUZZLES[this.atelierIndex]!
+      this.atelierUsed++
+      if (result.matched) this.playEffect('pop')
+      if (result.cleared) {
+        this.atelierResult = 'cleared'
+        this.playEffect('level')
+      } else if (this.atelierUsed >= puzzle.shots.length) {
+        this.atelierResult = 'retry'
+        this.playEffect('die')
+      } else {
+        this.loaded = puzzle.shots[this.atelierUsed]!
+        this.next = puzzle.shots[this.atelierUsed + 1] ?? this.loaded
+      }
+      return
+    }
     if (result.matched) {
       this.playEffect(power ? 'boom' : 'pop')
       this.career = recordPop(this.career, result.matched, result.dropped)
@@ -792,6 +925,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   private fire() {
     if (
       this.shot ||
+      this.atelierResult ||
       this.over ||
       this.choosingMode ||
       this.pendingChoice !== null
@@ -817,6 +951,11 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     if (!Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x > W)
       return null
     if (this.over) return null
+    if (this.atelierResult) {
+      if (y >= 250 && y <= 290) return { kind: 'atelierStart' }
+      if (y >= 300 && y <= 340) return { kind: 'atelierBack' }
+      return null
+    }
     if (this.pendingChoice !== null) {
       if (x < 25 || x > W - 25) return null
       for (const cursor of [0, 1] as const) {
@@ -846,7 +985,15 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         return null
       }
       if (this.menuTab !== 'play') return null
+      if (this.atelierMenu) {
+        if (y >= 210 && y <= 255)
+          return { kind: 'atelierChoose', by: x < W / 2 ? -1 : 1 }
+        if (y >= 270 && y <= 310) return { kind: 'atelierStart' }
+        if (y >= 330 && y <= 370) return { kind: 'atelierBack' }
+        return null
+      }
       if (this.mode === 'classic') {
+        if (y >= 380 && y <= 420) return { kind: 'atelierOpen' }
         if (y >= 207 && y <= 234) return { kind: 'mode' }
         return y >= 310 && y <= 350 ? { kind: 'classic' } : null
       }
@@ -870,7 +1017,14 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       return null
     }
     if (this.shot) return null
-    if (!this.boss && x >= 20 && x <= 70 && y >= 420 && y <= 459)
+    if (
+      !this.atelierActive &&
+      !this.boss &&
+      x >= 20 &&
+      x <= 70 &&
+      y >= 420 &&
+      y <= 459
+    )
       return { kind: 'swap' }
     return y >= 28 && y <= 390 ? { kind: 'aim' } : null
   }
@@ -901,6 +1055,10 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       this.menuStage = action.stage
       this.beginRun()
     } else if (action.kind === 'classic') this.beginRun()
+    else if (action.kind === 'atelierOpen') this.atelierMenu = true
+    else if (action.kind === 'atelierChoose') this.chooseAtelier(action.by)
+    else if (action.kind === 'atelierStart') this.startAtelier()
+    else if (action.kind === 'atelierBack') this.backFromAtelier()
     else if (action.kind === 'style') {
       this.selectedStyle = action.style
       this.remember()
@@ -909,6 +1067,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       this.confirmChoice()
     } else if (action.kind === 'tab') {
       this.menuTab = action.tab
+      this.atelierMenu = false
       this.playEffect('blip')
     } else if (action.kind === 'mode') {
       this.mode = this.mode === 'classic' ? 'story' : 'classic'
@@ -948,6 +1107,18 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   }
 
   update(input: InputFrame) {
+    if (this.atelierResult) {
+      if (input.pressed.a) this.startAtelier()
+      else if (input.pressed.b) this.backFromAtelier()
+      return
+    }
+    if (this.choosingMode && this.atelierMenu) {
+      if (input.pressed.left) this.chooseAtelier(-1)
+      if (input.pressed.right) this.chooseAtelier(1)
+      if (input.pressed.a) this.startAtelier()
+      else if (input.pressed.b) this.backFromAtelier()
+      return
+    }
     if (this.pendingChoice !== null) {
       if (input.pressed.left || input.pressed.up) this.choiceCursor = 0
       if (input.pressed.right || input.pressed.down) this.choiceCursor = 1
@@ -971,6 +1142,10 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         this.playEffect('blip')
       }
       if (this.menuTab === 'play') {
+        if (this.mode === 'classic' && input.pressed.right) {
+          this.atelierMenu = true
+          return
+        }
         if (input.pressed.up || input.pressed.down)
           this.mode = this.mode === 'classic' ? 'story' : 'classic'
         if (this.mode === 'story') {
@@ -1017,7 +1192,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     if (input.held.left) this.angle -= 0.035
     if (input.held.right) this.angle += 0.035
     this.angle = Math.max(-Math.PI + 0.18, Math.min(-0.18, this.angle))
-    if (input.pressed.b && !this.shot && !this.boss)
+    if (input.pressed.b && !this.shot && !this.boss && !this.atelierActive)
       [this.loaded, this.next] = [this.next, this.loaded]
     if (input.pressed.a && !this.shot) this.fire()
     if (!this.shot) return
@@ -1459,19 +1634,30 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     label(g, 'NEXT', 44, SHOT_Y - 15, 10, '#d6faff')
     label(
       g,
-      this.mode === 'classic'
-        ? `CLASSIC ${this.level}`
-        : `STAGE ${this.level}/30`,
+      this.atelierActive
+        ? 'ATELIER'
+        : this.mode === 'classic'
+          ? `CLASSIC ${this.level}`
+          : `STAGE ${this.level}/30`,
       61,
       401,
       11,
       '#fff',
     )
     label(g, `SCORE ${this.score}`, 240, 401, 11, '#fff')
-    label(g, `HEARTS ${this.lives}`, 55, 417, 11, '#ffa0c4')
     label(
       g,
-      `DROP ${this.shots}/${pressureLimit(this.level, this.mode)}`,
+      this.atelierActive ? 'UNRANKED' : `HEARTS ${this.lives}`,
+      55,
+      417,
+      11,
+      '#ffa0c4',
+    )
+    label(
+      g,
+      this.atelierActive
+        ? `SHOTS ${ATELIER_PUZZLES[this.atelierIndex]!.shots.length - this.atelierUsed}`
+        : `DROP ${this.shots}/${pressureLimit(this.level, this.mode)}`,
       150,
       417,
       10,
@@ -1481,9 +1667,11 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     label(g, `COLOR RANK ${rank}`, 236, 417, 11, '#9df8f0')
     label(
       g,
-      this.mode === 'classic'
-        ? `CLASSIC BEST ${this.career.classicBest}`
-        : chapter.name,
+      this.atelierActive
+        ? ATELIER_PUZZLES[this.atelierIndex]!.title
+        : this.mode === 'classic'
+          ? `CLASSIC BEST ${this.career.classicBest}`
+          : chapter.name,
       W / 2,
       469,
       11,
@@ -1491,6 +1679,40 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     )
     if (this.pendingChoice !== null) {
       this.renderStoryChoice(g)
+      return
+    }
+    if (this.atelierResult || (this.choosingMode && this.atelierMenu)) {
+      g.fillStyle = '#0c0b25f5'
+      g.fillRect(14, 145, W - 28, 235)
+      g.strokeStyle = '#fe8fc9'
+      g.strokeRect(14, 145, W - 28, 235)
+      label(g, 'PUZZLE ATELIER', W / 2, 172, 18, '#fff0ad')
+      label(g, ATELIER_PUZZLES[this.atelierIndex]!.title, W / 2, 198, 14)
+      if (this.atelierResult) {
+        label(
+          g,
+          this.atelierResult === 'cleared'
+            ? 'BEAUTIFULLY SOLVED!'
+            : 'OUT OF SHOTS',
+          W / 2,
+          230,
+          13,
+        )
+        label(g, 'A / TAP: RETRY', W / 2, 275, 13)
+        label(g, 'B / TAP: BACK', W / 2, 325, 13)
+      } else {
+        label(
+          g,
+          `<  ${this.atelierIndex + 1} / ${ATELIER_PUZZLES.length}  >`,
+          W / 2,
+          230,
+          16,
+        )
+        label(g, 'FIXED SHOTS · NO CEILING DROP', W / 2, 253, 10)
+        label(g, 'A / TAP: START PUZZLE', W / 2, 290, 13)
+        label(g, 'B / TAP: BACK · UNRANKED', W / 2, 350, 12)
+      }
+      if (this.choosingMode) this.renderMenuTabs(g)
       return
     }
     if (this.choosingMode && this.menuTab !== 'play') {
@@ -1539,6 +1761,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       g.fillStyle = '#e77fcc'
       g.fillRect(60, 340, 200 * progress, 6)
       label(g, 'X: SCRAPBOOK · Y: SETTINGS', W / 2, 368, 11, '#9cf4e8')
+      g.fillStyle = '#713a7c'
+      g.fillRect(26, 380, W - 52, 40)
+      label(g, 'RIGHT / TAP: PUZZLE ATELIER', W / 2, 405, 12)
       this.renderMenuTabs(g)
       return
     }
@@ -1611,6 +1836,8 @@ const game: ArcadeGameModule = {
       lines: [
         'MODE MENU: UP/DOWN STORY OR CLASSIC',
         'B ON MODE MENU CHANGES BUBBLE LOOK',
+        'CLASSIC MENU: RIGHT OR TAP FOR ATELIER',
+        'ATELIER: FIXED SHOTS, NO RANKED SCORE',
         'A SHOOTS YOUR COLOR ORB',
         'LEFT/RIGHT AIM; BANK OFF THE WALLS',
         'TOUCH: DRAG TO AIM, RELEASE TO SHOOT',

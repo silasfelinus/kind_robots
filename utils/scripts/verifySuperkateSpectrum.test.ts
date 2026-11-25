@@ -40,6 +40,8 @@ import {
   pendingStoryDecision,
 } from '../arcade/superkateSpectrum/story'
 import {
+  ATELIER_PUZZLES,
+  atelierBoard,
   BOSS_PATTERNS,
   SPECTRUM_BOSS_ART,
   bossContact,
@@ -615,6 +617,55 @@ assert.equal(touchMenu.menuOpen, true)
 tapStage(touchMenu, { x: 160, y: 220 })
 assert.equal(touchMenu.mode, 'story')
 assert.equal(touchMenu.menuOpen, true)
+
+// Atelier uses the actual projectile loop, not direct mutation of board cells.
+for (const [index, puzzle] of ATELIER_PUZZLES.entries()) {
+  const run = create({
+    ...options,
+    resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),
+  } as Parameters<typeof create>[0])
+  const original = JSON.stringify(run.save)
+  tapStage(run, { x: 160, y: 400 })
+  assert.equal(run.atelierMenu, true)
+  for (let i = 0; i < index; i++) tapStage(run, { x: 250, y: 230 })
+  tapStage(run, { x: 160, y: 290 })
+  assert.equal(run.atelierActive, true)
+  assert.equal(run.scoreBoard, null)
+  assert.deepEqual(run.board, atelierBoard(index))
+  for (const hue of puzzle.shots) {
+    assert.equal(run.loaded, hue)
+    const col = run.board[0]!.indexOf(hue)
+    assert.ok(col >= 0)
+    const x = center({ row: 0, col }).x + 14
+    tapStage(run, { x, y: 40 })
+    assert.ok(run.shot)
+    for (let tick = 0; tick < 400 && run.shot; tick++) run.update(emptyInput())
+    assert.equal(run.shot, null)
+  }
+  assert.equal(run.atelierResult, 'cleared')
+  assert.equal(run.over, false)
+  assert.equal(JSON.stringify(run.save), original)
+  assert.deepEqual(run.drainFeats(), [])
+  tapStage(run, { x: 160, y: 275 })
+  assert.equal(run.atelierResult, null)
+  assert.deepEqual(run.board, atelierBoard(index))
+  assert.equal(run.atelierUsed, 0)
+  assert.equal(JSON.stringify(run.save), original)
+}
+const failedAtelier = create({
+  ...options,
+  resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),
+} as Parameters<typeof create>[0])
+tapStage(failedAtelier, { x: 160, y: 400 })
+tapStage(failedAtelier, { x: 160, y: 290 })
+tapStage(failedAtelier, { x: 22, y: 40 })
+for (let tick = 0; tick < 400 && failedAtelier.shot; tick++)
+  failedAtelier.update(emptyInput())
+assert.equal(failedAtelier.atelierResult, 'retry')
+assert.equal(failedAtelier.scoreBoard, null)
+tapStage(failedAtelier, { x: 160, y: 325 })
+assert.equal(failedAtelier.menuOpen, true)
+assert.equal(failedAtelier.atelierActive, false)
 
 const classicRanked = create({
   ...options,

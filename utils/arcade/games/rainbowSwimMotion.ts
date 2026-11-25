@@ -136,3 +136,22 @@ export function stackRainbowBossPose(
     scaleY: a.scaleY * b.scaleY,
   }
 }
+
+/**
+ * Conductor rainbow t-011: a small craft that charges before it acts (a squid's glint, a harbinger's warm-up, a
+ * turret unfolding, a hammerhead's lock, a brood's shadow) tenses its body across that warning, the boss
+ * windup at half strength, so a school's shooter reads apart from the swimmers. Draw-only: the hitbox never
+ * moves. Calm motion keeps a fifth, like the boss.
+ */
+export function rainbowCraftWindup(
+  framesToAct: number,
+  warnFrames: number,
+  calm = false,
+): { pull: number; scaleX: number; scaleY: number } {
+  const boss = rainbowBossWindup(framesToAct, warnFrames, calm)
+  return {
+    pull: boss.pull / 2,
+    scaleX: 1 - (1 - boss.scaleX) / 2,
+    scaleY: 1 + (boss.scaleY - 1) / 2,
+  }
+}

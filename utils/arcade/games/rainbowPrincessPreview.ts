@@ -66,6 +66,7 @@ import {
   rainbowBossRecoil,
   rainbowBossWindup,
   rainbowShipPose,
+  rainbowCraftWindup,
   stackRainbowBossPose,
 } from './rainbowSwimMotion'
 import { drawRainbowBossBloom } from './rainbowBossBloom'
@@ -719,6 +720,17 @@ const ACT_FIVE_CHECKPOINTS = actCheckpoints(WRECK_SECTIONS, WRECK.bossStarts)
 const CUTTER = { jawFrames: 36, chargeSpeed: 5 } as const
 /** E17 hammerheads lock both fin pods before each fires; a pod sits this far above or below the body. */
 const HAMMERHEAD = { lockFrames: 36, podReach: 14 } as const
+/**
+ * Conductor rainbow t-011: craft whose `charge` counts down to a shot (or a brood's drones), and the warning
+ * each starts from. Their bodies tense across it with rainbowCraftWindup.
+ */
+export const CRAFT_WINDUP_FRAMES: Readonly<Partial<Record<string, number>>> = {
+  squid: SQUID.glintFrames,
+  harbinger: HARBINGER.warmFrames,
+  turret: TURRET.unfoldFrames,
+  hammerhead: HAMMERHEAD.lockFrames,
+  brood: BROOD_SHADOW_FRAMES,
+}
 /** E18 salvagers point four arms before they fire along them and grab the nearest loose pickup. */
 const SALVAGER = { armFrames: 36, grabReach: 110, grabArmour: 3 } as const
 const ACT_FOUR_CHECKPOINTS = actCheckpoints(
@@ -7440,6 +7452,12 @@ export function createRainbowPrincessPreview(
                         : '#d09ffd'
         g.save()
         applyRainbowSwimMotion(g, reef.kind, tick, calm)
+        const craftWarn = CRAFT_WINDUP_FRAMES[reef.kind]
+        if (craftWarn && !reef.truce && reef.charge) {
+          const tense = rainbowCraftWindup(reef.charge, craftWarn, calm)
+          g.translate(tense.pull, 0)
+          g.scale(tense.scaleX, tense.scaleY)
+        }
         if (reef.flash) {
           const flinch = rainbowHitFlinch(reef.flash, HIT_FLASH_FRAMES, calm)
           g.scale(flinch.x, flinch.y)

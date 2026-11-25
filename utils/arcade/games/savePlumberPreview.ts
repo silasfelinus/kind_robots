@@ -370,7 +370,15 @@ type Pickup = {
   y: number
   kind: PlumberPower | 'heart'
   taken: boolean
+  /**
+   * Frames left for a reserve power still drifting down to her after a hit
+   * (absent for a pickup placed in the stage). It sinks and steers toward
+   * her, and is gone when the time runs out uncaught.
+   */
+  falling?: number
 }
+/** How long a dropped reserve power drifts before it is lost (frames). */
+export const RESERVE_DROP_FRAMES = 300
 type Gust = { x: number; y: number; dir: number; life: number }
 /** A brass key: carried one at a time, it opens one padlocked bolt. */
 export type BrassKey = {
@@ -593,6 +601,12 @@ export class PlumberRun implements ArcadeGameInstance {
   gearFlash = 0
   /** The power the heroine carries; a hit costs it instead of a heart. */
   power: PlumberPower | null = null
+  /**
+   * The banked spare power (the reserve box). A power picked up while she
+   * already carries one banks the old one here; when a hit costs her power,
+   * the reserve drops from the top of the screen and drifts down to her.
+   */
+  reserve: PlumberPower | null = null
   carrying = false
   /** The heroine's special on Y: ticks left in it, its cooldown, and one use per airtime. */
   specialTimer = 0
@@ -935,6 +949,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.score = chosen.score
     this.lives = chosen.lives
     this.tokens = chosen.tokens
+    this.reserve = null
     this.enterMap()
   }
 
@@ -1039,6 +1054,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.score = 0
     this.lives = START_LIVES
     this.tokens = 0
+    this.reserve = null
     this.loadSlotMemory(null)
     this.stageIndex = 0
     this.loadStage(0)
@@ -1066,6 +1082,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.score = 0
     this.lives = 1
     this.tokens = 0
+    this.reserve = null
     this.loadDef(buildEndlessZone(this.zoneSeed, 0))
     this.setMode('intro', 90)
   }
@@ -2585,8 +2602,38 @@ export class PlumberRun implements ArcadeGameInstance {
     }
   }
 
+  /** A dropped reserve power sinks toward her and expires if she misses it. */
+  private driftReserveDrops() {
+    const hero = this.hero
+    for (const pickup of this.pickups) {
+      if (pickup.taken || pickup.falling === undefined) continue
+      pickup.falling--
+      if (pickup.falling <= 0) {
+        pickup.taken = true
+        continue
+      }
+      const dx = hero.x - pickup.x
+      pickup.x += Math.max(-1.5, Math.min(1.5, dx * 0.08))
+      if (pickup.y < hero.y + TALL / 2) pickup.y += 1.25
+    }
+  }
+
+  /** A hit just cost her power: the banked reserve drops in from above. */
+  private dropReserve() {
+    if (!this.reserve) return
+    this.pickups.push({
+      x: this.hero.x,
+      y: Math.max(this.cameraY + 12, this.hero.y - 120),
+      kind: this.reserve,
+      taken: false,
+      falling: RESERVE_DROP_FRAMES,
+    })
+    this.reserve = null
+  }
+
   private collectPickups() {
     const hero = this.hero
+    this.driftReserveDrops()
     if (this.gearFlash) this.gearFlash--
     const gear = this.gear
     if (
@@ -2616,6 +2663,8 @@ export class PlumberRun implements ArcadeGameInstance {
       if (pickup.kind === 'heart')
         this.hearts = Math.min(HEARTS, this.hearts + 1)
       else {
+        // Already powered: the power she had is banked in the reserve box.
+        if (this.power) this.reserve = this.power
         this.power = pickup.kind
         this.carrying = false
       }
@@ -3603,6 +3652,7 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.power) {
       this.power = null
       this.carrying = false
+      this.dropReserve()
     } else this.hearts--
     this.sendKeyHome()
     this.immune = 90
@@ -6505,6 +6555,13 @@ export class PlumberRun implements ArcadeGameInstance {
       g.arc(392, 12, 10, 0, Math.PI * 2)
       g.fill()
       drawSprite(g, PLUMBER_ART.prop(this.power), 392, 21, 18)
+    }
+    if (this.reserve) {
+      // The reserve box: a small framed spare under the power badge.
+      g.strokeStyle = 'rgba(255, 241, 206, 0.8)'
+      g.lineWidth = 1
+      g.strokeRect(385, 25, 14, 14)
+      drawSprite(g, PLUMBER_ART.prop(this.reserve), 392, 38, 12)
     }
     this.text(
       g,

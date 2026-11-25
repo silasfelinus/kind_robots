@@ -121,6 +121,7 @@ import {
   type MoonjellyEnemy,
 } from './rainbowMoonjelly'
 import { RAINBOW_LANES, laneY } from './rainbowFormations'
+import { rainbowVariationSeed, rainbowVariedY } from './rainbowWaveVariation'
 import {
   KELP_CHOIR,
   NURSERY,
@@ -1413,6 +1414,10 @@ export function createRainbowPrincessPreview(
   // The look this browser last chose (Classic or Fever Dream), wherever the cabinet is hosted.
   loadRainbowLook()
   const count = Math.max(1, Math.min(4, options.players ?? 1))
+  /** D9 (t-065): the attract demo's autopilot and scripted scenarios fly the authored lanes. */
+  const authoredWaves = options.demo || options.rainbowAuthoredWaves === true
+  /** This run's wave-mirror seed: one draw from the game's rng, and none at all when the lanes are authored. */
+  const variationSeed = authoredWaves ? 0 : rainbowVariationSeed(options.rng)
   let activePlayers = count
   let difficulty: ArcadeDifficulty =
     options.difficulty && options.difficulty in RAINBOW_DIFFICULTY
@@ -2590,6 +2595,13 @@ export function createRainbowPrincessPreview(
     for (let i = shots.length - 1; i >= 0; i--) {
       if (shots[i]!.seat >= activePlayers) shots.splice(i, 1)
     }
+  }
+
+  /** An authored wave member's lane after this run's seeded mirror for its wave (D9). */
+  function variedY(y: number, wave: number) {
+    return authoredWaves
+      ? y
+      : rainbowVariedY(y, variationSeed, currentAct(), wave)
   }
 
   function spawn(
@@ -4812,7 +4824,7 @@ export function createRainbowPrincessPreview(
       }
       if (stage === 'waves') {
         for (const entry of pinkwakeSpawns(tick)) {
-          spawn(entry.kind, entry.y, entry.wave)
+          spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
         }
         for (const spire of pinkwakeSpires(tick)) spawnSpire(spire)
         if (tick === PINKWAKE.stationAppears) station = { x: W + 18, y: 190 }
@@ -4832,7 +4844,7 @@ export function createRainbowPrincessPreview(
       }
       if (stage === 'waves' || stage === 'remix') {
         for (const entry of moonjellySpawns(frame)) {
-          spawn(entry.kind, entry.y, entry.wave)
+          spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
         }
         if (frame === MOONJELLY.nemiAppears) {
           nemi = { x: W + 16, y: 158 }
@@ -4854,7 +4866,7 @@ export function createRainbowPrincessPreview(
       const stage = nurseryFlightPhase(frame)
       if (stage === 'waves') {
         for (const entry of nurserySpawns(frame))
-          spawn(entry.kind, entry.y, entry.wave)
+          spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
         const pod = choirPodAvailable(frame, nurseryChoirMask)
         if (pod) {
           const x = choirPodX(frame, pod.at)
@@ -4905,7 +4917,7 @@ export function createRainbowPrincessPreview(
       }
       if (stage === 'waves') {
         for (const entry of trenchSpawns(frame, trenchRoute, rescuedNemi)) {
-          spawn(entry.kind, entry.y, entry.wave)
+          spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
         }
       } else if (stage === 'turn' && frame === TRENCH.turnStarts) {
         reefs.length = 0
@@ -4925,7 +4937,7 @@ export function createRainbowPrincessPreview(
       const stage = cometPhase(frame)
       if (stage === 'waves')
         for (const entry of cometSpawns(frame))
-          spawn(entry.kind, entry.y, entry.wave)
+          spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
       const cadet = cometCadetAvailable(frame, cometCadetsMask)
       if (cadet) {
         const x = cometCadetX(frame, cadet.at)
@@ -4970,7 +4982,7 @@ export function createRainbowPrincessPreview(
       }
       if (stage === 'waves') {
         for (const entry of rosefinSpawns(frame)) {
-          spawn(entry.kind, entry.y, entry.wave)
+          spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
         }
         if (frame === ROSEFIN_ESCORT.podAppears && !escortDone && !escort)
           escort = {
@@ -5010,7 +5022,7 @@ export function createRainbowPrincessPreview(
       if (stage === 'waves') {
         if (armorySirenAllowsWave(frame, wreckRoute, ARMORY_SIREN_WINDOW))
           for (const entry of wreckSpawns(frame, wreckRoute)) {
-            spawn(entry.kind, entry.y, entry.wave)
+            spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
           }
         const pod = wreckPodFrames().indexOf(frame)
         if (wreckRoute === 'depot' && !wreckSettled && pod >= 0)
@@ -5041,7 +5053,7 @@ export function createRainbowPrincessPreview(
       }
       if (stage === 'waves') {
         for (const entry of lighthouseSpawns(frame))
-          spawn(entry.kind, entry.y, entry.wave)
+          spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
         const lamp = lighthouseCollectibleLamp(frame, lighthouseLamps)
         if (lamp) {
           const lit = livingShips().some(
@@ -5087,7 +5099,12 @@ export function createRainbowPrincessPreview(
         if (pearlWardenAllowsWave(frame, reefRoute, PEARL_WARDEN_WINDOW))
           for (const entry of reefSpawns(frame, reefRoute)) {
             const truce = rebelTruce(allegiance, 6, entry.kind, entry.wave)
-            spawn(entry.kind, entry.y, truce ? null : entry.wave, truce)
+            spawn(
+              entry.kind,
+              variedY(entry.y, entry.wave),
+              truce ? null : entry.wave,
+              truce,
+            )
           }
         for (const escort of rebelEscortSpawns(allegiance, 6, frame, reefRoute))
           spawn(escort.kind, escort.y)
@@ -5121,7 +5138,7 @@ export function createRainbowPrincessPreview(
       }
       if (stage === 'waves')
         for (const entry of mirrorShoalSpawns(frame))
-          spawn(entry.kind, entry.y, entry.wave)
+          spawn(entry.kind, variedY(entry.y, entry.wave), entry.wave)
       if (stage === 'turn' && frame === MIRROR_SHOAL.turnStarts) {
         reefs.length = 0
         enemyShots.length = 0
@@ -5142,7 +5159,12 @@ export function createRainbowPrincessPreview(
       if (stage === 'waves') {
         for (const entry of glassSpawns(frame)) {
           const truce = rebelTruce(allegiance, 7, entry.kind, entry.wave)
-          spawn(entry.kind, entry.y, truce ? null : entry.wave, truce)
+          spawn(
+            entry.kind,
+            variedY(entry.y, entry.wave),
+            truce ? null : entry.wave,
+            truce,
+          )
         }
         for (const escort of rebelEscortSpawns(allegiance, 7, frame))
           spawn(escort.kind, escort.y)
@@ -5169,7 +5191,7 @@ export function createRainbowPrincessPreview(
           const truce = rebelTruce(allegiance, 8, entry.kind, entry.wave)
           spawn(
             entry.kind,
-            entry.y,
+            variedY(entry.y, entry.wave),
             entry.kind === 'captive' || truce ? null : entry.wave,
             truce,
           )

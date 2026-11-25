@@ -147,9 +147,10 @@ const fresh = (id = 'sv_a'): RunSave =>
   const bodies = C.endings.map((ending) => ending.body)
   assert.equal(new Set(bodies).size, C.endings.length)
   for (const ending of C.endings) {
-    assert.ok(ending.body.split('\n\n').length >= 3, ending.outcomeKey)
-    assert.ok(ending.body.length > 250, ending.outcomeKey)
-    assert.match(ending.body, /Quill/)
+    const body = ending.body ?? ''
+    assert.ok(body.split('\n\n').length >= 3, ending.outcomeKey)
+    assert.ok(body.length > 250, ending.outcomeKey)
+    assert.match(body, /Quill/)
   }
 }
 

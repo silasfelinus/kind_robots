@@ -729,6 +729,7 @@ const props = defineProps<{
   contained?: boolean
   suspended?: boolean
   rainbowReplay?: unknown
+  plumberLaunch?: 'new' | 'continue'
 }>()
 const contained = computed(() => props.contained === true)
 const isRainbowReplay = computed(
@@ -1730,6 +1731,8 @@ function startGame() {
       players: players.value,
       mastery: store.masteryFor(props.slug),
       resume: isRainbowReplay.value ? undefined : store.saveFor(props.slug),
+      plumberLaunch:
+        props.slug === 'save-the-plumber' ? props.plumberLaunch : undefined,
       rainbowReplay: isRainbowReplay.value ? props.rainbowReplay : undefined,
       rainbowHangar:
         props.slug === 'rainbow-bullet-hell-space-princess'

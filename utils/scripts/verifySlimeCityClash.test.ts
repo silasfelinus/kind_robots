@@ -1883,7 +1883,24 @@ assert.ok(
   !stillLit || stillLit.keywords.includes('volatile'),
   'only one-play snares defuse',
 )
-assert.match(clashCardText(cardById('bloodwire')), /defuses VOLATILE/)
+assert.match(
+  clashCardText(cardById('bloodwire')),
+  /removes Volatile \(no death explosion\)/,
+)
+assert.match(clashCardText(cardById('shocktrap')), /no attack or counterattack/)
+const rootTerms = clashGlossaryParts('Roots a rival and removes Volatile.')
+assert.deepEqual(
+  rootTerms.flatMap((part) => (part.entry ? [part.entry.term] : [])),
+  ['Stun', 'Volatile'],
+)
+assert.match(
+  CLASH_GLOSSARY.find((entry) => entry.term === 'Stun')!.definition,
+  /counterattack/,
+)
+assert.match(
+  CLASH_GLOSSARY.find((entry) => entry.term === 'Volatile')!.definition,
+  /rival boss/,
+)
 // The CPU knows the payoff: with a cheap snare in hand it springs it on the
 // VOLATILE fighter rather than an identical-threat empty alley.
 const cpuWire = createClash('bloodfairies', 'riot', 1964)

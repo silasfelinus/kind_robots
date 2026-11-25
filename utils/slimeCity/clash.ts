@@ -379,7 +379,7 @@ export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
   swarm: 'Swarm: +1 power next to an ally.',
   leech: 'Leech: heals 1 when it hits.',
   bulldoze: 'Bulldoze: extra damage hits boss.',
-  volatile: 'Volatile: explodes on defeat.',
+  volatile: 'Volatile: damages the foe across on defeat (boss if empty).',
   pierce: 'Pierce: ignores 1 armor.',
   snare: 'Snare: struck rivals skip a strike.',
   collect: 'Collect: gains +1 power on a kill.',
@@ -581,7 +581,7 @@ export function clashCardText(card: Card, level = 1, pick?: EvoPick): string {
   const evolvedText = clashTwistText(card.id, level)
   if (card.kind !== 'creature' && evolvedText)
     return isArmorCutterSnare(card)
-      ? evolvedText + ' Cuts armor, defuses VOLATILE.'
+      ? evolvedText + ' Cuts armor, removes Volatile (no death explosion).'
       : evolvedText
   if (card.kind === 'creature')
     return [
@@ -604,8 +604,10 @@ function clashBaseText(card: Card, level: number): string {
       'Next foe: ' +
       b.power +
       ' damage.' +
-      (card.roots ? ' Skips a strike.' : '') +
-      (isArmorCutterSnare(card) ? ' Cuts armor, defuses VOLATILE.' : '')
+      (card.roots ? ' Stun: no attack or counterattack.' : '') +
+      (isArmorCutterSnare(card)
+        ? ' Cuts armor, removes Volatile (no death explosion).'
+        : '')
     )
   switch (card.effect) {
     case 'heal':
@@ -641,7 +643,7 @@ function clashBaseText(card: Card, level: number): string {
       return 'Deal 1–' + b.power + ' to a rival fighter.'
     case 'root':
       return (
-        'Stun a rival fighter: no block now, no strike next turn.' +
+        'Stun a rival fighter: no counterattack or next strike.' +
         (b.level > 1 ? ' Deals ' + (b.level - 1) + '.' : '')
       )
     case 'snare':

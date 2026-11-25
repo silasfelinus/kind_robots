@@ -99,8 +99,9 @@ export const CLASH_GLOSSARY = [
   },
   {
     term: 'Stun',
-    definition: 'A stunned fighter skips a strike.',
-    aliases: ['stun', 'stuns', 'stunned'],
+    definition:
+      'Root and stun mean the same thing in Clash. The fighter cannot attack, counterattack or use Tap until the end of its next turn; it still occupies its lane.',
+    aliases: ['stun', 'stuns', 'stunned', 'root', 'roots', 'rooted', 'rooting'],
   },
   {
     term: 'Swarm',
@@ -125,7 +126,8 @@ export const CLASH_GLOSSARY = [
   },
   {
     term: 'Volatile',
-    definition: 'Explodes when defeated.',
+    definition:
+      'When defeated, the fighter deals 1 damage (2 for some cards) to the opposing fighter in its lane, or the rival boss if empty. Removing Volatile prevents that explosion.',
     aliases: ['volatile'],
   },
 ]

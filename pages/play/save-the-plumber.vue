@@ -74,15 +74,30 @@
               </p>
               <nav class="plumber-main-menu" aria-label="Game menu">
                 <button
+                  v-if="hasSavedFile"
                   type="button"
                   class="plumber-option plumber-option--primary"
-                  @click="go('play')"
+                  @click="launchPlumber('continue')"
                 >
                   <span class="plumber-option-icon">▶</span>
-                  {{
-                    plumber.chosen ? 'CONTINUE ADVENTURE' : 'START ADVENTURE'
-                  }}
+                  CONTINUE
                   <span class="plumber-option-arrow" aria-hidden="true">›</span>
+                </button>
+                <button
+                  type="button"
+                  class="plumber-option"
+                  :class="{ 'plumber-option--primary': !hasSavedFile }"
+                  :disabled="!hasEmptyFile"
+                  @click="launchPlumber('new')"
+                >
+                  NEW GAME <span>›</span>
+                </button>
+                <button
+                  type="button"
+                  class="plumber-option"
+                  @click="go('play')"
+                >
+                  FILES / ENDLESS <span>›</span>
                 </button>
                 <button
                   type="button"
@@ -491,7 +506,11 @@
             class="plumber-view plumber-game-view"
             aria-label="Save the Plumber playable game"
           >
-            <ArcadeCabinet slug="save-the-plumber" contained />
+            <ArcadeCabinet
+              slug="save-the-plumber"
+              contained
+              :plumber-launch="plumberLaunch"
+            />
           </section>
         </Transition>
       </div>
@@ -567,6 +586,9 @@ const shareCode = computed(() =>
 const screen = ref<Screen>(shareCode.value ? 'maker' : 'title')
 const plumber = useSavePlumberStore()
 const arcade = useArcadeStore()
+const plumberLaunch = ref<'new' | 'continue'>()
+const hasSavedFile = computed(() => plumber.file.slots.some(Boolean))
+const hasEmptyFile = computed(() => plumber.file.slots.some((slot) => !slot))
 const heroine = computed(() => plumber.heroine)
 const viewport = ref<HTMLElement | null>(null)
 const storyIndex = ref(0)
@@ -681,7 +703,13 @@ function changeVolume(event: Event) {
 }
 
 function go(next: Screen) {
+  plumberLaunch.value = undefined
   screen.value = next
+}
+function launchPlumber(intent: 'new' | 'continue') {
+  if (intent === 'new' ? !hasEmptyFile.value : !hasSavedFile.value) return
+  plumberLaunch.value = intent
+  screen.value = 'play'
 }
 function stepStory(direction: number) {
   storyIndex.value = Math.max(
@@ -958,6 +986,10 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
 .plumber-option:focus-visible {
   background: #235e68;
   transform: translateX(0.2rem);
+}
+.plumber-option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .plumber-option--primary {
   color: #082437;

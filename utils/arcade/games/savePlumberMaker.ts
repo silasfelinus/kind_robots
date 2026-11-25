@@ -34,6 +34,8 @@ export const MAKER_GROUPS: MakerGroup[] = [
       { key: '#', icon: '▧', label: 'Ground' },
       { key: 'B', icon: '▣', label: 'Hard block' },
       { key: '=', icon: '━', label: 'One-way platform' },
+      { key: '/', icon: '◢', label: 'Uphill ramp' },
+      { key: '\\', icon: '◣', label: 'Downhill ramp' },
       { key: '<', icon: '◀', label: 'Left conveyor' },
       { key: '>', icon: '▶', label: 'Right conveyor' },
       { key: ':', icon: '◇', label: 'Blinking bridge' },

@@ -36,9 +36,7 @@
       >
         <div class="scpvp-poster">
           <SlimeCityArtwork
-            :image-id="
-              slimeArtId('crews', answering ? pvp.duel!.hostTeam : selectedTeam)
-            "
+            :image-id="slimeArtId('crews', selectedTeam)"
             :alt="nameOf(selectedTeam) + ' crew poster'"
             fallback="⚔"
             compact
@@ -69,28 +67,15 @@
           </div>
         </div>
         <div class="scpvp-lobby-tools">
-          <div
-            class="scpvp-crew-grid"
-            role="group"
-            aria-label="Choose your crew"
-          >
-            <button
-              v-for="team in TEAMS"
-              :key="team.id"
-              type="button"
-              :class="{ chosen: selectedTeam === team.id }"
-              :aria-pressed="selectedTeam === team.id"
-              :aria-label="team.name"
-              @click="selectedTeam = team.id"
-            >
-              <SlimeCityArtwork
-                :image-id="slimeArtId('crews', team.id)"
-                :alt="team.name"
-                :fallback="team.insignia"
-                compact
-              />
-              <span>{{ team.name }}</span>
-            </button>
+          <SlimeCityCrewSelect
+            class="scpvp-lobby-crew"
+            label="Your crew"
+            :team-id="selectedTeam"
+            @picked="selectedTeam = $event"
+          />
+          <div class="scpvp-lobby-power">
+            <b>{{ factionPower(selectedTeam).name }}</b>
+            <p>{{ factionPower(selectedTeam).text }}</p>
           </div>
           <div
             v-if="!invitedId"
@@ -334,6 +319,7 @@
               @pointerenter="hoverSlot($event, side, lane)"
               @pointerleave="hoverUid = null"
             >
+              <SlimeCityTrapSlice :trap="trapAt(side, lane)" />
               <template v-if="unit(side, lane)">
                 <SlimeCityArtwork
                   :image-id="
@@ -403,16 +389,7 @@
                     : 'TARGET'
                   : lane + 1
               }}</span>
-              <span
-                v-if="
-                  board.traps.some(
-                    (trap) => trap.side === side && trap.lane === lane,
-                  )
-                "
-                class="scpvp-own-trap"
-                aria-label="Your hidden trap in this alley"
-                >✦ ARMED</span
-              >
+
               <span
                 v-for="pop in floatsAt(side, lane)"
                 :key="pop.key"
@@ -467,6 +444,7 @@
             :inspect="inspect"
             open-off-turn
             dock-held
+            focus-toggle
             @pick="onPick"
             @drop="onDrop"
           />
@@ -695,7 +673,12 @@ import {
   clashPowerSpent,
   type ClashStrike,
 } from '~/utils/slimeCity/clash'
-import { pvpCardRow, pvpClashView, type PvpBoard } from '~/utils/slimeCity/pvp'
+import {
+  pvpCardRow,
+  pvpClashView,
+  visibleClashTrapAt,
+  type PvpBoard,
+} from '~/utils/slimeCity/pvp'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { CLASH_SPEED_PACE } from '~/stores/helpers/slimeCityClashPreference'
 import { OVERCHARGE_RULE, factionPower } from '~/utils/slimeCity/factionPowers'
@@ -906,6 +889,9 @@ function unit(side: Side, lane: number) {
   return board.value?.units.find(
     (item) => item.side === side && item.lane === lane,
   )
+}
+function trapAt(side: Side, lane: number) {
+  return visibleClashTrapAt(board.value?.traps ?? [], seat.value, side, lane)
 }
 type BoardUnit = NonNullable<ReturnType<typeof unit>>
 function tapStage(fighter: BoardUnit) {
@@ -1132,7 +1118,9 @@ function whyNot(side: Side, lane: number): string {
       card.name +
       (rowFor(id) === seat.value
         ? ' goes in one of your own alleys.'
-        : ' targets a rival fighter.')
+        : card.kind === 'trap'
+          ? ' goes in a rival alley.'
+          : ' targets a rival fighter.')
     )
   if (!canClashPlay(view.value, seat.value, id, lane))
     return card.name + ' cannot go in alley ' + (lane + 1) + '.'
@@ -1203,7 +1191,7 @@ const ticker = computed(() => {
   if (rejectNote.value) return rejectNote.value
   if (!pvp.isMyTurn)
     return board.value.hand.length
-      ? 'Rival’s turn. Your next hand is ready: tap a card to read it, or tap the deck to hide it.'
+      ? 'Rival’s turn. Your next hand is ready: switch to CARDS to read it.'
       : 'Rival’s turn.'
   if (sweeping.value || board.value.phase === 'attack')
     return 'Each fighter strikes across its alley; an open alley hits the boss.'
@@ -1263,6 +1251,9 @@ function slotLabel(side: Side, lane: number): string {
           .map((tag) => ', ' + tag.title)
           .join('')
       : ', empty') +
+    (trapAt(side, lane)
+      ? ', your armed trap: ' + cardById(trapAt(side, lane)!.cardId).name
+      : '') +
     (targetable(side, lane) ? ', playable target' : '')
   )
 }
@@ -1688,31 +1679,27 @@ watch(
   justify-content: center;
   gap: 1rem;
 }
-.scpvp-crew-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
-}
-.scpvp-crew-grid button {
-  border: 2px solid #416264;
-  border-radius: 0.75rem;
-  overflow: hidden;
-  text-align: left;
-  background: #112933;
-}
-.scpvp-crew-grid button.chosen {
-  border-color: #d4f960;
-  box-shadow: 0 0 0 2px #d4f96044;
-}
-.scpvp-crew-grid button > :first-child {
+.scpvp-lobby-crew :deep(.scs-current) {
   width: 100%;
-  aspect-ratio: 4/3;
+  min-height: 3.5rem;
 }
-.scpvp-crew-grid button span {
-  display: block;
-  padding: 0.35rem;
-  font-size: 0.75rem;
-  font-weight: 800;
+.scpvp-lobby-crew :deep(.scs-current .slime-art) {
+  width: 3rem;
+  height: 3rem;
+}
+.scpvp-lobby-crew :deep(.scs-name b) {
+  max-width: none;
+  font-size: 1rem;
+}
+.scpvp-lobby-power {
+  padding: 0.65rem;
+  border: 2px solid #d4f960;
+  background: #112933;
+  font-size: 0.85rem;
+}
+.scpvp-lobby-power b {
+  color: #d4f960;
+  font-weight: 900;
 }
 .scpvp-primary {
   padding: 0.7rem 1rem;
@@ -1904,12 +1891,6 @@ watch(
   .scpvp-poster-copy {
     padding: 0.6rem;
   }
-  .scpvp-crew-grid button > :first-child {
-    aspect-ratio: 2/1;
-  }
-  .scpvp-crew-grid button span {
-    font-size: 0.59rem;
-  }
   .scpvp-lobby-tools {
     gap: 0.4rem;
   }
@@ -2002,6 +1983,7 @@ watch(
 }
 .scpvp-stats {
   position: absolute;
+  z-index: 2;
   inset: 0.25rem 0.25rem auto;
   display: flex;
   justify-content: space-between;
@@ -2035,6 +2017,7 @@ watch(
 }
 .scpvp-tags {
   position: absolute;
+  z-index: 2;
   inset: auto 0.25rem 0.25rem;
   display: flex;
   flex-wrap: wrap;
@@ -2065,6 +2048,7 @@ watch(
 .scpvp-unit-label {
   position: absolute;
   inset: calc(0.8rem + clamp(0.72rem, 1.9vw, 1.2rem)) 0 auto;
+  z-index: 2;
   display: flex;
   flex-direction: column-reverse;
   align-items: center;
@@ -2094,6 +2078,7 @@ watch(
 }
 .scpvp-empty {
   position: absolute;
+  z-index: 2;
   inset: 0;
   display: grid;
   place-items: center;
@@ -2107,17 +2092,6 @@ watch(
   font-size: clamp(0.6rem, 1.4vw, 0.9rem);
   letter-spacing: 0.1em;
   opacity: 1;
-}
-.scpvp-own-trap {
-  position: absolute;
-  left: 0.25rem;
-  bottom: 2.4rem;
-  padding: 0.1rem 0.3rem;
-  border-radius: 0.3rem;
-  background: #152632ea;
-  color: #e8f787;
-  font-size: 0.6rem;
-  font-weight: 900;
 }
 .scpvp-float {
   position: absolute;
@@ -2440,47 +2414,6 @@ watch(
 }
 .scpvp-arena {
   grid-area: arena;
-}
-/*
-  Silas, 2026-11-24 PT: "The card enlarged is fully blocking the middle lane."
-  With the boss rail beside the board, the held card docks over the rail
-  (its right edge on the rail's), so every alley stays visible and tappable.
-  The hand may overhang the arena for this; the stage still clips the page.
-*/
-@media (min-width: 691px) and (orientation: landscape) {
-  .scpvp-arena :deep(.cxh) {
-    --held-reach: calc(clamp(10rem, 17vw, 15rem) + 0.4rem + 1px);
-    overflow: visible;
-  }
-  .scpvp-arena :deep(.cxh .cxh-card.big.held-dock.dock-left) {
-    --x: calc(50cqw - 0.6rem - var(--W) / 2 + var(--held-reach));
-  }
-  .scpvp-arena :deep(.cxh .cxh-levels.docked.held-dock.dock-left) {
-    left: auto;
-    right: calc(0.6rem + var(--W) / 2 - var(--held-reach));
-    transform: translateX(50%);
-  }
-  /*
-    The held card hangs from the top of the rail, over the bosses, so the
-    deck, BACK, LOG and turn button at the rail's foot stay in reach.
-  */
-  .scpvp-arena :deep(.cxh .cxh-card.big.held-dock) {
-    --y: calc(0.5rem + var(--W) * 1.5 - 100cqh);
-  }
-  /*
-    Its level tabs float over the card's art band (between the name block
-    and the rules), so they never cover the console or a choice below.
-  */
-  .scpvp-arena :deep(.cxh .cxh-levels.docked.held-dock) {
-    top: calc(0.5rem + var(--W) * 0.55);
-  }
-  /*
-    While a card is held it overhangs the rail, so it rises above the
-    console: its rules must never sit under the deck or gear buttons.
-  */
-  .scpvp-arena :deep(.cxh.holding) {
-    z-index: 9;
-  }
 }
 .scpvp-rail {
   grid-area: rail;
@@ -2891,26 +2824,6 @@ watch(
     flex: 1 1 5rem;
     max-width: none;
   }
-  .scpvp-arena :deep(.cxh) {
-    --W: min(18rem, 42cqw, 28cqh);
-  }
-  .scpvp-arena :deep(.cxh .cxh-card) {
-    --rest: 0.84;
-    --peek: 0.92;
-  }
-  .scpvp-arena :deep(.cxh.open .cxh-card:not(.big)) {
-    --x: calc(
-      50cqw - 1.2rem - var(--W) * var(--rest) / 2 + (2 * var(--o) - var(--i)) *
-        min(var(--W) * var(--rest) * 0.66, 13cqw)
-    );
-    --r: calc(var(--rot) * 0.5);
-  }
-  .scpvp-arena :deep(.cxh .cxh-card.big.held-dock) {
-    --y: calc(0.5rem + var(--W) * 1.5 - 100cqh);
-  }
-  .scpvp-arena :deep(.cxh .cxh-levels.docked.held-dock) {
-    top: calc(0.5rem + var(--W) * 0.55);
-  }
 }
 @media (max-width: 690px) and (orientation: portrait) {
   .scpvp-battle {
@@ -2928,5 +2841,54 @@ watch(
   .scpvp-slot.entered {
     animation: none;
   }
+}
+.scpvp-arena :deep(.cxh) {
+  --W: min(20rem, 36cqw, 46cqh);
+  --pvp-preview-width: min(18rem, 42cqw, 38cqh);
+  --rest: 1;
+  --peek: 1;
+}
+.scpvp-arena :deep(.cxh:not(.open) .cxh-card:not(.big)) {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.scpvp-arena :deep(.cxh.open .cxh-card:not(.big):not(.dragging)) {
+  --x: calc(
+    var(--o) * min(var(--W) * 0.8, (100cqw - var(--W) - 1rem) / var(--n1, 1))
+  );
+  --y: -0.5rem;
+  --s: 1;
+  --r: 0deg;
+}
+.scpvp-arena :deep(.cxh.holding.open .cxh-card:not(.big):not(.dragging)) {
+  --y: calc(var(--W) * 1.5 - 2.5rem);
+}
+.scpvp-arena :deep(.cxh .cxh-card.big:not(.dragging)) {
+  width: var(--pvp-preview-width);
+}
+.scpvp-arena :deep(.cxh .cxh-card.big.held-dock:not(.dragging)) {
+  --x: 22cqw;
+  --y: calc(var(--pvp-preview-width) * 0.75 - 50cqh);
+}
+.scpvp-arena :deep(.cxh .cxh-card.cxh-inspect) {
+  left: 72%;
+  right: auto;
+  transform: translate(-50%, -50%);
+}
+.scpvp-arena :deep(.cxh .cxh-levels.docked) {
+  left: 72%;
+  right: auto;
+  top: max(0.25rem, calc(50% - var(--pvp-preview-width) * 0.75 - 4.6rem));
+  transform: translateX(-50%);
+}
+.scpvp-hand-dock :deep(.cxh-toggle) {
+  transform: none;
+  animation: none;
+}
+.scpvp-hand-dock :deep(.cxh-toggle small) {
+  bottom: -0.65rem;
+  font-size: 0.65rem;
+  color: #e5f8aa;
 }
 </style>

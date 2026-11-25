@@ -51,7 +51,11 @@ import {
   makePortraitId,
 } from '~/utils/rulerHooked/portraitStore'
 import { HERO_RULER_PRESET_ID } from '~/utils/rulerHooked/rulerPresets'
-import { GEAR_CATALOG, KINGDOM_CATALOG } from '~/utils/rulerHooked/economy'
+import {
+  purchaseGearFor,
+  purchaseKingdomFor,
+  shopAvailable,
+} from '~/utils/rulerHooked/economy'
 import {
   ADVISOR_CHARACTER_SLUG,
   currentAdvisorLine,
@@ -436,6 +440,12 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   }
 
   const coins = computed(() => save.value?.counters.coins ?? 0)
+  const canShop = computed(() =>
+    shopAvailable(
+      save.value,
+      !!(activeFishing.value || activeCard.value || pendingEnding.value),
+    ),
+  )
 
   /**
    * Spend coins on a permanent gear upgrade (ruler-hooked/t-029). Both the
@@ -445,16 +455,9 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
    * disables the button in those cases, this is the authoritative guard.
    */
   function purchaseGear(itemId: string) {
-    if (!save.value) return
-    const item = GEAR_CATALOG.find((g) => g.id === itemId)
-    if (!item) return
-    if (save.value.flags[item.flagKey]) return
-    if (coins.value < item.cost) return
-    const next = cloneSave(save.value)
-    applyEffect(next, {
-      counters: { coins: -item.cost },
-      flags: { set: [item.flagKey] },
-    })
+    if (!save.value || !canShop.value) return
+    const next = purchaseGearFor(save.value, itemId)
+    if (next === save.value) return
     next.updatedAt = nowStamp()
     save.value = next
     persist()
@@ -466,15 +469,9 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
    *  than a parallel currency"), via the same Effect reducer. Repeatable
    *  -- unlike gear, a kingdom item may be bought again for another dose. */
   function purchaseKingdomItem(itemId: string) {
-    if (!save.value) return
-    const item = KINGDOM_CATALOG.find((k) => k.id === itemId)
-    if (!item) return
-    if (coins.value < item.cost) return
-    const next = cloneSave(save.value)
-    applyEffect(next, {
-      counters: { coins: -item.cost },
-      sliders: item.sliders,
-    })
+    if (!save.value || !canShop.value) return
+    const next = purchaseKingdomFor(save.value, itemId)
+    if (next === save.value) return
     next.updatedAt = nowStamp()
     save.value = next
     persist()
@@ -521,6 +518,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     scrapbook,
     scene,
     canFish,
+    canShop,
     coins,
     advisorCharacter,
     advisorLine,

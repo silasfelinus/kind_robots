@@ -2,7 +2,7 @@
 title: 'Rewards'
 room: 'Reward Gallery'
 subtitle: 'Beautiful narrative chaos'
-description: 'Explore community-created rewards: items, powers, and prompts that twist the rules of our AI storytelling worlds.'
+description: 'Browse rewards made by the community: items, powers and story twists you can add to a story to change how it unfolds.'
 image: splash/rewards.png
 icon: kind-icon:vortex
 tooltip: 'Browse rewards that inject wonder, mischief, or magic into the story.'

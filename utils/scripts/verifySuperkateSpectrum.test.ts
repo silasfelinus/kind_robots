@@ -20,6 +20,8 @@ import {
   pushCeiling,
 } from '../arcade/superkateSpectrum/board'
 import { emptyInput } from '../arcade/types'
+import { spectrumBoardKey, spectrumRankedBoard } from '../arcade/leaderboard'
+import { findArcadeGame, isPlausibleScore } from '../arcade/games'
 import {
   rankForXp,
   recordClassicEnd,
@@ -38,7 +40,11 @@ import {
   pendingStoryDecision,
 } from '../arcade/superkateSpectrum/story'
 import {
+  ATELIER_PUZZLES,
+  atelierBoard,
   BOSS_PATTERNS,
+  SPECTRUM_BOSS_ART,
+  newlyUnlockedStyles,
   bossContact,
   bossTarget,
   create,
@@ -390,6 +396,18 @@ const mapStart = emptyInput()
 mapStart.pressed.a = true
 mapRun.update(mapStart)
 assert.equal(mapRun.level, 2, 'Map selection starts the selected replay')
+assert.equal(mapRun.scoreBoard, null, 'Late-stage replay is not ranked')
+assert.equal(spectrumRankedBoard('story', 1), spectrumBoardKey('story'))
+assert.equal(spectrumRankedBoard('story', 2), null)
+assert.equal(spectrumRankedBoard('classic', 1), spectrumBoardKey('classic'))
+assert.notEqual(spectrumBoardKey('story'), spectrumBoardKey('classic'))
+for (const mode of ['story', 'classic'] as const) {
+  const key = spectrumBoardKey(mode)
+  assert.equal(findArcadeGame(key)?.slug, key)
+  assert.equal(isPlausibleScore(key, 100), true)
+  assert.equal(isPlausibleScore(key, 10_000_001), false)
+}
+assert.equal(isPlausibleScore('superkate-spectrum-other', 100), false)
 assert.equal(mapRun.save.career.highestStage, 12)
 assert.deepEqual(mapRun.save.career.stars, cloudB.career.stars)
 
@@ -418,6 +436,56 @@ function tapStage(
 ) {
   run.stagePointer({ phase: 'down', ...point })
   run.stagePointer({ phase: 'up', ...point })
+}
+
+// Cosmetic celebrations use actual XP threshold crossings, never loaded saves.
+assert.deepEqual(newlyUnlockedStyles(1079, 1080), ['candy'])
+assert.deepEqual(newlyUnlockedStyles(7679, 7680), ['starlight'])
+assert.deepEqual(newlyUnlockedStyles(23519, 23520), ['prismatic'])
+assert.deepEqual(newlyUnlockedStyles(0, 23520), [
+  'candy',
+  'starlight',
+  'prismatic',
+])
+assert.deepEqual(newlyUnlockedStyles(1080, 1090), [])
+for (const mode of ['story', 'classic'] as const) {
+  const reward = create({
+    ...options,
+    resume: readSpectrumSave({
+      ...cloudB,
+      mode,
+      stage: 1,
+      career: {
+        ...cloudB.career,
+        highestStage: 1,
+        xp: mode === 'story' ? 900 : 1070,
+      },
+      style: 'glass',
+      settings: { ...cloudB.settings, particles: false },
+    }),
+  } as Parameters<typeof create>[0])
+  assert.equal(reward.cosmeticUnlock, null)
+  reward.update(mapStart)
+  reward.board = emptyBoard()
+  reward.board[0]![4] = 'pink'
+  reward.board[0]![5] = 'pink'
+  reward.loaded = 'pink'
+  reward.next = 'pink'
+  tapStage(reward, { x: 148, y: 40 })
+  for (let tick = 0; tick < 400 && reward.shot; tick++)
+    reward.update(emptyInput())
+  assert.equal(reward.cosmeticUnlock, 'candy')
+  assert.equal(reward.cosmeticUnlockTicks, 240)
+  assert.equal(reward.selectedStyle, 'glass')
+  assert.ok(reward.save.career.xp >= 1080)
+  assert.equal(reward.settings.particles, false)
+  const loaded = create({
+    ...options,
+    resume: reward.save,
+  } as Parameters<typeof create>[0])
+  assert.equal(loaded.cosmeticUnlock, null)
+  for (let tick = 0; tick < 240; tick++) reward.update(emptyInput())
+  assert.equal(reward.cosmeticUnlock, null)
 }
 
 const touchRun = create({
@@ -477,6 +545,10 @@ for (let stage = 1; stage <= 30; stage++) {
   tapStage(nodeRun, storyMapPosition(stage))
   assert.equal(nodeRun.level, stage)
   assert.equal(nodeRun.menuOpen, false)
+  assert.equal(
+    nodeRun.scoreBoard,
+    stage === 1 ? spectrumBoardKey('story') : null,
+  )
 }
 
 const hub = create({
@@ -559,6 +631,156 @@ const audioReload = create({
 } as Parameters<typeof create>[0])
 assert.equal(audioReload.music, null)
 assert.equal(audioReload.settings.effects, false)
+
+const touchMenu = create({
+  ...options,
+  resume: readSpectrumSave({ ...cloudB, mode: 'story' }),
+  audio: { muted: false, volume: 0.4 },
+} as Parameters<typeof create>[0])
+tapStage(touchMenu, { x: 120, y: 470 })
+assert.equal(touchMenu.menuTab, 'scrapbook')
+tapStage(touchMenu, { x: 260, y: 343 })
+assert.equal(touchMenu.albumChapter, 1)
+tapStage(touchMenu, { x: 60, y: 343 })
+assert.equal(touchMenu.albumChapter, 0)
+tapStage(touchMenu, { x: 200, y: 470 })
+assert.equal(touchMenu.menuTab, 'achievements')
+tapStage(touchMenu, { x: 280, y: 470 })
+assert.equal(touchMenu.menuTab, 'settings')
+const oldContrast = touchMenu.settings.highContrast
+tapStage(touchMenu, { x: 250, y: 227 })
+assert.equal(touchMenu.settings.highContrast, !oldContrast)
+assert.equal(touchMenu.save.settings.highContrast, !oldContrast)
+tapStage(touchMenu, { x: 250, y: 314 })
+assert.equal(touchMenu.audio.muted, true)
+tapStage(touchMenu, { x: 250, y: 343 })
+assert.equal(touchMenu.audio.volume, 0.5)
+tapStage(touchMenu, { x: 60, y: 343 })
+assert.equal(touchMenu.audio.volume, 0.4)
+touchMenu.stagePointer({ phase: 'down', x: 40, y: 470 })
+touchMenu.stagePointer({ phase: 'up', x: 120, y: 470 })
+assert.equal(touchMenu.menuTab, 'settings')
+tapStage(touchMenu, { x: 40, y: 470 })
+assert.equal(touchMenu.menuTab, 'play')
+tapStage(touchMenu, { x: 160, y: 450 })
+assert.equal(touchMenu.mode, 'classic')
+assert.equal(touchMenu.menuOpen, true)
+tapStage(touchMenu, { x: 160, y: 220 })
+assert.equal(touchMenu.mode, 'story')
+assert.equal(touchMenu.menuOpen, true)
+
+// Atelier uses the actual projectile loop, not direct mutation of board cells.
+for (const [index, puzzle] of ATELIER_PUZZLES.entries()) {
+  const run = create({
+    ...options,
+    resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),
+  } as Parameters<typeof create>[0])
+  const original = JSON.stringify(run.save)
+  tapStage(run, { x: 160, y: 400 })
+  assert.equal(run.atelierMenu, true)
+  for (let i = 0; i < index; i++) tapStage(run, { x: 250, y: 230 })
+  tapStage(run, { x: 160, y: 290 })
+  assert.equal(run.atelierActive, true)
+  assert.equal(run.scoreBoard, null)
+  assert.deepEqual(run.board, atelierBoard(index))
+  for (const hue of puzzle.shots) {
+    assert.equal(run.loaded, hue)
+    const col = run.board[0]!.indexOf(hue)
+    assert.ok(col >= 0)
+    const x = center({ row: 0, col }).x + 14
+    tapStage(run, { x, y: 40 })
+    assert.ok(run.shot)
+    for (let tick = 0; tick < 400 && run.shot; tick++) run.update(emptyInput())
+    assert.equal(run.shot, null)
+  }
+  assert.equal(run.atelierResult, 'cleared')
+  assert.equal(run.over, false)
+  assert.equal(JSON.stringify(run.save), original)
+  assert.deepEqual(run.drainFeats(), [])
+  tapStage(run, { x: 160, y: 275 })
+  assert.equal(run.atelierResult, null)
+  assert.deepEqual(run.board, atelierBoard(index))
+  assert.equal(run.atelierUsed, 0)
+  assert.equal(JSON.stringify(run.save), original)
+}
+const failedAtelier = create({
+  ...options,
+  resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),
+} as Parameters<typeof create>[0])
+tapStage(failedAtelier, { x: 160, y: 400 })
+tapStage(failedAtelier, { x: 160, y: 290 })
+tapStage(failedAtelier, { x: 22, y: 40 })
+for (let tick = 0; tick < 400 && failedAtelier.shot; tick++)
+  failedAtelier.update(emptyInput())
+assert.equal(failedAtelier.atelierResult, 'retry')
+assert.equal(failedAtelier.scoreBoard, null)
+tapStage(failedAtelier, { x: 160, y: 325 })
+assert.equal(failedAtelier.menuOpen, true)
+assert.equal(failedAtelier.atelierActive, false)
+
+const relay = create({
+  ...options,
+  resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),
+} as Parameters<typeof create>[0])
+const relaySave = JSON.stringify(relay.save)
+tapStage(relay, { x: 160, y: 444 })
+assert.equal(relay.relayActive, true)
+assert.equal(relay.relayTurn, 1)
+let expectedTurn = 1
+let expectedScore = 0
+for (const [index, puzzle] of ATELIER_PUZZLES.entries()) {
+  assert.equal(relay.atelierIndex, index)
+  assert.equal(relay.scoreBoard, null)
+  assert.equal(relay.score, expectedScore)
+  assert.equal(relay.relayTurn, expectedTurn)
+  for (const [shotIndex, hue] of puzzle.shots.entries()) {
+    assert.equal(relay.loaded, hue)
+    const col = relay.board[0]!.indexOf(hue)
+    assert.ok(col >= 0)
+    tapStage(relay, { x: center({ row: 0, col }).x + 14, y: 40 })
+    assert.equal(relay.relayTurn, expectedTurn)
+    for (let tick = 0; tick < 400 && relay.shot; tick++)
+      relay.update(emptyInput())
+    expectedTurn = expectedTurn === 1 ? 2 : 1
+    expectedScore += 300 + shotIndex * 100
+    assert.equal(relay.relayTurn, expectedTurn)
+    assert.equal(relay.relayCombo, shotIndex + 1)
+    assert.equal(relay.score, expectedScore)
+  }
+  assert.equal(relay.atelierResult, 'cleared')
+  assert.equal(JSON.stringify(relay.save), relaySave)
+  assert.deepEqual(relay.drainFeats(), [])
+  tapStage(relay, { x: 160, y: 275 })
+}
+assert.equal(relay.menuOpen, true)
+assert.equal(relay.relayActive, false)
+assert.equal(relay.scoreBoard, null)
+assert.equal(JSON.stringify(relay.save), relaySave)
+
+const retryRelay = create({
+  ...options,
+  resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),
+} as Parameters<typeof create>[0])
+tapStage(retryRelay, { x: 160, y: 444 })
+tapStage(retryRelay, { x: 22, y: 40 })
+for (let tick = 0; tick < 400 && retryRelay.shot; tick++)
+  retryRelay.update(emptyInput())
+assert.equal(retryRelay.atelierResult, 'retry')
+assert.equal(retryRelay.relayTurn, 2)
+tapStage(retryRelay, { x: 160, y: 275 })
+assert.equal(retryRelay.relayTurn, 1)
+assert.equal(retryRelay.score, 0)
+assert.equal(retryRelay.atelierIndex, 0)
+assert.equal(retryRelay.scoreBoard, null)
+
+const classicRanked = create({
+  ...options,
+  resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),
+} as Parameters<typeof create>[0])
+assert.equal(classicRanked.scoreBoard, null)
+classicRanked.update(mapStart)
+assert.equal(classicRanked.scoreBoard, spectrumBoardKey('classic'))
+assert.equal(classicRanked.save.career.classicBest, cloudB.career.classicBest)
 
 const deepClassic = create({
   ...options,
@@ -787,6 +1009,15 @@ assert.equal((finaleRun.save.career.stars[29] ?? 0) > 0, true)
 assert.equal(validSpectrumCloudSave(finaleRun.save), true)
 assert.ok(finaleRun.mastered.includes('true-spectrum'))
 
+assert.deepEqual(SPECTRUM_BOSS_ART, [
+  '/images/arcade/superkate-spectrum/boss-greyscale-dryer.webp',
+  '/images/arcade/superkate-spectrum/boss-pruner.webp',
+  '/images/arcade/superkate-spectrum/boss-neon-inspector.webp',
+  '/images/arcade/superkate-spectrum/boss-archivist.webp',
+  '/images/arcade/superkate-spectrum/boss-sorting-machine.webp',
+  '/images/arcade/superkate-spectrum/boss-palette-keeper.webp',
+])
+assert.equal(SPECTRUM_BOSS_ART.length, BOSS_PATTERNS.length)
 for (let chapter = 0; chapter < BOSS_PATTERNS.length; chapter++) {
   const stage = (chapter + 1) * 5
   const run = create({

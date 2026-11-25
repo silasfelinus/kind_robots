@@ -3,13 +3,19 @@
 // here falls back to the classic picture. Re-run the export; do not edit by hand.
 
 export const RAINBOW_DOODLE_ART: readonly string[] = [
+  'alt/x1-far',
   'alt/x1-mid',
   'alt/x1-near',
   'alt/x1-sky',
+  'alt/x2-far',
   'alt/x2-near',
   'alt/x2-sky',
   'alt/x3-far',
+  'alt/x3-mid',
+  'alt/x3-near',
   'alt/x3-sky',
+  'alt/x4-far',
+  'alt/x4-near',
   'alt/x4-sky',
   'bosses/b01-phase1',
   'bosses/b01-phase2',

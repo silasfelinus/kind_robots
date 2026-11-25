@@ -97,3 +97,16 @@ export function formatChampion(
     : entry.initials
   return `${who} ${entry.score.toLocaleString('en-US')}`
 }
+
+export type SpectrumRankedMode = 'story' | 'classic'
+
+export function spectrumBoardKey(mode: SpectrumRankedMode): string {
+  return `superkate-spectrum-${mode}`
+}
+
+export function spectrumRankedBoard(
+  mode: SpectrumRankedMode,
+  startStage: number,
+): string | null {
+  return mode === 'classic' || startStage === 1 ? spectrumBoardKey(mode) : null
+}

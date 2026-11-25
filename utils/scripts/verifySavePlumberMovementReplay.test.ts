@@ -211,7 +211,6 @@ for (const dir of [-1, 1] as const) {
   )
 }
 
-
 for (const dir of [-1, 1] as const) {
   const descending = (power: PlumberPower | null) => {
     const run = labRun()
@@ -238,8 +237,7 @@ for (const dir of [-1, 1] as const) {
     'Springstep retains over 70% of entry momentum during a held descent',
   )
   assert.ok(
-    (glide.hero.x - startX) * dir >
-      (ordinary.hero.x - startX) * dir + 12,
+    (glide.hero.x - startX) * dir > (ordinary.hero.x - startX) * dir + 12,
     'the float carries meaningfully farther than a normal jump',
   )
   assert.equal(

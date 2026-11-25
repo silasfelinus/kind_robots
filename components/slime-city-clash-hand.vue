@@ -183,7 +183,9 @@
               ? 'Close your hand'
               : 'Open your hand: ' + cards.length + ' cards'
         "
-        :title="focusToggle ? game.decks[me].length + ' cards in deck' : undefined"
+        :title="
+          focusToggle ? game.decks[me].length + ' cards in deck' : undefined
+        "
         data-testid="clash-hand-toggle"
         @click="toggle"
       >

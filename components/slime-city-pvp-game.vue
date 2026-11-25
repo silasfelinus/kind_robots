@@ -559,9 +559,7 @@
             type="button"
             class="scpvp-tap"
             :disabled="!canAct || !pinnedTap.ready"
-            :title="
-              'Use ' + pinnedTap.title + ' instead of attacking this turn'
-            "
+            :title="pinnedTap.title"
             :data-testid="'slime-pvp-tap-' + pinnedTap.uid"
             @click="tapFighter(pinnedTap.uid)"
           >
@@ -641,6 +639,20 @@
           </p>
         </div>
       </section>
+      <section v-else class="scpvp-waiting" role="status">
+        <div class="scpvp-lobby-tools">
+          <strong>{{ pvp.error || 'Waiting for the battlefield…' }}</strong>
+          <button
+            type="button"
+            class="scpvp-primary"
+            :disabled="pvp.loading || pvp.sending"
+            @click="pvp.load(pvp.duel.id)"
+          >
+            {{ pvp.loading ? 'LOADING…' : 'RETRY' }}
+          </button>
+          <NuxtLink to="/play/slime-city?vs=1">← BACK TO VS</NuxtLink>
+        </div>
+      </section>
     </div>
   </main>
 </template>
@@ -679,6 +691,7 @@ import {
   clashPowerSpent,
   type ClashStrike,
 } from '~/utils/slimeCity/clash'
+import { evoTapText } from '~/utils/slimeCity/evolutions/dsl'
 import { pvpCardRow, pvpClashView, type PvpBoard } from '~/utils/slimeCity/pvp'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { CLASH_SPEED_PACE } from '~/stores/helpers/slimeCityClashPreference'
@@ -831,7 +844,12 @@ const canAct = computed(
 )
 const canPlay = computed(() => canAct.value && board.value?.phase === 'play')
 const playLimit = computed(() =>
-  view.value ? clashPlayLimit(view.value, view.value.active) : 2,
+  board.value?.playLimit ??
+  (view.value && view.value.active === seat.value
+    ? clashPlayLimit(view.value, view.value.active)
+    : board.value?.round === 1 && board.value.active === 'player'
+      ? 1
+      : 2),
 )
 const playsUsed = computed(() =>
   Math.min(playLimit.value, board.value?.plays[board.value.active] ?? 0),
@@ -933,10 +951,7 @@ function fighterTags(
         fighter.attacked || fighter.activatedRound === board.value?.round
           ? '↷ USED'
           : '↷ TAP',
-      title:
-        'Tap ability: ' +
-        stage.title +
-        '. Using it skips this fighter’s strike this turn.',
+      title: evoTapText(stage),
     })
   if (fighter.armor)
     tags.push({
@@ -952,21 +967,6 @@ function fighterTags(
     })
   return tags
 }
-function fighterNote(fighter: BoardUnit): string {
-  const status = fighterTags(fighter)
-    .map((tag) => tag.title)
-    .join(' · ')
-  return (
-    (fighter.side === seat.value ? 'YOUR FIGHTER' : 'RIVAL FIGHTER') +
-    ' · ⚔ ' +
-    fighter.power +
-    ' · ♥ ' +
-    fighter.hp +
-    '/' +
-    fighter.maxHp +
-    (status ? ' · ' + status : '')
-  )
-}
 const inspect = computed(() => {
   const units = board.value?.units ?? []
   const pinned = units.find((u) => u.uid === pinnedUid.value)
@@ -980,7 +980,11 @@ const inspect = computed(() => {
     id: fighter.cardId,
     level: fighter.level,
     pick: fighter.evoChoice === 1 ? (1 as const) : (0 as const),
-    note: fighterNote(fighter),
+    liveStats: {
+      attack: fighter.power,
+      hp: fighter.hp,
+      maxHp: fighter.maxHp,
+    },
     hover: !pinned,
     dock: fighter.lane <= 2 ? ('right' as const) : ('left' as const),
   }
@@ -1007,7 +1011,7 @@ const pinnedTap = computed(() => {
   if (!fighter || !stage || !view.value) return null
   return {
     uid: fighter.uid,
-    title: stage.title,
+    title: evoTapText(stage),
     ready: canClashActivate(view.value, seat.value, fighter.uid),
   }
 })

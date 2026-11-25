@@ -86,6 +86,48 @@ async function setPad(page, buttons = [], axes = [0, 0, 0, 0]) {
 }
 const results = []
 try {
+  for (const [width, height] of [
+    [390, 844],
+    [768, 1024],
+    [1440, 900],
+  ]) {
+    const { page, errors, context } = await openCabinet(browser, fixture, {
+      slug: 'save-the-plumber',
+      width,
+      height,
+      help: 'save-the-plumber',
+    })
+    try {
+      const guide = page.locator('#help')
+      await guide.getByText('Your rescue starts here').first().waitFor()
+      const layout = await page.evaluate(() => ({
+        help: document.querySelector('#help').innerText,
+        pageWidth: document.documentElement.scrollWidth,
+        canvas: document
+          .querySelector('#cabinet canvas')
+          .getBoundingClientRect()
+          .toJSON(),
+      }))
+      for (const phrase of [
+        'Movement lab',
+        'hold B with a direction to run',
+        'Press A or Up to jump',
+        'preserve horizontal momentum',
+        'Down + X',
+        'gamepad, touch, pause and sound',
+      ])
+        assert.ok(
+          layout.help.includes(phrase),
+          `${width}px: guide shows ${phrase}`,
+        )
+      assert.ok(layout.canvas.width > 0 && layout.canvas.right <= width + 1)
+      assert.ok(layout.pageWidth <= width + 1, `${width}px: no sideways scroll`)
+      assert.deepEqual(errors, [])
+      results.push(width + 'px rendered tutorial')
+    } finally {
+      await context.close()
+    }
+  }
   for (const width of [1440, 768, 390]) {
     const touch = width !== 1440
     const height = width === 390 ? 844 : 900

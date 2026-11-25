@@ -957,3 +957,7 @@ for (const file of [
     /\.scpvp-unit-label \{\s*position: absolute;\s*inset: calc\(0\.8rem/,
   )
 }
+
+const armorView = readFileSync('components/slime-city-pvp-game.vue', 'utf8')
+assert.match(armorView, /data-testid="slime-pvp-armor"/)
+assert.match(armorView, /v-if="unit\(side, lane\)!\.armor > 0"/)

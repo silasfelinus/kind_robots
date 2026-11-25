@@ -1883,10 +1883,7 @@ assert.ok(
   !stillLit || stillLit.keywords.includes('volatile'),
   'only one-play snares defuse',
 )
-assert.match(
-  clashCardText(cardById('bloodwire')),
-  /removes Volatile/,
-)
+assert.match(clashCardText(cardById('bloodwire')), /removes Volatile/)
 assert.ok(clashCardText(cardById('amp-tripwire'), 2).length <= 160)
 assert.match(clashCardText(cardById('shocktrap')), /Stuns foe/)
 const rootTerms = clashGlossaryParts('Roots a rival and removes Volatile.')

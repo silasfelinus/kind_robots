@@ -605,9 +605,7 @@ function clashBaseText(card: Card, level: number): string {
       b.power +
       ' damage.' +
       (card.roots ? ' Stuns foe.' : '') +
-      (isArmorCutterSnare(card)
-        ? ' Cuts armor; removes Volatile.'
-        : '')
+      (isArmorCutterSnare(card) ? ' Cuts armor; removes Volatile.' : '')
     )
   switch (card.effect) {
     case 'heal':

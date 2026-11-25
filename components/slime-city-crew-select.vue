@@ -147,7 +147,13 @@ const props = withDefaults(
     teamId?: TeamId | null
     excludeTeam?: TeamId
   }>(),
-  { label: 'Crew', compact: false, align: 'left' },
+  {
+    label: 'Crew',
+    compact: false,
+    align: 'left',
+    teamId: undefined,
+    excludeTeam: undefined,
+  },
 )
 const emit = defineEmits<{ picked: [team: TeamId] }>()
 const lab = useSlimeCityStore()
@@ -365,14 +371,19 @@ function pick(team: TeamId): void {
     8px 8px 0 #000,
     0 24px 80px #000c;
 }
+.scs-menu[open] {
+  display: flex;
+  flex-direction: column;
+}
 .scs-menu::backdrop {
   background: #03080ce0;
 }
 .scs-spread {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
   gap: 0.5rem;
-  max-height: calc(100dvh - 1rem - 6px);
+  min-height: 0;
   padding: 0.65rem;
 }
 .scs-heading {

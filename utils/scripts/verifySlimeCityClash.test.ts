@@ -8,6 +8,7 @@ import {
   clashEvolutionStage,
 } from '../slimeCity/clashEvolutions'
 import { alleyDeck } from '../slimeCity/alleys'
+import { CLASH_GLOSSARY, clashGlossaryParts } from '../slimeCity/glossary'
 import { CLASH_TWISTS } from '../slimeCity/clashTwists'
 import { CARDS, TEAMS, cardById, type Side } from '../slimeCity/prototypes'
 import {
@@ -40,6 +41,7 @@ import {
   createClash,
   endClashTurn,
   nextClashStrike,
+  clashSummoningSick,
   passClash,
   playClash,
   replayClash,
@@ -472,7 +474,9 @@ assert.doesNotMatch(view, /\? RULES/)
 assert.doesNotMatch(view, /THE PITWORKS · MAIN EVENT/)
 assert.match(view, /slimeArtId\('boards', 'pitworks-blackout'\)/)
 const nav = readFileSync('components/navigation/channel-select.vue', 'utf8')
-assert.match(nav, /class="slime-nav-title"/)
+assert.doesNotMatch(nav, /slime-nav-title/)
+assert.match(nav, /\{\{ currentPageTitle \}\}/)
+assert.match(nav, /v-if="currentPageSubtitle"/)
 const artwork = readFileSync('components/slime-city-artwork.vue', 'utf8')
 assert.match(artwork, /fallbackImageId/)
 const artStore = readFileSync('stores/slimeCityArt.ts', 'utf8')
@@ -1879,7 +1883,22 @@ assert.ok(
   !stillLit || stillLit.keywords.includes('volatile'),
   'only one-play snares defuse',
 )
-assert.match(clashCardText(cardById('bloodwire')), /defuses VOLATILE/)
+assert.match(clashCardText(cardById('bloodwire')), /removes Volatile/)
+assert.ok(clashCardText(cardById('amp-tripwire'), 2).length <= 160)
+assert.match(clashCardText(cardById('shocktrap')), /no attack or counterattack/)
+const rootTerms = clashGlossaryParts('Roots a rival and removes Volatile.')
+assert.deepEqual(
+  rootTerms.flatMap((part) => (part.entry ? [part.entry.term] : [])),
+  ['Stun', 'Volatile'],
+)
+assert.match(
+  CLASH_GLOSSARY.find((entry) => entry.term === 'Stun')!.definition,
+  /counterattack/,
+)
+assert.match(
+  CLASH_GLOSSARY.find((entry) => entry.term === 'Volatile')!.definition,
+  /rival boss/,
+)
 // The CPU knows the payoff: with a cheap snare in hand it springs it on the
 // VOLATILE fighter rather than an identical-threat empty alley.
 const cpuWire = createClash('bloodfairies', 'riot', 1964)
@@ -2704,3 +2723,38 @@ assert.doesNotMatch(
   /localStorage/,
   'in-play settings must not persist preferences on its own',
 )
+
+for (const keyword of Object.keys(CLASH_TRAIT_TEXT)) {
+  assert.ok(
+    CLASH_GLOSSARY.some((entry) => entry.aliases.includes(keyword)),
+    'Glossary must cover ' + keyword,
+  )
+}
+const glossarySample = 'Tap (skip strike): grant BULLDOZE and faction power.'
+const glossaryParts = clashGlossaryParts(glossarySample)
+assert.equal(glossaryParts.map((part) => part.text).join(''), glossarySample)
+assert.deepEqual(
+  glossaryParts.flatMap((part) => (part.entry ? [part.entry.term] : [])),
+  ['Tap', 'Tap', 'Bulldoze', 'Faction power'],
+)
+assert.equal(clashGlossaryParts('attacker')[0]?.entry, undefined)
+
+assert.match(
+  hand,
+  /@media \(min-width: 691px\) and \(orientation: landscape\) \{\s*@container \(min-width: 30rem\) and \(min-aspect-ratio: 1 \/ 1\) \{\s*\.cxh-card \{\s*--rest: 0\.78;\s*--peek: 0\.85;/,
+  'wide landscape hands must show substantially larger resting cards',
+)
+
+assert.equal(clashSummoningSick({ fresh: true, keywords: [] }), true)
+assert.equal(clashSummoningSick({ fresh: true, keywords: ['ambush'] }), false)
+assert.equal(clashSummoningSick({ fresh: false, keywords: [] }), false)
+for (const path of [
+  'components/slime-city-clash.vue',
+  'components/slime-city-pvp-game.vue',
+]) {
+  assert.match(
+    readFileSync(path, 'utf8'),
+    /<SlimeCitySummoningSickness\s+v-if="[^"]*clashSummoningSick\(unit\(side, lane\)!\)"/,
+    'both battle surfaces show the same summoning sickness effect',
+  )
+}

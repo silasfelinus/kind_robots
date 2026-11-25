@@ -42,22 +42,54 @@
     <span class="ccf-rules">
       <small>{{ kind }}</small>
       <span v-if="rules" class="ccf-text">
-        <span v-for="(line, i) in ruleLines" :key="i" class="ccf-line"
-          ><b v-if="line.label" class="ccf-label">{{ line.label }}</b
-          >{{ line.body }}</span
-        >
+        <span v-for="(line, i) in ruleLines" :key="i" class="ccf-line">
+          <template v-for="(part, j) in line" :key="j">
+            <span
+              v-if="part.entry"
+              :class="{
+                'ccf-label': part.label,
+                'ccf-term': glossaryInteractive,
+              }"
+              :title="part.entry.definition"
+              @pointerenter="showTerm(part.entry)"
+              @pointerleave="leaveTerm"
+              @pointerdown="termPointerDown"
+              @click="toggleTerm($event, part.entry)"
+              >{{ part.text }}</span
+            >
+            <span v-else :class="{ 'ccf-label': part.label }">{{
+              part.text
+            }}</span>
+          </template>
+        </span>
       </span>
       <span v-if="note" class="ccf-text ccf-note">{{ note }}</span>
       <span v-if="flavor && flavorText" class="ccf-flavor">{{
         flavorText
       }}</span>
     </span>
+    <span
+      v-if="glossaryInteractive && activeTerm"
+      class="ccf-glossary"
+      role="status"
+      data-testid="clash-glossary-popup"
+      @pointerdown.stop
+      @click.stop="clearTerm"
+    >
+      <b>{{ activeTerm.term }} · GLOSSARY</b>
+      <span>{{ activeTerm.definition }}</span>
+      <small>Tap to close</small>
+    </span>
     <SlimeCityLevelFrame :level="level" />
   </span>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
+import {
+  clashGlossaryParts,
+  type ClashGlossaryEntry,
+} from '~/utils/slimeCity/glossary'
 import { slimeArtId, slimeCardArtId } from '~/utils/slimeCity/artManifest'
 import { cardById } from '~/utils/slimeCity/prototypes'
 import {
@@ -77,6 +109,7 @@ const props = withDefaults(
   defineProps<{
     cardId: string
     note?: string
+    glossaryInteractive?: boolean
     level?: number
     preview?: boolean
     /** A choose-one level three already played as option 0 or 1. */
@@ -87,7 +120,14 @@ const props = withDefaults(
      */
     flavor?: boolean
   }>(),
-  { note: '', level: 1, preview: false, pick: undefined, flavor: false },
+  {
+    note: '',
+    glossaryInteractive: false,
+    level: 1,
+    preview: false,
+    pick: undefined,
+    flavor: false,
+  },
 )
 const maxLevel = CLASH_MAX_LEVEL
 const lab = useSlimeCityStore()
@@ -110,9 +150,45 @@ const ruleLines = computed(() =>
       const m = /^([A-Z][A-Za-z' -]{0,22}(?: \([^)]{1,24}\))?):\s+(.+)$/.exec(
         sentence,
       )
-      if (!m) return { label: '', body: sentence }
-      return { label: m[1] + ': ', body: m[2] ?? '' }
+      return [
+        ...clashGlossaryParts(m ? m[1] + ': ' : '').map((part) => ({
+          ...part,
+          label: true,
+        })),
+        ...clashGlossaryParts(m ? (m[2] ?? '') : sentence).map((part) => ({
+          ...part,
+          label: false,
+        })),
+      ]
     }),
+)
+const activeTerm = ref<ClashGlossaryEntry | null>(null)
+const lockedTerm = ref(false)
+function clearTerm() {
+  activeTerm.value = null
+  lockedTerm.value = false
+}
+function showTerm(entry: ClashGlossaryEntry) {
+  if (props.glossaryInteractive && !lockedTerm.value) activeTerm.value = entry
+}
+function leaveTerm() {
+  if (!lockedTerm.value) clearTerm()
+}
+function termPointerDown(event: PointerEvent) {
+  if (props.glossaryInteractive) event.stopPropagation()
+}
+function toggleTerm(event: MouseEvent, entry: ClashGlossaryEntry) {
+  if (!props.glossaryInteractive) return
+  event.stopPropagation()
+  if (lockedTerm.value && activeTerm.value === entry) clearTerm()
+  else {
+    activeTerm.value = entry
+    lockedTerm.value = true
+  }
+}
+watch(
+  () => [props.cardId, props.level, props.pick, props.glossaryInteractive],
+  clearTerm,
 )
 const plays = computed(() => clashPlayCost(card.value))
 const kind = computed(() =>
@@ -300,6 +376,38 @@ const kind = computed(() =>
 .ccf-label {
   font-weight: 900;
   color: var(--lv);
+}
+.ccf-term {
+  pointer-events: auto;
+  cursor: help;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.15em;
+}
+.ccf-glossary {
+  position: absolute;
+  z-index: 5;
+  top: 4%;
+  left: 4%;
+  right: 4%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.55rem;
+  border: 1px solid var(--lv);
+  border-radius: 0.6rem;
+  background: #071a20;
+  color: #f2faf6;
+  font-size: clamp(0.75rem, 6cqw, 1rem);
+  line-height: 1.3;
+  text-align: left;
+  pointer-events: auto;
+}
+.ccf-glossary b {
+  color: var(--lv);
+}
+.ccf-glossary small {
+  font-size: 0.7em;
+  opacity: 0.75;
 }
 .ccf-note {
   color: #ffe6a6;

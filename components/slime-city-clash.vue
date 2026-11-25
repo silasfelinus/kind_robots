@@ -118,17 +118,16 @@
                     <span
                       v-if="tapStage(unit(side, lane)!)"
                       class="clash-tag is-tap"
-                      :title="
-                        'Tap: ' +
-                        tapStage(unit(side, lane)!)!.title +
-                        '. Skips this turn’s attack.'
-                      "
+                      :title="evoTapText(tapStage(unit(side, lane)!)!)"
                       >{{
                         unit(side, lane)!.attacked ? '↷ USED' : '↷ TAP'
                       }}</span
                     >
                   </span>
                   <SlimeCityLevelFrame :level="unit(side, lane)!.level" />
+                  <SlimeCitySummoningSickness
+                    v-if="!game.victor && clashSummoningSick(unit(side, lane)!)"
+                  />
                 </template>
                 <span v-else class="clash-empty">{{
                   targetable(side, lane)
@@ -474,11 +473,7 @@
                 type="button"
                 class="clash-reset clash-tap"
                 data-testid="clash-tap"
-                :title="
-                  'Activate ' +
-                  selectedTap.title +
-                  ' instead of attacking this turn'
-                "
+                :title="selectedTap.title"
                 :disabled="!canClashActivate(game, 'player', selectedTap.uid)"
                 @click="tapSelected"
               >
@@ -537,6 +532,7 @@
 </template>
 
 <script setup lang="ts">
+import { evoTapText } from '~/utils/slimeCity/evolutions/dsl'
 import {
   computed,
   nextTick,
@@ -578,6 +574,7 @@ import {
   replayClash,
   endClashTurn,
   nextClashStrike,
+  clashSummoningSick,
   passClash,
   playClash,
   strikeClash,
@@ -1021,7 +1018,9 @@ const selectedTap = computed(() => {
     (u) => u.uid === selectedUnit.value && u.side === 'player',
   )
   const stage = fighter && tapStage(fighter)
-  return fighter && stage ? { uid: fighter.uid, title: stage.title } : null
+  return fighter && stage
+    ? { uid: fighter.uid, title: evoTapText(stage) }
+    : null
 })
 function tapSelected(): void {
   if (!selectedTap.value) return
@@ -1087,7 +1086,7 @@ function hoverSlot(event: PointerEvent, side: Side, lane: number): void {
 }
 const inspect = computed<{
   id: string
-  note: string
+  liveStats: { attack: number; hp: number; maxHp: number }
   level: number
   pick?: EvoPick
   hover?: boolean
@@ -1109,24 +1108,11 @@ const inspect = computed<{
     pick: u.evoChoice ?? 0,
     hover: !pinned && !!hovered,
     dock: u.lane >= 2 ? 'left' : 'right',
-    note:
-      (u.side === 'player' ? 'Your fighter' : 'Rival fighter') +
-      ' in alley ' +
-      (u.lane + 1) +
-      ': ' +
-      clashPower(game.value, u) +
-      ' power, ' +
-      u.hp +
-      '/' +
-      u.maxHp +
-      ' life' +
-      (u.armor ? ', ' + u.armor + ' armor' : '') +
-      (u.guard ? ', +' + u.guard + ' Union Wall armor' : '') +
-      '.' +
-      (u.rooted ? ' Stunned: skips its next strike.' : '') +
-      (u.fresh && !u.keywords.includes('ambush')
-        ? ' Just landed: blocks now, strikes next turn.'
-        : ''),
+    liveStats: {
+      attack: clashPower(game.value, u),
+      hp: u.hp,
+      maxHp: u.maxHp,
+    },
   }
 })
 const ticker = computed(() =>
@@ -1155,8 +1141,6 @@ function healthWidth(side: Side): string {
 function status(u: ClashUnit): string {
   if (u.rooted) return 'STUN'
   if (u.guard) return 'WALL +' + u.guard
-  if (u.fresh && !game.value.victor && !u.keywords.includes('ambush'))
-    return 'NEW'
   return ''
 }
 function playableNow(id: string): boolean {
@@ -1235,6 +1219,9 @@ function slotLabel(side: Side, lane: number): string {
     (u ? ': ' + cardById(u.cardId).name + ', ' + u.hp + ' health' : ': empty') +
     (trapAt(side, lane)
       ? ', your armed trap: ' + cardById(trapAt(side, lane)!.cardId).name
+      : '') +
+    (u && !game.value.victor && clashSummoningSick(u)
+      ? ', summoning sickness: cannot attack this turn'
       : '') +
     (targetable(side, lane) ? ', playable target' : '')
   )
@@ -1338,7 +1325,7 @@ function forecast(lane: number): string {
   const power = (u: ClashUnit): string =>
     u.rooted
       ? '⌁'
-      : u.fresh && !u.keywords.includes('ambush')
+      : clashSummoningSick(u)
         ? '⏳'
         : String(clashPower(game.value, u))
   if (ours && theirs) return power(theirs) + ' ⇅ ' + power(ours)

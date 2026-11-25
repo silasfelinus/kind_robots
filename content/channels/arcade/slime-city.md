@@ -4,7 +4,7 @@ channelKey: arcade
 tabKey: slime-city
 label: Slime City
 title: Slime City
-subtitle: Six rival crews fight for a radioactive megacity
+subtitle: Five-alley card battles
 summary: Card battles, rival crews, city stories.
 description: A five-alley card battler. Play CLASH against the CPU or a friend, follow each of six crews through a five-chapter story, climb the twelve-floor Tower, and build 20-card decks from 300 cards that evolve as you replay them.
 icon: kind-icon:cat
@@ -12,7 +12,7 @@ route: /play/slime-city
 sort: 145
 requiredPermission: authenticated
 tutorial:
-  title: Slime City · five-alley card battler
+  title: How to play
   overview: >-
     Six crews, five alleys. Knock the rival boss from 40 to zero, or hold
     more boss life when the bell rings after round 24.
@@ -68,6 +68,9 @@ tutorial:
         Every time you play a card, your copy levels up for the match, up to
         LV 3, with stronger stats and new art. Tap a card and use the LV tabs
         to preview what it becomes.
+    - key: slime-city-glossary
+      title: Glossary of card and combat terms
+      body: Tap underlined terms on an enlarged card for their definitions.
 ---
 
 Pick a crew, play a five-alley CLASH, and follow your crew's story through Slime City.

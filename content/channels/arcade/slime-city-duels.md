@@ -4,7 +4,7 @@ channelKey: arcade
 tabKey: slime-city-duels
 navigation: false
 label: Slime City Duels
-title: Slime City · Two-Player Pit
+title: Slime City Duels
 subtitle: Five-alley CLASH against a real rival
 description: Challenge a friend or an open rival to a turn-by-turn Slime City CLASH. Each player moves on their own time; the duel waits for you.
 summary: Two-player Slime City CLASH duels.
@@ -14,7 +14,7 @@ route: /play/slime-city-pvp
 sort: 146
 requiredPermission: authenticated
 tutorial:
-  title: Slime City Duels · how to play
+  title: How to play
   overview: >-
     The same five-alley CLASH as the CPU game, against a real person one turn
     at a time. Knock the rival boss to zero, or hold more boss life when the
@@ -79,6 +79,9 @@ tutorial:
         Every time you play a card, your copy levels up for the match, up to
         LV 3, with stronger stats and new art. Tap a card and use the LV tabs
         to preview what it becomes.
+    - key: slime-city-glossary
+      title: Glossary of card and combat terms
+      body: Tap underlined terms on an enlarged card for their definitions.
 ---
 
 Two players, five alleys, one turn at a time.

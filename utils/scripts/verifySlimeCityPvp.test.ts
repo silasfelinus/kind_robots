@@ -126,6 +126,10 @@ assert.equal(
 assert.equal(initial.active, 'player')
 assert.equal(initial.phase, 'play')
 
+const openingGuest = pvpBoard(initial, 'enemy')
+assert.equal(openingGuest.playLimit, clashPlayLimit(initial, 'player'))
+assert.equal(pvpBoard(initial, 'player').playLimit, openingGuest.playLimit)
+
 const view = pvpBoard(initial, 'player')
 assert.deepEqual(view.hand, initial.hands.player)
 assert.equal(view.opponentHandCount, initial.hands.enemy.length)
@@ -885,7 +889,9 @@ console.log('Slime City VS take-backs, strike trail and board animations PASS')
   assert.match(header, /header-account shrink-0 xl:ml-auto/)
   assert.match(header, /route\.path === '\/play\/slime-city-pvp'/)
   assert.match(picker, /route\.path === '\/play\/slime-city-pvp'/)
-  assert.match(picker, /route\.path\.startsWith\('\/play\/slime-city'\)/)
+  assert.doesNotMatch(picker, /isSlimeCityPage|slime-nav-title/)
+  assert.match(picker, /\{\{ currentPageTitle \}\}/)
+  assert.match(picker, /v-if="currentPageSubtitle"/)
 }
 console.log('Slime City Chromebook duel layout contract PASS')
 
@@ -981,3 +987,7 @@ for (const file of [
     /\.scpvp-unit-label \{\s*position: absolute;\s*inset: calc\(0\.8rem/,
   )
 }
+
+const armorView = readFileSync('components/slime-city-pvp-game.vue', 'utf8')
+assert.match(armorView, /data-testid="slime-pvp-armor"/)
+assert.match(armorView, /v-if="unit\(side, lane\)!\.armor > 0"/)

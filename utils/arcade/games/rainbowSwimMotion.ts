@@ -240,3 +240,21 @@ export function rainbowPickupBob(
     glow: 0.35 + 0.2 * wave * share,
   }
 }
+
+/**
+ * Conductor rainbow t-011: a live eel barrier crackles — its alpha flickers and each link of the current
+ * jitters — and the Prism Beam's width throbs. Both run every couple of frames, the fastest flicker on the
+ * screen, so calm motion keeps a fifth of each: the barrier still reads as live current and the beam as
+ * firing, without strobing. Draw-only: the barrier's and the beam's hitboxes never change.
+ */
+export function rainbowCurrentCrackle(
+  tick: number,
+  calm = false,
+): { alpha: number; jitter: (link: number) => number; beamWidth: number } {
+  const share = calm ? 0.2 : 1
+  return {
+    alpha: 0.85 + 0.15 * Math.sin(tick / 2) * share,
+    jitter: (link: number) => Math.sin(tick + link * 2) * 2.5 * share,
+    beamWidth: 6 + Math.sin(tick / 2) * 2 * share,
+  }
+}

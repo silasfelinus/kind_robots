@@ -71,6 +71,7 @@ import {
   rainbowShipHover,
   rainbowShipPose,
   rainbowCraftWindup,
+  rainbowCurrentCrackle,
   stackRainbowBossPose,
 } from './rainbowSwimMotion'
 import { drawRainbowBossBloom } from './rainbowBossBloom'
@@ -7086,16 +7087,17 @@ export function createRainbowPrincessPreview(
         if (reef.kind !== 'eel') continue
         // The eel's barrier: dashed while it lights, then live current between two bright ends.
         const live = reef.charge === 0
+        const crackle = rainbowCurrentCrackle(tick, calm)
         g.save()
         g.strokeStyle = live ? '#9ff3ff' : '#d8fbff'
-        g.globalAlpha = live ? 0.85 + 0.15 * Math.sin(tick / 2) : 0.55
+        g.globalAlpha = live ? crackle.alpha : 0.55
         g.lineWidth = live ? 3 : 2
         if (!live) g.setLineDash([5, 4])
         g.beginPath()
         g.moveTo(reef.x, reef.y - EEL.half)
         for (let k = 1; k <= 6; k++)
           g.lineTo(
-            reef.x + (live ? Math.sin(tick + k * 2) * 2.5 : 0),
+            reef.x + (live ? crackle.jitter(k) : 0),
             reef.y - EEL.half + (k * EEL.half) / 3,
           )
         g.stroke()
@@ -9144,7 +9146,7 @@ export function createRainbowPrincessPreview(
           g.save()
           g.globalCompositeOperation = 'lighter'
           g.strokeStyle = PILOT_COLORS[pilotOf(seat)]!
-          g.lineWidth = 6 + Math.sin(tick / 2) * 2
+          g.lineWidth = rainbowCurrentCrackle(tick, calm).beamWidth
           g.beginPath()
           g.moveTo(ship.x + 14, ship.y)
           g.lineTo(W, ship.y)

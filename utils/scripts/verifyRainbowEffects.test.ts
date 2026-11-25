@@ -73,6 +73,7 @@ import {
   rainbowBarrelRoll,
   rainbowBossWindup,
   rainbowCraftWindup,
+  rainbowCurrentCrackle,
   rainbowHitFlinch,
   rainbowPickupBob,
   rainbowShipHover,
@@ -900,5 +901,57 @@ assert.match(
     preview,
     /g\.arc\(pickup\.x, pickup\.y \+ bob, 9,/,
     'the fallback badge rides the bob',
+  )
+}
+
+// t-011: the live eel barrier's flicker and jitter and the Prism Beam's throb keep a fifth under calm motion.
+{
+  let jitterPeak = 0
+  for (let t = 0; t < 400; t++) {
+    const full = rainbowCurrentCrackle(t)
+    const calm = rainbowCurrentCrackle(t, true)
+    for (let k = 1; k <= 6; k++) {
+      jitterPeak = Math.max(jitterPeak, Math.abs(full.jitter(k)))
+      assert.ok(
+        Math.abs(calm.jitter(k)) <= Math.abs(full.jitter(k)) * 0.2 + 1e-9,
+        'calm keeps a fifth of the barrier jitter',
+      )
+    }
+    assert.ok(
+      full.alpha >= 0.7 - 1e-9 && full.alpha <= 1 + 1e-9,
+      'the live barrier stays bright',
+    )
+    assert.ok(
+      Math.abs(calm.alpha - 0.85) <= Math.abs(full.alpha - 0.85) * 0.2 + 1e-9,
+      'calm keeps a fifth of the barrier flicker',
+    )
+    assert.ok(
+      Math.abs(calm.beamWidth - 6) <= Math.abs(full.beamWidth - 6) * 0.2 + 1e-9,
+      'calm keeps a fifth of the Prism Beam throb',
+    )
+    assert.ok(calm.beamWidth >= 5.6, 'the calm Prism Beam stays a solid lane')
+  }
+  assert.ok(
+    jitterPeak > 2.4 && jitterPeak <= 2.5,
+    'the live current jitters about two and a half pixels',
+  )
+  const preview = readFileSync(
+    'utils/arcade/games/rainbowPrincessPreview.ts',
+    'utf8',
+  )
+  assert.match(
+    preview,
+    /const crackle = rainbowCurrentCrackle\(tick, calm\)/,
+    'the eel barrier uses the calm-aware crackle',
+  )
+  assert.match(
+    preview,
+    /g\.lineWidth = rainbowCurrentCrackle\(tick, calm\)\.beamWidth/,
+    'the Prism Beam uses the calm-aware throb',
+  )
+  assert.doesNotMatch(
+    preview,
+    /Math\.sin\(tick \+ k \* 2\) \* 2\.5/,
+    'no raw barrier jitter is left',
   )
 }

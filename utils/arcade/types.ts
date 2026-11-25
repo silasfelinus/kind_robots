@@ -247,6 +247,9 @@ export const ARCADE_DIFFICULTIES: readonly ArcadeDifficulty[] = [
 export type ArcadeSoundLike = Pick<ArcadeSound, 'play'> &
   Partial<Pick<ArcadeSound, 'playNotes'>>
 
+/** One line of ArcadeGameInstance.readout: a short label and its value. */
+export type ArcadeReadoutLine = { label: string; value: string }
+
 export interface ArcadeGameInstance {
   readonly score: number
   readonly level: number
@@ -285,6 +288,12 @@ export interface ArcadeGameInstance {
   readonly menuOpen?: boolean
   /** Contextual touch actions (shown only when they can do something). */
   readonly touchActions?: Readonly<Partial<Record<'a' | 'b', string>>>
+  /**
+   * The HUD in a few short lines, for a touch cabinet held upright: the stage canvas is then only as wide as
+   * the phone, too small to read its own HUD, so the cabinet shows these in large type in the room under it
+   * (Rainbow presentation critic P-09). Null outside play.
+   */
+  readonly readout?: readonly ArcadeReadoutLine[] | null
   /**
    * Advance one fixed 1/60 s tick. `input` is player 1's; a game seating more
    * players also gets every seated player's frame, player 1 first.

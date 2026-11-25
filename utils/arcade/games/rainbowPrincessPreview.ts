@@ -1,5 +1,6 @@
 import type {
   ArcadeComms,
+  ArcadeReadoutLine,
   ArcadeDifficulty,
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -6313,6 +6314,23 @@ export function createRainbowPrincessPreview(
 
   if (replaySave) continueFrom(replaySave)
 
+  /** The stage's name in the HUD bar, and in the upright readout. */
+  function stageLabel(act: number): string {
+    if (lighthouseActive()) return 'X3 / SUNKEN LIGHTHOUSE'
+    if (shoalActive()) return 'X4 / MIRROR SHOAL'
+    return [
+      'ACT I / PINKWAKE',
+      'ACT II / MOONJELLY',
+      'ACT III / TRENCH',
+      'ACT IV / EXPRESS',
+      'ACT V / WRECKYARD',
+      'ACT VI / CROWN REEF',
+      'ACT VII / GLASS CURRENT',
+      'ACT VIII / ECLIPSE PALACE',
+      'FINALE / ECLIPSE CROWN',
+    ][act - 1]!
+  }
+
   return {
     get replayClear() {
       return replayClear
@@ -6331,6 +6349,27 @@ export function createRainbowPrincessPreview(
     },
     get over() {
       return over
+    },
+    /**
+     * The HUD bar in large type for a phone held upright (presentation critic P-09: at that width the canvas
+     * bar is unreadable): the stage, each pilot's hearts, shield, power and super, the score, and the comms line
+     * on screen. Null in the
+     * demo and the menus, and once the run is over.
+     */
+    get readout(): readonly ArcadeReadoutLine[] | null {
+      if (options.demo || over || resumeMenu || selectMenu) return null
+      return [
+        { label: 'Stage', value: stageLabel(currentAct()) },
+        ...ships.slice(0, activePlayers).map((ship, seat) => ({
+          label: SHIP_NAMES[pilotOf(seat)]!,
+          value: `${ship.lives}♥ ${ship.shield}◇ P${ship.power} · ${ship.charge >= 100 ? 'SUPER READY' : `SUPER ${ship.charge}%`}`,
+        })),
+        { label: 'Score', value: String(Math.round(score * level.score)) },
+        // The comms line too: in the canvas it is the smallest type of all.
+        ...(shownComms
+          ? [{ label: shownComms.speaker, value: shownComms.text }]
+          : []),
+      ]
     },
     /** Mastery goals earned this game (t-010). */
     get mastered() {
@@ -9592,25 +9631,7 @@ export function createRainbowPrincessPreview(
         g.fillRect(0, 0, W, 29)
         g.fillStyle = '#ffe7f5'
         g.font = 'bold 10px monospace'
-        g.fillText(
-          lighthouseActive()
-            ? 'X3 / SUNKEN LIGHTHOUSE'
-            : shoalActive()
-              ? 'X4 / MIRROR SHOAL'
-              : [
-                  'ACT I / PINKWAKE',
-                  'ACT II / MOONJELLY',
-                  'ACT III / TRENCH',
-                  'ACT IV / EXPRESS',
-                  'ACT V / WRECKYARD',
-                  'ACT VI / CROWN REEF',
-                  'ACT VII / GLASS CURRENT',
-                  'ACT VIII / ECLIPSE PALACE',
-                  'FINALE / ECLIPSE CROWN',
-                ][act - 1]!,
-          HUD_LEFT,
-          12,
-        )
+        g.fillText(stageLabel(act), HUD_LEFT, 12)
         g.font = '9px monospace'
         // The button legend teaches Act I, then gives the bar back (presentation critic P-21); with three or
         // four pilots their status needs the room.

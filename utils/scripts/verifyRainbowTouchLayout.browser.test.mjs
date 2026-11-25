@@ -55,6 +55,13 @@ function boxes(page) {
       balls: all('.cabinet-overlay .cabinet-ball'),
       chips: all('.cabinet-overlay .cabinet-corner-chip, .cabinet-pause-chip'),
       hint: all('.cabinet-rotate-hint')[0] ?? null,
+      readout: all('.cabinet-readout')[0] ?? null,
+      readoutText:
+        document.querySelector('.cabinet-readout')?.textContent ?? '',
+      readoutFont: (() => {
+        const value = document.querySelector('.cabinet-readout dd')
+        return value ? parseFloat(getComputedStyle(value).fontSize) : 0
+      })(),
       clear: Boolean(document.querySelector('.cabinet-overlay--clear')),
       viewport: { width: innerWidth, height: innerHeight },
     }
@@ -251,13 +258,26 @@ try {
         chip.top >= layout.stage.bottom,
         `${label}: the chips sit under the stage`,
       )
+    // P-09: the HUD bar is unreadable at this width, so it also shows in large type under the prompt.
+    assert.ok(layout.readout, `${label}: the HUD readout shows`)
+    assert.ok(
+      layout.readout.top >= layout.hint.bottom &&
+        layout.pads.every((pad) => pad.top >= layout.readout.bottom - 0.5),
+      `${label}: the readout sits between the prompt and the controls`,
+    )
+    assert.match(layout.readoutText, /ACT I \/ PINKWAKE/, `${label}: stage`)
+    assert.match(layout.readoutText, /PETAL.*♥.*SUPER/, `${label}: pilot`)
+    assert.match(layout.readoutText, /Score\s*\d+/, `${label}: score`)
+    // Act I opens on Lilt-7's comms line, which the readout carries too.
+    assert.match(layout.readoutText, /Lilt-7\s*\S/, `${label}: comms line`)
+    assert.ok(layout.readoutFont >= 13, `${label}: readable type`)
     if (shots)
       await page.screenshot({
         path: path.join(shots, `upright-${width}x${height}.png`),
       })
     assert.deepEqual(errors, [], `${label}: no page errors`)
     await context.close()
-    summary.push(`${label} chips off canvas + prompt`)
+    summary.push(`${label} chips off canvas + prompt + readout`)
   }
 
   // A lone pilot on a landscape phone keeps the floating controls: clearing them would cost a third of the stage.

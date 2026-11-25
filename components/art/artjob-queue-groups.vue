@@ -87,7 +87,9 @@
             class="flex h-full flex-col items-center justify-center gap-1 text-xs text-base-content/60"
           >
             <icon name="kind-icon:image" class="text-3xl" />
-            {{ group.preview ? 'Preview unavailable' : 'No visible render yet' }}
+            {{
+              group.preview ? 'Preview unavailable' : 'No visible render yet'
+            }}
           </div>
           <span
             v-if="previewSrc(group)"

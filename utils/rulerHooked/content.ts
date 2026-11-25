@@ -1471,7 +1471,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           weight: 4,
           characters: ['heir-robin', 'sweetheart-ash', 'druid-sela'],
           title: 'A Home After the Wedding',
-          body: 'Robin and Ash have returned from their honeymoon with muddy boots and a proposal. They want to make a living near the lake rather than inherit a throne. Sela offers to help with the water; the court is appalled that either option involves honest work.',
+          body: 'Robin and Ash arrive at the lakeside with muddy boots and a proposal. They want to make a living near the lake rather than inherit a throne. Sela offers to help with the water; the court is appalled that either option involves honest work.',
           art: 'card-wedding-reckoning',
           trigger: {
             minTurn: 20,
@@ -2225,6 +2225,17 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               },
               result:
                 'Robin arrives first, carrying two battered rods. Ash follows with a bundle of wedding gifts returned by the court. You apologize without a speech. Robin takes your hand for a moment, then asks where the perch are biting.',
+            },
+            {
+              id: 'recognize-marriage',
+              text: 'Recognize their marriage. Invite them to visit, on their terms.',
+              effects: {
+                arc: { complete: 'child-elopes' },
+                flags: { set: ['blessedMatch', 'weddingCompleted'] },
+                sliders: { joy: +4, order: -5, treasury: -3 },
+              },
+              result:
+                'Quill carries an apology and a wedding gift, not a summons. Weeks later Robin and Ash bring a basket of fish to the dock. They will not move back into the palace. For the first time, their visits are their own choice.',
             },
             {
               id: 'stew',

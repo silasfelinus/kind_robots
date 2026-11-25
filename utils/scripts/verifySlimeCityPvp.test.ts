@@ -13,6 +13,7 @@ import {
   pvpTally,
   sortPvpGames,
   pvpCardRow,
+  visibleClashTrapAt,
   pvpClashView,
   pvpRevision,
   pvpTakeBack,
@@ -145,6 +146,23 @@ const redacted = pvpBoard(trapped, 'player')
 assert.equal(redacted.traps.length, 1, 'enemy traps may not leak')
 assert.equal(redacted.traps[0]?.cardId, 'scentmine')
 assert.equal(pvpBoard(trapped, 'enemy').traps[0]?.cardId, 'bloodwire')
+assert.equal(pvpCardRow(cardById('scentmine')), 'rival')
+assert.equal(pvpCardRow(cardById('bloodwire')), 'rival')
+assert.equal(
+  visibleClashTrapAt(trapped.traps, 'player', 'enemy', 2)?.cardId,
+  'scentmine',
+)
+assert.equal(
+  visibleClashTrapAt(trapped.traps, 'player', 'player', 2),
+  undefined,
+)
+assert.equal(visibleClashTrapAt(trapped.traps, 'player', 'enemy', 1), undefined)
+assert.equal(
+  visibleClashTrapAt(trapped.traps, 'enemy', 'player', 1)?.cardId,
+  'bloodwire',
+)
+assert.equal(visibleClashTrapAt(trapped.traps, 'enemy', 'enemy', 1), undefined)
+assert.equal(visibleClashTrapAt(trapped.traps, 'enemy', 'player', 2), undefined)
 trapped.log.push({
   round: 1,
   kind: 'trap',

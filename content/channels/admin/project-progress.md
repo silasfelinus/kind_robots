@@ -6,7 +6,7 @@ label: Project Progress
 title: Project Progress
 subtitle: Compare committed roadmap progress over time
 description: Admin-only historical progress and stagnation review for every Conductor project.
-summary: Inspect the last 7, 14, 30 or 90 days of completed roadmap tasks.
+summary: Roadmap progress over 7 to 90 days.
 icon: kind-icon:gallery
 image: /images/projects/conductor-card.webp
 route: /admin/project-progress

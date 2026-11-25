@@ -211,6 +211,60 @@ for (const dir of [-1, 1] as const) {
   )
 }
 
+for (const dir of [-1, 1] as const) {
+  const descending = (power: PlumberPower | null) => {
+    const run = labRun()
+    run.power = power
+    run.hero.x = 20 * TILE
+    run.hero.y = FLOOR - HERO_TALL - 150
+    run.hero.vx = dir * 4
+    run.hero.vy = 1
+    run.ground = false
+    return run
+  }
+  const heldJump: Script = (_, input) => {
+    input.held.a = true
+  }
+  const glide = descending('springstep')
+  const ordinary = descending(null)
+  const released = descending('springstep')
+  const startX = glide.hero.x
+  replay(glide, 20, heldJump, () => assert.equal(embedded(glide), null))
+  replay(ordinary, 20, heldJump)
+  replay(released, 20, () => {})
+  assert.ok(
+    Math.abs(glide.hero.vx) > 2.8,
+    'Springstep retains over 70% of entry momentum during a held descent',
+  )
+  assert.ok(
+    (glide.hero.x - startX) * dir > (ordinary.hero.x - startX) * dir + 12,
+    'the float carries meaningfully farther than a normal jump',
+  )
+  assert.equal(
+    ordinary.hero.vx,
+    released.hero.vx,
+    'releasing jump restores ordinary air drag',
+  )
+  assert.ok(glide.hero.vy <= 4, 'float descent remains capped')
+  const priorSpeed = Math.abs(glide.hero.vx)
+  replay(glide, 1, () => {})
+  assert.ok(
+    Math.abs(glide.hero.vx) < priorSpeed * 0.97,
+    'release immediately ends glide momentum retention',
+  )
+  replay(
+    glide,
+    7,
+    (_, input) => {
+      input.held.a = true
+      input.held.left = dir > 0
+      input.held.right = dir < 0
+    },
+    () => assert.equal(embedded(glide), null),
+  )
+  assert.ok(glide.hero.vx * dir < 0, 'gliding still permits counter-steering')
+}
+
 {
   const run = labRun()
   run.hero.x = 54 * TILE

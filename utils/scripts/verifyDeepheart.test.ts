@@ -769,6 +769,34 @@ assert.ok(
   achievementsProven(book, scouts).includes(DH_ACHIEVEMENT_CODES.perfectParty),
   'Scouts, Treasure Hunters and Green Circle',
 )
+const customScout = createRun(
+  {
+    ...customHero,
+    custom: { ...customHero.custom!, role: 'ranger' },
+  },
+  ['vex', 'nettle', 'moss'],
+  7,
+)
+assert.ok(
+  achievementsProven(book, customScout).includes(
+    DH_ACHIEVEMENT_CODES.perfectParty,
+  ),
+  'an original ranger earns the same synergies as the preset ranger',
+)
+const customWarrior = createRun(
+  {
+    ...customHero,
+    custom: { ...customHero.custom!, role: 'warrior' },
+  },
+  ['vex', 'nettle', 'moss'],
+  7,
+)
+assert.ok(
+  !achievementsProven(book, customWarrior).includes(
+    DH_ACHIEVEMENT_CODES.perfectParty,
+  ),
+  'the same companions do not grant ranger synergies to a warrior',
+)
 assert.ok(
   !achievementsProven(book, live).includes(DH_ACHIEVEMENT_CODES.heartfelt),
   'an existing marriage is not a new romance',

@@ -11,6 +11,9 @@ export type SpectrumCareer = {
   lifetimePops: number
   classicBest: number
   classicRuns: number
+  /** Co-op Relay records (t-183): best shared score and most rounds cleared in one relay. */
+  relayBest: number
+  relayRounds: number
 }
 export type SpectrumSettings = {
   aimGuide: boolean
@@ -37,6 +40,8 @@ export type SpectrumSave = {
   endings?: StoryEnding[]
 }
 export const MAX_STORY_STAGE = 30
+/** Rounds in a Co-op Relay (the last ends with the duet boss). */
+export const RELAY_ROUND_COUNT = 6
 export const BUBBLE_STYLES: readonly BubbleStyle[] = [
   'glass',
   'candy',
@@ -56,6 +61,8 @@ export const freshCareer = (): SpectrumCareer => ({
   lifetimePops: 0,
   classicBest: 0,
   classicRuns: 0,
+  relayBest: 0,
+  relayRounds: 0,
 })
 const validNumber = (n: unknown, max: number) =>
   typeof n === 'number' && Number.isSafeInteger(n) && n >= 0 && n <= max
@@ -141,6 +148,12 @@ export function readSpectrumSave(raw: unknown): SpectrumSave {
       : 0,
     classicRuns: validNumber(c.classicRuns, 1_000_000)
       ? (c.classicRuns as number)
+      : 0,
+    relayBest: validNumber(c.relayBest, 1_000_000_000)
+      ? (c.relayBest as number)
+      : 0,
+    relayRounds: validNumber(c.relayRounds, RELAY_ROUND_COUNT)
+      ? (c.relayRounds as number)
       : 0,
   }
   const mode = value.mode === 'classic' ? 'classic' : 'story'
@@ -234,6 +247,22 @@ export function recordClassicEnd(
   }
 }
 
+/** A finished or abandoned Co-op Relay keeps its best score and furthest round. */
+export function recordRelay(
+  career: SpectrumCareer,
+  score: number,
+  rounds: number,
+): SpectrumCareer {
+  return {
+    ...career,
+    relayBest: Math.max(career.relayBest, Math.max(0, Math.floor(score))),
+    relayRounds: Math.max(
+      career.relayRounds,
+      Math.max(0, Math.min(RELAY_ROUND_COUNT, Math.floor(rounds))),
+    ),
+  }
+}
+
 /** Reject untrusted account data before writing it to a shared database. */
 export function validSpectrumCloudSave(raw: unknown): raw is SpectrumSave {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return false
@@ -255,7 +284,11 @@ export function validSpectrumCloudSave(raw: unknown): raw is SpectrumSave {
     !validNumber(c.classicRuns, 1_000_000) ||
     !Array.isArray(c.stars) ||
     c.stars.length !== MAX_STORY_STAGE ||
-    !c.stars.every((stars) => validNumber(stars, 3))
+    !c.stars.every((stars) => validNumber(stars, 3)) ||
+    // Relay records arrived later: older saves omit them, newer ones must be in range.
+    (c.relayBest !== undefined && !validNumber(c.relayBest, 1_000_000_000)) ||
+    (c.relayRounds !== undefined &&
+      !validNumber(c.relayRounds, RELAY_ROUND_COUNT))
   )
     return false
   if (
@@ -331,6 +364,8 @@ export function mergeSpectrumSaves(
     ),
     classicBest: Math.max(local.career.classicBest, remote.career.classicBest),
     classicRuns: Math.max(local.career.classicRuns, remote.career.classicRuns),
+    relayBest: Math.max(local.career.relayBest, remote.career.relayBest),
+    relayRounds: Math.max(local.career.relayRounds, remote.career.relayRounds),
   }
   const style = unlockedStyles(rankForXp(career.xp)).includes(local.style)
     ? local.style

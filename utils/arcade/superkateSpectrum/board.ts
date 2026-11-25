@@ -296,6 +296,16 @@ const STORY_HUES: Record<string, Hue> = {
   l: 'lime',
 }
 
+/** A board drawn from text rows (p t g v b l for the six hues, '.' empty), as the Story layouts are. */
+export function layoutBoard(rows: readonly string[]): Board {
+  const board = emptyBoard()
+  rows.forEach((line, row) => {
+    for (let col = 0; col < COLS; col++)
+      board[row]![col] = STORY_HUES[line[col] ?? '.'] ?? null
+  })
+  return board
+}
+
 export function makeBoard(
   stage: number,
   rng: () => number,

@@ -242,6 +242,29 @@ export async function bundleCabinetFixture({ realArcadeStore = false } = {}) {
           }
         },
       )
+      // Superkate's Spectrum: the cabinet calls the module's named create export.
+      builder.onLoad(
+        { filter: /games\/superkateSpectrum\.ts$/ },
+        ({ path: file }) => {
+          const source = readFileSync(file, 'utf8')
+          const marker =
+            'export const create = (options: ArcadeGameOptions) =>\n  new SuperkateSpectrum(options)'
+          if (!source.includes(marker))
+            throw new Error('Superkate Spectrum fixture hook lost its create()')
+          return {
+            contents: source.replace(
+              marker,
+              `export const create = (options: ArcadeGameOptions) => {
+              const game = new SuperkateSpectrum(options)
+              ;(window.__spectrums ||= []).push({ demo: Boolean(options.demo), game })
+              return game
+            }`,
+            ),
+            loader: 'ts',
+            resolveDir: path.dirname(file),
+          }
+        },
+      )
       // Record each Rescue Rally and Battery Maze game the cabinet creates.
       for (const { file: filter, ctor, list } of exposed) {
         builder.onLoad({ filter }, ({ path: file }) => {

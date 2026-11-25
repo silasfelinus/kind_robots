@@ -75,6 +75,8 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     fourButtons: true,
     buttonLabels: { a: 'FIRE', b: 'SWAP', x: 'NEXT TAB', y: 'PREV TAB' },
     startPauses: true,
+    touchClearStage: true,
+    touchClearMinShare: 0.5,
     mastery: [
       {
         id: 'rainbow-rescue',

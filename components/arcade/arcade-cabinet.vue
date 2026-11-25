@@ -1025,7 +1025,8 @@ const clearStageWanted = computed(
     !pinballPad.value &&
     !paddleMode.value &&
     !aiming.value &&
-    !labelled.value,
+    // Labelled solo buttons are planned at their larger size; labelled pairs never are.
+    (!labelled.value || (fourButtons.value && !duo.value)),
 )
 const safeProbeRef = ref<HTMLDivElement | null>(null)
 /** The area inside the safe-area insets, and the insets, measured by fitScreen. */
@@ -1041,6 +1042,8 @@ const touchPlan = computed<TouchStagePlan | null>(() => {
       aspect: (meta.value?.width ?? 4) / (meta.value?.height ?? 3),
       seats: players.value,
       fourButtons: fourButtons.value && !duo.value,
+      labelled: labelled.value,
+      minShare: meta.value?.touchClearMinShare,
       cornerChips: canFullscreen.value ? 2 : 1,
     },
     area.viewportMin,

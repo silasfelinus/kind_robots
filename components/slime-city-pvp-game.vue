@@ -354,24 +354,26 @@
                     >⚔ {{ unit(side, lane)!.power }}</b
                   >
                   <span class="scpvp-defense">
-                  <b
-                    class="is-life"
-                    :class="{
-                      low: unit(side, lane)!.hp * 3 <= unit(side, lane)!.maxHp,
-                    }"
-                    :aria-label="unit(side, lane)!.hp + ' life'"
-                    >♥ {{ unit(side, lane)!.hp }}</b
-                  >
-                  <SlimeCityArmorStat
-                    :armor="unit(side, lane)!.armor"
-                    :guard="unit(side, lane)!.guard"
-                  />
+                    <b
+                      class="is-life"
+                      :class="{
+                        low:
+                          unit(side, lane)!.hp * 3 <= unit(side, lane)!.maxHp,
+                      }"
+                      :aria-label="unit(side, lane)!.hp + ' life'"
+                      >♥ {{ unit(side, lane)!.hp }}</b
+                    >
+                    <SlimeCityArmorStat
+                      :armor="unit(side, lane)!.armor"
+                      :guard="unit(side, lane)!.guard"
+                    />
                   </span>
                 </span>
                 <span class="scpvp-tags">
                   <span
                     v-for="tag in fighterTags(unit(side, lane)!).filter(
-                      (entry) => entry.kind !== 'armor' && entry.kind !== 'guard',
+                      (entry) =>
+                        entry.kind !== 'armor' && entry.kind !== 'guard',
                     )"
                     :key="tag.text"
                     class="scpvp-tag"
@@ -382,7 +384,11 @@
                 </span>
                 <span
                   class="scpvp-unit-label"
-                  :class="{ 'has-armor': unit(side, lane)!.armor + (unit(side, lane)!.guard ?? 0) > 0 }"
+                  :class="{
+                    'has-armor':
+                      unit(side, lane)!.armor + (unit(side, lane)!.guard ?? 0) >
+                      0,
+                  }"
                   ><i :class="'lv-' + unit(side, lane)!.level">{{
                     '★'.repeat(unit(side, lane)!.level)
                   }}</i

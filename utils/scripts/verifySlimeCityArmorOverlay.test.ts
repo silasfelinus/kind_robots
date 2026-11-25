@@ -17,7 +17,9 @@ for (const [file, defense] of [
   const source = read(file!)
   assert.match(
     source,
-    new RegExp('class="' + defense + '"[\\s\\S]*?is-life[\\s\\S]*?<SlimeCityArmorStat'),
+    new RegExp(
+      'class="' + defense + '"[\\s\\S]*?is-life[\\s\\S]*?<SlimeCityArmorStat',
+    ),
   )
   assert.match(source, /:armor="unit\(side, lane\)!\.armor"/)
   assert.match(source, /:guard="unit\(side, lane\)!\.guard"/)

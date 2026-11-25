@@ -3,7 +3,11 @@
     v-if="armor + guard > 0"
     class="sc-armor-stat"
     :aria-label="armor + guard + ' armor'"
-    :title="guard ? armor + ' armor + ' + guard + ' temporary armor' : armor + ' armor'"
+    :title="
+      guard
+        ? armor + ' armor + ' + guard + ' temporary armor'
+        : armor + ' armor'
+    "
     data-testid="slime-armor-stat"
   >
     <svg viewBox="0 0 24 26" aria-hidden="true">

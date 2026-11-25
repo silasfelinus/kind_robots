@@ -218,10 +218,7 @@ const now = 1_800_000_000_000
   assert.match(vs, /power\.text/)
   assert.match(vs, /power\.overcharge/)
   assert.match(vs, /v-for="game in activeGames"/)
-  assert.match(
-    vs,
-    /game\.stage === 'waiting' \|\| game\.stage === 'battle'/,
-  )
+  assert.match(vs, /game\.stage === 'waiting' \|\| game\.stage === 'battle'/)
   assert.doesNotMatch(vs, /v-for="game in pvp\.games"/)
   assert.doesNotMatch(vs, /<SlimeCityCrewSelect/)
 }

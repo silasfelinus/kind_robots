@@ -97,7 +97,11 @@
               @change="pickDeck"
             >
               <option value="">{{ lab.team.name }} starter alliance</option>
-              <option v-for="deck in readyDecks" :key="deck.id" :value="deck.id">
+              <option
+                v-for="deck in readyDecks"
+                :key="deck.id"
+                :value="deck.id"
+              >
                 {{ deck.name }}
               </option>
             </select>
@@ -116,7 +120,9 @@
           >
             <p class="vs-note">
               Unfinished match vs {{ teamName(lab.vsBout.launch.enemy) }} ·
-              {{ lab.vsBout.launch.format === 'alliance' ? 'ALLIANCE' : 'SOLO' }}
+              {{
+                lab.vsBout.launch.format === 'alliance' ? 'ALLIANCE' : 'SOLO'
+              }}
               · {{ lab.vsBout.commands.length }} moves in
             </p>
             <div class="vs-resume-row">
@@ -152,7 +158,10 @@
         </article>
       </div>
 
-      <article class="vs-card vs-players kr-scroll" data-testid="slime-vs-players">
+      <article
+        class="vs-card vs-players kr-scroll"
+        data-testid="slime-vs-players"
+      >
         <h3>
           <span aria-hidden="true">⚔</span> VS PLAYERS
           <small
@@ -357,7 +366,9 @@
             </button>
           </li>
           <li
-            v-if="pvp.gamesLoaded && !activeGames.length && !pvp.openDuels.length"
+            v-if="
+              pvp.gamesLoaded && !activeGames.length && !pvp.openDuels.length
+            "
             class="vs-empty"
           >
             No active games. Challenge a friend or post an open challenge.
@@ -430,7 +441,9 @@ const requested = ref<number[]>([])
 
 const power = computed(() => factionPower(lab.activeTeam))
 const activeGames = computed(() =>
-  pvp.games.filter((game) => game.stage === 'waiting' || game.stage === 'battle'),
+  pvp.games.filter(
+    (game) => game.stage === 'waiting' || game.stage === 'battle',
+  ),
 )
 function selectCrew(id: TeamId): void {
   if (id !== lab.activeTeam) lab.chooseTeam(id)

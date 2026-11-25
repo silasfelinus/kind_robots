@@ -81,10 +81,14 @@ function copy(game: Game): Game {
   twin.boss = game.boss ? { ...(game.boss as object) } : null
   twin.sparks = []
   twin.feats = []
-  twin.earned = new Set(game.earned as Set<string>)
+  const internal = game as unknown as {
+    earned: Set<string>
+    powerTipsShown: Set<string>
+  }
+  twin.earned = new Set(internal.earned)
   twin.storyChoices = [...(game.storyChoices as unknown[])]
   twin.storyEndings = [...(game.storyEndings as unknown[])]
-  twin.powerTipsShown = new Set(game.powerTipsShown as Set<string>)
+  twin.powerTipsShown = new Set(internal.powerTipsShown)
   twin.rng = () => 0.5
   return twin
 }
@@ -232,7 +236,10 @@ assert.equal(endings.size, 3, 'the three routes reach all three endings')
       if (roll < 0.15) input.pressed.b = true
       if (roll > 0.9) input.pressed.x = true
       if (chaos() < 0.3) input.held.left = true
-      else if (chaos() < 0.3) input.held.right = true
+      else {
+        const rightRoll = chaos()
+        if (rightRoll < 0.3) input.held.right = true
+      }
       game.update(input)
       if (game.pendingChoice !== null) {
         game.choiceCursor = chaos() < 0.5 ? 0 : 1

@@ -30,7 +30,7 @@
       </p>
 
       <section
-        v-if="!pvp.duel || answering"
+        v-if="!pvp.duel || answering || choosingRematch"
         class="scpvp-lobby"
         aria-label="Create or join a duel"
       >
@@ -50,18 +50,28 @@
             >
             <small>TWENTY CARDS · FIVE ALLEYS · THREE EVOLUTIONS</small>
             <strong class="scpvp-poster-title">
-              {{ invitedId ? 'ANSWER THE CHALLENGE' : 'FIGHT A REAL RIVAL' }}
+              {{
+                choosingRematch
+                  ? 'CHOOSE YOUR REMATCH CREW'
+                  : invitedId
+                    ? 'ANSWER THE CHALLENGE'
+                    : 'FIGHT A REAL RIVAL'
+              }}
             </strong>
             <p>
               {{
-                answering
-                  ? (pvp.duel!.challenge ? 'Your friend' : 'Your rival') +
-                    ' brings ' +
-                    nameOf(pvp.duel!.hostTeam) +
-                    '. Pick your crew, then enter the pit.'
-                  : invitedId
-                    ? 'Pick your crew, then enter the pit.'
-                    : 'Choose a crew, create a private duel, and send your opponent the invitation.'
+                choosingRematch
+                  ? 'Challenge ' +
+                    (pvp.duel?.rivalName ?? 'your rival') +
+                    ' again. Keep your crew or try another.'
+                  : answering
+                    ? (pvp.duel!.challenge ? 'Your friend' : 'Your rival') +
+                      ' brings ' +
+                      nameOf(pvp.duel!.hostTeam) +
+                      '. Pick your crew, then enter the pit.'
+                    : invitedId
+                      ? 'Pick your crew, then enter the pit.'
+                      : 'Choose a crew, create a private duel, and send your opponent the invitation.'
               }}
             </p>
           </div>
@@ -78,7 +88,7 @@
             <p>{{ factionPower(selectedTeam).text }}</p>
           </div>
           <div
-            v-if="!invitedId"
+            v-if="!invitedId && !choosingRematch"
             class="scpvp-visibility"
             role="group"
             aria-label="Who can join"
@@ -104,17 +114,31 @@
             class="scpvp-primary"
             type="button"
             :disabled="pvp.sending || pvp.loading"
-            @click="invitedId ? join() : start()"
+            @click="
+              choosingRematch ? sendRematch() : invitedId ? join() : start()
+            "
           >
             {{
               pvp.sending
                 ? 'OPENING THE GATES…'
-                : invitedId
-                  ? 'JOIN THIS DUEL'
-                  : openDuel
-                    ? 'CREATE OPEN DUEL'
-                    : 'CREATE PRIVATE DUEL'
+                : choosingRematch
+                  ? 'SEND REMATCH CHALLENGE'
+                  : invitedId
+                    ? 'JOIN THIS DUEL'
+                    : openDuel
+                      ? 'CREATE OPEN DUEL'
+                      : 'CREATE PRIVATE DUEL'
             }}
+          </button>
+          <button
+            v-if="choosingRematch"
+            type="button"
+            class="scpvp-quiet"
+            :disabled="pvp.sending"
+            data-testid="slime-pvp-rematch-back"
+            @click="choosingRematch = false"
+          >
+            BACK TO RESULT
           </button>
           <button
             v-if="answering && pvp.duel!.challenge"
@@ -129,15 +153,17 @@
           </button>
           <p class="scpvp-note">
             {{
-              answering
-                ? pvp.duel!.challenge
-                  ? 'This challenge was sent to you.'
-                  : pvp.duel!.open
-                    ? 'Open challenge: the first player to join takes the seat.'
-                    : 'You hold a private invite.'
-                : openDuel
-                  ? 'Open duels are listed in VS for any signed-in player.'
-                  : 'Only someone with your link can join.'
+              choosingRematch
+                ? 'Your rival will get a notification and can choose their own crew.'
+                : answering
+                  ? pvp.duel!.challenge
+                    ? 'This challenge was sent to you.'
+                    : pvp.duel!.open
+                      ? 'Open challenge: the first player to join takes the seat.'
+                      : 'You hold a private invite.'
+                  : openDuel
+                    ? 'Open duels are listed in VS for any signed-in player.'
+                    : 'Only someone with your link can join.'
             }}
             These fights award no Meat or cards.
           </p>
@@ -176,12 +202,22 @@
           </div>
         </div>
         <div class="scpvp-invite">
-          <label for="scpvp-invite-link">INVITE LINK</label>
-          <input id="scpvp-invite-link" readonly :value="inviteLink" />
-          <button type="button" class="scpvp-primary" @click="copyInvite">
-            {{ copied ? 'COPIED!' : 'COPY INVITE' }}
-          </button>
+          <NuxtLink
+            to="/play/slime-city?vs=1"
+            class="scpvp-primary"
+            data-testid="slime-pvp-waiting-bulletin"
+          >
+            BACK TO VS
+          </NuxtLink>
           <p>Watching for your opponent…</p>
+          <details class="scpvp-share" data-testid="slime-pvp-share-menu">
+            <summary>SHARE INVITE LINK</summary>
+            <label for="scpvp-invite-link">INVITE LINK</label>
+            <input id="scpvp-invite-link" readonly :value="inviteLink" />
+            <button type="button" class="scpvp-quiet" @click="copyInvite">
+              {{ copied ? 'COPIED!' : 'COPY INVITE' }}
+            </button>
+          </details>
           <button
             type="button"
             class="scpvp-quiet"
@@ -242,7 +278,7 @@
               class="scpvp-primary"
               :disabled="pvp.sending || !pvp.canRematch"
               data-testid="slime-pvp-rematch"
-              @click="rematch"
+              @click="chooseRematch"
             >
               {{ pvp.sending ? 'SENDING…' : 'REMATCH' }}
             </button>
@@ -702,7 +738,6 @@ import { OVERCHARGE_RULE, factionPower } from '~/utils/slimeCity/factionPowers'
 import { slimeArtId, slimeCardArtId } from '~/utils/slimeCity/artManifest'
 
 const route = useRoute()
-const router = useRouter()
 const pvp = useSlimeCityPvpStore()
 const forfeitArmed = ref(false)
 async function confirmForfeit() {
@@ -717,6 +752,7 @@ const invitedId = computed(() =>
   typeof route.query.duel === 'string' ? route.query.duel : '',
 )
 const selectedTeam = ref<TeamId>('catgirls')
+const choosingRematch = ref(false)
 /** A friend's challenge waiting for this player to pick a crew and join. */
 const answering = computed(
   () => pvp.duel?.stage === 'waiting' && pvp.duel.seat === 'enemy',
@@ -771,12 +807,20 @@ watch(
   },
   { immediate: true },
 )
-async function rematch() {
-  const data = await pvp.rematch()
+function chooseRematch() {
+  const duel = pvp.duel
+  if (!duel || !pvp.canRematch || pvp.sending) return
+  selectedTeam.value = teamOf(duel.seat)
+  choosingRematch.value = true
+}
+
+async function sendRematch() {
+  if (!choosingRematch.value || pvp.sending) return
+  const data = await pvp.rematch(selectedTeam.value)
   if (!data) return
+  choosingRematch.value = false
   reviewBoard.value = false
-  await router.replace({ query: { duel: data.id } })
-  pvp.watchDuel(data.id)
+  await navigateTo('/play/slime-city?vs=1')
 }
 async function befriendRival() {
   const id = pvp.duel?.rivalId
@@ -1462,10 +1506,7 @@ async function cancelDuel() {
 }
 async function start() {
   const data = await pvp.start(selectedTeam.value, { isPublic: openDuel.value })
-  if (data) {
-    await router.replace({ query: { duel: data.id } })
-    pvp.watchDuel(data.id)
-  }
+  if (data) await navigateTo('/play/slime-city?vs=1')
 }
 async function join() {
   if (!invitedId.value) return
@@ -1753,6 +1794,19 @@ watch(
 .scpvp-invite p {
   font-size: 0.8rem;
   color: #bdcfc9;
+}
+.scpvp-share {
+  display: grid;
+  gap: 0.45rem;
+}
+.scpvp-share summary {
+  cursor: pointer;
+  color: #d4f960;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+.scpvp-share[open] > :not(summary) {
+  margin-top: 0.4rem;
 }
 .scpvp-invite input {
   width: 100%;

@@ -284,17 +284,19 @@ export function pvpSnapshotRival(
 
 /**
  * REMATCH after the final bell: a private challenge to the same rival with
- * the same crew. Null until the duel is over or when the rival is unknown.
+ * the previous crew by default, or a newly selected crew. Null until the
+ * duel is over or when the rival is unknown.
  */
 export function pvpRematch(
   duel: Pick<
     PvpSnapshot,
     'stage' | 'seat' | 'hostTeam' | 'guestTeam' | 'rivalId'
   >,
+  selectedTeam?: TeamId,
 ): { team: TeamId; friendId: number } | null {
   if (duel.stage !== 'finished' || !duel.rivalId) return null
   const team = duel.seat === 'player' ? duel.hostTeam : duel.guestTeam
-  return team ? { team, friendId: duel.rivalId } : null
+  return team ? { team: selectedTeam ?? team, friendId: duel.rivalId } : null
 }
 
 export function isPvpTeam(value: unknown): value is TeamId {

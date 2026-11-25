@@ -609,6 +609,22 @@ for (const id of QUESTS)
 {
   const families = [
     {
+      name: 'family-blessing',
+      path: { 'elope-1': 'bless' },
+      parent: 'elope-blessing',
+      parentChoices: ['welcome'],
+      target: 'wedding-reckoning',
+      outcomes: ['family-orchard', 'family-nursery'],
+    },
+    {
+      name: 'family-reconciliation',
+      path: { 'elope-1': 'forbid' },
+      parent: 'elope-defiance',
+      parentChoices: ['relent', 'recognize-marriage'],
+      target: 'wedding-reckoning',
+      outcomes: ['family-orchard', 'family-nursery'],
+    },
+    {
       name: 'river',
       path: {
         'weir-1': 'build-weir',
@@ -789,6 +805,33 @@ for (const id of QUESTS)
       assert.ok(!(save.flags.publicTrust && save.flags.waterMonopoly))
     }
   }
+}
+
+// Estrangement is not automatically a reconciliation. Each decree has its
+// own political cost, and only an actual blessing unlocks the family petition.
+{
+  const defiance = arc('child-elopes').steps.find(
+    (step) => step.id === 'elope-defiance',
+  )!
+  const wedding = allDeckCards(C).find(
+    (card) => card.id === 'wedding-reckoning',
+  )!
+  const paths = ['relent', 'recognize-marriage', 'stew'] as const
+  for (const path of paths) {
+    const save = runQuest('child-elopes', ['forbid', path])
+    const reunited = path !== 'stew'
+    assert.equal(Boolean(save.flags.weddingCompleted), reunited)
+    assert.equal(Boolean(save.flags.blessedMatch), reunited)
+    assert.equal(
+      eligiblePool({ ...save, turnCount: 30 }, [wedding]).includes(wedding),
+      reunited,
+    )
+    assert.ok(defiance.choices.find((choice) => choice.id === path)?.result)
+  }
+  const recalled = runQuest('child-elopes', ['forbid', 'relent'])
+  const invited = runQuest('child-elopes', ['forbid', 'recognize-marriage'])
+  assert.ok(invited.kingdomHealth.order < recalled.kingdomHealth.order)
+  assert.ok(invited.kingdomHealth.treasury < recalled.kingdomHealth.treasury)
 }
 
 console.log('ruler-hooked QUESTS self-test: ALL PASS')

@@ -2640,6 +2640,12 @@ export function passClash(input: ClashState, side: Side): ClashState {
   s.commands.push({ t: 'pass', side })
   return s
 }
+export function clashSummoningSick(
+  unit: Pick<ClashUnit, 'fresh' | 'keywords'>,
+): boolean {
+  return unit.fresh && !unit.keywords.includes('ambush')
+}
+
 /** Next alley (left to right) where `side` still has a ready fighter, or -1. */
 export function nextClashStrike(s: ClashState, side: Side): number {
   if (s.victor || s.active !== side || s.phase !== 'attack') return -1
@@ -2652,7 +2658,7 @@ export function nextClashStrike(s: ClashState, side: Side): number {
       !u.rooted &&
       !u.attacked &&
       clashPower(s, u) > 0 &&
-      !(u.fresh && !has(u, 'ambush'))
+      !clashSummoningSick(u)
     )
       return lane
   }

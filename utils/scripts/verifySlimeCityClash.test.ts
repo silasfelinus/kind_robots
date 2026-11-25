@@ -41,6 +41,7 @@ import {
   createClash,
   endClashTurn,
   nextClashStrike,
+  clashSummoningSick,
   passClash,
   playClash,
   replayClash,
@@ -2728,3 +2729,17 @@ assert.match(
   /@media \(min-width: 691px\) and \(orientation: landscape\) \{\s*@container \(min-width: 30rem\) and \(min-aspect-ratio: 1 \/ 1\) \{\s*\.cxh-card \{\s*--rest: 0\.78;\s*--peek: 0\.85;/,
   'wide landscape hands must show substantially larger resting cards',
 )
+
+assert.equal(clashSummoningSick({ fresh: true, keywords: [] }), true)
+assert.equal(clashSummoningSick({ fresh: true, keywords: ['ambush'] }), false)
+assert.equal(clashSummoningSick({ fresh: false, keywords: [] }), false)
+for (const path of [
+  'components/slime-city-clash.vue',
+  'components/slime-city-pvp-game.vue',
+]) {
+  assert.match(
+    readFileSync(path, 'utf8'),
+    /<SlimeCitySummoningSickness\s+v-if="[^"]*clashSummoningSick\(unit\(side, lane\)!\)"/,
+    'both battle surfaces show the same summoning sickness effect',
+  )
+}

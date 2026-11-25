@@ -124,6 +124,9 @@
                     >
                   </span>
                   <SlimeCityLevelFrame :level="unit(side, lane)!.level" />
+                  <SlimeCitySummoningSickness
+                    v-if="!game.victor && clashSummoningSick(unit(side, lane)!)"
+                  />
                 </template>
                 <span v-else class="clash-empty">{{
                   targetable(side, lane)
@@ -570,6 +573,7 @@ import {
   replayClash,
   endClashTurn,
   nextClashStrike,
+  clashSummoningSick,
   passClash,
   playClash,
   strikeClash,
@@ -1135,8 +1139,6 @@ function healthWidth(side: Side): string {
 function status(u: ClashUnit): string {
   if (u.rooted) return 'STUN'
   if (u.guard) return 'WALL +' + u.guard
-  if (u.fresh && !game.value.victor && !u.keywords.includes('ambush'))
-    return 'NEW'
   return ''
 }
 function playableNow(id: string): boolean {
@@ -1216,6 +1218,9 @@ function slotLabel(side: Side, lane: number): string {
     'alley ' +
     (lane + 1) +
     (u ? ': ' + cardById(u.cardId).name + ', ' + u.hp + ' health' : ': empty') +
+    (u && !game.value.victor && clashSummoningSick(u)
+      ? ', summoning sickness: cannot attack this turn'
+      : '') +
     (targetable(side, lane) ? ', playable target' : '')
   )
 }
@@ -1318,7 +1323,7 @@ function forecast(lane: number): string {
   const power = (u: ClashUnit): string =>
     u.rooted
       ? '⌁'
-      : u.fresh && !u.keywords.includes('ambush')
+      : clashSummoningSick(u)
         ? '⏳'
         : String(clashPower(game.value, u))
   if (ours && theirs) return power(theirs) + ' ⇅ ' + power(ours)

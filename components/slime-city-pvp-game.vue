@@ -364,7 +364,9 @@
                 </span>
                 <span class="scpvp-tags">
                   <span
-                    v-for="tag in fighterTags(unit(side, lane)!)"
+                    v-for="tag in fighterTags(unit(side, lane)!).filter(
+                      (tag) => tag.kind !== 'new',
+                    )"
                     :key="tag.text"
                     class="scpvp-tag"
                     :class="'is-' + tag.kind"
@@ -386,6 +388,9 @@
                   >🛡 {{ unit(side, lane)!.armor }}</span>
                 </span>
                 <SlimeCityLevelFrame :level="unit(side, lane)!.level" />
+                <SlimeCitySummoningSickness
+                  v-if="!board.victor && clashSummoningSick(unit(side, lane)!)"
+                />
               </template>
               <span v-else class="scpvp-empty">{{
                 targetable(side, lane)
@@ -696,6 +701,7 @@ import {
   clashPlayLimit,
   clashPowers,
   clashPowerSpent,
+  clashSummoningSick,
   type ClashStrike,
 } from '~/utils/slimeCity/clash'
 import { evoTapText } from '~/utils/slimeCity/evolutions/dsl'
@@ -939,11 +945,11 @@ function fighterTags(
       text: 'STUN',
       title: 'Stunned: skips its strike',
     })
-  else if (fighter.fresh && !fighter.keywords.includes('ambush'))
+  if (!board.value?.victor && clashSummoningSick(fighter))
     tags.push({
       kind: 'new',
       text: '⏳ NEW',
-      title: 'Just landed: it blocks, but cannot strike until its next turn',
+      title: 'Summoning sickness: cannot attack this turn, but still blocks',
     })
   else if (fighter.keywords.includes('ambush') && fighter.fresh)
     tags.push({

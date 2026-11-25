@@ -117,9 +117,7 @@
                     <span
                       v-if="tapStage(unit(side, lane)!)"
                       class="clash-tag is-tap"
-                      :title="
-                        evoTapText(tapStage(unit(side, lane)!)!)
-                      "
+                      :title="evoTapText(tapStage(unit(side, lane)!)!)"
                       >{{
                         unit(side, lane)!.attacked ? '↷ USED' : '↷ TAP'
                       }}</span
@@ -471,9 +469,7 @@
                 type="button"
                 class="clash-reset clash-tap"
                 data-testid="clash-tap"
-                :title="
-                  selectedTap.title
-                "
+                :title="selectedTap.title"
                 :disabled="!canClashActivate(game, 'player', selectedTap.uid)"
                 @click="tapSelected"
               >
@@ -1016,7 +1012,9 @@ const selectedTap = computed(() => {
     (u) => u.uid === selectedUnit.value && u.side === 'player',
   )
   const stage = fighter && tapStage(fighter)
-  return fighter && stage ? { uid: fighter.uid, title: evoTapText(stage) } : null
+  return fighter && stage
+    ? { uid: fighter.uid, title: evoTapText(stage) }
+    : null
 })
 function tapSelected(): void {
   if (!selectedTap.value) return

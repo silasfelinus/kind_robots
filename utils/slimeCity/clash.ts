@@ -378,7 +378,8 @@ export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
   regen: 'Regen: heals 1 after each round.',
   swarm: 'Swarm: +1 power next to an ally.',
   leech: 'Leech: heals 1 when it hits.',
-  bulldoze: 'Bulldoze: extra damage after defeating a fighter hits the rival boss.',
+  bulldoze:
+    'Bulldoze: extra damage after defeating a fighter hits the rival boss.',
   volatile: 'Volatile: explodes on defeat.',
   pierce: 'Pierce: ignores 1 armor.',
   snare: 'Snare: struck rivals skip a strike.',

@@ -843,13 +843,14 @@ const canAct = computed(
     !sweeping.value,
 )
 const canPlay = computed(() => canAct.value && board.value?.phase === 'play')
-const playLimit = computed(() =>
-  board.value?.playLimit ??
-  (view.value && view.value.active === seat.value
-    ? clashPlayLimit(view.value, view.value.active)
-    : board.value?.round === 1 && board.value.active === 'player'
-      ? 1
-      : 2),
+const playLimit = computed(
+  () =>
+    board.value?.playLimit ??
+    (view.value && view.value.active === seat.value
+      ? clashPlayLimit(view.value, view.value.active)
+      : board.value?.round === 1 && board.value.active === 'player'
+        ? 1
+        : 2),
 )
 const playsUsed = computed(() =>
   Math.min(playLimit.value, board.value?.plays[board.value.active] ?? 0),

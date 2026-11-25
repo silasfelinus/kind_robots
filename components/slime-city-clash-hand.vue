@@ -99,8 +99,14 @@
         data-testid="clash-peek"
         aria-hidden="true"
       >
-        <span v-if="peekStats" class="cxh-live-stats" data-testid="clash-live-stats">
-          CURRENT · ⚔ {{ peekStats.attack }} · ♥ {{ peekStats.hp }}/{{ peekStats.maxHp }}
+        <span
+          v-if="peekStats"
+          class="cxh-live-stats"
+          data-testid="clash-live-stats"
+        >
+          CURRENT · ⚔ {{ peekStats.attack }} · ♥ {{ peekStats.hp }}/{{
+            peekStats.maxHp
+          }}
         </span>
         <SlimeCityClashCardFace
           :card-id="peekCard.id"
@@ -116,8 +122,14 @@
         data-testid="clash-detail"
         aria-live="polite"
       >
-        <span v-if="inspectStats" class="cxh-live-stats" data-testid="clash-live-stats">
-          CURRENT · ⚔ {{ inspectStats.attack }} · ♥ {{ inspectStats.hp }}/{{ inspectStats.maxHp }}
+        <span
+          v-if="inspectStats"
+          class="cxh-live-stats"
+          data-testid="clash-live-stats"
+        >
+          CURRENT · ⚔ {{ inspectStats.attack }} · ♥ {{ inspectStats.hp }}/{{
+            inspectStats.maxHp
+          }}
         </span>
         <SlimeCityClashCardFace
           :card-id="inspectCard.id"
@@ -349,7 +361,10 @@ const peekStats = computed(() => changedStats(peekCard.value))
 const inspectStats = computed(() =>
   previewLevel.value || !inspectCard.value
     ? null
-    : changedStats({ ...inspectCard.value, dock: inspectCard.value.dock ?? 'right' }),
+    : changedStats({
+        ...inspectCard.value,
+        dock: inspectCard.value.dock ?? 'right',
+      }),
 )
 const shown = computed<{ id: string; level: number } | null>(() => {
   const id = big.value === null ? null : cards.value[big.value]

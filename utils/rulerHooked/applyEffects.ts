@@ -113,8 +113,11 @@ export function resolveChoice(
       next.deckState.cooldowns[card.id] ?? 0,
       3,
     )
-  } else if (!next.deckState.seenCardIds.includes(card.id)) {
-    next.deckState.seenCardIds.push(card.id)
+  } else {
+    next.counters.cardsResolved = (next.counters.cardsResolved ?? 0) + 1
+    if (!next.deckState.seenCardIds.includes(card.id)) {
+      next.deckState.seenCardIds.push(card.id)
+    }
   }
   next.updatedAt = save.updatedAt // stamped by the caller/store, not game logic
   return next

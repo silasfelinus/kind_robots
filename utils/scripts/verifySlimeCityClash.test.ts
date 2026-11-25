@@ -2722,3 +2722,9 @@ assert.deepEqual(
   ['Tap', 'Tap', 'Bulldoze', 'Faction power'],
 )
 assert.equal(clashGlossaryParts('attacker')[0]?.entry, undefined)
+
+assert.match(
+  hand,
+  /@media \(min-width: 691px\) and \(orientation: landscape\) \{\s*@container \(min-width: 30rem\) and \(min-aspect-ratio: 1 \/ 1\) \{\s*\.cxh-card \{\s*--rest: 0\.78;\s*--peek: 0\.85;/,
+  'wide landscape hands must show substantially larger resting cards',
+)

@@ -970,6 +970,15 @@ function tap(index: number): void {
     --peek: 0.72;
   }
 }
+
+@media (min-width: 691px) and (orientation: landscape) {
+  @container (min-width: 30rem) and (min-aspect-ratio: 1 / 1) {
+    .cxh-card {
+      --rest: 0.78;
+      --peek: 0.85;
+    }
+  }
+}
 /*
   Wide layout: the hand floats over your own alleys, and a held card used to
   stand full size on the middle one, so a click could not place a card there

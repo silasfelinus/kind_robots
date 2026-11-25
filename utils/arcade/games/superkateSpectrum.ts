@@ -317,6 +317,47 @@ export const SPECTRUM_BOSS_ART = [
   'boss-palette-keeper',
 ].map((name) => `/images/arcade/superkate-spectrum/${name}.webp`)
 
+/**
+ * The six district memories in the Scrapbook: Superkate restoring each neighborhood (ArtJobs
+ * 76811-76816; Silas approved showing the Superkate character in-game on 2026-11-25 PT, t-189).
+ */
+export const SPECTRUM_SCRAPBOOK_ART = [
+  'scrapbook-salon',
+  'scrapbook-botanic-dome',
+  'scrapbook-night-market',
+  'scrapbook-cloud-library',
+  'scrapbook-prism-workshop',
+  'scrapbook-heart-of-hue',
+].map((name) => `/images/arcade/superkate-spectrum/${name}.webp`)
+
+/** Draw a 2:3 memory card, cropping the art to fill it; false while the image is not loaded. */
+function drawMemoryCard(
+  g: CanvasRenderingContext2D,
+  src: string,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+) {
+  const art = loadedImage(src)
+  if (!art) return false
+  const scale = Math.max(width / art.naturalWidth, height / art.naturalHeight)
+  const sw = width / scale
+  const sh = height / scale
+  g.drawImage(
+    art,
+    (art.naturalWidth - sw) / 2,
+    (art.naturalHeight - sh) / 2,
+    sw,
+    sh,
+    x,
+    y,
+    width,
+    height,
+  )
+  return true
+}
+
 export function chapterMemoryEarned(career: SpectrumCareer, chapter: number) {
   return chapter >= 0 && chapter < 6 && (career.stars[chapter * 5 + 4] ?? 0) > 0
 }
@@ -1849,54 +1890,79 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       const chapter = CHAPTERS[this.albumChapter]!
       const first = this.albumChapter * 5
       const unlocked = this.career.highestStage > first
+      // District name in the column beside the memory card (x 26-124).
       label(
         g,
-        unlocked ? chapter.name : 'A CHAPTER YET TO BE REVEALED',
-        W / 2,
-        181,
-        12,
+        unlocked ? chapter.name : 'NOT YET REVEALED',
+        (124 + W - 14) / 2,
+        180,
+        11,
         '#99f5ee',
       )
+      // A 2:3 memory card (the district's Scrapbook illustration) beside its five stage medals.
       const memory = chapterMemoryEarned(this.career, this.albumChapter)
+      const card = { x: 26, y: 160, width: 98, height: 147 }
       g.fillStyle = '#151b36'
-      g.fillRect(28, 192, W - 56, 90)
+      g.fillRect(card.x, card.y, card.width, card.height)
+      const src = SPECTRUM_SCRAPBOOK_ART[this.albumChapter]!
       if (memory) {
-        const src = SPECTRUM_BOSS_ART[this.albumChapter]!
-        const art = loadedImage(src)
-        if (art) {
-          const scale = Math.max(
-            (W - 56) / art.naturalWidth,
-            90 / art.naturalHeight,
-          )
-          const sw = (W - 56) / scale
-          const sh = 90 / scale
-          g.drawImage(
-            art,
-            (art.naturalWidth - sw) / 2,
-            (art.naturalHeight - sh) / 2,
-            sw,
-            sh,
-            28,
-            192,
-            W - 56,
-            90,
-          )
-          g.fillStyle = '#100d2777'
-          g.fillRect(28, 259, W - 56, 23)
+        if (drawMemoryCard(g, src, card.x, card.y, card.width, card.height)) {
+          g.fillStyle = '#100d27aa'
+          g.fillRect(card.x, card.y + card.height - 20, card.width, 20)
         }
-        label(g, '★ DISTRICT RESTORED', W / 2, 275, 11, '#ffe6a0')
+        label(
+          g,
+          '★ RESTORED',
+          card.x + card.width / 2,
+          card.y + card.height - 6,
+          10,
+          '#ffe6a0',
+        )
+      } else if (unlocked) {
+        // Reached but not yet restored: a dimmed glimpse of the memory to come.
+        if (drawMemoryCard(g, src, card.x, card.y, card.width, card.height)) {
+          g.fillStyle = this.settings.highContrast ? '#100d27f2' : '#100d27d9'
+          g.fillRect(card.x, card.y, card.width, card.height)
+        }
+        label(g, '◇', card.x + card.width / 2, card.y + 70, 22, '#b6ebe6')
+        label(g, 'BEAT THE', card.x + card.width / 2, card.y + 96, 9)
+        label(g, 'DISTRICT BOSS', card.x + card.width / 2, card.y + 109, 9)
       } else {
-        label(g, '◇ MEMORY LOCKED', W / 2, 231, 14, '#b6ebe6')
-        label(g, 'DEFEAT THE DISTRICT BOSS', W / 2, 252, 10)
+        label(g, '?', card.x + card.width / 2, card.y + 82, 30, '#5c5a7d')
       }
-      g.strokeStyle = '#ffffff77'
-      g.strokeRect(28, 192, W - 56, 90)
+      g.strokeStyle = memory ? '#ffe6a0' : '#ffffff55'
+      g.lineWidth = memory ? 2 : 1
+      g.strokeRect(card.x, card.y, card.width, card.height)
+      const column = (card.x + card.width + W - 14) / 2
+      label(
+        g,
+        memory
+          ? 'MEMORY RESTORED'
+          : unlocked
+            ? 'MEMORY LOCKED'
+            : 'NOT YET VISITED',
+        column,
+        200,
+        10,
+        memory ? '#ffe6a0' : '#b6ebe6',
+      )
       for (let i = 0; i < 5; i++) {
         const at = first + i
         const earned = this.career.stars[at] ?? 0
-        const x = 42 + i * 59
-        label(g, String(at + 1), x, 297, 11)
-        label(g, earned ? '★'.repeat(earned) : '· · ·', x, 313, 10)
+        const y = 226 + i * 18
+        label(g, `STAGE ${at + 1}`, column - 30, y, 10)
+        label(
+          g,
+          at < this.career.highestStage
+            ? earned
+              ? '★'.repeat(earned)
+              : '· · ·'
+            : 'LOCK',
+          column + 36,
+          y,
+          10,
+          earned ? '#ffe6a0' : '#a7a6b9',
+        )
       }
       label(g, '‹ PREV', 60, 343, 11)
       label(g, 'CHAPTERS', W / 2, 343, 10)

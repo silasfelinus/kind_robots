@@ -158,6 +158,10 @@ try {
       mediaDir,
       storage: { [SAVES_KEY]: { [SLUG]: seeded } },
     })
+    const requested = new Set()
+    page.on('request', (request) =>
+      requested.add(new URL(request.url()).pathname),
+    )
     const snap = (name) =>
       shots
         ? page.screenshot({ path: path.join(shots, `${width}-${name}.png`) })
@@ -188,6 +192,22 @@ try {
         else await key(page, 'ArrowRight')
       }
       assert.equal((await hub(page)).album, 0, `${tag}: the album wraps`)
+      // The memory cards load the district illustrations: restored (1, 2) and the dimmed glimpse (3).
+      for (const name of ['salon', 'botanic-dome', 'night-market'])
+        assert.ok(
+          requested.has(
+            `/images/arcade/superkate-spectrum/scrapbook-${name}.webp`,
+          ),
+          `${tag}: the ${name} memory card loads its illustration`,
+        )
+      // Districts not reached yet show a "?" card and never load (or spoil) their illustration.
+      for (const name of ['cloud-library', 'prism-workshop', 'heart-of-hue'])
+        assert.ok(
+          !requested.has(
+            `/images/arcade/superkate-spectrum/scrapbook-${name}.webp`,
+          ),
+          `${tag}: the unvisited ${name} memory stays hidden`,
+        )
       if (touch) await tap(page, 60, 343)
       else await key(page, 'ArrowLeft')
       assert.equal((await hub(page)).album, 5, `${tag}: and back`)

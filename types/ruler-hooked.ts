@@ -361,6 +361,8 @@ export interface RunSave {
   flags: Record<string, boolean>
   fishopedia: Record<string, FishopediaEntry>
   endingKey: string | null
+  pendingCardId?: string
+  pendingFinaleKey?: string
   /** Has this reign's once-per-reign opening (ruler-hooked/t-028) been
    *  dismissed? Old saves migrate to `false` (save.ts's migrateSave), so a
    *  pre-existing reign gets the introduction once too, same as a new one. */

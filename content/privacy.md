@@ -2,7 +2,7 @@
 title: 'Privacy'
 room: 'Info Room'
 subtitle: 'Our Privacy Policy'
-description: How Kind Robots handles your data — and why we think you'll like it.
+description: How Kind Robots handles your data. We don't sell or share it, we use it only to run the site, and what you make here belongs to you.
 image: splash/privacy.png
 icon: kind-icon:shield
 tooltip: Kind Robots privacy policy and data philosophy.

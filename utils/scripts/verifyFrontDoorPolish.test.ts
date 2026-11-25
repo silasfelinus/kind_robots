@@ -176,4 +176,23 @@ const button = read('content/button.md')
 assert.doesNotMatch(button, /leadboard|an leaderboard/)
 assert.match(pageDescription('content/button.md'), /told not to press/)
 
+// 8. Community and support pages say what they hold (2026-11-25 PT): /giving
+//    named only "AMF", /sanctuary listed "mana" with no context, /forum asked
+//    visitors to "collide creatively ... or just vibe", /privacy promised only
+//    "why we think you'll like it" and /rewards described "prompts that twist
+//    the rules of our AI storytelling worlds".
+const giving = pageDescription('content/giving.md')
+assert.match(giving, /Against Malaria Foundation/)
+assert.doesNotMatch(giving, /\bAMF\b/)
+assert.match(pageDescription('content/sanctuary.md'), /gift shop/i)
+assert.match(pageDescription('content/sanctuary.md'), /forum/i)
+assert.doesNotMatch(pageDescription('content/forum.md'), /collide|vibe/i)
+const privacy = pageDescription('content/privacy.md')
+assert.doesNotMatch(privacy, /you'll like it/i)
+assert.match(privacy, /don't sell/i)
+assert.doesNotMatch(
+  pageDescription('content/rewards.md'),
+  /AI storytelling worlds/i,
+)
+
 console.log(`front door polish checks passed (${gatedCards} gated share cards)`)

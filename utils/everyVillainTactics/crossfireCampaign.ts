@@ -48,6 +48,8 @@ const CALLBACKS = [
 
 export type CrossfireCarryover = {
   effect: 'guard' | 'intel' | 'none'
+  guarded: boolean
+  marked: boolean
   note: string
   wounded: string[]
 }
@@ -73,16 +75,27 @@ export function crossfireCarryover(
       : !!source?.intel && flags.includes(source.intel)
   const effect = help ? 'guard' : intel ? 'intel' : 'none'
   const chapter = CROSSFIRE_CHAPTERS[previousChapter]?.title ?? 'The last fight'
+  const consequences: string[] = []
+  if (help)
+    consequences.push(
+      'The people you protected warn the squad in time to take cover (+15 enemy miss chance on the opening volley).',
+    )
+  if (intel)
+    consequences.push(
+      'Evidence from your previous mission exposes the enemy lead (+20 hit chance on the opening volley).',
+    )
   const consequence =
-    effect === 'guard'
-      ? 'The people you protected warn the squad in time to take cover (+15 enemy miss chance on the opening volley).'
-      : effect === 'intel'
-        ? 'Evidence from your previous mission exposes the enemy lead (+20 hit chance on the opening volley).'
-        : 'No rescue or evidence changed the next patrol.'
+    consequences.join(' ') || 'No rescue or evidence changed the next patrol.'
   const injuries = wounded.length
     ? ` ${wounded.length} squadmate(s) begin the next fight with one lingering wound.`
     : ' The squad recovers between fights.'
-  return { effect, note: `${chapter}: ${consequence}${injuries}`, wounded }
+  return {
+    effect,
+    guarded: help,
+    marked: intel,
+    note: `${chapter}: ${consequence}${injuries}`,
+    wounded,
+  }
 }
 
 export function applyCrossfireCarryover(
@@ -97,13 +110,14 @@ export function applyCrossfireCarryover(
   for (const unit of state.units.filter((unit) => unit.team === 'squad')) {
     if (carry.wounded.includes(unit.id)) unit.hp = Math.max(1, unit.maxHp - 1)
   }
-  if (carry.effect === 'guard') {
+  if (carry.guarded) {
     const lead = state.units.find(
       (unit) => unit.team === 'squad' && unit.id === 'backdraft',
     )
     if (lead && !lead.statuses.includes('guarded'))
       lead.statuses.push('guarded')
-  } else if (carry.effect === 'intel') {
+  }
+  if (carry.marked) {
     const rival = state.units.find(
       (unit) => unit.team === 'rival' && unit.hp > 0,
     )
@@ -132,11 +146,11 @@ export function crossfireFinaleNetwork(
     completed.some((save) => save.state.phase !== 'victory')
   )
     return null
-  const outcomes = completed.map(
-    (save, index) => crossfireCarryover(save, index).effect,
+  const outcomes = completed.map((save, index) =>
+    crossfireCarryover(save, index),
   )
-  const rescues = outcomes.filter((effect) => effect === 'guard').length
-  const evidence = outcomes.filter((effect) => effect === 'intel').length
+  const rescues = outcomes.filter((outcome) => outcome.guarded).length
+  const evidence = outcomes.filter((outcome) => outcome.marked).length
   return {
     rescues,
     evidence,

@@ -667,6 +667,61 @@ tapStage(failedAtelier, { x: 160, y: 325 })
 assert.equal(failedAtelier.menuOpen, true)
 assert.equal(failedAtelier.atelierActive, false)
 
+const relay = create({
+  ...options,
+  resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),
+} as Parameters<typeof create>[0])
+const relaySave = JSON.stringify(relay.save)
+tapStage(relay, { x: 160, y: 444 })
+assert.equal(relay.relayActive, true)
+assert.equal(relay.relayTurn, 1)
+let expectedTurn = 1
+let expectedScore = 0
+for (const [index, puzzle] of ATELIER_PUZZLES.entries()) {
+  assert.equal(relay.atelierIndex, index)
+  assert.equal(relay.scoreBoard, null)
+  assert.equal(relay.score, expectedScore)
+  assert.equal(relay.relayTurn, expectedTurn)
+  for (const [shotIndex, hue] of puzzle.shots.entries()) {
+    assert.equal(relay.loaded, hue)
+    const col = relay.board[0]!.indexOf(hue)
+    assert.ok(col >= 0)
+    tapStage(relay, { x: center({ row: 0, col }).x + 14, y: 40 })
+    assert.equal(relay.relayTurn, expectedTurn)
+    for (let tick = 0; tick < 400 && relay.shot; tick++)
+      relay.update(emptyInput())
+    expectedTurn = expectedTurn === 1 ? 2 : 1
+    expectedScore += 300 + shotIndex * 100
+    assert.equal(relay.relayTurn, expectedTurn)
+    assert.equal(relay.relayCombo, shotIndex + 1)
+    assert.equal(relay.score, expectedScore)
+  }
+  assert.equal(relay.atelierResult, 'cleared')
+  assert.equal(JSON.stringify(relay.save), relaySave)
+  assert.deepEqual(relay.drainFeats(), [])
+  tapStage(relay, { x: 160, y: 275 })
+}
+assert.equal(relay.menuOpen, true)
+assert.equal(relay.relayActive, false)
+assert.equal(relay.scoreBoard, null)
+assert.equal(JSON.stringify(relay.save), relaySave)
+
+const retryRelay = create({
+  ...options,
+  resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),
+} as Parameters<typeof create>[0])
+tapStage(retryRelay, { x: 160, y: 444 })
+tapStage(retryRelay, { x: 22, y: 40 })
+for (let tick = 0; tick < 400 && retryRelay.shot; tick++)
+  retryRelay.update(emptyInput())
+assert.equal(retryRelay.atelierResult, 'retry')
+assert.equal(retryRelay.relayTurn, 2)
+tapStage(retryRelay, { x: 160, y: 275 })
+assert.equal(retryRelay.relayTurn, 1)
+assert.equal(retryRelay.score, 0)
+assert.equal(retryRelay.atelierIndex, 0)
+assert.equal(retryRelay.scoreBoard, null)
+
 const classicRanked = create({
   ...options,
   resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),

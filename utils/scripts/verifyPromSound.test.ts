@@ -124,6 +124,134 @@ player.setHidden(false)
 player.dispose()
 assert.equal(player.unlocked, false)
 
+// Exercise real scheduler decisions with a deterministic WebAudio stand-in.
+class FakeGain {
+  gain = {
+    setTargetAtTime() {},
+    setValueAtTime() {},
+    exponentialRampToValueAtTime() {},
+  }
+  connect() {}
+  disconnect() {}
+}
+
+class FakeTone {
+  type = 'sine'
+  frequency = { setValueAtTime() {} }
+  onended: (() => void) | null = null
+  cancelled = false
+  connect() {}
+  disconnect() {}
+  start() {}
+  stop(at?: number) {
+    if (at === undefined) this.cancelled = true
+  }
+}
+
+class FakeContext {
+  static latest: FakeContext
+  state = 'suspended'
+  currentTime = 1
+  destination = new FakeGain()
+  tones: FakeTone[] = []
+
+  constructor() {
+    FakeContext.latest = this
+  }
+
+  createGain() {
+    return new FakeGain()
+  }
+
+  createOscillator() {
+    const tone = new FakeTone()
+    this.tones.push(tone)
+    return tone
+  }
+
+  resume() {
+    this.state = 'running'
+    return Promise.resolve()
+  }
+
+  suspend() {
+    this.state = 'suspended'
+    return Promise.resolve()
+  }
+
+  close() {
+    this.state = 'closed'
+    return Promise.resolve()
+  }
+}
+
+const oldWindow = Object.getOwnPropertyDescriptor(globalThis, 'window')
+Object.defineProperty(globalThis, 'window', {
+  configurable: true,
+  value: { AudioContext: FakeContext },
+})
+const activePlayer = new PromSound()
+const pump = () => (activePlayer as unknown as { pump(): void }).pump()
+try {
+  assert.equal(activePlayer.unlock(), true)
+  const ctx = FakeContext.latest
+  pump()
+  assert.ok(ctx.tones.length > 0, 'unlocked score schedules notes')
+  const firstScore = [...ctx.tones]
+  activePlayer.setMood('patrol')
+  assert.ok(firstScore.every((tone) => tone.cancelled))
+  pump()
+  assert.ok(ctx.tones.length > firstScore.length)
+  activePlayer.play(['investigate'])
+  activePlayer.setMix({ ...DEFAULT_PROM_MIX, muted: true })
+  assert.ok(ctx.tones.every((tone) => tone.cancelled))
+  const mutedCount = ctx.tones.length
+  ctx.currentTime += 10
+  pump()
+  activePlayer.play(['ending'])
+  assert.equal(ctx.tones.length, mutedCount, 'mute schedules no voices')
+  activePlayer.setMix({ ...DEFAULT_PROM_MIX, music: 0 })
+  pump()
+  assert.equal(ctx.tones.length, mutedCount)
+  activePlayer.play(['choice'])
+  assert.ok(ctx.tones.length > mutedCount, 'SFX remain independently enabled')
+  const effectsCount = ctx.tones.length
+  activePlayer.setMix({ ...DEFAULT_PROM_MIX, effects: 0 })
+  assert.ok(ctx.tones.slice(mutedCount).every((tone) => tone.cancelled))
+  activePlayer.play(['choice'])
+  assert.equal(ctx.tones.length, effectsCount)
+  pump()
+  assert.ok(ctx.tones.length > effectsCount, 'music resumes independently')
+  activePlayer.setHidden(true)
+  assert.equal(ctx.state, 'suspended')
+  assert.ok(ctx.tones.every((tone) => tone.cancelled))
+  const hiddenCount = ctx.tones.length
+  activePlayer.play(['injury'])
+  pump()
+  assert.equal(ctx.tones.length, hiddenCount)
+  activePlayer.setHidden(false)
+  assert.equal(ctx.state, 'running')
+  pump()
+  assert.ok(ctx.tones.length > hiddenCount)
+  ctx.state = 'suspended'
+  const suspendedCount = ctx.tones.length
+  activePlayer.play(['success'])
+  pump()
+  assert.equal(ctx.tones.length, suspendedCount)
+  assert.ok(ctx.tones.every((tone) => tone.cancelled))
+  activePlayer.unlock()
+  pump()
+  assert.ok(ctx.tones.length > suspendedCount)
+  activePlayer.dispose()
+  assert.equal(ctx.state, 'closed')
+  assert.ok(ctx.tones.every((tone) => tone.cancelled))
+  assert.equal(activePlayer.unlocked, false)
+} finally {
+  activePlayer.dispose()
+  if (oldWindow) Object.defineProperty(globalThis, 'window', oldWindow)
+  else Reflect.deleteProperty(globalThis, 'window')
+}
+
 const page = readFileSync('pages/play/comet-city-academy.vue', 'utf8')
 assert.match(page, /@pointerdown\.capture="onPromSoundGesture"/)
 assert.match(page, /@keydown\.capture="onPromSoundGesture"/)

@@ -1,9 +1,8 @@
 import { identityFor } from '../cometAcademy/identityArcs'
 import type { SignaturePowerId } from '../cometAcademy/specialPowers'
 import type { CrossfireJournal } from './crossfireCampaign'
-import { CROSSFIRE_CHAPTERS } from './crossfireCampaign'
+import { CROSSFIRE_CHAPTERS, crossfireFinaleNetwork } from './crossfireCampaign'
 import type { StoryRun } from './firstBellStory'
-import type { EvtSave } from './saves'
 import type { TrainingState } from './training'
 
 type BattleEvidence = {
@@ -139,23 +138,20 @@ export function crossfireFinale(
     current.state.phase !== 'victory'
   )
     return null
-  const previous = journal.completed.slice(0, 5)
-  if (previous.length !== 5) return null
-  const choices = previous.map((save: EvtSave, index) => branchFor(index, save))
-  const protectedPeople = choices.filter((choice) => choice === 'rescue').length
-  const exposedOrders = choices.filter((choice) => choice === 'evidence').length
+  const network = crossfireFinaleNetwork(journal.completed.slice(0, 5))
+  if (!network) return null
   const last = branchFor(5, current)
   const lead = identityFor(journal.lead).hero.alias
   const opponent = journal.foil
     ? identityFor(journal.foil).hero.alias
     : 'the rival leader'
-  if (last === 'rescue' && protectedPeople >= 3)
+  if (last === 'rescue' && network.squadGuarded)
     return {
       path: 'open-doors',
       title: 'The Doors Stayed Open',
       text: `${lead} wins something harder than a battle: the city keeps its evacuation routes open. The students, researchers and workers who were protected on earlier nights run the final rescue themselves. Even ${opponent} cannot claim those people were merely pieces on the board.`,
     }
-  if (last === 'rescue' && exposedOrders >= 2)
+  if (last === 'rescue' && network.enemiesExposed)
     return {
       path: 'black-box',
       title: 'The Evidence They Could Not Burn',

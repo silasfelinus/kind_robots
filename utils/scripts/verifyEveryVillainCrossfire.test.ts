@@ -739,6 +739,27 @@ function finalNarrative(
   ]
   return crossfireFinale(result, final)!
 }
+// A rescue and a discovered record in First Bell must both count toward
+// the ending, just as they both count toward tactical support.
+const dualEnding = {
+  ...journal,
+  completed: [...chapterHistory([0], [0, 1]), journal.active],
+}
+const shelterFinal = {
+  ...journal.active,
+  state: { ...journal.active.state, flags: ['prom-shelter'] },
+}
+assert.equal(crossfireFinale(dualEnding, shelterFinal)?.path, 'black-box')
+assert.equal(
+  crossfireFinale({ ...dualEnding, completed: forgedSupport }, shelterFinal),
+  null,
+  'a defeated preceding chapter cannot earn a finale',
+)
+assert.equal(
+  crossfireFinale({ ...journal, completed: dualHistory }, shelterFinal)?.path,
+  'open-doors',
+  'rescue ending retains priority when both thresholds are earned',
+)
 const openedDoors = finalNarrative(
   ['rescue', 'rescue', 'rescue', 'evidence', 'command'],
   'shelter',

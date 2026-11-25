@@ -6250,10 +6250,7 @@ export class PlumberRun implements ArcadeGameInstance {
     const held = this.heldRoller
     const visibleFoes =
       held && this.mode === 'play'
-        ? [
-            ...this.foes,
-            { ...held, x: this.hero.x, y: this.hero.y - 4 },
-          ]
+        ? [...this.foes, { ...held, x: this.hero.x, y: this.hero.y - 4 }]
         : this.foes
     for (const foe of visibleFoes) {
       if (foe.state === 'gone') continue

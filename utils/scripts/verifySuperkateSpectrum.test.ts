@@ -789,8 +789,9 @@ const deepClassic = create({
 deepClassic.level = 35
 ;(deepClassic as unknown as { resetBoard: () => void }).resetBoard()
 assert.equal(deepClassic.level, 35)
+// Classic's own line, never a story chapter's (and no chapter lookup past stage 30).
 assert.ok(
-  deepClassic.message.includes('CLASSIC'),
+  deepClassic.message.includes('NO LIMITS'),
   'Endless Classic has no chapter limit',
 )
 
@@ -1133,3 +1134,54 @@ assert.deepEqual(
 console.log(
   'Superkate Spectrum: matching, cloud merges, music, hub and career checks passed',
 )
+
+// Touch layout (t-181): Spectrum's labelled four buttons are planned off the board, and on an upright
+// tablet the tall stage narrows for them; a game that does not opt in keeps the old rules.
+{
+  const { planTouchStage } = await import('../arcade/touchStage')
+  const { ARCADE_GAMES } = await import('../arcade/games')
+  const meta = ARCADE_GAMES.find((game) => game.slug === 'superkate-spectrum')!
+  assert.equal(meta.touchClearStage, true)
+  const plan = (width: number, height: number, extra = {}) =>
+    planTouchStage(
+      {
+        area: { left: 0, top: 0, width, height },
+        aspect: meta.width / meta.height,
+        seats: 1,
+        fourButtons: true,
+        cornerChips: 2,
+        ...extra,
+      },
+      Math.min(width, height),
+    )
+  const spectrumTouch = {
+    labelled: true,
+    minShare: meta.touchClearMinShare,
+  }
+  for (const [width, height] of [
+    [390, 844],
+    [768, 1024],
+    [844, 390],
+    [1024, 768],
+  ] as const) {
+    const placed = plan(width, height, spectrumTouch)
+    assert.ok(placed, `Spectrum plans clear controls at ${width}x${height}`)
+    assert.ok(
+      placed.stage.width >= Math.min(width * 0.9, 260),
+      `Spectrum keeps a playable board at ${width}x${height}`,
+    )
+    const stage = placed.stage
+    for (const cluster of placed.clusters)
+      for (const box of [cluster.dpad, cluster.buttons, placed.cornerChips])
+        assert.ok(
+          box.left >= stage.left + stage.width ||
+            box.left + box.width <= stage.left ||
+            box.top >= stage.top + stage.height ||
+            box.top + box.height <= stage.top,
+          `Spectrum controls stay off the board at ${width}x${height}`,
+        )
+  }
+  assert.equal(plan(390, 844, spectrumTouch)!.stage.width, 390)
+  // Without the opt-in the upright tablet keeps its full-width stage (floating controls).
+  assert.equal(plan(768, 1024), null)
+}

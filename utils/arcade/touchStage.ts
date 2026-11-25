@@ -23,6 +23,18 @@ export type TouchStageRequest = {
   seats: number
   /** A solo player gets four face buttons (A, B, X, Y) rather than two. */
   fourButtons: boolean
+  /**
+   * The solo face buttons carry the game's names (ArcadeGameMeta.buttonLabels), so they are drawn
+   * larger: 1.45 keys, and A at 1.7 keys (the cabinet's .cabinet-buttons--labelled rules).
+   */
+  labelled?: boolean
+  /**
+   * The smallest share of the full stage's area a solo player may give up for clear controls
+   * (ArcadeGameMeta.touchClearMinShare). Set, an upright stage may also narrow: a tall stage on an
+   * upright tablet fills the height, so clear controls must come out of its width. Unset: 0.8, and
+   * an upright stage keeps its full width.
+   */
+  minShare?: number
   /** Round chips beside the controls: leave (and fullscreen, where the browser can). */
   cornerChips: number
 }
@@ -88,7 +100,12 @@ type Parts = {
   tag: number
 }
 
-function parts(key: number, seats: number, fourButtons: boolean): Parts {
+function parts(
+  key: number,
+  seats: number,
+  fourButtons: boolean,
+  labelled = false,
+): Parts {
   if (seats > 1) {
     const ball = key * 1.15
     return {
@@ -97,6 +114,21 @@ function parts(key: number, seats: number, fourButtons: boolean): Parts {
       pad: key * 3,
       buttons: { width: ball * 2 + 0.5 * REM, height: ball + key * 0.35 },
       tag: TAG,
+    }
+  }
+  if (fourButtons && labelled) {
+    // Two auto-sized grid columns and rows: X over B, then Y over the larger A.
+    const ball = key * 1.45
+    const big = key * 1.7
+    return {
+      key,
+      ball,
+      pad: key * 3,
+      buttons: {
+        width: ball + big + 0.9 * REM,
+        height: ball + big + 0.6 * REM,
+      },
+      tag: 0,
     }
   }
   if (fourButtons) {
@@ -383,12 +415,18 @@ export function planTouchStage(
   for (const step of KEY_STEPS) {
     const key = usual * step
     if (key < MIN_KEY) break
-    const p = parts(key, seats, request.fourButtons)
+    const p = parts(key, seats, request.fourButtons, request.labelled)
     const candidates = [rails({ ...request, seats }, p)]
     for (let columns = 1; columns <= seats; columns++)
       candidates.push(band({ ...request, seats }, p, columns))
     for (const plan of candidates) {
-      if (!plan || (upright && plan.stage.width < Math.floor(whole))) continue
+      if (
+        !plan ||
+        (upright &&
+          request.minShare === undefined &&
+          plan.stage.width < Math.floor(whole))
+      )
+        continue
       const score = plan.stage.width * plan.stage.height * step
       if (!best || score > best.score + 0.5) best = { plan, score }
     }
@@ -397,7 +435,7 @@ export function planTouchStage(
   if (
     seats === 1 &&
     best.plan.stage.width * best.plan.stage.height <
-      SOLO_MIN_SHARE * whole * (whole / aspect)
+      (request.minShare ?? SOLO_MIN_SHARE) * whole * (whole / aspect)
   )
     return null
   return best.plan

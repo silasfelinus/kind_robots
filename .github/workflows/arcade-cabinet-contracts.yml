@@ -14,6 +14,11 @@ on:
       - 'utils/scripts/arcadeCabinetFixture.mjs'
       - 'utils/scripts/*Cabinet.browser.test.mjs'
       - 'utils/scripts/verifySavePlumberAudio.test.ts'
+      - 'utils/scripts/verifySuperkateSpectrum.test.ts'
+      - 'utils/scripts/verifySpectrumRecordedMusic.test.ts'
+      - 'utils/scripts/verifyCabinetSpectrumSaveRace.test.ts'
+      - 'public/audio/arcade/superkate-spectrum/**'
+      - 'server/api/arcade/saves/**'
       - '.github/workflows/arcade-cabinet-contracts.yml'
 
 permissions:
@@ -77,6 +82,20 @@ jobs:
         run: node utils/scripts/verifyRainbowPerformance.browser.test.mjs
         env:
           RAINBOW_PERF_REPORT: cabinet-contract-shots/rainbow-performance.json
+      - name: Superkate Spectrum — engine, boards, bosses, hub, career and touch plan
+        if: always()
+        run: npx tsx utils/scripts/verifySuperkateSpectrum.test.ts
+      - name: Superkate Spectrum — recorded music masters
+        if: always()
+        run: npx tsx utils/scripts/verifySpectrumRecordedMusic.test.ts
+      - name: Superkate Spectrum — cloud save races and account switches
+        if: always()
+        run: npx tsx utils/scripts/verifyCabinetSpectrumSaveRace.test.ts
+      - name: Superkate Spectrum — hub, touch, keyboard, gamepad and saves at 390/768/1440
+        if: always()
+        run: node utils/scripts/verifySuperkateSpectrumCabinet.browser.test.mjs
+        env:
+          SPECTRUM_CABINET_SHOTS: cabinet-contract-shots/superkate-spectrum
       - name: Preserve cabinet states
         if: always()
         uses: actions/upload-artifact@v4

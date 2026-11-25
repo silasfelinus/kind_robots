@@ -130,6 +130,12 @@ export type ArcadeGameMeta = {
    */
   touchClearStage?: boolean
   /**
+   * With touchClearStage: the smallest share of its full area the stage may shrink to so the controls
+   * stay clear, upright screens included (utils/arcade/touchStage.ts; 0.8, never narrowing upright,
+   * when unset). For tall stages whose HUD and launcher sit where floating controls would land.
+   */
+  touchClearMinShare?: number
+  /**
    * On a short or narrow screen the cabinet folds its settings switches into one Settings pop-over,
    * so its title screen keeps the height (contained cabinets only).
    */

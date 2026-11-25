@@ -1375,15 +1375,18 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       g.strokeStyle = selected ? '#fff0ad' : '#1e1b37'
       g.lineWidth = selected ? 4 : 2
       g.stroke()
-      label(g, String(stage), x, y + 4, 12)
-      label(
-        g,
-        unlocked ? '★'.repeat(stars) || '◇' : 'LOCK',
-        x,
-        y + 23,
-        9,
-        unlocked ? '#ffe6a0' : '#a7a6b9',
-      )
+      label(g, String(stage), x, y + 2, 11, unlocked ? '#fff' : '#9d9cb4')
+      // Medals sit inside the node's rim: three pips, gold when earned; locked nodes show none.
+      if (unlocked)
+        for (let pip = 0; pip < 3; pip++) {
+          g.beginPath()
+          g.arc(x - 6 + pip * 6, y + 8, 2.2, 0, Math.PI * 2)
+          g.fillStyle = pip < stars ? '#ffe6a0' : '#1e1b37'
+          g.fill()
+          g.strokeStyle = '#1e1b37'
+          g.lineWidth = 1
+          g.stroke()
+        }
     }
     const stars = this.career.stars.reduce((sum, count) => sum + count, 0)
     const selectedStars = this.career.stars[this.menuStage - 1] ?? 0
@@ -1555,7 +1558,10 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       }
       label(g, 'TAP ROW · VOLUME: LEFT − / RIGHT +', W / 2, 371, 10)
     }
-    label(g, 'X: NEXT TAB  Y: PREVIOUS', W / 2, 401, 11, '#f3d78d')
+    // The run's HUD and launcher sit under the home pages; cover them so the hint reads alone.
+    g.fillStyle = '#100d27'
+    g.fillRect(0, 388, W, 459 - 388)
+    label(g, 'X: NEXT TAB  Y: PREVIOUS', W / 2, 412, 11, '#f3d78d')
     this.renderMenuTabs(g)
   }
 
@@ -1734,7 +1740,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     )
     if (this.power)
       label(g, this.power.toUpperCase(), W / 2, SHOT_Y - 21, 11, '#fff89d')
-    label(g, 'NEXT', 44, SHOT_Y - 15, 10, '#d6faff')
+    label(g, 'NEXT', 44, SHOT_Y + 24, 10, '#d6faff')
     label(
       g,
       this.atelierActive

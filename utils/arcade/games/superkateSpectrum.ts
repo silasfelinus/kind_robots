@@ -1713,7 +1713,14 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       '#fff0ad',
     )
     const rank = rankForXp(this.career.xp)
-    label(g, this.relayActive ? `COMBO ${this.relayCombo}` : `COLOR RANK ${rank}`, 236, 417, 11, '#9df8f0')
+    label(
+      g,
+      this.relayActive ? `COMBO ${this.relayCombo}` : `COLOR RANK ${rank}`,
+      236,
+      417,
+      11,
+      '#9df8f0',
+    )
     label(
       g,
       this.atelierActive
@@ -1735,7 +1742,14 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       g.fillRect(14, 145, W - 28, 235)
       g.strokeStyle = '#fe8fc9'
       g.strokeRect(14, 145, W - 28, 235)
-      label(g, this.relayActive ? 'CO-OP RELAY' : 'PUZZLE ATELIER', W / 2, 172, 18, '#fff0ad')
+      label(
+        g,
+        this.relayActive ? 'CO-OP RELAY' : 'PUZZLE ATELIER',
+        W / 2,
+        172,
+        18,
+        '#fff0ad',
+      )
       label(g, ATELIER_PUZZLES[this.atelierIndex]!.title, W / 2, 198, 14)
       if (this.atelierResult) {
         label(

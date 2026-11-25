@@ -471,7 +471,7 @@ const features: FeaturedExperience[] = [
     tag: 'Capes & Tassels · Playable superhero school',
     category: 'play',
     route: '/play/comet-city-academy',
-    image: '/comet-city-academy/front/dashboard-highlight.webp',
+    image: '/comet-city-academy/front/home-brawl-03.webp',
     description: 'Pick a superpower, dispatch classmates, and survive prom.',
   },
   {

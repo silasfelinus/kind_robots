@@ -964,6 +964,7 @@ export const UNLISTED_SCORED_GAMES: ArcadeGameMeta[] = [
     width: 320,
     height: 480,
     maxPlausibleScore: 10_000_000,
+    titleArt: '/images/arcade/games/superkate-spectrum-title.webp',
     accent: '#ed66bc',
     controls: 'Aim, fire, swap',
   })),

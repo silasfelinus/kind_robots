@@ -4990,13 +4990,15 @@ export class PlumberRun implements ArcadeGameInstance {
       g.fillRect(0, 0, W, H)
     }
     g.fillStyle = 'rgba(12, 24, 40, 0.45)'
-    g.fillRect(0, 0, W, 104)
+    g.fillRect(0, 0, W, 118)
     g.fillRect(0, H - 34, W, 34)
     const line = (i: 0 | 1) =>
       ending.lines[i].replace('{name}', this.member.name)
     this.text(g, ending.title, W / 2, 40, 28, '#ffd98a')
     this.text(g, line(0), W / 2, 66, 12, '#fff4dc')
     this.text(g, line(1), W / 2, 84, 12, '#d6f2ee')
+    // Her own epilogue: the finale adapts to the heroine who played it.
+    this.text(g, this.member.epilogue, W / 2, 104, 10, '#f2c6a0')
     const teo = drawSprite(g, PLUMBER_ART.cast('teo-helping'), 160, 236, 120)
     if (!teo) drawSprite(g, PLUMBER_ART.cast('teo-caged'), 160, 236, 120)
     this.drawHeroSprite(g, 320, 236, 'cheer', 1.95)

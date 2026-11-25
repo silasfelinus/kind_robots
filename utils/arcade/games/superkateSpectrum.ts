@@ -590,8 +590,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   }
   private chooseAtelier(by: number) {
     this.atelierIndex =
-      (this.atelierIndex + by + ATELIER_PUZZLES.length) %
-      ATELIER_PUZZLES.length
+      (this.atelierIndex + by + ATELIER_PUZZLES.length) % ATELIER_PUZZLES.length
   }
   private beginRun() {
     this.choosingMode = false
@@ -972,7 +971,14 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       return null
     }
     if (this.shot) return null
-    if (!this.atelierActive && !this.boss && x >= 20 && x <= 70 && y >= 420 && y <= 459)
+    if (
+      !this.atelierActive &&
+      !this.boss &&
+      x >= 20 &&
+      x <= 70 &&
+      y >= 420 &&
+      y <= 459
+    )
       return { kind: 'swap' }
     return y >= 28 && y <= 390 ? { kind: 'aim' } : null
   }
@@ -1585,7 +1591,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         ? 'ATELIER'
         : this.mode === 'classic'
           ? `CLASSIC ${this.level}`
-        : `STAGE ${this.level}/30`,
+          : `STAGE ${this.level}/30`,
       61,
       401,
       11,
@@ -1618,7 +1624,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         ? ATELIER_PUZZLES[this.atelierIndex]!.title
         : this.mode === 'classic'
           ? `CLASSIC BEST ${this.career.classicBest}`
-        : chapter.name,
+          : chapter.name,
       W / 2,
       469,
       11,
@@ -1638,7 +1644,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       if (this.atelierResult) {
         label(
           g,
-          this.atelierResult === 'cleared' ? 'BEAUTIFULLY SOLVED!' : 'OUT OF SHOTS',
+          this.atelierResult === 'cleared'
+            ? 'BEAUTIFULLY SOLVED!'
+            : 'OUT OF SHOTS',
           W / 2,
           230,
           13,

@@ -638,8 +638,7 @@ for (const [index, puzzle] of ATELIER_PUZZLES.entries()) {
     const x = center({ row: 0, col }).x + 14
     tapStage(run, { x, y: 40 })
     assert.ok(run.shot)
-    for (let tick = 0; tick < 400 && run.shot; tick++)
-      run.update(emptyInput())
+    for (let tick = 0; tick < 400 && run.shot; tick++) run.update(emptyInput())
     assert.equal(run.shot, null)
   }
   assert.equal(run.atelierResult, 'cleared')

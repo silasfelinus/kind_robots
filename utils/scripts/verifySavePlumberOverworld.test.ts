@@ -9,6 +9,8 @@ import { emptyInput } from '../arcade/types'
 import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
 import {
   CAMPAIGN,
+  CHAPEL_COURSES,
+  parseStage,
   SOLID_BLOCK,
   TILE,
   VERDIGRIS_CHAPEL,
@@ -129,7 +131,10 @@ assert.equal(completionPercent(fresh), 0)
 const everything = CAMPAIGN.map((s) => s.code)
 assert.equal(
   completionPercent({
-    done: [...everything.map((c) => stageNode(c)!.id), '1-c'],
+    done: [
+      ...everything.map((c) => stageNode(c)!.id),
+      ...CHAPEL_COURSES.map((c) => c.code),
+    ],
     gears: everything,
     secrets: [...SECRET_EXITS_READY],
   }),
@@ -418,6 +423,69 @@ for (const [code, target] of [
   assert.ok(reload.secrets.has(node.id))
   assert.ok(nodeReachable(target, reload.progress))
   assert.equal(worldCompletion(node.world, reload.progress).secretsFound, 1)
+}
+
+// Every chapel is a playable, independently persistent optional course.
+for (const course of CHAPEL_COURSES.slice(1)) {
+  const target = mapNode(course.code)!
+  const stage = parseStage(course)
+  assert.ok(nodeBuilt(target), course.code)
+  assert.equal(stage.spawns.filter((s) => s.kind === 'goal').length, 1)
+  const index = CAMPAIGN.findIndex((s) => s.code === `${target.world}-1`)
+  const source = CAMPAIGN[index]!
+  const block = source.switchBlocks!.find((b) => b.chapel === course.code)!
+  const run = createSavePlumberPreview(
+    options({
+      v: 3,
+      active: 0,
+      slots: [
+        {
+          heroine: 3,
+          stage: index,
+          node: course.code,
+          done: [],
+          score: 0,
+          lives: 3,
+          tokens: 0,
+        },
+        null,
+        null,
+      ],
+    }),
+  )
+  run.loadStage(index)
+  assert.equal(run.solidAt(block.from, block.row), 0)
+  press(run, 'start')
+  press(run, 'a')
+  assert.equal(run.mapNodeId, course.code)
+  press(run, 'a')
+  press(run, 'a')
+  assert.equal(run.stage.code, course.code)
+  assert.equal(run.mode, 'play')
+  assert.ok(!run.done.has(course.code))
+  const lives = run.lives
+  run.hero.y = run.stage.rows * TILE + 60
+  for (let i = 0; i < 600 && run.lives === lives; i++) run.update(input)
+  assert.equal(run.stage.code, course.code, 'death reloads the same chapel')
+  assert.equal(run.mode, 'play')
+  assert.ok(!run.done.has(course.code))
+  const goal = run.goal!
+  run.hero = { x: goal.x, y: goal.y - 20, vx: 0, vy: 0 }
+  run.ground = true
+  run.update(input)
+  assert.equal(run.mode, 'clear')
+  for (let i = 0; i < 200 && run.modeTimer; i++) run.update(input)
+  assert.equal(run.mode, 'map')
+  assert.ok(run.done.has(course.code))
+  const reload = createSavePlumberPreview(options(run.save))
+  reload.loadStage(index)
+  for (let col = block.from; col <= block.to; col++)
+    assert.equal(reload.solidAt(col, block.row), SOLID_BLOCK)
+  for (const other of CHAPEL_COURSES)
+    if (other.code !== course.code) assert.ok(!reload.done.has(other.code))
+  const fresh = createSavePlumberPreview(options())
+  fresh.loadStage(index)
+  assert.equal(fresh.solidAt(block.from, block.row), 0)
 }
 
 // Deaths are remembered on the slot.

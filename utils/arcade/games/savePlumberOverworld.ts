@@ -19,7 +19,7 @@
  * of each world's painted map plate (conductor art/GEN2-ROUND-1.yaml, Krea 2).
  */
 import GEN2 from './savePlumberGen2Worlds.json'
-import { CAMPAIGN } from './savePlumberLevels'
+import { CAMPAIGN, chapelCourse } from './savePlumberLevels'
 import { MAP_CLIP_WORLDS } from './savePlumberMapClips'
 
 export type MapDirection = 'up' | 'down' | 'left' | 'right'
@@ -290,7 +290,7 @@ export function stageNode(code: string): MapNode | undefined {
 
 /** A node she can play today. */
 export function nodeBuilt(node: MapNode | undefined): boolean {
-  return !!node?.stage || node?.id === '1-c'
+  return !!node?.stage || !!chapelCourse(node?.id)
 }
 
 function cleared(id: string, exit: StageExit, progress: MapProgress) {

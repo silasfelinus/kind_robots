@@ -35,7 +35,7 @@ import {
   SOLID_FRAGILE_ICE,
   TILE,
   CAMPAIGN,
-  VERDIGRIS_CHAPEL,
+  chapelCourse,
   parseStage,
   isSlope,
   slopeHeight,
@@ -1002,9 +1002,10 @@ export class PlumberRun implements ArcadeGameInstance {
     if (!(keys.pressed.a || keys.pressed.start)) return
     const node = mapNode(this.mapNodeId)
     if (!node || node.kind === 'start') return
-    if (node.id === VERDIGRIS_CHAPEL.code) {
+    const chapel = chapelCourse(node.id)
+    if (chapel) {
       this.sound.play('level')
-      this.loadDef(VERDIGRIS_CHAPEL)
+      this.loadDef(chapel)
       this.watchStage()
       this.setMode('intro', 150)
       return
@@ -3641,9 +3642,9 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     const flags = this.checkpoints.map((f) => f.reached)
     const stageCheckpoint = this.checkpoint
+    const chapel = chapelCourse(this.stage.code)
     if (this.customLevel) this.loadDef(this.customLevel)
-    else if (this.stage.code === VERDIGRIS_CHAPEL.code)
-      this.loadDef(VERDIGRIS_CHAPEL)
+    else if (chapel) this.loadDef(chapel)
     else this.loadStage(this.stageIndex)
     this.checkpoints.forEach((f, i) => {
       f.reached = flags[i] ?? false
@@ -4861,8 +4862,8 @@ export class PlumberRun implements ArcadeGameInstance {
       g,
       this.endless
         ? `${this.member.name}  ·  ONE LIFE  ·  HOW FAR CAN YOU RUN?`
-        : this.stage.code === VERDIGRIS_CHAPEL.code
-          ? 'REACH THE VALVE TO SOLIDIFY VERDIGRIS BLOCKS'
+        : chapelCourse(this.stage.code)
+          ? 'REACH THE VALVE TO SOLIDIFY SWITCH BLOCKS'
           : `${this.member.name}  ×${this.lives}`,
       W / 2,
       172,
@@ -5141,7 +5142,7 @@ export class PlumberRun implements ArcadeGameInstance {
     const max = Math.max(1, this.stage.cols * TILE - W)
     this.plate(
       g,
-      this.stage.code === VERDIGRIS_CHAPEL.code ? '1-1' : this.stage.code,
+      chapelCourse(this.stage.code) ? `${this.world}-1` : this.stage.code,
       this.camera / max,
     )
     if (this.stage.space) this.renderSpaceBackdrop(g)

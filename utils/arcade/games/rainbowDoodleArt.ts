@@ -10,6 +10,7 @@ export const RAINBOW_DOODLE_ART: readonly string[] = [
   'alt/x2-sky',
   'alt/x3-far',
   'alt/x3-sky',
+  'alt/x4-sky',
   'bosses/b01-phase1',
   'bosses/b01-phase2',
   'bosses/b01-phase3',

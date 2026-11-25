@@ -113,7 +113,9 @@ export function rainbowDoodleLoadedArt(path: string): HTMLImageElement | null {
  * `frames` equal cells at doodle/anim/<name>-idle, eight evenly spaced frames of a reviewed WAN 2.2 loop
  * (conductor ANIM-BACKLOG-2026-11-24), matte keyed and sized to its still. Listed only once reviewed.
  */
-export const RAINBOW_IDLE_ATLASES: Readonly<Record<string, number>> = {}
+export const RAINBOW_IDLE_ATLASES: Readonly<Record<string, number>> = {
+  'enemies/angler': 8,
+}
 /** Idle atlases play at four frames a second, like the enemy cycles. */
 export const RAINBOW_IDLE_FPS = 4
 

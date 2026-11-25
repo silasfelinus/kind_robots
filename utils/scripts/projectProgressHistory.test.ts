@@ -11,7 +11,12 @@ describe('project progress history', () => {
     expect(progressPercent({ done: 0, total: 0 })).toBeNull()
     expect(progressPercent({ done: 3, total: 4 })).toBe(75)
     expect(completedDelta([null, { done: 3, total: 4 }])).toBeNull()
-    expect(completedDelta([{ done: 2, total: 4 }, { done: 3, total: 6 }])).toBe(1)
+    expect(
+      completedDelta([
+        { done: 2, total: 4 },
+        { done: 3, total: 6 },
+      ]),
+    ).toBe(1)
   })
 
   it('validates alignment and rejects impossible task counts', () => {
@@ -21,13 +26,17 @@ describe('project progress history', () => {
       series: { game: [null, { done: 1, total: 2 }] },
     }
     expect(isProjectProgressHistory(base)).toBe(true)
-    expect(isProjectProgressHistory({
-      ...base,
-      series: { game: [{ done: 3, total: 2 }, null] },
-    })).toBe(false)
-    expect(isProjectProgressHistory({
-      ...base,
-      series: { game: [null] },
-    })).toBe(false)
+    expect(
+      isProjectProgressHistory({
+        ...base,
+        series: { game: [{ done: 3, total: 2 }, null] },
+      }),
+    ).toBe(false)
+    expect(
+      isProjectProgressHistory({
+        ...base,
+        series: { game: [null] },
+      }),
+    ).toBe(false)
   })
 })

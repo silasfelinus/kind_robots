@@ -49,7 +49,9 @@ export function isProjectProgressHistory(
   )
 }
 
-export function progressPercent(point: ProjectProgressPoint | null): number | null {
+export function progressPercent(
+  point: ProjectProgressPoint | null,
+): number | null {
   return point && point.total > 0
     ? Math.round((100 * point.done) / point.total)
     : null

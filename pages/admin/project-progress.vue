@@ -30,12 +30,14 @@
       Administrators only.
     </div>
     <div v-else-if="store.historyError || !history" class="p-6 text-center">
-      {{ store.historyError || 'No historical projection has been synced yet.' }}
+      {{
+        store.historyError || 'No historical projection has been synced yet.'
+      }}
     </div>
     <div v-else class="kr-scroll min-h-0 flex-1 overflow-auto p-3">
       <p class="mb-3 text-sm opacity-75">
-        Committed finite tasks completed / total. Pacific dates; latest day
-        may be partial. Scope changes can lower percentages. Gaps are missing
+        Committed finite tasks completed / total. Pacific dates; latest day may
+        be partial. Scope changes can lower percentages. Gaps are missing
         history, not zero. Source: {{ history.sourceCommitSha.slice(0, 12) }}.
       </p>
       <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
@@ -52,11 +54,23 @@
               {{ name(row.slug) }}
             </button>
             <span class="kr-badge-outline text-xs">
-              {{ row.delta === null ? 'Unknown' : row.delta > 0 ? '+' + row.delta + ' done' : row.delta < 0 ? row.delta + ' done' : 'No net change' }}
+              {{
+                row.delta === null
+                  ? 'Unknown'
+                  : row.delta > 0
+                    ? '+' + row.delta + ' done'
+                    : row.delta < 0
+                      ? row.delta + ' done'
+                      : 'No net change'
+              }}
             </span>
           </div>
           <p class="text-xs opacity-70">
-            {{ row.last ? row.last.done + ' / ' + row.last.total + ' tasks done' : 'Latest snapshot unavailable' }}
+            {{
+              row.last
+                ? row.last.done + ' / ' + row.last.total + ' tasks done'
+                : 'Latest snapshot unavailable'
+            }}
           </p>
           <div
             class="mt-2 flex h-24 items-end gap-px rounded-lg bg-base-300/30 p-1"
@@ -67,12 +81,18 @@
               v-for="(point, i) in row.points"
               :key="dates[i]"
               class="relative flex h-full min-w-0 flex-1 items-end"
-              :title="dates[i] + ': ' + (point ? point.done + '/' + point.total : 'missing')"
+              :title="
+                dates[i] +
+                ': ' +
+                (point ? point.done + '/' + point.total : 'missing')
+              "
             >
               <div
                 v-if="progressPercent(point) !== null"
                 class="w-full rounded-t-sm bg-primary"
-                :style="{ height: Math.max(2, progressPercent(point) ?? 0) + '%' }"
+                :style="{
+                  height: Math.max(2, progressPercent(point) ?? 0) + '%',
+                }"
               />
               <div v-else class="h-1 w-full bg-base-content/20" />
             </div>
@@ -81,14 +101,23 @@
             <span>{{ dates[0] }}</span>
             <span>{{ dates[dates.length - 1] }}</span>
           </div>
-          <p v-if="row.delta === 0 && row.last && row.last.done < row.last.total" class="mt-1 text-xs text-warning">
+          <p
+            v-if="row.delta === 0 && row.last && row.last.done < row.last.total"
+            class="mt-1 text-xs text-warning"
+          >
             Unfinished; no net completed-task movement in this window.
           </p>
           <details v-if="selected" class="mt-2 text-xs">
             <summary class="cursor-pointer">Daily values</summary>
-            <div v-for="(point, i) in row.points" :key="dates[i]" class="flex justify-between">
+            <div
+              v-for="(point, i) in row.points"
+              :key="dates[i]"
+              class="flex justify-between"
+            >
               <span>{{ dates[i] }}</span>
-              <span>{{ point ? point.done + '/' + point.total : 'Unavailable' }}</span>
+              <span>{{
+                point ? point.done + '/' + point.total : 'Unavailable'
+              }}</span>
             </div>
           </details>
         </article>
@@ -101,10 +130,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useConductorStore } from '@/stores/conductorStore'
 import { useUserStore } from '@/stores/userStore'
-import {
-  completedDelta,
-  progressPercent,
-} from '@/utils/projectProgressHistory'
+import { completedDelta, progressPercent } from '@/utils/projectProgressHistory'
 
 const store = useConductorStore()
 const userStore = useUserStore()
@@ -114,7 +140,9 @@ const days = ref(14)
 const selected = ref('')
 const history = computed(() => store.progressHistory)
 const slugs = computed(() => Object.keys(history.value?.series ?? {}).sort())
-const dates = computed(() => history.value?.dates.slice(-(days.value + 1)) ?? [])
+const dates = computed(
+  () => history.value?.dates.slice(-(days.value + 1)) ?? [],
+)
 
 function name(slug: string): string {
   return slug.replaceAll('-', ' ')

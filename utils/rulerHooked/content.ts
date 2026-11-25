@@ -1828,7 +1828,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 regionOverride: { near_bank: 'grassy', far_shore: 'industrial' },
               },
               result:
-                'The net makers nominate wardens and the fleet pays for the crossing. Nix dislikes the engines but accepts the open sluice. Brack is appointed to both committees and attends whichever serves lunch. The moat recovers, though the trust's special shoals find no dedicated nursery.',
+                'The net makers nominate wardens and the fleet pays for the crossing. Nix dislikes the engines but accepts the open sluice. Brack is appointed to both committees and attends whichever serves lunch. The moat recovers, though the special trust shoals find no dedicated nursery.',
             },
           ],
         },

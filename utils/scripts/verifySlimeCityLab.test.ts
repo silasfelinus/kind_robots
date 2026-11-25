@@ -909,6 +909,16 @@ for (const file of ['slime-city-campaign.vue', 'slime-city-clash.vue'])
       'crew menu dossier shows ' + field,
     )
   assert.match(crewSelect, /data-testid="slime-crew-confirm"/)
+  assert.match(crewSelect, /<dialog\b/)
+  assert.match(crewSelect, /showModal\(\)/)
+  assert.match(crewSelect, /data-testid="slime-crew-power"/)
+  assert.match(crewSelect, /factionPower\(preview\.value\.id\)/)
+  assert.match(crewSelect, /power\.text/)
+  assert.match(crewSelect, /power\.overcharge/)
+  assert.match(crewSelect, /OVERCHARGE_RULE/)
+  assert.match(crewSelect, /data-testid="slime-crew-traits"/)
+  assert.match(crewSelect, /specialties\[preview\.id\]/)
+  assert.match(crewSelect, /slimeArtId\('crews', preview\.id\)/)
 }
 
 // Silas, 2026-11-24 PT: "flavor should only be in collection view." The

@@ -533,6 +533,35 @@ assert.ok(!finaleOptions(endingGate).some((o) => o.ending === 'redemption'))
 endingGate.sacrifices = 2
 assert.ok(finaleOptions(endingGate).some((o) => o.ending === 'redemption'))
 
+const gildedGate = createRun(hero('vex'), ['nettle', 'moss'], 56)
+gildedGate.phase = 'finale'
+gildedGate.gold = 600
+assert.ok(
+  !finaleOptions(gildedGate).some((o) => o.ending === 'gilded'),
+  'ordinary treasure alone cannot buy the Gilded ending',
+)
+const greedyEvent = EVENTS.find((e) =>
+  e.options.some((o) => o.tag === 'greedy'),
+)!
+const greedyOption = greedyEvent.options.find((o) => o.tag === 'greedy')!
+gildedGate.choices.push(`${greedyEvent.id}:${greedyOption.id}`)
+assert.ok(finaleOptions(gildedGate).some((o) => o.ending === 'gilded'))
+gildedGate.gold = 599
+assert.ok(
+  !finaleOptions(gildedGate).some((o) => o.ending === 'gilded'),
+  'a greedy choice does not replace the wealth requirement',
+)
+const secularMercy = createRun(hero('vex'), ['nettle', 'moss'], 57)
+secularMercy.phase = 'finale'
+secularMercy.sacrifices = 2
+secularMercy.mercy = 2
+assert.ok(!finaleOptions(secularMercy).some((o) => o.ending === 'redemption'))
+secularMercy.mercy = 3
+assert.ok(
+  finaleOptions(secularMercy).some((o) => o.ending === 'redemption'),
+  'a non-holy party can earn Redemption through additional mercy',
+)
+
 // ── Seeded delves ────────────────────────────────────────────────────────
 const a = autoplay(createRun(hero('brannoc'), ['hesk', 'ragna', 'vex'], 1234))
 const b = autoplay(createRun(hero('brannoc'), ['hesk', 'ragna', 'vex'], 1234))
@@ -651,6 +680,21 @@ function playPlan(plan: Plan, seed: number): RunState {
       const camp = list.findIndex((d) => d.kind === 'camp')
       if ((hurt || plan.ending === 'hearthbound') && camp >= 0) return camp
       if (plan.greedy) {
+        const choseGreed = r.choices.some((choice) =>
+          EVENTS.some((e) =>
+            e.options.some(
+              (o) => o.tag === 'greedy' && choice === `${e.id}:${o.id}`,
+            ),
+          ),
+        )
+        if (!choseGreed) {
+          const temptation = list.findIndex((d) =>
+            EVENTS.find((e) => e.id === d.event)?.options.some(
+              (o) => o.tag === 'greedy',
+            ),
+          )
+          if (temptation >= 0) return temptation
+        }
         const rich = list.findIndex(
           (d) => d.kind === 'treasure' || d.kind === 'puzzle',
         )
@@ -663,7 +707,8 @@ function playPlan(plan: Plan, seed: number): RunState {
       const hit = options.find((o) => want.has(`${ev}:${o.id}`))
       if (hit) return hit.id
       if (plan.greedy) {
-        const gold = [...options].sort(
+        const greedy = options.filter((o) => o.tag === 'greedy')
+        const gold = [...(greedy.length ? greedy : options)].sort(
           (x, y) => (y.effects.gold ?? 0) - (x.effects.gold ?? 0),
         )[0]!
         return gold.id

@@ -2051,8 +2051,8 @@ watch(
 }
 .scpvp-unit-label {
   position: absolute;
-  z-index: 2;
   inset: calc(0.8rem + clamp(0.72rem, 1.9vw, 1.2rem)) 0 auto;
+  z-index: 2;
   display: flex;
   flex-direction: column-reverse;
   align-items: center;

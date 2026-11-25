@@ -488,6 +488,7 @@ export class PlumberRun implements ArcadeGameInstance {
   private resume: PlumberSave | null
   /** File select: the highlighted slot, and whether Y has armed an erase. */
   slotCursor = 0
+  private fileIntent: 'new' | 'continue' | undefined
   eraseArmed = false
   /** World map: the node she stands on, a walk in progress, and paths being drawn in. */
   mapNodeId = startId(1)
@@ -625,6 +626,21 @@ export class PlumberRun implements ArcadeGameInstance {
     this.cursor = rosterIndex(this.heroineSeed)
     this.endlessBest = this.file.endlessBest
     this.loadSlotMemory(this.resume)
+    if (!this.demo && !this.customLevel && !this.autopilot && !run.endless) {
+      const intent = options.plumberLaunch
+      if (intent === 'new' || intent === 'continue') {
+        const eligible = (slot: PlumberSlot | null) =>
+          intent === 'new' ? !slot : !!slot
+        const index = eligible(this.file.slots[this.file.active] ?? null)
+          ? this.file.active
+          : this.file.slots.findIndex(eligible)
+        if (index >= 0) {
+          this.fileIntent = intent
+          this.slotCursor = index
+          this.setMode('files')
+        }
+      }
+    }
     if (this.customLevel) {
       this.loadDef(this.customLevel)
       this.stageIndex = 0
@@ -849,6 +865,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.sound.play('pickup')
     if (items[this.menu] === 'play') {
       this.slotCursor = this.file.active
+      this.fileIntent = undefined
       this.eraseArmed = false
       this.setMode('files')
     } else {
@@ -868,10 +885,13 @@ export class PlumberRun implements ArcadeGameInstance {
     const chosen = this.file.slots[this.slotCursor] ?? null
     if (keys.pressed.b) {
       if (this.eraseArmed) this.eraseArmed = false
-      else this.setMode('title')
+      else {
+        this.fileIntent = undefined
+        this.setMode('title')
+      }
       return
     }
-    if (keys.pressed.y && chosen) {
+    if (!this.fileIntent && keys.pressed.y && chosen) {
       if (!this.eraseArmed) {
         this.eraseArmed = true
         this.sound.play('blip')
@@ -885,6 +905,14 @@ export class PlumberRun implements ArcadeGameInstance {
       return
     }
     if (!(keys.pressed.a || keys.pressed.start)) return
+    if (
+      (this.fileIntent === 'new' && chosen) ||
+      (this.fileIntent === 'continue' && !chosen)
+    ) {
+      this.sound.play('warn')
+      return
+    }
+    this.fileIntent = undefined
     this.eraseArmed = false
     this.file = { ...this.file, active: this.slotCursor }
     this.sound.play('pickup')
@@ -4240,7 +4268,13 @@ export class PlumberRun implements ArcadeGameInstance {
     this.plate(g, '1-1', 0.35)
     g.fillStyle = 'rgba(12, 40, 52, 0.62)'
     g.fillRect(0, 0, W, H)
-    this.text(g, 'CHOOSE A FILE', W / 2, 40, 24, '#ffd98a')
+    const title =
+      this.fileIntent === 'new'
+        ? 'CHOOSE AN EMPTY FILE'
+        : this.fileIntent === 'continue'
+          ? 'CONTINUE A FILE'
+          : 'CHOOSE A FILE'
+    this.text(g, title, W / 2, 40, 24, '#ffd98a')
     for (let i = 0; i < SLOT_COUNT; i++) {
       const slot = this.file.slots[i] ?? null
       const y = 66 + i * 58
@@ -4297,7 +4331,16 @@ export class PlumberRun implements ArcadeGameInstance {
         this.eraseArmed && on ? '#ff9f8a' : '#fff4dc',
       )
     }
-    this.text(g, 'A  PLAY     Y  ERASE     B  BACK', W / 2, 256, 10, '#d6f2ee')
+    this.text(
+      g,
+      this.fileIntent
+        ? 'A  SELECT     B  BACK'
+        : 'A  PLAY     Y  ERASE     B  BACK',
+      W / 2,
+      256,
+      10,
+      '#d6f2ee',
+    )
   }
 
   /** Where she stands on the map this tick (mid-walk along a path, or on her node). */

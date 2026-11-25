@@ -200,6 +200,8 @@ export type ArcadeGameOptions = {
    * Untrusted: the game validates it and offers to continue or ignores it.
    */
   resume?: unknown
+  /** Save the Plumber title shortcut: select only empty or occupied files. */
+  plumberLaunch?: 'new' | 'continue'
   /**
    * The player asked for a still camera (pinball, zuzu-pinball/t-012): no
    * camera sweeps, and a cut instead of a pan when the view must change.

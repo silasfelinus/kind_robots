@@ -399,7 +399,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               id: 'accept',
               text: 'Accept. Obviously.',
               effects: { counters: { fishCaught: +2 }, sliders: { joy: +4 } },
-              result: 'You win by a whisker. As kings do.',
+              result: 'You win by a whisker. The noble insists the scales were biased. You offer to let the fish adjudicate.',
             },
             {
               id: 'decline',
@@ -729,7 +729,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           title: 'The Newlyweds’ Garden',
           body: 'Robin and Ash ask for a plot near the lake to grow their own vegetables. “We don’t need much,” Robin says. “Just enough for us. And the fish, maybe.”',
           art: 'card-robin-ash-garden',
-          trigger: { requires: { flags: ['blessedMatch'] } },
+          trigger: { requires: { flags: ['weddingCompleted'] } },
           choices: [
             {
               id: 'grant-garden',
@@ -1475,8 +1475,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           trigger: {
             minTurn: 20,
             requires: {
-              flags: ['blessedMatch'],
-              cardsSeen: ['elope-blessing'],
+              flags: ['weddingCompleted'],
             },
           },
           choices: [
@@ -2093,6 +2092,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               text: 'Hand Ash a rod. Welcome home.',
               effects: {
                 arc: { complete: 'child-elopes' },
+                flags: { set: ['weddingCompleted'] },
                 sliders: { joy: +10 },
                 counters: { fishCaught: +1 },
               },
@@ -2113,10 +2113,11 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               text: 'Send the royal boat to bring them home — with a blessing.',
               effects: {
                 arc: { complete: 'child-elopes' },
+                flags: { set: ['blessedMatch', 'weddingCompleted'] },
                 sliders: { joy: +6, order: -3 },
               },
               result:
-                'They return, married, laughing. You pretend you planned it.',
+                'Robin arrives first, carrying two battered rods. Ash follows with a bundle of wedding gifts returned by the court. You apologize without a speech. Robin takes your hand for a moment, then asks where the perch are biting.',
             },
             {
               id: 'stew',
@@ -2125,7 +2126,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 arc: { complete: 'child-elopes' },
                 sliders: { joy: -4 },
               },
-              result: 'The lake is quiet. Too quiet.',
+              result:
+                'Their room remains empty. Quill forwards their letters without opening them. They are building a life somewhere beyond your orders; the dock feels larger than it used to.',
             },
           ],
         },
@@ -2630,7 +2632,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
       outcomeKey: 'druid-utopia',
       victoryType: 'VICTORY',
       title: 'The Angler’s Grove',
-      body: 'Your kingdom is a garden. You have caught every fish. Twice.',
+      body: 'People begin measuring the seasons in blossom and spawning runs instead of royal decrees. Sela brings seeds to the village market. Vex sells picnic baskets and insists the profit margin is excellent.\n\nThe lake has become a place people care for together, rather than a possession passed from one ruler to the next. There are mornings when nobody needs to ask the crown for permission.\n\nQuill sets the last ledger beside your tackle box. “No emergency today. I checked twice.”',
       trigger: {
         requires: { sliders: { nature: { gte: 80 }, joy: { gte: 65 } } },
       },
@@ -2639,14 +2641,14 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
       outcomeKey: 'warlock-metropolis',
       victoryType: 'MIXED',
       title: 'Boomtown by the Lake',
-      body: 'The skyline is impressive. The fish are… fewer. But impressive.',
+      body: 'The markets open before dawn and the lights burn late along the shore. There is work for families who used to leave in winter, and a rent notice for some who can no longer afford to stay.\n\nVex brings a model of the kingdom as he hopes it will look in ten years. Sela brings a jar of lake water. Neither asks you to choose between them this time.\n\nQuill opens the accounts. “We have built a remarkable kingdom. We should remember what it cost.”',
       trigger: { requires: { sliders: { prosperity: { gte: 80 } } } },
     },
     {
       outcomeKey: 'thistlewood-empire',
       victoryType: 'MIXED',
       title: 'The Thistlewood Empire',
-      body: 'The treasury overflows. Foreign banners fly beside your own. Somewhere, Gristle finally, genuinely smiles.',
+      body: 'Foreign merchants crowd the ferry landing. Ships arrive with spices, tools and fish nobody in the village has learned to cook. Gristle has hired three assistants and still does his own arithmetic.\n\nThistle sends a dispatch containing a fresh trade proposal and a request for a quiet week at the lake. Wealth brings opportunity, and a great many people with plans for yours.\n\nQuill removes a seal from the final ledger. “We can pay our debts. Now comes the harder question: what are we going to do with our freedom?”',
       trigger: {
         requires: {
           sliders: { treasury: { gte: 85 }, prosperity: { gte: 70 } },
@@ -2657,7 +2659,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
       outcomeKey: 'fishers-peace',
       victoryType: 'SECRET',
       title: 'The Ruler Who Never Ruled',
-      body: 'Somewhere along the way you stopped ruling and started just… fishing, and it turns out the kingdom did fine either way.',
+      body: 'The villagers have learned to settle small matters without a decree. The market committee argues over the price of bait, the fishers repair their own nets, and the crown is consulted principally when someone needs a signature.\n\nQuill comes down the steps carrying two rods instead of a ledger. “They have asked for fewer meetings,” he says. “I believe we can accommodate them.”\n\nThe day passes without a single trumpet. There is still a kingdom behind you, and there is still a lake ahead.',
       trigger: {
         requires: {
           counters: { fishCaught: { gte: 20 } },

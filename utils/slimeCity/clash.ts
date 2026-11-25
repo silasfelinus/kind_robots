@@ -581,7 +581,7 @@ export function clashCardText(card: Card, level = 1, pick?: EvoPick): string {
   const evolvedText = clashTwistText(card.id, level)
   if (card.kind !== 'creature' && evolvedText)
     return isArmorCutterSnare(card)
-      ? evolvedText + ' Cuts armor, removes Volatile (no death explosion).'
+      ? evolvedText + ' Cuts armor; removes Volatile.'
       : evolvedText
   if (card.kind === 'creature')
     return [
@@ -606,7 +606,7 @@ function clashBaseText(card: Card, level: number): string {
       ' damage.' +
       (card.roots ? ' Stun: no attack or counterattack.' : '') +
       (isArmorCutterSnare(card)
-        ? ' Cuts armor, removes Volatile (no death explosion).'
+        ? ' Cuts armor; removes Volatile.'
         : '')
     )
   switch (card.effect) {

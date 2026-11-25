@@ -399,7 +399,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               id: 'accept',
               text: 'Accept. Obviously.',
               effects: { counters: { fishCaught: +2 }, sliders: { joy: +4 } },
-              result: 'You win by a whisker. The noble insists the scales were biased. You offer to let the fish adjudicate.',
+              result:
+                'You win by a whisker. The noble insists the scales were biased. You offer to let the fish adjudicate.',
             },
             {
               id: 'decline',

@@ -184,9 +184,9 @@ function endingTitleFor(key: string | null): string {
 }
 const endingTitle = computed(() => endingTitleFor(store.pendingEnding))
 function endingParagraphs(key: string | null): string[] {
-  return (
-    store.bundle.endings.find((x) => x.outcomeKey === key)?.body ?? ''
-  ).split('\n\n').filter(Boolean)
+  return (store.bundle.endings.find((x) => x.outcomeKey === key)?.body ?? '')
+    .split('\n\n')
+    .filter(Boolean)
 }
 </script>
 

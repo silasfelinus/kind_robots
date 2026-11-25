@@ -125,6 +125,10 @@ assert.equal(
 assert.equal(initial.active, 'player')
 assert.equal(initial.phase, 'play')
 
+const openingGuest = pvpBoard(initial, 'enemy')
+assert.equal(openingGuest.playLimit, clashPlayLimit(initial, 'player'))
+assert.equal(pvpBoard(initial, 'player').playLimit, openingGuest.playLimit)
+
 const view = pvpBoard(initial, 'player')
 assert.deepEqual(view.hand, initial.hands.player)
 assert.equal(view.opponentHandCount, initial.hands.enemy.length)

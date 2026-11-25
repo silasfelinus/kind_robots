@@ -23,7 +23,10 @@ import {
 } from '../everyVillainTactics/crossfireNarrative'
 import { createStory } from '../everyVillainTactics/firstBellStory'
 import { createSave, evtSaveKey, loadSave } from '../everyVillainTactics/saves'
-import { mergeBattleResults, scoreFromSave } from '../everyVillainTactics/scores'
+import {
+  mergeBattleResults,
+  scoreFromSave,
+} from '../everyVillainTactics/scores'
 import { clonePreset, stageProblems } from '../everyVillainTactics/studio'
 import {
   isCrossfireFoilStage,

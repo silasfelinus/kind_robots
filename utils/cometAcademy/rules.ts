@@ -2776,8 +2776,9 @@ export function nextSchoolDay(current: AcademyRun): AcademyRun {
   const arcMorning = arcMorningFor(run)
   const injuredNames =
     run.flowVersion === 3
-      ? STUDENTS.filter((student) => (run.injuries?.[student.id] ?? 0) > run.day + 1)
-          .map((student) => student.name)
+      ? STUDENTS.filter(
+          (student) => (run.injuries?.[student.id] ?? 0) > run.day + 1,
+        ).map((student) => student.name)
       : []
   const injuryMorning = injuredNames.length
     ? ` Infirmary roll call: ${injuredNames.join(', ')}. ${run.day < 28 ? 'They need rest tonight unless you spend a daytime action on treatment.' : 'They need rest; the infirmary treatment action is closed for graduation.'}`

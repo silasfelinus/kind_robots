@@ -42,6 +42,7 @@ import {
   advanceCrossfire as advanceCrossfireJournal,
   crossfireCarryover,
   crossfireChapterTitle,
+  crossfireScrapbookSaves,
   evtCrossfireKey,
   newCrossfireJournal,
   readCrossfireJournal,
@@ -301,6 +302,7 @@ export const useEveryVillainTacticsStore = defineStore(
       scrapbook.value = sanitizeScrapbook(readJson(evtScrapbookKey))
       draftLibrary.value = sanitizeLibrary(readJson(evtDraftsKey))
       crossfire.value = readCrossfireJournal(readJson(evtCrossfireKey))
+      recordMoments(crossfireScrapbookSaves(crossfire.value), false, true)
       readSaves()
     }
     /** Local stage drafts and portable share codes (no server publishing). */

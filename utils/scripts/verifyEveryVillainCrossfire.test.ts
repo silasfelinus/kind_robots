@@ -8,6 +8,7 @@ import {
   crossfireCarryover,
   crossfireFinaleNetwork,
   crossfireChapterTitle,
+  crossfireScrapbookSaves,
   evtCrossfireKey,
   newCrossfireJournal,
   readCrossfireJournal,
@@ -22,6 +23,10 @@ import {
 } from '../everyVillainTactics/crossfireNarrative'
 import { createStory } from '../everyVillainTactics/firstBellStory'
 import { createSave, evtSaveKey, loadSave } from '../everyVillainTactics/saves'
+import {
+  mergeBattleResults,
+  scoreFromSave,
+} from '../everyVillainTactics/scores'
 import { clonePreset, stageProblems } from '../everyVillainTactics/studio'
 import {
   isCrossfireFoilStage,
@@ -63,6 +68,8 @@ assert.equal(started.completed.length, 0)
 assert.equal(started.finished, false)
 assert.ok(readCrossfireJournal(JSON.stringify(started)))
 assert.equal(advanceCrossfire(started), null, 'no free chapter advances')
+assert.deepEqual(crossfireScrapbookSaves(started), [first])
+assert.equal(scoreFromSave(crossfireScrapbookSaves(started)[0]!), null)
 assert.equal(
   readCrossfireJournal(JSON.stringify({ ...started, chapter: 5 })),
   null,
@@ -124,6 +131,9 @@ for (let chapter = 0; chapter < CROSSFIRE_CHAPTERS.length; chapter++) {
   const checkpoint = snapshotCrossfire(journal, victory)!
   assert.ok(checkpoint)
   assert.ok(readCrossfireJournal(JSON.stringify(checkpoint)))
+  const recovered = crossfireScrapbookSaves(JSON.stringify(checkpoint))
+  assert.equal(recovered.length, chapter + 1)
+  assert.equal(recovered.at(-1)?.checksum, victory.checksum)
   const next = advanceCrossfire(checkpoint)!
   assert.ok(next, 'the earned victory advances to next chapter')
   assert.equal(next.completed.length, chapter + 1)
@@ -153,6 +163,25 @@ assert.equal(readCrossfireJournal(forgedPrefix), null)
 const wrongOrder = structuredClone(journal)
 wrongOrder.completed.reverse()
 assert.equal(readCrossfireJournal(wrongOrder), null)
+assert.deepEqual(crossfireScrapbookSaves(forgedPrefix), [])
+assert.deepEqual(crossfireScrapbookSaves(wrongOrder), [])
+assert.deepEqual(crossfireScrapbookSaves('not JSON'), [])
+assert.deepEqual(crossfireScrapbookSaves(null), [])
+const recoveredCampaign = crossfireScrapbookSaves(JSON.stringify(journal))
+assert.deepEqual(recoveredCampaign, journal.completed)
+const recoveredScores = recoveredCampaign.map((save) => ({
+  ...scoreFromSave(save)!,
+  mode: 'story' as const,
+}))
+assert.equal(recoveredScores.length, 6)
+assert.ok(recoveredScores.every((score) => score.total > 0))
+const recoveredBook = mergeBattleResults([], recoveredScores)
+assert.equal(recoveredBook.length, 6)
+assert.deepEqual(
+  mergeBattleResults(recoveredBook, recoveredScores),
+  recoveredBook,
+  'reopening a completed campaign must not duplicate points',
+)
 
 // Previously the selected foil disappeared after First Bell, letting the
 // default enemy silently replace the campaign's named rival. Test a lead
@@ -770,6 +799,12 @@ assert.ok(
 )
 assert.ok(store.includes('crossfireActive.value = false'))
 assert.ok(store.includes('function continueCrossfire()'))
+assert.ok(
+  store.includes(
+    'recordMoments(crossfireScrapbookSaves(crossfire.value), false, true)',
+  ),
+  'restore campaign history on load, without granting new achievements',
+)
 assert.ok(front.includes('data-testid="front-new-crossfire"'))
 assert.ok(front.includes('data-testid="front-continue-crossfire"'))
 assert.ok(front.includes('data-testid="front-new-story"'))

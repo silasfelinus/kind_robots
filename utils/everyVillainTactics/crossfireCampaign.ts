@@ -295,6 +295,15 @@ export function readCrossfireJournal(raw: unknown): CrossfireJournal | null {
   return journal
 }
 
+/** Restore earned pages from the separate journal without replaying a battle. */
+export function crossfireScrapbookSaves(raw: unknown): EvtSave[] {
+  const journal = readCrossfireJournal(raw)
+  if (!journal) return []
+  return journal.finished
+    ? [...journal.completed]
+    : [...journal.completed, journal.active]
+}
+
 /** Save the live fight without copying it into the legacy auto/slot keys. */
 export function snapshotCrossfire(
   journal: CrossfireJournal,

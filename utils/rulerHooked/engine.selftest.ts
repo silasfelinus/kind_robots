@@ -10,6 +10,12 @@ import { RULER_HOOKED_CONTENT } from '~/utils/rulerHooked/content'
 import { reignMean, reignTier, stepTab } from '~/utils/rulerHooked/console'
 import { triggerHolds, effectiveWeight } from '~/utils/rulerHooked/triggers'
 import {
+  eligibleEnding,
+  FINALE_MIN_TURNS,
+  FINALE_MIN_PETITIONS,
+  dismissedFinaleFlag,
+} from '~/utils/rulerHooked/loop'
+import {
   rampState,
   resolveScene,
   cycleTime,
@@ -878,6 +884,7 @@ function baseSave(): RunSave {
       const save = baseSave()
       const deferred = resolveChoice(save, card, choice)
       assert.equal(deferred.choiceLog.length, 1, card.id)
+      assert.equal(deferred.counters.cardsResolved ?? 0, 0, card.id)
       assert.ok(!deferred.deckState.seenCardIds.includes(card.id), card.id)
       assert.ok(
         !triggerHolds(deferred, { requires: { cardsSeen: [card.id] } }),
@@ -895,6 +902,7 @@ function baseSave(): RunSave {
       assert.ok(answer, card.id)
       const resolved = resolveChoice(deferred, card, answer)
       assert.ok(resolved.deckState.seenCardIds.includes(card.id), card.id)
+      assert.equal(resolved.counters.cardsResolved, 1, card.id)
       assert.ok(
         triggerHolds(resolved, { requires: { cardsSeen: [card.id] } }),
         card.id,
@@ -903,6 +911,39 @@ function baseSave(): RunSave {
       assert.equal(save.choiceLog.length, 0, 'original save untouched')
     }
   }
+}
+
+// The same reducer drives gameplay and headless route witnesses. Repeated
+// deferrals never advance the petition requirement for a reign finale.
+{
+  const bundle = RULER_HOOKED_CONTENT
+  const card: Card = {
+    id: 'finale-accounting',
+    kind: 'interrupt',
+    title: 'A matter for the crown',
+    choices: [
+      { id: 'defer', text: 'Later', requeue: true, effects: {} },
+      { id: 'answer', text: 'Settle it', effects: {} },
+    ],
+  }
+  let save = baseSave()
+  save.turnCount = FINALE_MIN_TURNS - 1
+  for (let i = 0; i < FINALE_MIN_PETITIONS; i++) {
+    save = resolveChoice(save, card, card.choices[0]!)
+  }
+  assert.equal(save.counters.cardsResolved ?? 0, 0)
+  for (let i = 0; i < FINALE_MIN_PETITIONS - 1; i++) {
+    save = resolveChoice(save, card, card.choices[1]!)
+  }
+  assert.equal(eligibleEnding(bundle, save), null)
+  save = resolveChoice(save, card, card.choices[1]!)
+  assert.equal(save.counters.cardsResolved, FINALE_MIN_PETITIONS)
+  assert.equal(eligibleEnding(bundle, save), null)
+  // A quiet fishing turn can reach the minimum without a new petition.
+  save.turnCount += 1
+  assert.equal(eligibleEnding(bundle, save), 'druid-utopia')
+  save.flags[dismissedFinaleFlag('druid-utopia')] = true
+  assert.equal(eligibleEnding(bundle, save), null)
 }
 
 console.log('ruler-hooked engine self-test: ALL PASS')

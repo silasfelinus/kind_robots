@@ -604,4 +604,130 @@ for (const id of QUESTS)
   }
 }
 
+// Unlike the focused reducer fixtures above, these witnesses start at turn zero
+// and choose only cards actually offered by the normal seeded narrative loop.
+{
+  const families = [
+    {
+      name: 'river',
+      path: {
+        'weir-1': 'build-weir',
+        'weir-stone': 'net-the-run',
+        'weir-reckoning': 'reopen-migration',
+        'envoy-1': 'negotiate-tough',
+        'envoy-tough': 'finalize-tough',
+        'treaty-reckoning': 'ease-the-border',
+      },
+      parent: 'river-commons-vote',
+      parentChoices: ['charter-the-run', 'license-the-run'],
+      target: 'flood-debt-council',
+      outcomes: ['fund-floodplain', 'mortgage-crossing'],
+    },
+    {
+      name: 'harbour',
+      path: {
+        'reed-1': 'dredge-cove',
+        'reed-marina': 'charge-moorings',
+        'marina-reckoning': 'clean-the-marina',
+        'elope-1': 'bless',
+        'elope-blessing': 'welcome',
+        'wedding-reckoning': 'family-nursery',
+      },
+      parent: 'marina-family-charter',
+      parentChoices: ['charter-the-cooperative', 'reserve-the-royal-pier'],
+      target: 'harbour-apprentice-hearing',
+      outcomes: ['share-the-launch', 'sell-apprentice-licenses'],
+    },
+    {
+      name: 'water-rights',
+      path: {
+        'weir-1': 'build-weir',
+        'weir-stone': 'net-the-run',
+        'weir-reckoning': 'keep-netting',
+        'moat-1': 'keep-moat-common',
+        'moat-crowded': 'let-moat-run',
+        'moat-reckoning': 'license-roach',
+      },
+      parent: 'moat-reckoning',
+      parentChoices: ['license-roach'],
+      target: 'water-rights-hearing',
+      outcomes: ['found-the-water-trust', 'auction-the-water'],
+    },
+  ] as const
+
+  function witness(
+    seed: string,
+    policy: Record<string, string>,
+    target: string,
+  ) {
+    let save = createRun(C, {
+      saveId: 'route-witness',
+      name: 'Route witness',
+      seed,
+      rulerName: 'Mo',
+      stamp: 'T0',
+    })
+    const rng = makeRng(seed)
+    const actions: string[] = []
+    for (let turn = 0; turn < 240; turn++) {
+      const next = takeTurn(C, save, rng)
+      save = next.save
+      actions.push(`cast:${next.catch.fishSlug}`)
+      if (!next.card) continue
+      const card = next.card
+      const preferred = policy[card.id]
+      const choice = preferred
+        ? (card.choices.find((c) => c.id === preferred) ??
+          assert.fail(`Unknown choice ${card.id}/${preferred}`))
+        : card.choices[0]!
+      save = resolveChoice(save, card, choice)
+      actions.push(`${card.id}:${choice.id}`)
+      if (card.id === target) {
+        return { seed, actions, save }
+      }
+      if (save.status === 'COMPLETE') break
+    }
+    return null
+  }
+
+  for (const family of families) {
+    for (const parentChoice of family.parentChoices) {
+      for (const outcome of family.outcomes) {
+        const policy = {
+          ...family.path,
+          [family.parent]: parentChoice,
+          [family.target]: outcome,
+        }
+        let reached: ReturnType<typeof witness> = null
+        for (let i = 0; i < 48 && !reached; i++) {
+          reached = witness(`legal-${family.name}-${i}`, policy, family.target)
+        }
+        assert.ok(
+          reached,
+          `No legal route: ${family.name}/${parentChoice}/${outcome}`,
+        )
+        assert.ok(
+          reached.actions.includes(`${family.parent}:${parentChoice}`),
+          'The earlier policy must have been played, not injected',
+        )
+        assert.equal(reached.actions.at(-1), `${family.target}:${outcome}`)
+        assert.deepEqual(
+          witness(reached.seed, policy, family.target),
+          reached,
+          'The legal cast and petition sequence must replay exactly',
+        )
+        assert.ok(
+          !eligiblePool(reached.save, allDeckCards(C)).some(
+            (card) => card.id === family.target,
+          ),
+          'Resolved once-only petition must retire from the deck',
+        )
+        console.log(
+          `Legal route ${family.name}/${parentChoice}/${outcome}: ${reached.seed}, ${reached.save.turnCount} casts`,
+        )
+      }
+    }
+  }
+}
+
 console.log('ruler-hooked QUESTS self-test: ALL PASS')

@@ -358,8 +358,7 @@
                 <span class="scpvp-tags">
                   <span
                     v-for="tag in fighterTags(unit(side, lane)!).filter(
-                      (tag) =>
-                        tag.kind !== 'new' && tag.kind !== 'guard',
+                      (tag) => tag.kind !== 'new' && tag.kind !== 'guard',
                     )"
                     :key="tag.text"
                     class="scpvp-tag"

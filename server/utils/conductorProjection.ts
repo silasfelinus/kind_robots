@@ -15,12 +15,18 @@ import {
   type ParsedRoadmap,
 } from '@/server/utils/conductorRoadmap'
 
+import {
+  isProjectProgressHistory,
+  type ProjectProgressHistory,
+} from '@/utils/projectProgressHistory'
+
 const DEFAULT_SOURCE_REPO = 'silasfelinus/conductor'
 const DEFAULT_SOURCE_REF = 'main'
 const PROJECT_IMAGE_DIRECTORY = 'projects/images'
 
 export interface ConductorProjectionSnapshot {
-  version: 1
+  version: 1 | 2
+  progressHistory?: ProjectProgressHistory
   sourceRepo: string
   sourceRef: string
   sourceCommitSha: string
@@ -118,8 +124,14 @@ export function assertConductorProjectionSnapshot(
   }
 
   const source = value as Record<string, unknown>
-  if (source.version !== 1) {
-    throw new Error('Conductor projection version must be 1')
+  if (source.version !== 1 && source.version !== 2) {
+    throw new Error('Conductor projection version must be 1 or 2')
+  }
+  if (
+    source.version === 2 &&
+    !isProjectProgressHistory(source.progressHistory)
+  ) {
+    throw new Error('Conductor projection progressHistory is invalid')
   }
   if (source.sourceRepo !== DEFAULT_SOURCE_REPO) {
     throw new Error(

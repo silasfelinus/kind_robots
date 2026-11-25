@@ -19,6 +19,13 @@
             <Icon name="kind-icon:gallery" class="kr-icon-3" />
             {{ featuredProjects.length }} projects
           </span>
+          <NuxtLink
+            v-if="userStore.isAdmin"
+            to="/admin/project-progress"
+            class="kr-btn-xs btn-outline"
+          >
+            Progress history
+          </NuxtLink>
         </template>
       </kr-gallery>
       <p
@@ -55,6 +62,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useConductorStore } from '@/stores/conductorStore'
 import { useProjectStore } from '@/stores/projectStore'
+import { useUserStore } from '@/stores/userStore'
 import {
   projectDestination,
   projectSheetPath,
@@ -62,6 +70,7 @@ import {
 import type { GalleryMode } from '@/utils/galleryVocabulary'
 
 const store = useProjectStore()
+const userStore = useUserStore()
 const conductor = useConductorStore()
 const mode = ref<GalleryMode>('cards')
 

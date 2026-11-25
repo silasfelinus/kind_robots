@@ -68,6 +68,7 @@
         >
           <SlimeCityClashCardFace
             :card-id="cardId"
+            :glossary-interactive="big === index && !drag?.moved"
             :pick="held === index ? choicePick : undefined"
             :level="
               big === index && previewLevel
@@ -133,6 +134,7 @@
         </span>
         <SlimeCityClashCardFace
           :card-id="inspectCard.id"
+          glossary-interactive
           :level="previewLevel ?? inspectCard.level"
           :pick="previewLevel ? undefined : inspectCard.pick"
           :preview="!!previewLevel && previewLevel !== inspectCard.level"

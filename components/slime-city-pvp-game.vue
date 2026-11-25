@@ -372,11 +372,11 @@
                     >{{ tag.text }}</span
                   >
                 </span>
-                <span class="scpvp-unit-label"
-                  ><i :class="'lv-' + unit(side, lane)!.level">{{
+                <span class="scpvp-unit-label">
+                  {{ cardById(unit(side, lane)!.cardId).name }}
+                  <i :class="'lv-' + unit(side, lane)!.level">{{
                     '★'.repeat(unit(side, lane)!.level)
-                  }}</i
-                  >{{ cardById(unit(side, lane)!.cardId).name }}
+                  }}</i>
                   <span
                     v-if="unit(side, lane)!.armor > 0"
                     class="scpvp-armor-badge"

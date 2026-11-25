@@ -65,7 +65,12 @@ import {
   rainbowHitFlinch,
   rainbowBossRecoil,
   rainbowBossWindup,
+  rainbowShipJolt,
+  rainbowBarrelRoll,
+  rainbowPickupBob,
+  rainbowShipHover,
   rainbowShipPose,
+  rainbowCraftWindup,
   stackRainbowBossPose,
 } from './rainbowSwimMotion'
 import { drawRainbowBossBloom } from './rainbowBossBloom'
@@ -719,6 +724,17 @@ const ACT_FIVE_CHECKPOINTS = actCheckpoints(WRECK_SECTIONS, WRECK.bossStarts)
 const CUTTER = { jawFrames: 36, chargeSpeed: 5 } as const
 /** E17 hammerheads lock both fin pods before each fires; a pod sits this far above or below the body. */
 const HAMMERHEAD = { lockFrames: 36, podReach: 14 } as const
+/**
+ * Conductor rainbow t-011: craft whose `charge` counts down to a shot (or a brood's drones), and the warning
+ * each starts from. Their bodies tense across it with rainbowCraftWindup.
+ */
+export const CRAFT_WINDUP_FRAMES: Readonly<Partial<Record<string, number>>> = {
+  squid: SQUID.glintFrames,
+  harbinger: HARBINGER.warmFrames,
+  turret: TURRET.unfoldFrames,
+  hammerhead: HAMMERHEAD.lockFrames,
+  brood: BROOD_SHADOW_FRAMES,
+}
 /** E18 salvagers point four arms before they fire along them and grab the nearest loose pickup. */
 const SALVAGER = { armFrames: 36, grabReach: 110, grabArmour: 3 } as const
 const ACT_FOUR_CHECKPOINTS = actCheckpoints(
@@ -1446,6 +1462,10 @@ export function createRainbowPrincessPreview(
   const hurtBoss = (body: object) => bossHitAt.set(body, tick)
   const bossRecoil = (body: object, calm: boolean) =>
     rainbowBossRecoil(tick - (bossHitAt.get(body) ?? Number.NaN), calm)
+  // Conductor rainbow t-011: the tick each pilot's craft last took a hit, so its draw can jolt (draw-only).
+  const shipHitAt = new WeakMap<object, number>()
+  const shipJolt = (ship: object, calm: boolean) =>
+    rainbowShipJolt(tick - (shipHitAt.get(ship) ?? Number.NaN), calm)
   let score = 0
   let over = false
   let clearCount = 0
@@ -4408,6 +4428,7 @@ export function createRainbowPrincessPreview(
     else if (shoalActive()) shoalHits++
     else actHits++
     ship.invulnerable = 90
+    shipHitAt.set(ship, tick)
     ship.shield--
     if (ship.shield > 0) options.sound.play('rainbowShield')
     if (ship.shield <= 0) {
@@ -7440,6 +7461,12 @@ export function createRainbowPrincessPreview(
                         : '#d09ffd'
         g.save()
         applyRainbowSwimMotion(g, reef.kind, tick, calm)
+        const craftWarn = CRAFT_WINDUP_FRAMES[reef.kind]
+        if (craftWarn && !reef.truce && reef.charge) {
+          const tense = rainbowCraftWindup(reef.charge, craftWarn, calm)
+          g.translate(tense.pull, 0)
+          g.scale(tense.scaleX, tense.scaleY)
+        }
         if (reef.flash) {
           const flinch = rainbowHitFlinch(reef.flash, HIT_FLASH_FRAMES, calm)
           g.scale(flinch.x, flinch.y)
@@ -8944,11 +8971,10 @@ export function createRainbowPrincessPreview(
         g.restore()
       }
       for (const pickup of pickups) {
-        // Pickups bob and pulse so they read as something to grab.
-        const bob = Math.sin(tick / 9 + pickup.x / 40) * 2.5
-        const pulse = 1 + Math.sin(tick / 6) * 0.1
+        // Pickups bob and pulse so they read as something to grab (a fifth of it in calm motion).
+        const { bob, pulse, glow } = rainbowPickupBob(tick, pickup.x, calm)
         g.save()
-        g.globalAlpha = 0.35 + 0.2 * Math.sin(tick / 6)
+        g.globalAlpha = glow
         g.strokeStyle = '#ffffff'
         g.lineWidth = 1.5
         g.beginPath()
@@ -8972,7 +8998,7 @@ export function createRainbowPrincessPreview(
               ? '#f9a8d4'
               : '#fde68a'
         g.beginPath()
-        g.arc(pickup.x, pickup.y, 9, 0, Math.PI * 2)
+        g.arc(pickup.x, pickup.y + bob, 9, 0, Math.PI * 2)
         g.fill()
         g.fillStyle = '#21133b'
         g.font = 'bold 10px sans-serif'
@@ -8980,7 +9006,7 @@ export function createRainbowPrincessPreview(
         g.fillText(
           pickup.kind === 'power' ? 'P' : pickup.kind === 'shield' ? 'S' : '★',
           pickup.x,
-          pickup.y + 4,
+          pickup.y + bob + 4,
         )
         g.textAlign = 'left'
       }
@@ -9165,18 +9191,25 @@ export function createRainbowPrincessPreview(
           g.restore()
         }
         if (ship.evade > 0 && pilotOf(seat) === 0)
-          // Barrel Roll: the ship turns over once.
-          g.scale(
-            1,
-            Math.cos((1 - ship.evade / RAINBOW_EVADE.roll) * Math.PI * 2),
-          )
+          // Barrel Roll: the ship turns over once (calm keeps a shallow squash, t-011).
+          g.scale(1, rainbowBarrelRoll(ship.evade, RAINBOW_EVADE.roll, calm))
         if (ship.evade > 0 && pilotOf(seat) === 2) g.globalAlpha = 0.55
         // Bank into a climb or a dive and lean into a surge (t-011): a draw-only pose, so the hitbox never moves.
         const pose = rainbowShipPose(ship.bank, ship.thrust, calm)
         g.rotate(pose.rotate)
         g.scale(pose.scaleX, pose.scaleY)
+        // A hit knocks the craft back, twists and squashes it, then it settles (t-011, draw-only).
+        const jolt = shipJolt(ship, calm)
+        g.translate(-jolt.pull, 0)
+        g.rotate(jolt.rotate)
+        g.scale(jolt.scaleX, jolt.scaleY)
         g.shadowColor = PILOT_COLORS[pilotOf(seat)]!
         g.shadowBlur = 10
+        // A craft holding still hovers (t-011): the hull alone bobs, so the core marker stays on the hitbox.
+        const hover = rainbowShipHover(tick, seat, ship.bank, ship.thrust, calm)
+        g.save()
+        g.translate(0, hover.bob)
+        g.rotate(hover.tilt)
         // Paint recolours the painting only (t-044); the seat glow above keeps the pilot's own colour.
         g.filter = rainbowShipFilter(livery, pilotOf(seat))
         const painted = drawRainbowShipSprite(g, pilotOf(seat))
@@ -9195,6 +9228,7 @@ export function createRainbowPrincessPreview(
           g.lineWidth = 2
           g.stroke()
         }
+        g.restore()
         g.shadowBlur = 0
         g.fillStyle = '#44235c'
         g.fillRect(-3, -3, 6, 6)

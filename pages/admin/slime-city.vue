@@ -577,24 +577,7 @@
                 data-testid="slime-general-picker"
               >
                 <span class="sc-builder-label">GENERAL</span>
-                <button
-                  v-for="team in lab.teams"
-                  :key="team.id"
-                  type="button"
-                  class="sc-face"
-                  :aria-pressed="lab.activeTeam === team.id"
-                  :title="team.name"
-                  :aria-label="team.name + ' as general'"
-                  :data-testid="'slime-general-' + team.id"
-                  @click="lab.chooseTeam(team.id)"
-                >
-                  <SlimeCityArtwork
-                    :image-id="slimeArtId('crews', team.id)"
-                    :alt="team.name"
-                    :fallback="team.insignia"
-                    compact
-                  />
-                </button>
+                <SlimeCityCrewSelect label="Choose general" />
               </div>
               <div
                 class="sc-builder-pick"
@@ -613,27 +596,16 @@
                 >
                   SOLO
                 </button>
-                <button
-                  v-for="ally in allyChoices"
-                  :key="ally.id"
-                  type="button"
-                  class="sc-face"
-                  :aria-pressed="
-                    lab.deckFormat === 'alliance' &&
-                    lab.currentAlliance.ally === ally.id
+                <SlimeCityCrewSelect
+                  label="Choose second faction"
+                  :team-id="
+                    lab.deckFormat === 'alliance'
+                      ? lab.currentAlliance.ally
+                      : null
                   "
-                  :title="ally.name + ' as your second faction'"
-                  :aria-label="ally.name + ' as your second faction'"
-                  :data-testid="'slime-ally-' + ally.id"
-                  @click="lab.setDeckAlly(ally.id)"
-                >
-                  <SlimeCityArtwork
-                    :image-id="slimeArtId('crews', ally.id)"
-                    :alt="ally.name"
-                    :fallback="ally.insignia"
-                    compact
-                  />
-                </button>
+                  :exclude-team="lab.activeTeam"
+                  @picked="lab.setDeckAlly($event)"
+                />
               </div>
               <div
                 v-if="lab.deckFormat === 'alliance'"
@@ -1429,9 +1401,6 @@ const lockedCount = computed(
 )
 const filteredAllianceCards = computed(() => filterCards(lab.allianceCards))
 const filteredSoloCards = computed(() => filterCards(lab.soloCards))
-const allyChoices = computed(() =>
-  lab.teams.filter((team) => team.id !== lab.activeTeam),
-)
 function allianceState(card: Card): 'deck' | 'open' | 'locked' {
   if (lab.currentAlliance.cards.includes(card.id)) return 'deck'
   return lab.isCardUnlocked(card.id) ? 'open' : 'locked'

@@ -55,6 +55,7 @@
                 @pointerenter="hoverSlot($event, side, lane)"
                 @pointerleave="hoverUnit = null"
               >
+                <SlimeCityTrapSlice :trap="trapAt(side, lane)" />
                 <template v-if="unit(side, lane)">
                   <SlimeCityArtwork
                     :image-id="artFor(unit(side, lane)!)"
@@ -584,6 +585,7 @@ import {
   type ClashStrike,
   type ClashUnit,
 } from '~/utils/slimeCity/clash'
+import { pvpCardRow, visibleClashTrapAt } from '~/utils/slimeCity/pvp'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { useSlimeCitySoundStore } from '~/stores/slimeCitySound'
 import {
@@ -1169,13 +1171,10 @@ function playableNow(id: string): boolean {
   )
 }
 function allowedSide(card: Card, side: Side): boolean {
-  if (card.kind === 'creature' || card.kind === 'trap') return side === 'player'
-  if (
-    card.kind === 'equipment' ||
-    ['heal', 'armor', 'sharpen', 'boost', 'grant'].includes(card.effect ?? '')
-  )
-    return side === 'player'
-  return side === 'enemy'
+  return side === (pvpCardRow(card) === 'own' ? 'player' : 'enemy')
+}
+function trapAt(side: Side, lane: number) {
+  return visibleClashTrapAt(game.value.traps, 'player', side, lane)
 }
 /** A power can fire now (for a targeted power: at some fighter). */
 function powerReady(team: TeamId): boolean {
@@ -1234,6 +1233,9 @@ function slotLabel(side: Side, lane: number): string {
     'alley ' +
     (lane + 1) +
     (u ? ': ' + cardById(u.cardId).name + ', ' + u.hp + ' health' : ': empty') +
+    (trapAt(side, lane)
+      ? ', your armed trap: ' + cardById(trapAt(side, lane)!.cardId).name
+      : '') +
     (targetable(side, lane) ? ', playable target' : '')
   )
 }

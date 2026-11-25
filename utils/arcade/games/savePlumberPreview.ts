@@ -27,6 +27,7 @@ import {
   SOLID_LADDER,
   SOLID_LEDGE,
   SOLID_LOCK,
+  SOLID_SLOPE_UP,
   SOLID_PIPE,
   SOLID_WATER,
   SOLID_ICE,
@@ -36,6 +37,8 @@ import {
   CAMPAIGN,
   VERDIGRIS_CHAPEL,
   parseStage,
+  isSlope,
+  slopeHeight,
   stageWorld,
   type Stage,
   type StageDef,
@@ -489,6 +492,7 @@ export class PlumberRun implements ArcadeGameInstance {
   private resume: PlumberSave | null
   /** File select: the highlighted slot, and whether Y has armed an erase. */
   slotCursor = 0
+  private fileIntent: 'new' | 'continue' | undefined
   eraseArmed = false
   /** World map: the node she stands on, a walk in progress, and paths being drawn in. */
   mapNodeId = startId(1)
@@ -627,6 +631,21 @@ export class PlumberRun implements ArcadeGameInstance {
     this.cursor = rosterIndex(this.heroineSeed)
     this.endlessBest = this.file.endlessBest
     this.loadSlotMemory(this.resume)
+    if (!this.demo && !this.customLevel && !this.autopilot && !run.endless) {
+      const intent = options.plumberLaunch
+      if (intent === 'new' || intent === 'continue') {
+        const eligible = (slot: PlumberSlot | null) =>
+          intent === 'new' ? !slot : !!slot
+        const index = eligible(this.file.slots[this.file.active] ?? null)
+          ? this.file.active
+          : this.file.slots.findIndex(eligible)
+        if (index >= 0) {
+          this.fileIntent = intent
+          this.slotCursor = index
+          this.setMode('files')
+        }
+      }
+    }
     if (this.customLevel) {
       this.loadDef(this.customLevel)
       this.stageIndex = 0
@@ -851,6 +870,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.sound.play('pickup')
     if (items[this.menu] === 'play') {
       this.slotCursor = this.file.active
+      this.fileIntent = undefined
       this.eraseArmed = false
       this.setMode('files')
     } else {
@@ -870,10 +890,13 @@ export class PlumberRun implements ArcadeGameInstance {
     const chosen = this.file.slots[this.slotCursor] ?? null
     if (keys.pressed.b) {
       if (this.eraseArmed) this.eraseArmed = false
-      else this.setMode('title')
+      else {
+        this.fileIntent = undefined
+        this.setMode('title')
+      }
       return
     }
-    if (keys.pressed.y && chosen) {
+    if (!this.fileIntent && keys.pressed.y && chosen) {
       if (!this.eraseArmed) {
         this.eraseArmed = true
         this.sound.play('blip')
@@ -887,6 +910,14 @@ export class PlumberRun implements ArcadeGameInstance {
       return
     }
     if (!(keys.pressed.a || keys.pressed.start)) return
+    if (
+      (this.fileIntent === 'new' && chosen) ||
+      (this.fileIntent === 'continue' && !chosen)
+    ) {
+      this.sound.play('warn')
+      return
+    }
+    this.fileIntent = undefined
     this.eraseArmed = false
     this.file = { ...this.file, active: this.slotCursor }
     this.sound.play('pickup')
@@ -1460,8 +1491,80 @@ export class PlumberRun implements ArcadeGameInstance {
     this.solid[row * this.stage.cols + col] = value
   }
 
+  /** Highest walkable surface touched by the feet in a bounded vertical band. */
+  private rampFloor(
+    x: number,
+    half: number,
+    minY: number,
+    maxY: number,
+    includeFlat = false,
+  ): number | undefined {
+    let floor: number | undefined
+    const left = x - half + 0.01
+    const right = x + half - 0.01
+    for (
+      let row = Math.floor(minY / TILE) - 1;
+      row <= Math.floor(maxY / TILE);
+      row++
+    )
+      for (
+        let col = Math.floor(left / TILE);
+        col <= Math.floor(right / TILE);
+        col++
+      ) {
+        const tile = this.solidAt(col, row)
+        let y: number
+        if (isSlope(tile)) {
+          const edge = tile === SOLID_SLOPE_UP ? right : left
+          y = row * TILE + slopeHeight(tile, edge - col * TILE)
+        } else if (
+          includeFlat &&
+          (isWall(tile) || tile === SOLID_LEDGE || tile === SOLID_BRIDGE)
+        )
+          y = row * TILE
+        else continue
+        if (y >= minY && y <= maxY && (floor === undefined || y < floor))
+          floor = y
+      }
+    return floor
+  }
+
+  private rampStep(body: Body, half: number, tall: number, dx: number) {
+    const feet = body.y + tall
+    const reach = Math.abs(dx) + 1
+    const x = body.x + dx
+    if (
+      this.rampFloor(body.x, half, feet - 0.5, feet + 0.5) === undefined &&
+      this.rampFloor(x, half, feet - reach, feet + reach) === undefined
+    )
+      return
+    const floor = this.rampFloor(x, half, feet - reach, feet + reach, true)
+    if (floor === undefined) return
+    const y = floor - tall
+    for (
+      let row = Math.floor((y + 1) / TILE);
+      row <= Math.floor((floor - 1) / TILE);
+      row++
+    )
+      for (
+        let col = Math.floor((x - half + 1) / TILE);
+        col <= Math.floor((x + half - 1) / TILE);
+        col++
+      )
+        if (isWall(this.solidAt(col, row))) return
+    body.y = y
+  }
+
   /** Move a box horizontally against walls; returns true when it hit one. */
-  private moveX(body: Body, half: number, tall: number, dx: number): boolean {
+  private moveX(
+    body: Body,
+    half: number,
+    tall: number,
+    dx: number,
+    followRamp = false,
+  ): boolean {
+    const oldY = body.y
+    if (followRamp && dx) this.rampStep(body, half, tall, dx)
     body.x += dx
     const top = Math.floor((body.y + 1) / TILE)
     const bottom = Math.floor((body.y + tall - 1) / TILE)
@@ -1470,6 +1573,7 @@ export class PlumberRun implements ArcadeGameInstance {
       for (let row = top; row <= bottom; row++)
         if (isWall(this.solidAt(col, row))) {
           body.x = col * TILE - half - 0.01
+          body.y = oldY
           return true
         }
     } else if (dx < 0) {
@@ -1477,6 +1581,7 @@ export class PlumberRun implements ArcadeGameInstance {
       for (let row = top; row <= bottom; row++)
         if (isWall(this.solidAt(col, row))) {
           body.x = (col + 1) * TILE + half + 0.01
+          body.y = oldY
           return true
         }
     }
@@ -1491,6 +1596,11 @@ export class PlumberRun implements ArcadeGameInstance {
     const right = Math.floor((body.x + half - 1) / TILE)
     if (dy > 0) {
       const row = Math.floor((body.y + tall) / TILE)
+      const ramp = this.rampFloor(body.x, half, prevBottom - 0.5, body.y + tall)
+      if (ramp !== undefined && ramp <= row * TILE) {
+        body.y = ramp - tall
+        return 'land' as const
+      }
       for (let col = left; col <= right; col++) {
         const s = this.solidAt(col, row)
         if (
@@ -1503,6 +1613,10 @@ export class PlumberRun implements ArcadeGameInstance {
           body.y = row * TILE - tall
           return 'land' as const
         }
+      }
+      if (ramp !== undefined) {
+        body.y = ramp - tall
+        return 'land' as const
       }
     } else if (dy < 0) {
       const row = Math.floor(body.y / TILE)
@@ -1925,10 +2039,12 @@ export class PlumberRun implements ArcadeGameInstance {
 
   /** Move the heroine with her current hitbox (shorter while ducking). */
   private heroMoveX(dx: number): boolean {
-    if (!this.ducking) return this.moveX(this.hero, HALF, TALL, dx)
+    const followRamp = this.ground && !this.riding && !this.stage.space
+    if (!this.ducking) return this.moveX(this.hero, HALF, TALL, dx, followRamp)
     const body: Body = { ...this.hero, y: this.hero.y + DUCK }
-    const hit = this.moveX(body, HALF, TALL - DUCK, dx)
+    const hit = this.moveX(body, HALF, TALL - DUCK, dx, followRamp)
     this.hero.x = body.x
+    this.hero.y = body.y - DUCK
     return hit
   }
 
@@ -2791,12 +2907,14 @@ export class PlumberRun implements ArcadeGameInstance {
     const halfWidth = foe.giant ? 14 : 9
     const height = foe.giant ? 32 : 16
     const body: Body = { x: foe.x, y: foe.y - height, vx: foe.vx, vy: foe.vy }
-    if (speed && this.moveX(body, halfWidth, height, foe.vx)) foe.dir *= -1
+    if (speed && this.moveX(body, halfWidth, height, foe.vx, foe.vy === 0))
+      foe.dir *= -1
     else if (speed && turnAtEdge && foe.vy === 0) {
       const aheadCol = Math.floor((body.x + foe.dir * 10) / TILE)
       const belowRow = Math.floor((foe.y + 2) / TILE)
       const s = this.solidAt(aheadCol, belowRow)
-      if (!isWall(s) && s !== SOLID_LEDGE && s !== SOLID_BRIDGE) foe.dir *= -1
+      if (!isWall(s) && !isSlope(s) && s !== SOLID_LEDGE && s !== SOLID_BRIDGE)
+        foe.dir *= -1
     }
     body.vy = Math.min(fall, foe.vy + GRAVITY)
     const landed = this.moveY(body, halfWidth, height, body.vy) === 'land'
@@ -4262,7 +4380,13 @@ export class PlumberRun implements ArcadeGameInstance {
     this.plate(g, '1-1', 0.35)
     g.fillStyle = 'rgba(12, 40, 52, 0.62)'
     g.fillRect(0, 0, W, H)
-    this.text(g, 'CHOOSE A FILE', W / 2, 40, 24, '#ffd98a')
+    const title =
+      this.fileIntent === 'new'
+        ? 'CHOOSE AN EMPTY FILE'
+        : this.fileIntent === 'continue'
+          ? 'CONTINUE A FILE'
+          : 'CHOOSE A FILE'
+    this.text(g, title, W / 2, 40, 24, '#ffd98a')
     for (let i = 0; i < SLOT_COUNT; i++) {
       const slot = this.file.slots[i] ?? null
       const y = 66 + i * 58
@@ -4319,7 +4443,16 @@ export class PlumberRun implements ArcadeGameInstance {
         this.eraseArmed && on ? '#ff9f8a' : '#fff4dc',
       )
     }
-    this.text(g, 'A  PLAY     Y  ERASE     B  BACK', W / 2, 256, 10, '#d6f2ee')
+    this.text(
+      g,
+      this.fileIntent
+        ? 'A  SELECT     B  BACK'
+        : 'A  PLAY     Y  ERASE     B  BACK',
+      W / 2,
+      256,
+      10,
+      '#d6f2ee',
+    )
   }
 
   /** Where she stands on the map this tick (mid-walk along a path, or on her node). */
@@ -5328,6 +5461,23 @@ export class PlumberRun implements ArcadeGameInstance {
           g.fillStyle = 'rgba(51, 123, 174, 0.42)'
           g.fillRect(x + 2, y + 9, 5, 2)
           g.fillRect(x + 10, y + 12, 5, 2)
+        } else if (isSlope(s)) {
+          const leftY = y + slopeHeight(s, 0)
+          const rightY = y + slopeHeight(s, TILE)
+          g.fillStyle = ground ?? '#2f6f68'
+          g.beginPath()
+          g.moveTo(x, leftY)
+          g.lineTo(x + TILE, rightY)
+          g.lineTo(x + TILE, y + TILE)
+          g.lineTo(x, y + TILE)
+          g.closePath()
+          g.fill()
+          g.strokeStyle = '#f3e4a2'
+          g.lineWidth = 2
+          g.beginPath()
+          g.moveTo(x, leftY)
+          g.lineTo(x + TILE, rightY)
+          g.stroke()
         } else if (s === SOLID_GROUND) {
           g.fillStyle = ground ?? '#2f6f68'
           g.fillRect(x, y, TILE, TILE)
@@ -5451,6 +5601,15 @@ export class PlumberRun implements ArcadeGameInstance {
     for (let row = top; row < bottom; row++)
       for (let col = first; col < last; col++) {
         const solid = this.solidAt(col, row)
+        if (isSlope(solid)) {
+          g.strokeStyle = '#ffffff'
+          g.lineWidth = 2
+          g.beginPath()
+          g.moveTo(col * TILE, row * TILE + slopeHeight(solid, 0))
+          g.lineTo((col + 1) * TILE, row * TILE + slopeHeight(solid, TILE))
+          g.stroke()
+          continue
+        }
         if (!isWall(solid) && solid !== SOLID_LEDGE && solid !== SOLID_WATER)
           continue
         const above = this.solidAt(col, row - 1)

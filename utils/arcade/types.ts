@@ -200,6 +200,8 @@ export type ArcadeGameOptions = {
    * Untrusted: the game validates it and offers to continue or ignores it.
    */
   resume?: unknown
+  /** Save the Plumber title shortcut: select only empty or occupied files. */
+  plumberLaunch?: 'new' | 'continue'
   /**
    * The player asked for a still camera (pinball, zuzu-pinball/t-012): no
    * camera sweeps, and a cut instead of a pan when the view must change.
@@ -296,6 +298,7 @@ export interface ArcadeGameInstance {
    * gives the arrow keys back to moving the cursor instead of aiming (kr-arcade t-147).
    */
   readonly menuOpen?: boolean
+  readonly scoreBoard?: string | null
   /** Contextual touch actions (shown only when they can do something). */
   readonly touchActions?: Readonly<Partial<Record<'a' | 'b', string>>>
   stagePointer?(event: ArcadeStagePointer): void

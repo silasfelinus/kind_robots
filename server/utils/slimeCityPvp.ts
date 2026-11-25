@@ -169,7 +169,11 @@ async function validateDuelDeck(
   if (setup.bout) return fail(400, 'Story modifiers are not legal in duels.')
   const wallet = await prisma.slimeCityAccount.findUnique({ where: { userId } })
   const owned = new Set(restoreProgression(wallet?.data).cards)
-  if (clashRewardCards(setup).some((id) => !STARTER_CARD_IDS.has(id) && !owned.has(id)))
+  if (
+    clashRewardCards(setup).some(
+      (id) => !STARTER_CARD_IDS.has(id) && !owned.has(id),
+    )
+  )
     return fail(403, 'Unlock every card in your duel deck first.')
   return setup.format === 'solo'
     ? { format: 'solo', cards: [...setup.cards] }

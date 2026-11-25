@@ -1804,14 +1804,24 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   )
   function duelDeck(team: TeamId, deckId?: string): ClashRewardSetup {
     const entry = library.value.find(
-      (item) => item.id === deckId && item.general === team && libraryDeckReady(item.id),
+      (item) =>
+        item.id === deckId &&
+        item.general === team &&
+        libraryDeckReady(item.id),
     )
     if (entry)
       return {
         format: 'alliance',
-        deck: { general: entry.general, ally: entry.ally, cards: [...entry.cards] },
+        deck: {
+          general: entry.general,
+          ally: entry.ally,
+          cards: [...entry.cards],
+        },
       }
-    return { format: 'solo', cards: [...(savedSolo.value[team] ?? soloStarter(team))] }
+    return {
+      format: 'solo',
+      cards: [...(savedSolo.value[team] ?? soloStarter(team))],
+    }
   }
   const soloCards = computed(() => soloCardPool(activeTeam.value))
   function commitSolo(cards: string[], done: string): void {
@@ -2049,7 +2059,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
    */
   async function launchBout(next: Omit<ClashLaunch, 'id'>): Promise<void> {
     boutUnrewarded.value = ''
-    const signedIn = cpuRewardsAvailable.value && progressLoaded.value && correctAccount()
+    const signedIn =
+      cpuRewardsAvailable.value && progressLoaded.value && correctAccount()
     const alliance =
       next.format === 'alliance' ? (next.alliance ?? playAlliance.value) : null
     const cards = alliance ? alliance.cards : (next.cards ?? playSolo.value)

@@ -85,7 +85,11 @@
           />
           <label class="scpvp-lobby-power">
             <b>YOUR DUEL DECK</b>
-            <select v-model="duelDeckId" class="select w-full" aria-label="Duel deck">
+            <select
+              v-model="duelDeckId"
+              class="select w-full"
+              aria-label="Duel deck"
+            >
               <option value="">Saved faction deck (or starter)</option>
               <option v-for="deck in duelDecks" :key="deck.id" :value="deck.id">
                 {{ deck.name }}
@@ -1338,11 +1342,13 @@ const lab = useSlimeCityStore()
 const duelDeckId = ref('')
 const duelDecks = computed(() =>
   lab.library.filter(
-    (deck) => deck.general === selectedTeam.value && lab.libraryDeckReady(deck.id),
+    (deck) =>
+      deck.general === selectedTeam.value && lab.libraryDeckReady(deck.id),
   ),
 )
 watch(selectedTeam, () => (duelDeckId.value = ''))
-const selectedDuelDeck = () => lab.duelDeck(selectedTeam.value, duelDeckId.value)
+const selectedDuelDeck = () =>
+  lab.duelDeck(selectedTeam.value, duelDeckId.value)
 const pace = computed(() => {
   const chosen = CLASH_SPEED_PACE[lab.clashSpeed] ?? 1
   return lab.reducedMotion ? Math.min(chosen, CLASH_SPEED_PACE.quick) : chosen
@@ -1523,12 +1529,19 @@ async function cancelDuel() {
   else pvp.watchDuel(id)
 }
 async function start() {
-  const data = await pvp.start(selectedTeam.value, { isPublic: openDuel.value, deck: selectedDuelDeck() })
+  const data = await pvp.start(selectedTeam.value, {
+    isPublic: openDuel.value,
+    deck: selectedDuelDeck(),
+  })
   if (data) await navigateTo('/play/slime-city?vs=1')
 }
 async function join() {
   if (!invitedId.value) return
-  const data = await pvp.join(invitedId.value, selectedTeam.value, selectedDuelDeck())
+  const data = await pvp.join(
+    invitedId.value,
+    selectedTeam.value,
+    selectedDuelDeck(),
+  )
   if (data) pvp.watchDuel(data.id)
 }
 async function copyInvite() {

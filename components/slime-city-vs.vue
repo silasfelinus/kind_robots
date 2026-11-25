@@ -494,7 +494,10 @@ function selectedDuelDeck() {
     : lab.duelDeck(lab.activeTeam)
 }
 async function challenge(isPublic: boolean): Promise<void> {
-  const duel = await pvp.start(lab.activeTeam, { isPublic, deck: selectedDuelDeck() })
+  const duel = await pvp.start(lab.activeTeam, {
+    isPublic,
+    deck: selectedDuelDeck(),
+  })
   if (duel) await Promise.all([pvp.loadGames(), pvp.loadOpen()])
 }
 /** Cancelling a duel or declining a challenge takes two taps. */
@@ -510,7 +513,10 @@ async function cancelGame(id: string): Promise<void> {
 /** Challenge a friend: they get a notification that opens the duel. */
 async function challengeFriend(friendId: number): Promise<void> {
   challenging.value = friendId
-  const duel = await pvp.start(lab.activeTeam, { friendId, deck: selectedDuelDeck() })
+  const duel = await pvp.start(lab.activeTeam, {
+    friendId,
+    deck: selectedDuelDeck(),
+  })
   challenging.value = null
   if (duel) await pvp.loadGames()
 }

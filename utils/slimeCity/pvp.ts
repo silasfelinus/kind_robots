@@ -407,7 +407,8 @@ export function pvpRules(
       if (!setup) continue
       options.decks[side] =
         setup.format === 'alliance' ? setup.deck.cards : setup.cards
-      if (setup.format === 'alliance') options.seatAllies[side] = setup.deck.ally
+      if (setup.format === 'alliance')
+        options.seatAllies[side] = setup.deck.ally
     }
   }
   return options

@@ -653,6 +653,21 @@ for (const id of QUESTS)
       target: 'water-rights-hearing',
       outcomes: ['found-the-water-trust', 'auction-the-water'],
     },
+    {
+      name: 'water-stewards',
+      path: {
+        'weir-1': 'build-weir',
+        'weir-stone': 'net-the-run',
+        'weir-reckoning': 'keep-netting',
+        'moat-1': 'keep-moat-common',
+        'moat-crowded': 'let-moat-run',
+        'moat-reckoning': 'license-roach',
+      },
+      parent: 'water-rights-hearing',
+      parentChoices: ['found-the-water-trust', 'auction-the-water'],
+      target: 'water-stewards-strike',
+      outcomes: ['pay-the-stewards', 'contract-the-patrol', 'share-the-patrol'],
+    },
   ] as const
 
   function witness(
@@ -726,6 +741,50 @@ for (const id of QUESTS)
           `Legal route ${family.name}/${parentChoice}/${outcome}: ${reached.seed}, ${reached.save.turnCount} casts`,
         )
       }
+    }
+  }
+}
+
+// Each late labor settlement changes the available shoals and the landscape,
+// regardless of whether the crown previously auctioned or restored the water.
+{
+  const cards = allDeckCards(C)
+  const parent = cards.find((card) => card.id === 'water-rights-hearing')!
+  const followup = cards.find((card) => card.id === 'water-stewards-strike')!
+  assert.ok(CARD_PROMPTS[followup.id])
+  for (const policy of parent.choices) {
+    const base = createRun(C, {
+      saveId: 'sv_stewards',
+      name: 'Stewards',
+      seed: 'stewards',
+      rulerName: 'Mo',
+      stamp: 'T0',
+    })
+    base.turnCount = 48
+    base.kingdomHealth.nature = 80
+    base.kingdomHealth.joy = 60
+    base.kingdomHealth.order = 60
+    assert.ok(!eligiblePool(base, cards).includes(followup))
+    const previous = resolveChoice(base, parent, policy)
+    assert.ok(eligiblePool(previous, cards).includes(followup))
+    assert.ok(!eligiblePool({ ...previous, turnCount: 47 }, cards).includes(followup))
+    const choices = followup.choices.map((choice) =>
+      resolveChoice(previous, followup, choice),
+    )
+    const [publicWater, privateWater, sharedWater] = choices
+    assert.ok(publicWater && privateWater && sharedWater)
+    assert.ok(has(publicWater, 'oathscale-minnow'))
+    assert.ok(!has(publicWater, 'barebone-roach'))
+    assert.ok(has(privateWater, 'barebone-roach'))
+    assert.ok(!has(privateWater, 'oathscale-minnow'))
+    assert.ok(!has(privateWater, 'bridgeback-sturgeon'))
+    assert.ok(!has(sharedWater, 'barebone-roach'))
+    assert.ok(!has(sharedWater, 'oathscale-minnow'))
+    assert.equal(sharedWater.regionOverrides.near_bank, 'grassy')
+    assert.equal(sharedWater.regionOverrides.far_shore, 'industrial')
+    for (const save of choices) {
+      assert.ok(!eligiblePool(save, cards).includes(followup))
+      assert.ok(!(save.flags.publicTrust && save.flags.waterMonopoly))
     }
   }
 }

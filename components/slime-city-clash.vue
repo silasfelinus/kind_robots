@@ -118,9 +118,7 @@
                       v-if="tapStage(unit(side, lane)!)"
                       class="clash-tag is-tap"
                       :title="
-                        'Tap: ' +
-                        tapStage(unit(side, lane)!)!.title +
-                        '. Skips this turn’s attack.'
+                        evoTapText(tapStage(unit(side, lane)!)!)
                       "
                       >{{
                         unit(side, lane)!.attacked ? '↷ USED' : '↷ TAP'
@@ -474,9 +472,7 @@
                 class="clash-reset clash-tap"
                 data-testid="clash-tap"
                 :title="
-                  'Activate ' +
-                  selectedTap.title +
-                  ' instead of attacking this turn'
+                  selectedTap.title
                 "
                 :disabled="!canClashActivate(game, 'player', selectedTap.uid)"
                 @click="tapSelected"
@@ -536,6 +532,7 @@
 </template>
 
 <script setup lang="ts">
+import { evoTapText } from '~/utils/slimeCity/evolutions/dsl'
 import {
   computed,
   nextTick,
@@ -1019,7 +1016,7 @@ const selectedTap = computed(() => {
     (u) => u.uid === selectedUnit.value && u.side === 'player',
   )
   const stage = fighter && tapStage(fighter)
-  return fighter && stage ? { uid: fighter.uid, title: stage.title } : null
+  return fighter && stage ? { uid: fighter.uid, title: evoTapText(stage) } : null
 })
 function tapSelected(): void {
   if (!selectedTap.value) return
@@ -1085,7 +1082,7 @@ function hoverSlot(event: PointerEvent, side: Side, lane: number): void {
 }
 const inspect = computed<{
   id: string
-  note: string
+  liveStats: { attack: number; hp: number; maxHp: number }
   level: number
   pick?: EvoPick
   hover?: boolean
@@ -1107,24 +1104,11 @@ const inspect = computed<{
     pick: u.evoChoice ?? 0,
     hover: !pinned && !!hovered,
     dock: u.lane >= 2 ? 'left' : 'right',
-    note:
-      (u.side === 'player' ? 'Your fighter' : 'Rival fighter') +
-      ' in alley ' +
-      (u.lane + 1) +
-      ': ' +
-      clashPower(game.value, u) +
-      ' power, ' +
-      u.hp +
-      '/' +
-      u.maxHp +
-      ' life' +
-      (u.armor ? ', ' + u.armor + ' armor' : '') +
-      (u.guard ? ', +' + u.guard + ' Union Wall armor' : '') +
-      '.' +
-      (u.rooted ? ' Stunned: skips its next strike.' : '') +
-      (u.fresh && !u.keywords.includes('ambush')
-        ? ' Just landed: blocks now, strikes next turn.'
-        : ''),
+    liveStats: {
+      attack: clashPower(game.value, u),
+      hp: u.hp,
+      maxHp: u.maxHp,
+    },
   }
 })
 const ticker = computed(() =>

@@ -61,7 +61,10 @@ assert.match(
 )
 assert.match(page, /plumber-achievements-view/)
 assert.ok(achievementsForGame('save-the-plumber').length >= 12)
-assert.match(page, /if \(plumber\.gears\.has\(code\)\) labels\.push\('GEAR FOUND'\)/)
+assert.match(
+  page,
+  /if \(plumber\.gears\.has\(code\)\) labels\.push\('GEAR FOUND'\)/,
+)
 assert.match(page, /return labels\.join\(' · '\) \|\| 'UNDISCOVERED'/)
 assert.match(page, /aria-labelledby="settings-heading"/)
 assert.match(page, /arcade\.loadPreferences\(reducedMotion\.value\)/)

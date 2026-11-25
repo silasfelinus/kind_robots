@@ -65,6 +65,7 @@ import {
   rainbowHitFlinch,
   rainbowBossRecoil,
   rainbowBossWindup,
+  rainbowShipJolt,
   rainbowShipPose,
   rainbowCraftWindup,
   stackRainbowBossPose,
@@ -1458,6 +1459,10 @@ export function createRainbowPrincessPreview(
   const hurtBoss = (body: object) => bossHitAt.set(body, tick)
   const bossRecoil = (body: object, calm: boolean) =>
     rainbowBossRecoil(tick - (bossHitAt.get(body) ?? Number.NaN), calm)
+  // Conductor rainbow t-011: the tick each pilot's craft last took a hit, so its draw can jolt (draw-only).
+  const shipHitAt = new WeakMap<object, number>()
+  const shipJolt = (ship: object, calm: boolean) =>
+    rainbowShipJolt(tick - (shipHitAt.get(ship) ?? Number.NaN), calm)
   let score = 0
   let over = false
   let clearCount = 0
@@ -4420,6 +4425,7 @@ export function createRainbowPrincessPreview(
     else if (shoalActive()) shoalHits++
     else actHits++
     ship.invulnerable = 90
+    shipHitAt.set(ship, tick)
     ship.shield--
     if (ship.shield > 0) options.sound.play('rainbowShield')
     if (ship.shield <= 0) {
@@ -9193,6 +9199,11 @@ export function createRainbowPrincessPreview(
         const pose = rainbowShipPose(ship.bank, ship.thrust, calm)
         g.rotate(pose.rotate)
         g.scale(pose.scaleX, pose.scaleY)
+        // A hit knocks the craft back, twists and squashes it, then it settles (t-011, draw-only).
+        const jolt = shipJolt(ship, calm)
+        g.translate(-jolt.pull, 0)
+        g.rotate(jolt.rotate)
+        g.scale(jolt.scaleX, jolt.scaleY)
         g.shadowColor = PILOT_COLORS[pilotOf(seat)]!
         g.shadowBlur = 10
         // Paint recolours the painting only (t-044); the seat glow above keeps the pilot's own colour.

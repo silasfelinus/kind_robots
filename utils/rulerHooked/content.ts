@@ -1770,6 +1770,112 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
             },
           ],
         },
+        {
+          id: 'water-stewards-strike',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          once: true,
+          weight: 6,
+          characters: ['captain-cordelia', 'smuggler-brack', 'lake-spirit-nix'],
+          title: 'Nobody Wants to Mind the Water',
+          body: 'The people who watch the moat have stopped working. Brack brings an empty bait bucket and a petition signed by the net makers. Cordelia has been paying the patrol from her own purse. Nix lays three empty shells beside the accounts: one for the fish, one for the workers, and one for the crown. Who gets paid first?',
+          art: 'card-water-stewards-strike',
+          trigger: {
+            minTurn: 48,
+            requires: { cardsSeen: ['water-rights-hearing'] },
+          },
+          choices: [
+            {
+              id: 'pay-the-stewards',
+              reactionMood: 'pleased',
+              text: 'Pay local stewards a living wage and keep the water public.',
+              effects: {
+                sliders: { treasury: -12, nature: 12, joy: 10, order: 4 },
+                flags: {
+                  set: [
+                    'publicTrust',
+                    'moatHonour',
+                    'sluiceOpened',
+                    'waterStewardsPaid',
+                  ],
+                  clear: [
+                    'waterMonopoly',
+                    'runBlocked',
+                    'runStillBlocked',
+                    'moatFishedOut',
+                    'moatRoachTrade',
+                  ],
+                },
+                regionOverride: { near_bank: 'grassy', far_shore: 'pristine' },
+              },
+              result:
+                'Cordelia receives her back pay. The net makers train as river wardens, and Brack takes the first night shift in exchange for a very official hat. Nix shows the children the tiny Oathscale Minnows returning to the moat.',
+            },
+            {
+              id: 'contract-the-patrol',
+              reactionMood: 'alarmed',
+              text: 'Sell exclusive fishing permits and make the company pay its own patrol.',
+              effects: {
+                sliders: {
+                  treasury: 14,
+                  prosperity: 6,
+                  order: 7,
+                  nature: -10,
+                  joy: -8,
+                },
+                flags: {
+                  set: [
+                    'waterMonopoly',
+                    'moatFishedOut',
+                    'runBlocked',
+                    'runStillBlocked',
+                    'moatRoachTrade',
+                  ],
+                  clear: [
+                    'publicTrust',
+                    'moatHonour',
+                    'sluiceOpened',
+                    'waterStewardsPaid',
+                  ],
+                },
+                regionOverride: { near_bank: 'dead', far_shore: 'industrial' },
+              },
+              result:
+                'The company pays every outstanding wage on condition that the wardens become permit inspectors. Brack sells his bucket and buys a uniform. Barebone Roach fill the moat; the old sturgeon stop trying the locked crossing. Cordelia files a complaint against her new employer.',
+            },
+            {
+              id: 'share-the-patrol',
+              reactionMood: 'concerned',
+              text: 'Share patrol costs with net makers. Permit commercial boats only beyond the moat.',
+              effects: {
+                sliders: {
+                  treasury: -3,
+                  prosperity: 6,
+                  nature: 7,
+                  joy: 3,
+                  order: -3,
+                },
+                flags: {
+                  set: ['moatHonour', 'sluiceOpened', 'sharedWaterPatrol'],
+                  clear: [
+                    'waterMonopoly',
+                    'publicTrust',
+                    'runBlocked',
+                    'runStillBlocked',
+                    'moatFishedOut',
+                    'moatRoachTrade',
+                  ],
+                },
+                regionOverride: {
+                  near_bank: 'grassy',
+                  far_shore: 'industrial',
+                },
+              },
+              result:
+                'The net makers nominate wardens and the fleet pays for the crossing. Nix dislikes the engines but accepts the open sluice. Brack is appointed to both committees and attends whichever serves lunch. The moat recovers, though the special trust shoals find no dedicated nursery.',
+            },
+          ],
+        },
       ],
     },
     {

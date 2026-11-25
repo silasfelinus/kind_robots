@@ -12,7 +12,7 @@ import {
   findArcadeGame,
   isPlausibleScore,
 } from '~/utils/arcade/games'
-import type { HallOfFameEntry } from '~/utils/arcade/leaderboard'
+import { spectrumBoardKey, type HallOfFameEntry } from '~/utils/arcade/leaderboard'
 import { isAllowedInitials } from '~/utils/arcade/initials'
 
 export const ARCADE_BOARD_SIZE = 10
@@ -151,15 +151,19 @@ export async function readArcadeHallOfFame(): Promise<HallOfFameEntry[]> {
   const plays = new Map(counts.map((row) => [row.gameSlug, row._count._all]))
   return Promise.all(
     HALL_GAMES.map(async (game) => {
+      const key =
+        game.slug === 'superkate-spectrum'
+          ? spectrumBoardKey('story')
+          : game.slug
       const [top, today] = await Promise.all([
         prisma.arcadeScore.findMany({
-          where: { gameSlug: game.slug },
+          where: { gameSlug: key },
           orderBy: [{ score: 'desc' }, { createdAt: 'asc' }],
           take: ARCADE_HALL_SIZE,
           select: { initials: true, score: true, level: true, username: true },
         }),
         prisma.arcadeScore.findFirst({
-          where: { gameSlug: game.slug, createdAt: { gte: dayStart } },
+          where: { gameSlug: key, createdAt: { gte: dayStart } },
           orderBy: [{ score: 'desc' }, { createdAt: 'asc' }],
           select: { initials: true, score: true, username: true },
         }),
@@ -168,7 +172,7 @@ export async function readArcadeHallOfFame(): Promise<HallOfFameEntry[]> {
         slug: game.slug,
         top,
         todayBest: today,
-        plays: plays.get(game.slug) ?? 0,
+        plays: plays.get(key) ?? 0,
       }
     }),
   )

@@ -20,6 +20,8 @@ import {
   pushCeiling,
 } from '../arcade/superkateSpectrum/board'
 import { emptyInput } from '../arcade/types'
+import { spectrumBoardKey, spectrumRankedBoard } from '../arcade/leaderboard'
+import { findArcadeGame, isPlausibleScore } from '../arcade/games'
 import {
   rankForXp,
   recordClassicEnd,
@@ -390,6 +392,18 @@ const mapStart = emptyInput()
 mapStart.pressed.a = true
 mapRun.update(mapStart)
 assert.equal(mapRun.level, 2, 'Map selection starts the selected replay')
+assert.equal(mapRun.scoreBoard, null, 'Late-stage replay is not ranked')
+assert.equal(spectrumRankedBoard('story', 1), spectrumBoardKey('story'))
+assert.equal(spectrumRankedBoard('story', 2), null)
+assert.equal(spectrumRankedBoard('classic', 1), spectrumBoardKey('classic'))
+assert.notEqual(spectrumBoardKey('story'), spectrumBoardKey('classic'))
+for (const mode of ['story', 'classic'] as const) {
+  const key = spectrumBoardKey(mode)
+  assert.equal(findArcadeGame(key)?.slug, key)
+  assert.equal(isPlausibleScore(key, 100), true)
+  assert.equal(isPlausibleScore(key, 10_000_001), false)
+}
+assert.equal(isPlausibleScore('superkate-spectrum-other', 100), false)
 assert.equal(mapRun.save.career.highestStage, 12)
 assert.deepEqual(mapRun.save.career.stars, cloudB.career.stars)
 
@@ -477,6 +491,10 @@ for (let stage = 1; stage <= 30; stage++) {
   tapStage(nodeRun, storyMapPosition(stage))
   assert.equal(nodeRun.level, stage)
   assert.equal(nodeRun.menuOpen, false)
+  assert.equal(
+    nodeRun.scoreBoard,
+    stage === 1 ? spectrumBoardKey('story') : null,
+  )
 }
 
 const hub = create({
@@ -596,6 +614,15 @@ assert.equal(touchMenu.menuOpen, true)
 tapStage(touchMenu, { x: 160, y: 220 })
 assert.equal(touchMenu.mode, 'story')
 assert.equal(touchMenu.menuOpen, true)
+
+const classicRanked = create({
+  ...options,
+  resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),
+} as Parameters<typeof create>[0])
+assert.equal(classicRanked.scoreBoard, null)
+classicRanked.update(mapStart)
+assert.equal(classicRanked.scoreBoard, spectrumBoardKey('classic'))
+assert.equal(classicRanked.save.career.classicBest, cloudB.career.classicBest)
 
 const deepClassic = create({
   ...options,

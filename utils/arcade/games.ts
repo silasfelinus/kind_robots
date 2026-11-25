@@ -8,6 +8,7 @@
 // games appear in the hall as "coming soon" cabinets.
 
 import type { ArcadeGameMeta, ArcadeGameModule } from './types'
+import { spectrumBoardKey } from './leaderboard'
 import { MASTERY_GOALS } from './pinball/rules/mastery'
 import {
   RAINBOW_DIFFICULTY_NAMES,
@@ -954,6 +955,18 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
  * (then it moves to LINKED_GAMES).
  */
 export const UNLISTED_SCORED_GAMES: ArcadeGameMeta[] = [
+  ...(['story', 'classic'] as const).map((mode) => ({
+    slug: spectrumBoardKey(mode),
+    title: `Superkate's Spectrum (${mode})`,
+    riffsOn: 'Puzzle Bobble / Bust-a-Move',
+    blurb: 'Separate ranked bubble-shooter bracket.',
+    howTo: ['MATCH THREE OR MORE', 'ONE BOARD PER MODE'],
+    width: 320,
+    height: 480,
+    maxPlausibleScore: 10_000_000,
+    accent: '#ed66bc',
+    controls: 'Aim, fire, swap',
+  })),
   ...(['easy', 'hard', 'catastrophic'] as const).map((difficulty) => ({
     slug: 'chessweeper-triple-' + difficulty,
     title: 'Chessweeper: Triple Threat (' + difficulty + ')',

@@ -765,3 +765,70 @@ for (const dir of [-1, 1] as const) {
   assert.ok(crossed, 'sprinting traverses the hill in either direction')
   assert.ok(Math.abs(run.hero.vx) > 3.5, 'ramps preserve running momentum')
 }
+
+const rollerRows = [...lab.rows]
+rollerRows[20] =
+  rollerRows[20]!.slice(0, 12) +
+  'r' +
+  rollerRows[20]!.slice(13, 35) +
+  'p' +
+  rollerRows[20]!.slice(36)
+const rollerLab = { ...lab, rows: rollerRows, name: 'Roller carry lab' }
+
+function rollerRun() {
+  const run = new PlumberRun(options, { customLevel: rollerLab })
+  const roller = run.foes.find((foe) => foe.kind === 'rivet-roller')!
+  run.hero.x = roller.x - 30
+  replay(run, 4, () => {})
+  const wrench = emptyInput()
+  wrench.pressed.x = true
+  run.update(wrench)
+  assert.equal(roller.state, 'stunned')
+  replay(run, 22, () => {})
+  const grab = emptyInput()
+  grab.held.down = true
+  grab.pressed.x = true
+  run.update(grab)
+  assert.equal(run.heldRoller, roller)
+  assert.ok(!run.foes.includes(roller), 'held roller leaves enemy simulation')
+  return { run, roller }
+}
+
+{
+  const { run, roller } = rollerRun()
+  const victim = run.foes.find((foe) => foe.kind === 'pumpbug')!
+  victim.x = 60 * TILE
+  replay(run, 320, () => {})
+  assert.equal(run.heldRoller, roller, 'carrying freezes the stun countdown')
+  assert.equal(roller.state, 'stunned')
+  victim.x = run.hero.x + 70
+  victim.y = FLOOR
+  const release = emptyInput()
+  release.pressed.x = true
+  run.update(release)
+  assert.equal(run.heldRoller, null)
+  assert.equal(roller.state, 'kicked')
+  assert.equal(run.foes.filter((foe) => foe === roller).length, 1)
+  replay(run, 25, () => {})
+  assert.ok(victim.fade || victim.state === 'gone', 'thrown roller hits a foe')
+}
+
+{
+  const { run, roller } = rollerRun()
+  const internal = run as unknown as {
+    immune: number
+    hurt(dir: number): void
+  }
+  internal.immune = 0
+  internal.hurt(-1)
+  assert.equal(run.heldRoller, null)
+  assert.equal(roller.x, roller.homeX)
+  assert.equal(run.foes.filter((foe) => foe === roller).length, 1)
+}
+
+{
+  const { run } = rollerRun()
+  run.hero.y = run.stage.rows * TILE + 60
+  replay(run, 1, () => {})
+  assert.equal(run.heldRoller, null, 'death clears held enemies')
+}

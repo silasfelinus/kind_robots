@@ -13,12 +13,14 @@ import assert from 'node:assert/strict'
 import {
   FIGHT_PROMPT,
   fightAim,
+  fightTargetFor,
   resolveTimingStop,
   timingProfileFor,
   timingVisualFor,
   type ZoneGlyphs,
 } from '~/utils/rulerHooked/timingBar'
 import type { Rarity } from '~/types/ruler-hooked'
+import { GEAR_CATALOG, gearBonusFromFlags } from '~/utils/rulerHooked/economy'
 
 const RARITIES: Rarity[] = [
   'COMMON',
@@ -162,6 +164,64 @@ const RARITIES: Rarity[] = [
   )
   assert.equal(FIGHT_PROMPT.REEL, 'Tap to Reel')
   assert.equal(FIGHT_PROMPT.SLACK, 'Give Slack')
+}
+
+// All legal gear combinations, rarity tiers and fight beats must leave
+// genuine room to slack or wait, including when the reel band drifts.
+{
+  const families = ['STANDARD_TENSION', 'PATIENCE', 'REVERSE_CONTROL'] as const
+  const aims = ['REEL', 'SLACK', 'WAIT'] as const
+  for (const family of families) {
+    for (const rarity of RARITIES) {
+      for (let beat = 0; beat < 10; beat++) {
+        for (let mask = 0; mask < 2 ** GEAR_CATALOG.length; mask++) {
+          const flags = Object.fromEntries(
+            GEAR_CATALOG.map((gear, index) => [
+              gear.flagKey,
+              Boolean(mask & (1 << index)),
+            ]),
+          )
+          const bonus = gearBonusFromFlags(flags)
+          const profile = timingProfileFor({
+            family,
+            rarity,
+            beat,
+            gearBandBonus: bonus.bandWidthBonus,
+            gearSweepMsBonus: bonus.sweepMsBonus,
+          })
+          assert.ok(profile.bandStart >= 18)
+          assert.ok(profile.bandStart + profile.bandWidth <= 82)
+          for (const aim of aims) {
+            const target = fightTargetFor(profile, aim)
+            assert.ok(target.width > 0)
+            assert.ok(target.start >= 0 && target.start + target.width <= 100)
+            for (const fraction of [0, 0.5, 1]) {
+              const result = resolveTimingStop(
+                target.start + target.width * fraction,
+                profile,
+              )
+              assert.equal(result.action, aim)
+              if (fraction === 0.5) assert.ok(result.quality >= 0.7)
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+{
+  const profile = timingProfileFor({
+    family: 'STANDARD_TENSION',
+    rarity: 'COMMON',
+    beat: 0,
+  })
+  for (const position of [NaN, Infinity, -Infinity]) {
+    assert.deepEqual(resolveTimingStop(position, profile), {
+      action: 'WAIT',
+      quality: 0,
+    })
+  }
 }
 
 console.log('timingBar.selftest.ts: all assertions passed')

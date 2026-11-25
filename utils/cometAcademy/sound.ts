@@ -388,6 +388,7 @@ export class PromSound {
   private hidden = false
   private step = 0
   private nextAt = 0
+  private voices = new Map<OscillatorNode, { gain: GainNode; bus: GainNode }>()
 
   get unlocked(): boolean {
     return this.context !== null
@@ -416,12 +417,25 @@ export class PromSound {
       this.nextAt = this.context.currentTime + 0.04
       this.timer = setInterval(() => this.pump(), 60)
     }
-    if (!this.hidden) void this.context.resume().catch(() => {})
+    if (!this.hidden && this.context.state !== 'running') {
+      this.cancelVoices()
+      this.resetClock()
+      void this.context.resume().catch(() => {})
+    }
     return true
   }
 
   setMix(next: PromMix): void {
+    const musicWasAudible = this.canPlayMusic()
     this.mix = parsePromMix(next)
+    if (this.mix.muted || this.mix.master === 0) this.cancelVoices()
+    else {
+      if (this.scoreBus && this.mix.music === 0)
+        this.cancelVoices(this.scoreBus)
+      if (this.effectsBus && this.mix.effects === 0)
+        this.cancelVoices(this.effectsBus)
+    }
+    if (musicWasAudible !== this.canPlayMusic()) this.resetClock()
     this.applyMix()
   }
 
@@ -429,12 +443,22 @@ export class PromSound {
     if (next === this.mood) return
     this.mood = next
     this.step = 0
-    if (this.context) this.nextAt = this.context.currentTime + 0.05
+    this.cancelVoices()
+    this.resetClock()
   }
 
   play(cues: readonly PromCue[]): void {
     const ctx = this.context
-    if (!ctx || !this.effectsBus || this.mix.muted || this.hidden) return
+    if (
+      !ctx ||
+      !this.effectsBus ||
+      this.mix.muted ||
+      this.mix.master === 0 ||
+      this.mix.effects === 0 ||
+      this.hidden ||
+      ctx.state !== 'running'
+    )
+      return
     for (const [n, cue] of cues.slice(0, 3).entries()) {
       PROM_CUE_NOTES[cue].forEach((pitch, i) =>
         this.note(
@@ -452,16 +476,16 @@ export class PromSound {
   setHidden(hidden: boolean): void {
     this.hidden = hidden
     if (!this.context) return
+    this.cancelVoices()
+    this.resetClock()
     if (hidden) void this.context.suspend().catch(() => {})
-    else {
-      this.nextAt = this.context.currentTime + 0.04
-      void this.context.resume().catch(() => {})
-    }
+    else void this.context.resume().catch(() => {})
   }
 
   dispose(): void {
     if (this.timer) clearInterval(this.timer)
     this.timer = null
+    this.cancelVoices()
     if (this.context) void this.context.close().catch(() => {})
     this.context = null
     this.master = null
@@ -469,6 +493,25 @@ export class PromSound {
     this.effectsBus = null
     this.step = 0
     this.nextAt = 0
+  }
+
+  private canPlayMusic(): boolean {
+    return !this.mix.muted && this.mix.master > 0 && this.mix.music > 0
+  }
+
+  private resetClock(): void {
+    if (this.context) this.nextAt = this.context.currentTime + 0.05
+  }
+
+  private cancelVoices(bus?: GainNode): void {
+    for (const [tone, voice] of this.voices) {
+      if (bus && voice.bus !== bus) continue
+      this.voices.delete(tone)
+      tone.onended = null
+      tone.stop()
+      tone.disconnect()
+      voice.gain.disconnect()
+    }
   }
 
   private applyMix(): void {
@@ -506,13 +549,31 @@ export class PromSound {
     envelope.gain.exponentialRampToValueAtTime(0.0001, start + length)
     oscillator.connect(envelope)
     envelope.connect(destination)
+    this.voices.set(oscillator, { gain: envelope, bus: destination })
+    oscillator.onended = () => {
+      if (!this.voices.delete(oscillator)) return
+      oscillator.disconnect()
+      envelope.disconnect()
+    }
     oscillator.start(start)
     oscillator.stop(start + length + 0.03)
   }
 
   private pump(): void {
     const ctx = this.context
-    if (!ctx || !this.scoreBus || this.hidden || ctx.state !== 'running') return
+    if (
+      !ctx ||
+      !this.scoreBus ||
+      this.hidden ||
+      !this.canPlayMusic() ||
+      ctx.state !== 'running'
+    ) {
+      if (ctx && ctx.state !== 'running') {
+        this.cancelVoices()
+        this.resetClock()
+      }
+      return
+    }
     const theme = PROM_THEMES[this.mood]
     const unit = 60 / theme.bpm / 4
     if (this.nextAt < ctx.currentTime - 0.3)

@@ -4,6 +4,7 @@ import type {
   ArcadeGameInstance,
   ArcadeGameModule,
   ArcadeGameOptions,
+  ArcadeReadoutRow,
   InputFrame,
 } from '../types'
 import type { MusicLoop } from '../sound'
@@ -56,13 +57,21 @@ import {
   loadRainbowLook,
   rainbowActStage,
   rainbowLook,
+  setRainbowAnimationClock,
 } from './rainbowGameArt'
 import { drawFeverSky, drawFeverTrail } from './rainbowFeverDream'
 import {
   applyRainbowSwimMotion,
   rainbowHitFlinch,
+  rainbowBossRecoil,
   rainbowBossWindup,
+  rainbowShipJolt,
+  rainbowBarrelRoll,
+  rainbowPickupBob,
+  rainbowShipHover,
   rainbowShipPose,
+  rainbowCraftWindup,
+  stackRainbowBossPose,
 } from './rainbowSwimMotion'
 import { drawRainbowBossBloom } from './rainbowBossBloom'
 import {
@@ -84,6 +93,8 @@ import {
 import {
   RAINBOW_HIT_CARD_FRAMES,
   drawRainbowEnemyFrame,
+  drawRainbowEndingMotion,
+  rainbowEndingPlateName,
   drawRainbowInterlude,
   drawRainbowPose,
 } from './rainbowAnimation'
@@ -713,6 +724,17 @@ const ACT_FIVE_CHECKPOINTS = actCheckpoints(WRECK_SECTIONS, WRECK.bossStarts)
 const CUTTER = { jawFrames: 36, chargeSpeed: 5 } as const
 /** E17 hammerheads lock both fin pods before each fires; a pod sits this far above or below the body. */
 const HAMMERHEAD = { lockFrames: 36, podReach: 14 } as const
+/**
+ * Conductor rainbow t-011: craft whose `charge` counts down to a shot (or a brood's drones), and the warning
+ * each starts from. Their bodies tense across it with rainbowCraftWindup.
+ */
+export const CRAFT_WINDUP_FRAMES: Readonly<Partial<Record<string, number>>> = {
+  squid: SQUID.glintFrames,
+  harbinger: HARBINGER.warmFrames,
+  turret: TURRET.unfoldFrames,
+  hammerhead: HAMMERHEAD.lockFrames,
+  brood: BROOD_SHADOW_FRAMES,
+}
 /** E18 salvagers point four arms before they fire along them and grab the nearest loose pickup. */
 const SALVAGER = { armFrames: 36, grabReach: 110, grabArmour: 3 } as const
 const ACT_FOUR_CHECKPOINTS = actCheckpoints(
@@ -1435,6 +1457,15 @@ export function createRainbowPrincessPreview(
   const superHold: number[] = Array.from({ length: 4 }, () => 0)
   const pickups: Pickup[] = []
   let tick = 0
+  // Conductor rainbow t-011: the tick each boss body last took a shot, so its draw can rock back (draw-only).
+  const bossHitAt = new WeakMap<object, number>()
+  const hurtBoss = (body: object) => bossHitAt.set(body, tick)
+  const bossRecoil = (body: object, calm: boolean) =>
+    rainbowBossRecoil(tick - (bossHitAt.get(body) ?? Number.NaN), calm)
+  // Conductor rainbow t-011: the tick each pilot's craft last took a hit, so its draw can jolt (draw-only).
+  const shipHitAt = new WeakMap<object, number>()
+  const shipJolt = (ship: object, calm: boolean) =>
+    rainbowShipJolt(tick - (shipHitAt.get(ship) ?? Number.NaN), calm)
   let score = 0
   let over = false
   let clearCount = 0
@@ -1741,6 +1772,29 @@ export function createRainbowPrincessPreview(
   function finaleFrame() {
     return finaleStart === null ? 0 : tick - finaleStart
   }
+  /** The HUD bar's heading: the detour or the Act and its name. */
+  function hudTitle(): string {
+    if (lighthouseActive()) return 'X3 / SUNKEN LIGHTHOUSE'
+    if (shoalActive()) return 'X4 / MIRROR SHOAL'
+    return [
+      'ACT I / PINKWAKE',
+      'ACT II / MOONJELLY',
+      'ACT III / TRENCH',
+      'ACT IV / EXPRESS',
+      'ACT V / WRECKYARD',
+      'ACT VI / CROWN REEF',
+      'ACT VII / GLASS CURRENT',
+      'ACT VIII / ECLIPSE PALACE',
+      'FINALE / ECLIPSE CROWN',
+    ][currentAct() - 1]!
+  }
+
+  /** One pilot's status, as the HUD bar and the upright readout both show it. */
+  function pilotStatus(seat: number): string {
+    const ship = ships[seat]!
+    return `${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${ship.charge}%${ship.specialCooldown ? '' : ' X'}${ship.evadeCooldown ? '' : ' Y'}`
+  }
+
   function currentAct(): 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 {
     return finaleStart !== null
       ? 9
@@ -4374,6 +4428,7 @@ export function createRainbowPrincessPreview(
     else if (shoalActive()) shoalHits++
     else actHits++
     ship.invulnerable = 90
+    shipHitAt.set(ship, tick)
     ship.shield--
     if (ship.shield > 0) options.sound.play('rainbowShield')
     if (ship.shield <= 0) {
@@ -5918,6 +5973,7 @@ export function createRainbowPrincessPreview(
       ) {
         shots.splice(si, 1)
         guardian.hp -= shot.damage
+        hurtBoss(guardian)
         if (guardian.hp <= 0) defeatGuardian(shot.seat)
         continue
       }
@@ -5928,6 +5984,7 @@ export function createRainbowPrincessPreview(
       ) {
         shots.splice(si, 1)
         boss.hp -= shot.damage
+        hurtBoss(boss)
         if (boss.hp <= 0) defeatBoss()
       }
       if (
@@ -5937,6 +5994,7 @@ export function createRainbowPrincessPreview(
       ) {
         shots.splice(si, 1)
         moonBoss.hp -= shot.damage
+        hurtBoss(moonBoss)
         if (moonBoss.hp <= 0) defeatMoonBoss()
       }
       if (
@@ -5947,6 +6005,7 @@ export function createRainbowPrincessPreview(
         shots.splice(si, 1)
         // The cracked cannon after a punch takes double damage.
         clawBoss.hp -= shot.damage * (clawburstExposed(clawBoss) ? 2 : 1)
+        hurtBoss(clawBoss)
         if (clawBoss.hp <= 0) defeatClawBoss()
         continue
       }
@@ -5966,6 +6025,7 @@ export function createRainbowPrincessPreview(
           shots.splice(si, 1)
           // The exposed link core takes double damage.
           delphion.hp -= shot.damage * (onCore ? 2 : 1)
+          hurtBoss(delphion)
           if (delphion.hp <= 0) defeatDelphion()
           continue
         }
@@ -5983,6 +6043,7 @@ export function createRainbowPrincessPreview(
           shots.splice(si, 1)
           // The open jaw hinge takes double damage.
           sawtooth.hp -= shot.damage * (onJaw ? 2 : 1)
+          hurtBoss(sawtooth)
           if (sawtooth.hp <= 0) defeatSawtooth()
           continue
         }
@@ -6021,6 +6082,7 @@ export function createRainbowPrincessPreview(
               })
           }
           lanternRay.hp -= shot.damage * (onBeacon ? 2 : 1)
+          hurtBoss(lanternRay)
           if (lanternRay.hp <= 0) defeatLanternRay()
           continue
         }
@@ -6034,6 +6096,7 @@ export function createRainbowPrincessPreview(
       ) {
         shots.splice(si, 1)
         glassEel.hp -= shot.damage * (glassEelExposed(glassEel) ? 2 : 1)
+        hurtBoss(glassEel)
         if (glassEel.hp <= 0) defeatGlassEel()
         continue
       }
@@ -6087,6 +6150,7 @@ export function createRainbowPrincessPreview(
               })
           }
           leviathan.hp -= shot.damage * (onGem ? 2 : 1)
+          hurtBoss(leviathan)
           if (leviathan.hp <= 0) defeatLeviathan()
           continue
         }
@@ -6312,6 +6376,25 @@ export function createRainbowPrincessPreview(
     },
     get over() {
       return over
+    },
+    /**
+     * The HUD bar in words, for an upright phone's large-type readout under the stage (presentation
+     * critic P-09): the Act, the score, shoals and novas, then each pilot's lives, shields, power,
+     * charge and ready moves. Nothing in the demo, the menus or after the run.
+     */
+    get readout(): ArcadeReadoutRow[] | null {
+      if (options.demo || over || resumeMenu || selectMenu) return null
+      const [where, name] = hudTitle().split(' / ')
+      return [
+        { label: where!, value: name ?? '' },
+        { label: 'SCORE', value: String(Math.round(score * level.score)) },
+        { label: 'SHOALS · NOVAS', value: `${clearCount} · ${supers}` },
+        ...ships.slice(0, activePlayers).map((_, seat) => ({
+          label: SHIP_NAMES[pilotOf(seat)]!,
+          value: pilotStatus(seat),
+          color: PILOT_COLORS[pilotOf(seat)]!,
+        })),
+      ]
     },
     /** Mastery goals earned this game (t-010). */
     get mastered() {
@@ -6594,6 +6677,8 @@ export function createRainbowPrincessPreview(
     },
     update,
     render(g: CanvasRenderingContext2D) {
+      // One animation clock for every sprite's idle atlas (P-01); calm motion holds the first cell.
+      setRainbowAnimationClock(tick, calm)
       /** Calm motion slows every scenery plane alike, so their parallax still reads. */
       const drift = calm ? RAINBOW_EFFECTS.calmDrift : 1
       const sky = g.createLinearGradient(0, 0, 0, H)
@@ -7376,6 +7461,12 @@ export function createRainbowPrincessPreview(
                         : '#d09ffd'
         g.save()
         applyRainbowSwimMotion(g, reef.kind, tick, calm)
+        const craftWarn = CRAFT_WINDUP_FRAMES[reef.kind]
+        if (craftWarn && !reef.truce && reef.charge) {
+          const tense = rainbowCraftWindup(reef.charge, craftWarn, calm)
+          g.translate(tense.pull, 0)
+          g.scale(tense.scaleX, tense.scaleY)
+        }
         if (reef.flash) {
           const flinch = rainbowHitFlinch(reef.flash, HIT_FLASH_FRAMES, calm)
           g.scale(flinch.x, flinch.y)
@@ -7683,10 +7774,13 @@ export function createRainbowPrincessPreview(
         g.save()
         applyRainbowSwimMotion(g, guardian.kind, guardian.frame, calm)
         // Conductor rainbow t-011: guardians wind up like the bosses (body only; ring and hitbox stay put).
-        const guardianWindup = rainbowBossWindup(
-          guardian.leaving ? 0 : guardian.nextVolley - guardian.frame,
-          RAINBOW_GUARDIAN.warningFrames,
-          calm,
+        const guardianWindup = stackRainbowBossPose(
+          rainbowBossWindup(
+            guardian.leaving ? 0 : guardian.nextVolley - guardian.frame,
+            RAINBOW_GUARDIAN.warningFrames,
+            calm,
+          ),
+          bossRecoil(guardian, calm),
         )
         g.translate(guardianWindup.pull, 0)
         g.scale(guardianWindup.scaleX, guardianWindup.scaleY)
@@ -7765,10 +7859,13 @@ export function createRainbowPrincessPreview(
         g.save()
         g.translate(boss.x, boss.y)
         const glow = bossTelegraph(boss)
-        const windup = rainbowBossWindup(
-          boss.nextVolleyAt - boss.frame,
-          BOSS_TELEGRAPH_FRAMES,
-          calm,
+        const windup = stackRainbowBossPose(
+          rainbowBossWindup(
+            boss.nextVolleyAt - boss.frame,
+            BOSS_TELEGRAPH_FRAMES,
+            calm,
+          ),
+          bossRecoil(boss, calm),
         )
         g.translate(windup.pull, 0)
         g.scale(windup.scaleX, windup.scaleY)
@@ -7849,10 +7946,13 @@ export function createRainbowPrincessPreview(
         g.save()
         g.translate(moonBoss.x, moonBoss.y)
         // Conductor rainbow t-011: the bell colony draws back and swells before each volley; draw-only.
-        const moonWindup = rainbowBossWindup(
-          moonBoss.nextVolley - moonBoss.frame,
-          MOONJELLY_WARNING_FRAMES,
-          calm,
+        const moonWindup = stackRainbowBossPose(
+          rainbowBossWindup(
+            moonBoss.nextVolley - moonBoss.frame,
+            MOONJELLY_WARNING_FRAMES,
+            calm,
+          ),
+          bossRecoil(moonBoss, calm),
         )
         g.translate(moonWindup.pull, 0)
         g.scale(moonWindup.scaleX, moonWindup.scaleY)
@@ -8128,10 +8228,13 @@ export function createRainbowPrincessPreview(
           }
           g.restore()
         }
-        const leviathanWindup = rainbowBossWindup(
-          leviathan.nextVolley - leviathan.frame,
-          prismLeviathanWarningFrames(leviathan),
-          calm,
+        const leviathanWindup = stackRainbowBossPose(
+          rainbowBossWindup(
+            leviathan.nextVolley - leviathan.frame,
+            prismLeviathanWarningFrames(leviathan),
+            calm,
+          ),
+          bossRecoil(leviathan, calm),
         )
         g.save()
         g.translate(leviathan.x, leviathan.y)
@@ -8233,10 +8336,13 @@ export function createRainbowPrincessPreview(
       if (glassEel) {
         const warn = glassEelWarning(glassEel)
         const exposed = glassEelExposed(glassEel)
-        const eelWindup = rainbowBossWindup(
-          glassEel.nextVolley - glassEel.frame,
-          glassEelWarningFrames(glassEel),
-          calm,
+        const eelWindup = stackRainbowBossPose(
+          rainbowBossWindup(
+            glassEel.nextVolley - glassEel.frame,
+            glassEelWarningFrames(glassEel),
+            calm,
+          ),
+          bossRecoil(glassEel, calm),
         )
         const body = (y: number, solid: boolean) => {
           g.save()
@@ -8318,10 +8424,13 @@ export function createRainbowPrincessPreview(
         g.shadowColor = exposed ? '#ff7ad9' : warn ? '#fff49c' : '#ffd27a'
         g.shadowBlur = warn || exposed ? 24 : 10
         // The ray's body winds up before a volley; nurseries, beacon and ring stay where they can be hit.
-        const rayWindup = rainbowBossWindup(
-          lanternRay.nextVolley - lanternRay.frame,
-          lanternRayWarningFrames(lanternRay),
-          calm,
+        const rayWindup = stackRainbowBossPose(
+          rainbowBossWindup(
+            lanternRay.nextVolley - lanternRay.frame,
+            lanternRayWarningFrames(lanternRay),
+            calm,
+          ),
+          bossRecoil(lanternRay, calm),
         )
         g.save()
         g.translate(rayWindup.pull, 0)
@@ -8427,10 +8536,13 @@ export function createRainbowPrincessPreview(
         g.shadowColor = exposed ? '#ff7a6b' : warn ? '#fff49c' : '#9fd8ff'
         g.shadowBlur = warn || exposed ? 24 : 10
         // The Regent's body winds up before a charge or fin volley (never mid-charge); ring and jaw stay on the hitbox.
-        const sawtoothWindup = rainbowBossWindup(
-          sawtooth.charge === null ? sawtooth.nextVolley - sawtooth.frame : 0,
-          sawtoothWarningFrames(sawtooth),
-          calm,
+        const sawtoothWindup = stackRainbowBossPose(
+          rainbowBossWindup(
+            sawtooth.charge === null ? sawtooth.nextVolley - sawtooth.frame : 0,
+            sawtoothWarningFrames(sawtooth),
+            calm,
+          ),
+          bossRecoil(sawtooth, calm),
         )
         g.save()
         g.translate(sawtoothWindup.pull, 0)
@@ -8507,10 +8619,13 @@ export function createRainbowPrincessPreview(
         }
         const twins = delphionTwins(delphion)
         const core = delphionCore(delphion)
-        const delphionWindup = rainbowBossWindup(
-          delphion.nextVolley - delphion.frame,
-          delphionWarningFrames(delphion),
-          calm,
+        const delphionWindup = stackRainbowBossPose(
+          rainbowBossWindup(
+            delphion.nextVolley - delphion.frame,
+            delphionWarningFrames(delphion),
+            calm,
+          ),
+          bossRecoil(delphion, calm),
         )
         g.save()
         // The rear coupling between the twins, with its link core.
@@ -8611,10 +8726,13 @@ export function createRainbowPrincessPreview(
         g.shadowColor = exposed ? '#ff7a6b' : warn ? '#fff49c' : '#ffb38a'
         g.shadowBlur = warn || exposed ? 25 : 12
         // Clawburst's body winds up before a volley or punch; the cue ring and cannon stay on the hitbox.
-        const clawWindup = rainbowBossWindup(
-          clawBoss.nextVolley - clawBoss.frame,
-          clawburstWarningFrames(clawBoss),
-          calm,
+        const clawWindup = stackRainbowBossPose(
+          rainbowBossWindup(
+            clawBoss.nextVolley - clawBoss.frame,
+            clawburstWarningFrames(clawBoss),
+            calm,
+          ),
+          bossRecoil(clawBoss, calm),
         )
         g.save()
         g.translate(clawWindup.pull, 0)
@@ -8853,11 +8971,10 @@ export function createRainbowPrincessPreview(
         g.restore()
       }
       for (const pickup of pickups) {
-        // Pickups bob and pulse so they read as something to grab.
-        const bob = Math.sin(tick / 9 + pickup.x / 40) * 2.5
-        const pulse = 1 + Math.sin(tick / 6) * 0.1
+        // Pickups bob and pulse so they read as something to grab (a fifth of it in calm motion).
+        const { bob, pulse, glow } = rainbowPickupBob(tick, pickup.x, calm)
         g.save()
-        g.globalAlpha = 0.35 + 0.2 * Math.sin(tick / 6)
+        g.globalAlpha = glow
         g.strokeStyle = '#ffffff'
         g.lineWidth = 1.5
         g.beginPath()
@@ -8881,7 +8998,7 @@ export function createRainbowPrincessPreview(
               ? '#f9a8d4'
               : '#fde68a'
         g.beginPath()
-        g.arc(pickup.x, pickup.y, 9, 0, Math.PI * 2)
+        g.arc(pickup.x, pickup.y + bob, 9, 0, Math.PI * 2)
         g.fill()
         g.fillStyle = '#21133b'
         g.font = 'bold 10px sans-serif'
@@ -8889,7 +9006,7 @@ export function createRainbowPrincessPreview(
         g.fillText(
           pickup.kind === 'power' ? 'P' : pickup.kind === 'shield' ? 'S' : '★',
           pickup.x,
-          pickup.y + 4,
+          pickup.y + bob + 4,
         )
         g.textAlign = 'left'
       }
@@ -9074,18 +9191,25 @@ export function createRainbowPrincessPreview(
           g.restore()
         }
         if (ship.evade > 0 && pilotOf(seat) === 0)
-          // Barrel Roll: the ship turns over once.
-          g.scale(
-            1,
-            Math.cos((1 - ship.evade / RAINBOW_EVADE.roll) * Math.PI * 2),
-          )
+          // Barrel Roll: the ship turns over once (calm keeps a shallow squash, t-011).
+          g.scale(1, rainbowBarrelRoll(ship.evade, RAINBOW_EVADE.roll, calm))
         if (ship.evade > 0 && pilotOf(seat) === 2) g.globalAlpha = 0.55
         // Bank into a climb or a dive and lean into a surge (t-011): a draw-only pose, so the hitbox never moves.
         const pose = rainbowShipPose(ship.bank, ship.thrust, calm)
         g.rotate(pose.rotate)
         g.scale(pose.scaleX, pose.scaleY)
+        // A hit knocks the craft back, twists and squashes it, then it settles (t-011, draw-only).
+        const jolt = shipJolt(ship, calm)
+        g.translate(-jolt.pull, 0)
+        g.rotate(jolt.rotate)
+        g.scale(jolt.scaleX, jolt.scaleY)
         g.shadowColor = PILOT_COLORS[pilotOf(seat)]!
         g.shadowBlur = 10
+        // A craft holding still hovers (t-011): the hull alone bobs, so the core marker stays on the hitbox.
+        const hover = rainbowShipHover(tick, seat, ship.bank, ship.thrust, calm)
+        g.save()
+        g.translate(0, hover.bob)
+        g.rotate(hover.tilt)
         // Paint recolours the painting only (t-044); the seat glow above keeps the pilot's own colour.
         g.filter = rainbowShipFilter(livery, pilotOf(seat))
         const painted = drawRainbowShipSprite(g, pilotOf(seat))
@@ -9104,6 +9228,7 @@ export function createRainbowPrincessPreview(
           g.lineWidth = 2
           g.stroke()
         }
+        g.restore()
         g.shadowBlur = 0
         g.fillStyle = '#44235c'
         g.fillRect(-3, -3, 6, 6)
@@ -9544,25 +9669,7 @@ export function createRainbowPrincessPreview(
         g.fillRect(0, 0, W, 29)
         g.fillStyle = '#ffe7f5'
         g.font = 'bold 10px monospace'
-        g.fillText(
-          lighthouseActive()
-            ? 'X3 / SUNKEN LIGHTHOUSE'
-            : shoalActive()
-              ? 'X4 / MIRROR SHOAL'
-              : [
-                  'ACT I / PINKWAKE',
-                  'ACT II / MOONJELLY',
-                  'ACT III / TRENCH',
-                  'ACT IV / EXPRESS',
-                  'ACT V / WRECKYARD',
-                  'ACT VI / CROWN REEF',
-                  'ACT VII / GLASS CURRENT',
-                  'ACT VIII / ECLIPSE PALACE',
-                  'FINALE / ECLIPSE CROWN',
-                ][act - 1]!,
-          HUD_LEFT,
-          12,
-        )
+        g.fillText(hudTitle(), HUD_LEFT, 12)
         g.font = '9px monospace'
         // The button legend teaches Act I, then gives the bar back (presentation critic P-21); with three or
         // four pilots their status needs the room.
@@ -9583,11 +9690,10 @@ export function createRainbowPrincessPreview(
         // Every pilot's status lives inside the 29 px bar, never over the playfield or the boss bar
         // (gameplay critic D4, presentation critic P-08): pilots 1-2 in the right column, 3-4 beside them.
         for (let seat = 0; seat < activePlayers; seat++) {
-          const ship = ships[seat]!
           const slot = rainbowHudStatusSlot(seat, activePlayers)
           g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
           g.fillText(
-            `${SHIP_NAMES[pilotOf(seat)]} ${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${ship.charge}%${ship.specialCooldown ? '' : ' X'}${ship.evadeCooldown ? '' : ' Y'}`,
+            `${SHIP_NAMES[pilotOf(seat)]} ${pilotStatus(seat)}`,
             HUD_RIGHT - slot.column * HUD_STATUS_COLUMN,
             slot.y,
           )
@@ -9638,14 +9744,25 @@ export function createRainbowPrincessPreview(
           g.textAlign = 'left'
           // The painted plate for the choice the crew flew sits under the ending's lines, captioned by road.
           const plateX = (W - ENDING_PLATE_WIDTH) / 2
-          const plateHeight = drawRainbowEndingPlate(
-            g,
-            finalChoice ?? 'evacuate',
-            plateX,
-            ENDING_PLATE_TOP,
-            ENDING_PLATE_WIDTH,
-            allegiance,
-          )
+          // A reviewed one-shot clip of the plate plays where one shipped (P-03); otherwise the still.
+          const plateHeight =
+            drawRainbowEndingMotion(
+              g,
+              rainbowEndingPlateName(finalChoice ?? 'evacuate', allegiance),
+              plateX,
+              ENDING_PLATE_TOP,
+              ENDING_PLATE_WIDTH,
+              calm,
+              endingFrame ?? 0,
+            ) ||
+            drawRainbowEndingPlate(
+              g,
+              finalChoice ?? 'evacuate',
+              plateX,
+              ENDING_PLATE_TOP,
+              ENDING_PLATE_WIDTH,
+              allegiance,
+            )
           if (plateHeight) {
             const captionY = ENDING_PLATE_TOP + plateHeight - 15
             g.fillStyle = '#160b34d9'

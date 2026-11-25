@@ -24,7 +24,12 @@
         <!-- These are the shipped moving Krea world-map plates, not CSS-animated SVG shapes.
              A real still remains visible on unsupported codecs and for reduced motion. -->
         <div
-          v-if="screen !== 'play' && screen !== 'maker' && screen !== 'guide'"
+          v-if="
+            screen !== 'play' &&
+            screen !== 'maker' &&
+            screen !== 'guide' &&
+            screen !== 'achievements'
+          "
           class="plumber-motion"
           aria-hidden="true"
         >
@@ -69,15 +74,30 @@
               </p>
               <nav class="plumber-main-menu" aria-label="Game menu">
                 <button
+                  v-if="hasSavedFile"
                   type="button"
                   class="plumber-option plumber-option--primary"
-                  @click="go('play')"
+                  @click="launchPlumber('continue')"
                 >
                   <span class="plumber-option-icon">▶</span>
-                  {{
-                    plumber.chosen ? 'CONTINUE ADVENTURE' : 'START ADVENTURE'
-                  }}
+                  CONTINUE
                   <span class="plumber-option-arrow" aria-hidden="true">›</span>
+                </button>
+                <button
+                  type="button"
+                  class="plumber-option"
+                  :class="{ 'plumber-option--primary': !hasSavedFile }"
+                  :disabled="!hasEmptyFile"
+                  @click="launchPlumber('new')"
+                >
+                  NEW GAME <span>›</span>
+                </button>
+                <button
+                  type="button"
+                  class="plumber-option"
+                  @click="go('play')"
+                >
+                  FILES / ENDLESS <span>›</span>
                 </button>
                 <button
                   type="button"
@@ -100,6 +120,13 @@
                   @click="go('worlds')"
                 >
                   WORLD SCRAPBOOK <span>›</span>
+                </button>
+                <button
+                  type="button"
+                  class="plumber-option"
+                  @click="go('achievements')"
+                >
+                  ACHIEVEMENTS <span>›</span>
                 </button>
                 <button
                   type="button"
@@ -359,6 +386,23 @@
           </section>
 
           <section
+            v-else-if="screen === 'achievements'"
+            key="achievements"
+            class="plumber-view plumber-guide-view plumber-achievements-view"
+            aria-labelledby="achievements-heading"
+          >
+            <div class="plumber-guide-inner">
+              <p class="plumber-eyebrow">ADVENTURE TROPHIES</p>
+              <h2 id="achievements-heading" class="plumber-section-title">
+                ACHIEVEMENTS
+              </h2>
+              <div class="rounded-xl bg-base-100 p-3 text-base-content">
+                <GameAchievementStrip game="save-the-plumber" layout="row" />
+              </div>
+            </div>
+          </section>
+
+          <section
             v-else-if="screen === 'settings'"
             key="settings"
             class="plumber-view plumber-guide-view"
@@ -462,7 +506,11 @@
             class="plumber-view plumber-game-view"
             aria-label="Save the Plumber playable game"
           >
-            <ArcadeCabinet slug="save-the-plumber" contained />
+            <ArcadeCabinet
+              slug="save-the-plumber"
+              contained
+              :plumber-launch="plumberLaunch"
+            />
           </section>
         </Transition>
       </div>
@@ -499,7 +547,8 @@
               screen === 'story' ||
               screen === 'worlds' ||
               screen === 'crew' ||
-              screen === 'settings'
+              screen === 'settings' ||
+              screen === 'achievements'
             "
             >ESC BACK</span
           >
@@ -527,6 +576,7 @@ type Screen =
   | 'crew'
   | 'guide'
   | 'settings'
+  | 'achievements'
   | 'maker'
   | 'play'
 const route = useRoute()
@@ -536,6 +586,9 @@ const shareCode = computed(() =>
 const screen = ref<Screen>(shareCode.value ? 'maker' : 'title')
 const plumber = useSavePlumberStore()
 const arcade = useArcadeStore()
+const plumberLaunch = ref<'new' | 'continue'>()
+const hasSavedFile = computed(() => plumber.file.slots.some(Boolean))
+const hasEmptyFile = computed(() => plumber.file.slots.some((slot) => !slot))
 const heroine = computed(() => plumber.heroine)
 const viewport = ref<HTMLElement | null>(null)
 const storyIndex = ref(0)
@@ -570,11 +623,11 @@ const worldGearCount = computed(
 function stageStatus(code: string): string {
   const node = stageNode(code)?.id
   if (!node) return 'UNDISCOVERED'
-  const cleared = clearedNodes.value.has(node) || secretNodes.value.has(node)
-  if (!cleared) return 'UNDISCOVERED'
-  const gear = plumber.gears.has(code) ? ' · GEAR FOUND' : ''
-  const secret = secretNodes.value.has(node) ? ' · SECRET EXIT' : ''
-  return `CLEARED${gear}${secret}`
+  const labels: string[] = []
+  if (clearedNodes.value.has(node)) labels.push('CLEARED')
+  if (secretNodes.value.has(node)) labels.push('SECRET EXIT')
+  if (plumber.gears.has(code)) labels.push('GEAR FOUND')
+  return labels.join(' · ') || 'UNDISCOVERED'
 }
 const clipWorld = computed(() =>
   screen.value === 'worlds'
@@ -650,7 +703,13 @@ function changeVolume(event: Event) {
 }
 
 function go(next: Screen) {
+  plumberLaunch.value = undefined
   screen.value = next
+}
+function launchPlumber(intent: 'new' | 'continue') {
+  if (intent === 'new' ? !hasEmptyFile.value : !hasSavedFile.value) return
+  plumberLaunch.value = intent
+  screen.value = 'play'
 }
 function stepStory(direction: number) {
   storyIndex.value = Math.max(
@@ -928,6 +987,10 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
   background: #235e68;
   transform: translateX(0.2rem);
 }
+.plumber-option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .plumber-option--primary {
   color: #082437;
   background: #ffd18b;
@@ -1148,6 +1211,9 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
   justify-content: center;
   padding: clamp(0.6rem, 2vw, 2rem);
   background: radial-gradient(ellipse at center, #174357, #071521);
+}
+.plumber-achievements-view {
+  align-items: flex-start;
 }
 .plumber-guide-inner {
   width: min(100%, 80rem);

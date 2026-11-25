@@ -7,7 +7,12 @@ import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
 import { emptyInput } from '../arcade/types'
 import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
-import { CAMPAIGN, TILE } from '../arcade/games/savePlumberLevels'
+import {
+  CAMPAIGN,
+  SOLID_BLOCK,
+  TILE,
+  VERDIGRIS_CHAPEL,
+} from '../arcade/games/savePlumberLevels'
 import { MAP_CLIP_WORLDS } from '../arcade/games/savePlumberMapClips'
 import {
   OVERWORLD,
@@ -118,13 +123,13 @@ assert.ok(
 const w1 = worldCompletion(1, { done: ['1-1', '1-2'], gears: ['1-1'] })
 assert.deepEqual(
   [w1.stages, w1.stagesDone, w1.gears, w1.gearsFound, w1.secrets],
-  [4, 2, 4, 1, 1],
+  [5, 2, 4, 1, 1],
 )
 assert.equal(completionPercent(fresh), 0)
 const everything = CAMPAIGN.map((s) => s.code)
 assert.equal(
   completionPercent({
-    done: everything.map((c) => stageNode(c)!.id),
+    done: [...everything.map((c) => stageNode(c)!.id), '1-c'],
     gears: everything,
     secrets: [...SECRET_EXITS_READY],
   }),
@@ -320,6 +325,38 @@ assert.ok(resumedSecret.secrets.has('1-3'), 'secret exit survives reload')
 assert.ok(nodeReachable('1-c', resumedSecret.progress))
 assert.equal(worldCompletion(1, hidden.progress).secretsFound, 1)
 assert.equal(exit.y, 7 * TILE)
+
+// The secret branch leads to a real course, not a map-only reward.
+assert.ok(nodeBuilt(mapNode('1-c')))
+const chapel = createSavePlumberPreview(options(hidden.save))
+chapel.loadStage(0)
+assert.equal(chapel.solidAt(10, 18), 0, 'outlines are not collision')
+press(chapel, 'start')
+press(chapel, 'a')
+walk(chapel, 'left')
+assert.equal(chapel.mapNodeId, '1-c')
+press(chapel, 'a')
+press(chapel, 'a')
+assert.equal(chapel.stage.code, VERDIGRIS_CHAPEL.code)
+assert.equal(chapel.mode, 'play')
+assert.ok(!chapel.done.has('1-c'), 'entry alone does not press the valve')
+const chapelGoal = chapel.goal!
+chapel.hero = { x: chapelGoal.x, y: chapelGoal.y - 20, vx: 0, vy: 0 }
+chapel.ground = true
+chapel.update(input)
+assert.equal(chapel.mode, 'clear')
+for (let i = 0; i < 200 && chapel.modeTimer; i++) chapel.update(input)
+assert.equal(chapel.mode, 'map')
+assert.ok(chapel.done.has('1-c'))
+const powered = createSavePlumberPreview(options(chapel.save))
+powered.loadStage(0)
+assert.equal(powered.solidAt(10, 18), SOLID_BLOCK)
+assert.equal(powered.solidAt(19, 15), SOLID_BLOCK)
+powered.loadStage(1)
+assert.equal(powered.solidAt(7, 17), SOLID_BLOCK)
+const freshSlot = createSavePlumberPreview(options())
+freshSlot.loadStage(0)
+assert.equal(freshSlot.solidAt(10, 18), 0, 'new slots stay unpowered')
 
 // Every additional built secret route uses the real stage and saved map node.
 // A secret clear must open its authored branch, never silently clear the course.

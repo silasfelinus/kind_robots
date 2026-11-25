@@ -308,6 +308,8 @@ export function applyFishingAction(
 export function applyFishingStop(encounter: FishingEncounter, stopPosition: number): FishingEncounter {
   if (encounter.phase === 'LANDED' || encounter.phase === 'ESCAPED') return encounter
 
+  if (!Number.isFinite(stopPosition)) return encounter
+
   const profile = timingProfileFor(encounter)
   const { action, quality } = resolveTimingStop(stopPosition, profile)
   const resolved = encounter.phase === 'APPROACH'

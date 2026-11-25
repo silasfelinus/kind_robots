@@ -809,10 +809,10 @@ export const ADVERT_POSTERS: AdvertPoster[] = [
     style:
       'bright superhero comic painting, violet night sky, orange spotlight glow',
     hero: {
-      src: '/comet-city-academy/front/splash.webp',
-      pos: 'center 40%',
+      src: '/comet-city-academy/front/home-brawl-03.webp',
+      pos: 'center 45%',
       subject:
-        'teen superheroes in capes and graduation tassels flying over a comet-lit city skyline',
+        'three superheroes in torn prom formalwear brawling a henchman horde on a comet-lit ballroom terrace',
     },
     cards: [
       {

@@ -200,6 +200,8 @@ export type ArcadeGameOptions = {
    * Untrusted: the game validates it and offers to continue or ignores it.
    */
   resume?: unknown
+  /** Save the Plumber title shortcut: select only empty or occupied files. */
+  plumberLaunch?: 'new' | 'continue'
   /**
    * The player asked for a still camera (pinball, zuzu-pinball/t-012): no
    * camera sweeps, and a cut instead of a pan when the view must change.
@@ -247,6 +249,19 @@ export const ARCADE_DIFFICULTIES: readonly ArcadeDifficulty[] = [
 export type ArcadeSoundLike = Pick<ArcadeSound, 'play'> &
   Partial<Pick<ArcadeSound, 'playNotes'>>
 
+/** One row of ArcadeGameInstance.readout: a label, its value, and an optional colour (a pilot's). */
+export type ArcadeReadoutRow = {
+  label: string
+  value: string
+  color?: string
+}
+
+export type ArcadeStagePointer = {
+  phase: 'down' | 'move' | 'up' | 'cancel'
+  x: number
+  y: number
+}
+
 export interface ArcadeGameInstance {
   readonly score: number
   readonly level: number
@@ -283,8 +298,16 @@ export interface ArcadeGameInstance {
    * gives the arrow keys back to moving the cursor instead of aiming (kr-arcade t-147).
    */
   readonly menuOpen?: boolean
+  readonly scoreBoard?: string | null
   /** Contextual touch actions (shown only when they can do something). */
   readonly touchActions?: Readonly<Partial<Record<'a' | 'b', string>>>
+  stagePointer?(event: ArcadeStagePointer): void
+  /**
+   * The run's status in words, for a cabinet that shows it in large type off the stage (an upright
+   * phone, where the canvas HUD is too small to read). null while there is nothing to report
+   * (menus, the demo, game over).
+   */
+  readonly readout?: readonly ArcadeReadoutRow[] | null
   /**
    * Advance one fixed 1/60 s tick. `input` is player 1's; a game seating more
    * players also gets every seated player's frame, player 1 first.

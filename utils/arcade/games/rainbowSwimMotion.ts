@@ -106,3 +106,137 @@ export function rainbowBossWindup(
   const ease = t * t * (calm ? 0.2 : 1)
   return { pull: 4 * ease, scaleX: 1 - 0.03 * ease, scaleY: 1 + 0.06 * ease }
 }
+
+/** Frames a boss's body rocks back after a shot lands. */
+export const BOSS_RECOIL_FRAMES = 8
+
+/**
+ * Conductor rainbow t-011: a boss a shot just hit rocks back and squashes, settling over a few frames, so the
+ * player sees the hit land on the body. Draw-only: the hitbox never moves. Calm motion keeps it still.
+ */
+export function rainbowBossRecoil(
+  framesSinceHit: number,
+  calm = false,
+): { pull: number; scaleX: number; scaleY: number } {
+  if (calm || !(framesSinceHit >= 0) || framesSinceHit >= BOSS_RECOIL_FRAMES)
+    return { pull: 0, scaleX: 1, scaleY: 1 }
+  const t = 1 - framesSinceHit / BOSS_RECOIL_FRAMES
+  const k = t * t
+  return { pull: 2.5 * k, scaleX: 1 - 0.04 * k, scaleY: 1 + 0.025 * k }
+}
+
+/** Stacks two draw-only body poses (a windup and a recoil): pulls add, scales multiply. */
+export function stackRainbowBossPose(
+  a: { pull: number; scaleX: number; scaleY: number },
+  b: { pull: number; scaleX: number; scaleY: number },
+): { pull: number; scaleX: number; scaleY: number } {
+  return {
+    pull: a.pull + b.pull,
+    scaleX: a.scaleX * b.scaleX,
+    scaleY: a.scaleY * b.scaleY,
+  }
+}
+
+/**
+ * Conductor rainbow t-011: a small craft that charges before it acts (a squid's glint, a harbinger's warm-up, a
+ * turret unfolding, a hammerhead's lock, a brood's shadow) tenses its body across that warning, the boss
+ * windup at half strength, so a school's shooter reads apart from the swimmers. Draw-only: the hitbox never
+ * moves. Calm motion keeps a fifth, like the boss.
+ */
+export function rainbowCraftWindup(
+  framesToAct: number,
+  warnFrames: number,
+  calm = false,
+): { pull: number; scaleX: number; scaleY: number } {
+  const boss = rainbowBossWindup(framesToAct, warnFrames, calm)
+  return {
+    pull: boss.pull / 2,
+    scaleX: 1 - (1 - boss.scaleX) / 2,
+    scaleY: 1 + (boss.scaleY - 1) / 2,
+  }
+}
+
+/** Frames the pilot's craft jolts after a hit lands (well inside the 90-frame invulnerability). */
+export const SHIP_JOLT_FRAMES = 10
+
+/**
+ * Conductor rainbow t-011: when a shot gets through, the pilot's craft is knocked back against its heading,
+ * twists and squashes, then settles over SHIP_JOLT_FRAMES, so the hit reads on her ship and not only on the
+ * shield count and blink. Draw-only: the hitbox never moves. Calm motion keeps it still.
+ */
+export function rainbowShipJolt(
+  framesSinceHit: number,
+  calm = false,
+): { pull: number; rotate: number; scaleX: number; scaleY: number } {
+  if (calm || !(framesSinceHit >= 0) || framesSinceHit >= SHIP_JOLT_FRAMES)
+    return { pull: 0, rotate: 0, scaleX: 1, scaleY: 1 }
+  const t = 1 - framesSinceHit / SHIP_JOLT_FRAMES
+  const k = t * t
+  return {
+    pull: 3 * k,
+    rotate: 0.12 * k * Math.cos(framesSinceHit * 0.9),
+    scaleX: 1 - 0.08 * k,
+    scaleY: 1 + 0.05 * k,
+  }
+}
+
+/**
+ * Conductor rainbow t-011: a pilot's craft holding still hovers — a slow bob and a slight sway, offset per seat
+ * so a parked formation never bobs in lockstep — and the hover fades out as she banks or surges, where the
+ * flight pose takes over. Draw-only and applied to the painted hull alone, so the hitbox and its core marker
+ * never move. Calm motion keeps a fifth, the same share the swimmers keep.
+ */
+export function rainbowShipHover(
+  frame: number,
+  seat: number,
+  bank: number,
+  thrust: number,
+  calm = false,
+): { bob: number; tilt: number } {
+  const idle = Math.max(
+    0,
+    Math.min(1, 1 - Math.abs(bank) * 0.5 - Math.abs(thrust) * 0.25),
+  )
+  const motion = (calm ? 0.2 : 1) * idle
+  if (motion === 0) return { bob: 0, tilt: 0 }
+  const phase = frame * 0.06 + seat * 1.7
+  return {
+    bob: Math.sin(phase) * 1.2 * motion,
+    tilt: Math.cos(phase * 0.8) * 0.03 * motion,
+  }
+}
+
+/**
+ * Conductor rainbow t-011: Maribel's barrel roll turns her craft over once across the roll. Calm motion keeps a
+ * fifth of the turn — a shallow squash that still shows the evade fired — instead of a full flip.
+ */
+export function rainbowBarrelRoll(
+  evade: number,
+  rollFrames: number,
+  calm = false,
+): number {
+  if (rollFrames <= 0 || evade <= 0) return 1
+  const turn = Math.cos(
+    (1 - Math.min(evade, rollFrames) / rollFrames) * Math.PI * 2,
+  )
+  return calm ? 1 - 0.2 * ((1 - turn) / 2) : turn
+}
+
+/**
+ * Conductor rainbow t-011: a loose pickup bobs and its ring pulses so it reads as something to grab. Calm motion
+ * keeps a fifth of the bob and pulse, the same share the swimmers and the parked craft keep, so a pickup still
+ * shimmers without sliding. The fallback badge and the ring share this one bob, so neither drifts off the other.
+ */
+export function rainbowPickupBob(
+  tick: number,
+  x: number,
+  calm = false,
+): { bob: number; pulse: number; glow: number } {
+  const share = calm ? 0.2 : 1
+  const wave = Math.sin(tick / 6)
+  return {
+    bob: Math.sin(tick / 9 + x / 40) * 2.5 * share,
+    pulse: 1 + wave * 0.1 * share,
+    glow: 0.35 + 0.2 * wave * share,
+  }
+}

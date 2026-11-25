@@ -594,6 +594,26 @@ assert.match(
   'and must not capitalise a mid-sentence match',
 )
 
+// Conductor's Kontext sprite edits (ArtJobs 77110-77113, 2026-11-25): claim
+// judges a Kontext graph as flux, so "inside the frame" failed there. The
+// repair heals the queued rows; a real frame holding something is left alone.
+{
+  const SPRITE_EDIT =
+    'Keep the same art style, clean outlines and the plain green background, and keep the whole creature inside the frame.'
+  assert.ok(
+    rules({ prompt: SPRITE_EDIT, engine: 'flux', steps: 20, cfg: 1 }).includes('frame-noun'),
+    'the stored Kontext sprite-edit wording is rejected as flux',
+  )
+  const repaired = repairFramePrompt(SPRITE_EDIT)
+  assert.match(repaired, /keep the whole creature in full view\.$/)
+  assert.deepEqual(rules({ prompt: repaired, engine: 'flux', steps: 20, cfg: 1 }), [])
+  assert.equal(
+    repairFramePrompt('a pressed flower inside the frame of an oak shadow box'),
+    'a pressed flower inside the frame of an oak shadow box',
+    'a real frame holding something is not a composition frame',
+  )
+}
+
 // An identity built from a description that carries the word is repaired too.
 assert.deepEqual(
   rules({

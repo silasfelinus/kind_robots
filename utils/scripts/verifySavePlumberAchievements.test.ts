@@ -57,7 +57,8 @@ const nodes = OVERWORLD.flatMap((map) =>
   map.nodes.filter(nodeBuilt).map((node) => ({ world: map.world, node })),
 )
 const worldOne = nodes.filter((n) => n.world === 1)
-const gearsOf = (list: typeof nodes) => list.map((n) => n.node.stage!)
+const gearsOf = (list: typeof nodes) =>
+  list.flatMap(({ node }) => (node.stage ? [node.stage] : []))
 assert.deepEqual(
   plumberProgressFeats({ done: [], secrets: [], gears: [] }, 1),
   [],

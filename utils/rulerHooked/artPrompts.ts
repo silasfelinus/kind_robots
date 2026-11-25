@@ -250,6 +250,12 @@ export const CARD_PROMPTS: Record<string, string> = {
   'water-rights-hearing': scene(
     `On a royal fishing dock, ${who('captain-cordelia')} holds conflicting water deeds beside ${who('smuggler-brack')} carrying grey roach. ${who('lake-spirit-nix')} lifts dark spawning mud from the water. A guarded weir stands behind them, psychedelic lime and violet light, worn print grain.`,
   ),
+  'flood-debt-council': scene(
+    `A broken river bridge with scattered planks, ${who('envoy-thistle')} holds a soaked ledger beside ${who('warlock-vex')} offering a miniature arch bridge. ${who('lake-spirit-nix')} cradles a waterlogged bird nest. Luminous violet floodwater, coral dusk and cyan reflections, worn vintage ink grain.`,
+  ),
+  'harbour-apprentice-hearing': scene(
+    `On a busy harbour slipway, ${who('heir-robin')} and ${who('sweetheart-ash')} help young apprentices lift a brightly painted wooden boat. ${who('captain-cordelia')} carries a life vest and a rolled plan. Emerald water, hot pink sails, rainbow fantasy light and subtle vintage print texture.`,
+  ),
 }
 
 /** Character portraits, keyed by cast slug (neutral expression). */

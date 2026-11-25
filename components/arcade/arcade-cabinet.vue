@@ -176,6 +176,23 @@
         >
           <span aria-hidden="true">❚❚</span>
         </button>
+        <dl
+          v-if="touchPlan?.readout && readout?.length"
+          class="cabinet-readout"
+          aria-label="Run status"
+          :style="placedAt(touchPlan.readout, true)"
+        >
+          <div
+            v-for="(row, index) in readout"
+            :key="index"
+            class="cabinet-readout-row"
+            :class="{ 'cabinet-readout-row--head': index === 0 }"
+            :style="row.color ? { color: row.color } : undefined"
+          >
+            <dt>{{ row.label }}</dt>
+            <dd>{{ row.value }}</dd>
+          </div>
+        </dl>
         <p
           v-if="touchPlan?.hint"
           class="cabinet-rotate-hint"
@@ -687,7 +704,11 @@ import {
 import { drawText, lineStep, measureText } from '~/utils/arcade/font'
 import { mulberry32 } from '~/utils/arcade/curve'
 import { INITIALS_ALPHABET, isAllowedInitials } from '~/utils/arcade/initials'
-import { initialsFromUsername } from '~/utils/arcade/leaderboard'
+import {
+  initialsFromUsername,
+  spectrumBoardKey,
+  type SpectrumRankedMode,
+} from '~/utils/arcade/leaderboard'
 import { masteryLine, masteryProgress } from '~/utils/arcade/mastery'
 import {
   ARCADE_COMMS,
@@ -699,6 +720,7 @@ import {
   type ArcadeGuidePage,
   type ArcadeMasteryGoal,
   type ArcadePlayableInstance,
+  type ArcadeReadoutRow,
   type InputFrame,
 } from '~/utils/arcade/types'
 
@@ -707,6 +729,7 @@ const props = defineProps<{
   contained?: boolean
   suspended?: boolean
   rainbowReplay?: unknown
+  plumberLaunch?: 'new' | 'continue'
 }>()
 const contained = computed(() => props.contained === true)
 const isRainbowReplay = computed(
@@ -801,6 +824,19 @@ const touchControls = ref(false)
 const paddleTouchX = ref<number | null>(null)
 let paddlePointer: number | null = null
 const paddleActions = ref<Partial<Record<'a' | 'b', string>>>({})
+/** The game's status in words (ArcadeGameInstance.readout), sampled a few times a second for an upright phone. */
+const readout = ref<readonly ArcadeReadoutRow[] | null>(null)
+let readoutKey = ''
+function syncReadout(game: ArcadePlayableInstance | null) {
+  const next =
+    game && 'readout' in game && touchPlan.value?.readout
+      ? (game.readout ?? null)
+      : null
+  const key = next ? JSON.stringify(next) : ''
+  if (key === readoutKey) return
+  readoutKey = key
+  readout.value = next
+}
 const compactDpad = computed(
   () => props.slug === 'rainbow-bullet-hell-space-princess' || labelled.value,
 )
@@ -1221,7 +1257,23 @@ function onLoopError(error: unknown) {
   }
 }
 
-const board = computed(() => store.board(props.slug, 'all'))
+const spectrumRankMode = ref<SpectrumRankedMode>('story')
+const boardGame = computed(() =>
+  props.slug === 'superkate-spectrum'
+    ? spectrumBoardKey(spectrumRankMode.value)
+    : props.slug,
+)
+const board = computed(() => store.board(boardGame.value, 'all'))
+function fetchCabinetBoards() {
+  const keys =
+    props.slug === 'superkate-spectrum'
+      ? [spectrumBoardKey('story'), spectrumBoardKey('classic')]
+      : [props.slug]
+  for (const key of keys) {
+    void store.fetchBoard(key, 'all')
+    void store.fetchBoard(key, 'today')
+  }
+}
 const hiScore = () => board.value[0]?.score ?? 0
 
 function unlockArcadeAudio() {
@@ -1419,6 +1471,7 @@ function releaseRemapFocus() {
 
 /** Let go of every touch control on every seat. */
 function releaseTouch() {
+  clearStagePointer()
   clearPaddlePointer()
   releaseAim()
   pinballPadRef.value?.release()
@@ -1639,8 +1692,7 @@ function enterPhase(next: ArcadePhase) {
     demoGame = null
   }
   if (next === 'scores') {
-    void store.fetchBoard(props.slug, 'all')
-    void store.fetchBoard(props.slug, 'today')
+    fetchCabinetBoards()
   }
   if (next === 'initials') {
     initials = readSavedInitials()
@@ -1679,6 +1731,8 @@ function startGame() {
       players: players.value,
       mastery: store.masteryFor(props.slug),
       resume: isRainbowReplay.value ? undefined : store.saveFor(props.slug),
+      plumberLaunch:
+        props.slug === 'save-the-plumber' ? props.plumberLaunch : undefined,
       rainbowReplay: isRainbowReplay.value ? props.rainbowReplay : undefined,
       rainbowHangar:
         props.slug === 'rainbow-bullet-hell-space-princess'
@@ -1785,7 +1839,7 @@ async function submitInitials() {
   submitting = true
   store.rememberInitials(value)
   await store.submitScore({
-    game: props.slug,
+    game: boardGame.value,
     initials: value,
     score: lastScore,
     level: lastLevel,
@@ -1856,6 +1910,15 @@ function tick() {
       demoGame.update(frame)
       if (demoGame.over) dispatch({ type: 'demoOver' })
     }
+    if (
+      current === 'scores' &&
+      props.slug === 'superkate-spectrum' &&
+      frame.pressed.left
+    ) {
+      spectrumRankMode.value =
+        spectrumRankMode.value === 'story' ? 'classic' : 'story'
+      fetchCabinetBoards()
+    }
     if (frame.pressed.right) dispatch({ type: 'skip' })
     dispatch({ type: 'tick', ms: TICK_MS })
     return
@@ -1876,6 +1939,7 @@ function tick() {
     gameMenu.value = menuOpenOf(game)
     paddleActions.value =
       'touchActions' in game ? (game.touchActions ?? {}) : {}
+    if (ticks % 6 === 0) syncReadout(game)
     const feats = game.drainFeats?.()
     if (!isRainbowReplay.value && feats?.length)
       void store.awardFeats(props.slug, feats)
@@ -1902,7 +1966,13 @@ function tick() {
           score: lastScore,
           level: lastLevel,
         })
+        const rankedKey = 'scoreBoard' in game ? game.scoreBoard : undefined
+        if (props.slug === 'superkate-spectrum') {
+          spectrumRankMode.value =
+            rankedKey === spectrumBoardKey('classic') ? 'classic' : 'story'
+        }
         qualifies =
+          (props.slug !== 'superkate-spectrum' || rankedKey != null) &&
           ARCADE_GAMES.some((entry) => entry.slug === props.slug) &&
           qualifiesForBoard(lastScore, board.value)
         emit('scored', lastScore)
@@ -2214,13 +2284,22 @@ function render() {
   }
 
   if (current === 'scores') {
-    drawText(g, 'HIGH SCORES', w / 2, 22, {
+    const heading =
+      props.slug === 'superkate-spectrum'
+        ? `${spectrumRankMode.value.toUpperCase()} SCORES`
+        : 'HIGH SCORES'
+    drawText(g, heading, w / 2, 22, {
       scale: 3,
       align: 'center',
       color: '#ffffff',
       shadow: accent,
     })
     drawBoardRows(g, w, 64)
+    if (props.slug === 'superkate-spectrum')
+      drawText(g, 'LEFT: SWITCH STORY / CLASSIC', w / 2, h - 32, {
+        align: 'center',
+        color: '#fde68a',
+      })
     if (store.offline) {
       drawText(g, 'SAVED ON THIS DEVICE', w / 2, h - 16, {
         align: 'center',
@@ -2438,9 +2517,46 @@ function renderWithBudget() {
   }
 }
 
+let stagePointerId: number | null = null
+
+function forwardStagePointer(
+  event: PointerEvent,
+  phase: 'down' | 'move' | 'up' | 'cancel',
+) {
+  if (!game || isWebGLInstance(game) || !game.stagePointer) return
+  const box = canvasRef.value?.getBoundingClientRect()
+  const info = meta.value
+  if (!box?.width || !box.height || !info) return
+  game.stagePointer({
+    phase,
+    x: ((event.clientX - box.left) / box.width) * info.width,
+    y: ((event.clientY - box.top) / box.height) * info.height,
+  })
+}
+
+function clearStagePointer() {
+  if (stagePointerId !== null && game && !isWebGLInstance(game))
+    game.stagePointer?.({ phase: 'cancel', x: 0, y: 0 })
+  stagePointerId = null
+}
+
 function onScreenPointer(event: PointerEvent) {
   unlockArcadeAudio()
   canvasRef.value?.focus({ preventScroll: true })
+  if (
+    !guide.value &&
+    machine.phase === 'playing' &&
+    game &&
+    !isWebGLInstance(game) &&
+    game.stagePointer
+  ) {
+    if (stagePointerId !== null || event.button !== 0) return
+    event.preventDefault()
+    stagePointerId = event.pointerId
+    capture(event.currentTarget as HTMLElement | null, event.pointerId)
+    forwardStagePointer(event, 'down')
+    return
+  }
   if (paddleMode.value) {
     if (paddlePointer !== null) return
     beginPaddleDrag(event)
@@ -2460,6 +2576,12 @@ function beginPaddleDrag(event: PointerEvent) {
 }
 
 function onPaddlePointerMove(event: PointerEvent) {
+  if (event.pointerId === stagePointerId) {
+    if (machine.phase === 'playing' && !guide.value)
+      forwardStagePointer(event, 'move')
+    else clearStagePointer()
+    return
+  }
   if (!paddleMode.value || event.pointerId !== paddlePointer) return
   const box = canvasRef.value?.getBoundingClientRect()
   if (!box?.width) return
@@ -2470,6 +2592,17 @@ function onPaddlePointerMove(event: PointerEvent) {
 }
 
 function releasePaddlePointer(event: PointerEvent) {
+  if (event.pointerId === stagePointerId) {
+    if (
+      event.type === 'pointerup' &&
+      machine.phase === 'playing' &&
+      !guide.value
+    ) {
+      forwardStagePointer(event, 'up')
+      stagePointerId = null
+    } else clearStagePointer()
+    return
+  }
   if (event.pointerId === paddlePointer) clearPaddlePointer()
 }
 
@@ -2638,8 +2771,8 @@ async function boot() {
     if (generation !== bootGeneration) return
     loadError.value = 'This cabinet could not start. Try reloading.'
   }
-  void store.fetchBoard(info.slug, 'all')
-  void store.fetchBoard(info.slug, 'today')
+  spectrumRankMode.value = 'story'
+  fetchCabinetBoards()
 }
 
 onMounted(() => {
@@ -3220,6 +3353,47 @@ onBeforeUnmount(() => {
     max(0.4rem, env(safe-area-inset-right))
     max(0.4rem, env(safe-area-inset-bottom))
     max(0.4rem, env(safe-area-inset-left));
+}
+
+/* An upright phone's status in large type, in the gap between the chips and the controls (P-09). */
+.cabinet-overlay .cabinet-readout {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem;
+  margin: 0;
+  overflow: hidden;
+  pointer-events: none;
+  color: #ffe7f5;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.cabinet-overlay .cabinet-readout-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.cabinet-overlay .cabinet-readout-row dt {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.cabinet-overlay .cabinet-readout-row dd {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.cabinet-overlay .cabinet-readout-row--head {
+  color: rgba(253, 230, 138, 0.95);
+  font-size: 0.8rem;
 }
 
 .cabinet-overlay .cabinet-rotate-hint {

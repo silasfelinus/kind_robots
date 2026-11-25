@@ -18,6 +18,9 @@ import {
   SOLID_LEDGE,
   SOLID_PIPE,
   SOLID_SNOWBANK,
+  SOLID_SLOPE_UP,
+  SOLID_SLOPE_DOWN,
+  parseStage,
   TILE,
   type StageDef,
 } from '../arcade/games/savePlumberLevels'
@@ -727,4 +730,38 @@ console.log(
   replay(run, 1, () => {})
   assert.equal(flag.reached, true, 'contact with the pennant activates it')
   assert.equal(run.checkpoint.x, flag.x)
+}
+
+const rampRows = [...lab.rows]
+rampRows[20] = rampRows[20]!.slice(0, 12) + '/####\\' + rampRows[20]!.slice(18)
+const rampLab = { ...lab, rows: rampRows, name: 'Ramp replay lab' }
+const rampStage = parseStage(rampLab)
+assert.equal(rampStage.solid[20 * 80 + 12], SOLID_SLOPE_UP)
+assert.equal(rampStage.solid[20 * 80 + 17], SOLID_SLOPE_DOWN)
+
+for (const dir of [-1, 1] as const) {
+  const run = new PlumberRun(options, { customLevel: rampLab })
+  run.hero.x = (dir > 0 ? 8 : 22) * TILE
+  replay(run, 4, () => {})
+  let highest = FLOOR
+  let crossed = false
+  replay(
+    run,
+    60,
+    (_, input) => {
+      input.held.left = dir < 0
+      input.held.right = dir > 0
+      input.held.b = true
+    },
+    () => {
+      highest = Math.min(highest, run.hero.y + HERO_TALL)
+      assert.equal(embedded(run), null, 'ramps never embed the heroine')
+      assert.ok(run.ground, 'connected ramp and floor retain ground contact')
+      if (dir > 0 ? run.hero.x > 19 * TILE : run.hero.x < 11 * TILE)
+        crossed = true
+    },
+  )
+  assert.equal(highest, FLOOR - TILE, 'the ramp reaches the upper platform')
+  assert.ok(crossed, 'sprinting traverses the hill in either direction')
+  assert.ok(Math.abs(run.hero.vx) > 3.5, 'ramps preserve running momentum')
 }

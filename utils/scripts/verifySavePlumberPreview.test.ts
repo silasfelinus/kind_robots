@@ -12,6 +12,7 @@ import {
   PLUMBER_WORLD_MUSIC,
 } from '../arcade/games/savePlumberMusic'
 import { findArcadeGame, HALL_GAMES, loadArcadeGame } from '../arcade/games'
+import { achievementsForGame } from '../achievements/gameAchievements'
 
 const source = (path: string) =>
   readFileSync(new URL(path, import.meta.url), 'utf8')
@@ -35,8 +36,11 @@ for (const section of ['Movement lab', 'Tools and enemies', 'Eight worlds'])
   )
 assert.doesNotMatch(page, /!user\.isAdmin/)
 assert.match(tab, /Work in progress/)
-assert.match(page, /ArcadeCabinet slug="save-the-plumber"/)
-assert.match(page, /ArcadeCabinet slug="save-the-plumber" contained/)
+assert.match(page, /ArcadeCabinet\s+slug="save-the-plumber"/)
+assert.match(page, /ArcadeCabinet\s+slug="save-the-plumber"\s+contained/)
+assert.match(page, /:plumber-launch="plumberLaunch"/)
+assert.match(page, /@click="launchPlumber\('new'\)"/)
+assert.match(page, /@click="launchPlumber\('continue'\)"/)
 assert.match(page, /plumber-viewport/)
 assert.match(page, /plumber-motion-video/)
 for (const screen of [
@@ -46,11 +50,25 @@ for (const screen of [
   'crew',
   'guide',
   'settings',
+  'achievements',
   'maker',
   'play',
 ])
   assert.ok(page.includes(`screen === '${screen}'`) || screen === 'play')
 assert.match(page, /@click="go\('settings'\)"/)
+assert.match(page, /@click="go\('achievements'\)"/)
+assert.match(page, /aria-labelledby="achievements-heading"/)
+assert.match(
+  page,
+  /<GameAchievementStrip game="save-the-plumber" layout="row" \/>/,
+)
+assert.match(page, /plumber-achievements-view/)
+assert.ok(achievementsForGame('save-the-plumber').length >= 12)
+assert.match(
+  page,
+  /if \(plumber\.gears\.has\(code\)\) labels\.push\('GEAR FOUND'\)/,
+)
+assert.match(page, /return labels\.join\(' · '\) \|\| 'UNDISCOVERED'/)
 assert.match(page, /aria-labelledby="settings-heading"/)
 assert.match(page, /arcade\.loadPreferences\(reducedMotion\.value\)/)
 assert.match(page, /arcade\.setVolume\(/)
@@ -137,10 +155,23 @@ assert.ok(calmRun.hero.vx > 0, 'calm motion does not stop movement')
 assert.equal(calmRun.cameraLead, 0, 'still camera removes anticipatory lead')
 
 const edgeColors = new Set<string>()
+const edgeSegments: number[][] = []
 const edgeProbe = {
   fillStyle: '',
+  strokeStyle: '',
+  lineWidth: 0,
   save() {},
   restore() {},
+  beginPath() {},
+  moveTo(x: number, y: number) {
+    edgeSegments.push([x, y])
+  },
+  lineTo(x: number, y: number) {
+    edgeSegments.at(-1)!.push(x, y)
+  },
+  stroke() {
+    edgeColors.add(this.strokeStyle)
+  },
   fillRect() {
     edgeColors.add(this.fillStyle)
   },
@@ -151,6 +182,10 @@ const contrast = calmRun as unknown as {
 contrast.renderContrastEdges(edgeProbe as unknown as CanvasRenderingContext2D)
 assert.ok(edgeColors.has('#ffffff'), 'contrast marks exposed terrain')
 assert.ok(edgeColors.has('#101820'), 'contrast backs edges with a dark stroke')
+assert.ok(
+  edgeSegments.some(([x1, y1, x2, y2]) => x1 !== x2 && y1 !== y2),
+  'contrast follows the diagonal ramp surface',
+)
 
 assert.equal(PLUMBER_WORLD_MUSIC.length, 8)
 const melodies = new Set<string>()
@@ -203,5 +238,59 @@ assert.deepEqual(
   [PLUMBER_JUMP_NOTES, PLUMBER_LAND_NOTES],
   'one original synth cue plays at takeoff and at a real landing',
 )
+
+// The title shortcuts must not erase or open an incompatible slot.
+const shortcutSave = {
+  v: 3,
+  active: 0,
+  slots: [
+    { heroine: 7, stage: 1, score: 50, lives: 3, tokens: 2 },
+    null,
+    { heroine: 2, stage: 4, score: 200, lives: 2, tokens: 8 },
+  ],
+}
+const newFile = createSavePlumberPreview({
+  ...options,
+  resume: shortcutSave,
+  plumberLaunch: 'new',
+})
+const tap = (run: typeof newFile, key: 'a' | 'b' | 'y' | 'up' | 'down') => {
+  const keys = emptyInput()
+  keys.pressed[key] = true
+  run.update(keys)
+}
+assert.equal(newFile.mode, 'files')
+assert.equal(newFile.slotCursor, 1)
+const original = JSON.stringify(newFile.save)
+tap(newFile, 'up')
+tap(newFile, 'y')
+tap(newFile, 'y')
+tap(newFile, 'a')
+assert.equal(newFile.mode, 'files')
+assert.equal(JSON.stringify(newFile.save), original)
+tap(newFile, 'down')
+tap(newFile, 'a')
+assert.equal(newFile.mode, 'select')
+
+const continueFile = createSavePlumberPreview({
+  ...options,
+  resume: { ...shortcutSave, active: 1 },
+  plumberLaunch: 'continue',
+})
+assert.equal(continueFile.mode, 'files')
+assert.equal(continueFile.slotCursor, 0)
+tap(continueFile, 'down')
+tap(continueFile, 'a')
+assert.equal(continueFile.mode, 'files')
+tap(continueFile, 'down')
+tap(continueFile, 'a')
+assert.equal(continueFile.mode, 'map')
+assert.equal(continueFile.score, 200)
+
+const noSave = createSavePlumberPreview({
+  ...options,
+  plumberLaunch: 'continue',
+})
+assert.equal(noSave.mode, 'title')
 
 console.log('Save the Plumber public Play route and opening flow verified')

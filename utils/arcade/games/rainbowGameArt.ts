@@ -106,6 +106,93 @@ export function rainbowDoodleLoadedArt(path: string): HTMLImageElement | null {
   return loadedArt(`${RAINBOW_GAME_ART_ROOT}/doodle/${path}.webp`)
 }
 
+/**
+ * Idle atlases for Fever Dream sprites beyond the four enemy cycles in rainbowAnimation (presentation critic P-01:
+ * no frame animation for bosses, ships, guardians or most enemies). Keyed by the sprite's path under doodle/
+ * (`enemies/angler`, `bosses/b03-phase2`, `ships/halo-fin`, `pickups/charge`); each is a horizontal strip of
+ * `frames` equal cells at doodle/anim/<name>-idle, eight evenly spaced frames of a reviewed WAN 2.2 loop
+ * (conductor ANIM-BACKLOG-2026-11-24), matte keyed and sized to its still. Listed only once reviewed.
+ */
+export const RAINBOW_IDLE_ATLASES: Readonly<Record<string, number>> = {
+  'enemies/angler': 8,
+  'enemies/clawstrike': 8,
+  'enemies/courier': 8,
+  'enemies/cutter': 8,
+  'enemies/dolphin': 8,
+  'enemies/guardian-armory-siren': 8,
+  'enemies/guardian-bellkeeper': 8,
+  'enemies/guardian-comet-herder': 8,
+}
+/** Idle atlases play at four frames a second, like the enemy cycles. */
+export const RAINBOW_IDLE_FPS = 4
+
+let animationTick = 0
+let animationCalm = false
+/** The engine sets the animation clock once per render; calm motion holds every atlas on its first cell. */
+export function setRainbowAnimationClock(tick: number, calm: boolean): void {
+  animationTick = tick
+  animationCalm = calm
+}
+
+/** The atlas key for a sprite URL (its path under doodle/, without extension), or null for none. */
+export function rainbowIdleAtlasKey(src: string): string | null {
+  const match =
+    /\/doodle\/((?:enemies|bosses|ships|pickups|hazards)\/[\w-]+)\.webp$/.exec(
+      src,
+    )
+  return match && RAINBOW_IDLE_ATLASES[match[1]!] ? match[1]! : null
+}
+
+/** The atlas cell on this tick for `frames` cells, or the first under calm motion. */
+export function rainbowIdleCell(frames: number, tick = animationTick): number {
+  if (animationCalm) return 0
+  return Math.floor((Math.max(0, tick) * RAINBOW_IDLE_FPS) / 60) % frames
+}
+
+/**
+ * The current idle frame for a sprite URL: the loaded atlas and the cell's source rectangle, or null when it has
+ * no atlas, is not in Fever Dream, or its atlas has not loaded (the caller draws the still).
+ */
+function idleFrame(
+  src: string,
+): { img: HTMLImageElement; sx: number; sw: number } | null {
+  const key = rainbowIdleAtlasKey(src)
+  if (!key) return null
+  const frames = RAINBOW_IDLE_ATLASES[key]!
+  const img = loadedImage(
+    `${RAINBOW_GAME_ART_ROOT}/doodle/anim/${key.split('/')[1]}-idle.webp`,
+  )
+  if (!img || img.naturalWidth <= 0) return null
+  const sw = img.naturalWidth / frames
+  return { img, sx: rainbowIdleCell(frames) * sw, sw }
+}
+
+/** Draw `src` (or its current idle frame) into the box at (x, y), w x h. */
+function drawSpriteOrFrame(
+  g: CanvasRenderingContext2D,
+  src: string,
+  img: HTMLImageElement,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+): void {
+  const frame = idleFrame(src)
+  if (frame)
+    g.drawImage(
+      frame.img,
+      frame.sx,
+      0,
+      frame.sw,
+      frame.img.naturalHeight,
+      x,
+      y,
+      w,
+      h,
+    )
+  else g.drawImage(img, x, y, w, h)
+}
+
 export function rainbowLoadedArt(path: string): HTMLImageElement | null {
   return loadedArt(rainbowArt(path))
 }
@@ -341,12 +428,13 @@ export function drawRainbowHazardSprite(
   hazard: RainbowHazardSprite,
   size: number,
 ): boolean {
-  const img = loadedArt(rainbowArt(RAINBOW_HAZARD_SPRITES[hazard]))
+  const src = rainbowArt(RAINBOW_HAZARD_SPRITES[hazard])
+  const img = loadedArt(src)
   if (!img || img.naturalWidth <= 0) return false
   const scale = size / Math.max(img.naturalWidth, img.naturalHeight)
   const w = img.naturalWidth * scale
   const h = img.naturalHeight * scale
-  g.drawImage(img, -w / 2, -h / 2, w, h)
+  drawSpriteOrFrame(g, src, img, -w / 2, -h / 2, w, h)
   return true
 }
 
@@ -382,7 +470,7 @@ export function drawRainbowPickupSprite(
   const scale = size / Math.max(img.naturalWidth, img.naturalHeight)
   const width = img.naturalWidth * scale
   const height = img.naturalHeight * scale
-  g.drawImage(img, x - width / 2, y - height / 2, width, height)
+  drawSpriteOrFrame(g, src!, img, x - width / 2, y - height / 2, width, height)
   return true
 }
 
@@ -414,7 +502,7 @@ export function drawRainbowRouteObjectSprite(
   const scale = size / Math.max(img.naturalWidth, img.naturalHeight)
   const width = img.naturalWidth * scale
   const height = img.naturalHeight * scale
-  g.drawImage(img, -width / 2, -height / 2, width, height)
+  drawSpriteOrFrame(g, src!, img, -width / 2, -height / 2, width, height)
   return true
 }
 
@@ -457,14 +545,22 @@ export function drawRainbowBossSprite(
   y: number,
   width: number,
 ): boolean {
-  const pictures = [1, 2, 3].map((step) =>
-    loadedArt(rainbowBossSprite(boss, step)),
-  )
+  const sources = [1, 2, 3].map((step) => rainbowBossSprite(boss, step))
+  const pictures = sources.map((src) => loadedArt(src))
   const step = Math.min(3, Math.max(1, Math.round(phase)))
-  const img = pictures[step - 1] ?? pictures[0]
+  const index = pictures[step - 1] ? step - 1 : 0
+  const img = pictures[index]
   if (!img) return false
   const height = (width * img.naturalHeight) / img.naturalWidth
-  g.drawImage(img, x - width / 2, y - height / 2, width, height)
+  drawSpriteOrFrame(
+    g,
+    sources[index]!,
+    img,
+    x - width / 2,
+    y - height / 2,
+    width,
+    height,
+  )
   return true
 }
 
@@ -583,6 +679,23 @@ export const RAINBOW_STAGE_PAINTINGS: readonly string[] = [
   'stages/s04-far',
   'stages/s04-mid',
   'stages/s04-sky',
+  'stages/s05-far',
+  'stages/s05-mid',
+  'stages/s05-sky',
+  'stages/s06-far',
+  'stages/s06-mid',
+  'stages/s06-sky',
+  'stages/s07-far',
+  'stages/s07-mid',
+  'stages/s07-sky',
+  'stages/s08-far',
+  'stages/s08-mid',
+  'stages/s08-sky',
+  'stages/s09-card',
+  'stages/s09-far',
+  'stages/s09-fore',
+  'stages/s09-mid',
+  'stages/s09-sky',
 ]
 const stagePaintings = new Set(RAINBOW_STAGE_PAINTINGS)
 
@@ -859,7 +972,7 @@ function drawFitted(
   const aspect = img.naturalWidth / img.naturalHeight
   const width = Math.min(maxWidth, Math.max(minWidth, Math.sqrt(area * aspect)))
   const height = width / aspect
-  g.drawImage(img, -width / 2, -height / 2, width, height)
+  drawSpriteOrFrame(g, src, img, -width / 2, -height / 2, width, height)
   return true
 }
 

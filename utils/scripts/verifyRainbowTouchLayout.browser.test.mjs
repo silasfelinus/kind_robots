@@ -11,8 +11,8 @@ import {
 
 // Conductor rainbow t-067 (presentation review P-05, P-06, P-09, P-17, P-23), through the actual cabinet and
 // Rainbow engine in Chromium: in flight on a touch screen no d-pad, face button or chip sits on the stage (the
-// boss lane on its right included), the stage keeps most of its size, an upright phone gets a turn-sideways
-// prompt under the stage, and on a short page the settings fold into one pop-over so the title screen grows.
+// boss lane on its right included), the stage keeps most of its size, an upright phone gets a large-type status
+// readout and a turn-sideways prompt under the stage, and on a short page the settings fold into one pop-over so the title screen grows.
 // Other cabinets keep their floating controls and full switch row. Synthetic pointers and a stubbed page
 // header, not physical-device evidence.
 
@@ -55,6 +55,15 @@ function boxes(page) {
       balls: all('.cabinet-overlay .cabinet-ball'),
       chips: all('.cabinet-overlay .cabinet-corner-chip, .cabinet-pause-chip'),
       hint: all('.cabinet-rotate-hint')[0] ?? null,
+      readout: all('.cabinet-readout')[0] ?? null,
+      readoutRows: [...document.querySelectorAll('.cabinet-readout-row')].map(
+        (row) => ({
+          text: [...row.children]
+            .map((cell) => cell.textContent.trim())
+            .join(' '),
+          size: parseFloat(getComputedStyle(row).fontSize),
+        }),
+      ),
       clear: Boolean(document.querySelector('.cabinet-overlay--clear')),
       viewport: { width: innerWidth, height: innerHeight },
     }
@@ -204,6 +213,12 @@ try {
       `${label}: the stage keeps ${Math.round(share * 100)}% of its full size`,
     )
     if (width > height)
+      assert.equal(
+        layout.readout,
+        null,
+        `${label}: sideways, the canvas HUD is enough (no readout)`,
+      )
+    if (width > height)
       for (const [index, pad] of layout.pads.entries())
         assert.ok(
           pad.right <= layout.stage.left + 1 ||
@@ -251,13 +266,52 @@ try {
         chip.top >= layout.stage.bottom,
         `${label}: the chips sit under the stage`,
       )
+    // The rest of P-09: the run's status in large type in the gap, since the canvas HUD is ~7 px tall here.
+    await page.waitForSelector('.cabinet-readout-row')
+    const status = await boxes(page)
+    assert.ok(status.readout, `${label}: the status readout shows`)
+    assert.ok(
+      status.readout.top >=
+        Math.max(...status.chips.map((chip) => chip.bottom)) &&
+        status.readout.bottom <= status.hint.top + 1,
+      `${label}: the readout sits between the chips and the prompt`,
+    )
+    assertClearStage(label, status, 1)
+    const rows = status.readoutRows.map((row) => row.text)
+    assert.match(
+      rows[0] ?? '',
+      /^ACT I PINKWAKE$/,
+      `${label}: the Act heads it`,
+    )
+    assert.ok(
+      rows.some((row) => /^SCORE \d+$/.test(row)),
+      `${label}: the score is in it (${rows.join(' | ')})`,
+    )
+    assert.ok(
+      rows.some((row) => /\d♥ \d◇ P\d \d+%/.test(row)),
+      `${label}: the pilot's lives, shields, power and charge are in it`,
+    )
+    assert.ok(
+      status.readoutRows.slice(1).every((row) => row.size >= 14),
+      `${label}: the readout's type is at least 14 px`,
+    )
+    const lastRow = await page.evaluate(() => {
+      const rows = document.querySelectorAll('.cabinet-readout-row')
+      const box = document
+        .querySelector('.cabinet-readout')
+        .getBoundingClientRect()
+      return (
+        rows[rows.length - 1].getBoundingClientRect().bottom <= box.bottom + 1
+      )
+    })
+    assert.ok(lastRow, `${label}: every readout row fits its box`)
     if (shots)
       await page.screenshot({
         path: path.join(shots, `upright-${width}x${height}.png`),
       })
     assert.deepEqual(errors, [], `${label}: no page errors`)
     await context.close()
-    summary.push(`${label} chips off canvas + prompt`)
+    summary.push(`${label} chips off canvas + readout + prompt`)
   }
 
   // A lone pilot on a landscape phone keeps the floating controls: clearing them would cost a third of the stage.

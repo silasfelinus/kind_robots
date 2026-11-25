@@ -1,6 +1,7 @@
 {
   "version": 1,
   "retirements": {
+    "claude/crystal-street-t-026": "2e12e1ef4cad8923ffbc745aca5919ab94be0772",
     "claude/modest-knuth-ruqyl5-ach-crystal-street": "214d9d3170d72f1eb3204e2a0c80b9dd469cc646",
     "claude/modest-knuth-ruqyl5-ach-emperor-of-dust": "30d8d688d668617acc43d9142de16220630186df",
     "claude/modest-knuth-ruqyl5-ach-game-of-captains": "614b445dde4b16cf3ced076d85d9e674956a5183",
@@ -10,6 +11,7 @@
     "claude/modest-knuth-ruqyl5-ach-monstress-convention-3": "8ffce996bad55b96db06af8cc0c6fd7daf7fe237",
     "claude/modest-knuth-ruqyl5-ach-monstress-convention-4": "449fbc658d97b3f17c9949a9b147526f1ffc015e",
     "claude/modest-knuth-ruqyl5-ach-slime-city": "98e5866604b9765edb2253200d6090555d95dfb8",
-    "claude/youthful-faraday-previews": "8ce11c96596879b08f77319667800c1637d58248"
+    "claude/youthful-faraday-previews": "8ce11c96596879b08f77319667800c1637d58248",
+    "fix/kr-arcade-5610-conflicts-resolved": "2b10d7e7b937110b20200287a673ba3bdb36db61"
   }
 }

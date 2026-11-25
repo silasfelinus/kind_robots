@@ -560,6 +560,43 @@ const audioReload = create({
 assert.equal(audioReload.music, null)
 assert.equal(audioReload.settings.effects, false)
 
+const touchMenu = create({
+  ...options,
+  resume: readSpectrumSave({ ...cloudB, mode: 'story' }),
+  audio: { muted: false, volume: 0.4 },
+} as Parameters<typeof create>[0])
+tapStage(touchMenu, { x: 120, y: 470 })
+assert.equal(touchMenu.menuTab, 'scrapbook')
+tapStage(touchMenu, { x: 260, y: 343 })
+assert.equal(touchMenu.albumChapter, 1)
+tapStage(touchMenu, { x: 60, y: 343 })
+assert.equal(touchMenu.albumChapter, 0)
+tapStage(touchMenu, { x: 200, y: 470 })
+assert.equal(touchMenu.menuTab, 'achievements')
+tapStage(touchMenu, { x: 280, y: 470 })
+assert.equal(touchMenu.menuTab, 'settings')
+const oldContrast = touchMenu.settings.highContrast
+tapStage(touchMenu, { x: 250, y: 227 })
+assert.equal(touchMenu.settings.highContrast, !oldContrast)
+assert.equal(touchMenu.save.settings.highContrast, !oldContrast)
+tapStage(touchMenu, { x: 250, y: 314 })
+assert.equal(touchMenu.audio.muted, true)
+tapStage(touchMenu, { x: 250, y: 343 })
+assert.equal(touchMenu.audio.volume, 0.5)
+tapStage(touchMenu, { x: 60, y: 343 })
+assert.equal(touchMenu.audio.volume, 0.4)
+touchMenu.stagePointer({ phase: 'down', x: 40, y: 470 })
+touchMenu.stagePointer({ phase: 'up', x: 120, y: 470 })
+assert.equal(touchMenu.menuTab, 'settings')
+tapStage(touchMenu, { x: 40, y: 470 })
+assert.equal(touchMenu.menuTab, 'play')
+tapStage(touchMenu, { x: 160, y: 450 })
+assert.equal(touchMenu.mode, 'classic')
+assert.equal(touchMenu.menuOpen, true)
+tapStage(touchMenu, { x: 160, y: 220 })
+assert.equal(touchMenu.mode, 'story')
+assert.equal(touchMenu.menuOpen, true)
+
 const deepClassic = create({
   ...options,
   resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),

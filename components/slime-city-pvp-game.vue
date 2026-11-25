@@ -36,9 +36,7 @@
       >
         <div class="scpvp-poster">
           <SlimeCityArtwork
-            :image-id="
-              slimeArtId('crews', selectedTeam)
-            "
+            :image-id="slimeArtId('crews', selectedTeam)"
             :alt="nameOf(selectedTeam) + ' crew poster'"
             fallback="⚔"
             compact

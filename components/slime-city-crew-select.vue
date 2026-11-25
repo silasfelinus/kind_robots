@@ -10,11 +10,7 @@
   second tap on the same emblem picks it.
 -->
 <template>
-  <div
-    class="scs"
-    :class="{ open }"
-    data-testid="slime-crew-select"
-  >
+  <div class="scs" :class="{ open }" data-testid="slime-crew-select">
     <button
       ref="trigger"
       type="button"
@@ -53,72 +49,72 @@
           </button>
         </header>
         <div class="scs-roster" role="group" aria-label="Preview a crew">
-      <button
-        v-for="team in availableTeams"
-        :key="team.id"
-        type="button"
-        class="scs-crew"
-        :class="'tone-' + team.color"
-        :aria-pressed="preview.id === team.id"
-        :title="team.name + ': ' + team.motto"
-        :data-testid="'slime-crew-' + team.id"
-        @click="tap(team.id)"
-      >
-        <SlimeCityArtwork
-          :image-id="slimeArtId('crews', team.id)"
-          :alt="team.name + ' crew emblem'"
-          :fallback="team.insignia"
-          compact
-        />
-        <span>{{ team.name }}</span>
-      </button>
+          <button
+            v-for="team in availableTeams"
+            :key="team.id"
+            type="button"
+            class="scs-crew"
+            :class="'tone-' + team.color"
+            :aria-pressed="preview.id === team.id"
+            :title="team.name + ': ' + team.motto"
+            :data-testid="'slime-crew-' + team.id"
+            @click="tap(team.id)"
+          >
+            <SlimeCityArtwork
+              :image-id="slimeArtId('crews', team.id)"
+              :alt="team.name + ' crew emblem'"
+              :fallback="team.insignia"
+              compact
+            />
+            <span>{{ team.name }}</span>
+          </button>
         </div>
-      <article
-        class="scs-dossier"
-        :class="'tone-' + preview.color"
-        aria-live="polite"
-        data-testid="slime-crew-dossier"
-      >
-        <div class="scs-cover">
-          <SlimeCityArtwork
-            :image-id="slimeArtId('crews', preview.id)"
-            :alt="preview.name + ' faction poster'"
-            :fallback="preview.insignia"
-            compact
-          />
-          <div class="scs-cover-title">
-        <span class="scs-turf"
-          >{{ preview.insignia }} HOME TURF · {{ preview.district }}</span
+        <article
+          class="scs-dossier"
+          :class="'tone-' + preview.color"
+          aria-live="polite"
+          data-testid="slime-crew-dossier"
         >
-        <strong>{{ preview.name }}</strong>
-        <em>{{ preview.motto }}</em>
+          <div class="scs-cover">
+            <SlimeCityArtwork
+              :image-id="slimeArtId('crews', preview.id)"
+              :alt="preview.name + ' faction poster'"
+              :fallback="preview.insignia"
+              compact
+            />
+            <div class="scs-cover-title">
+              <span class="scs-turf"
+                >{{ preview.insignia }} HOME TURF · {{ preview.district }}</span
+              >
+              <strong>{{ preview.name }}</strong>
+              <em>{{ preview.motto }}</em>
+            </div>
           </div>
-        </div>
-        <div class="scs-copy kr-scroll">
-        <p>{{ preview.hook }}</p>
-        <section class="scs-power" data-testid="slime-crew-power">
-          <span class="scs-kicker">SIGNATURE POWER · ONCE PER MATCH</span>
-          <h3>{{ power.symbol }} {{ power.name }}</h3>
-          <p>{{ power.text }}</p>
-          <p><b>OVERCHARGED:</b> {{ power.overcharge }}</p>
-          <small>{{ OVERCHARGE_RULE }}</small>
-        </section>
-        <section class="scs-traits" data-testid="slime-crew-traits">
-          <h3>CREW SPECIALTIES</h3>
-          <div v-for="trait in specialties[preview.id]" :key="trait.name">
-            <b>{{ trait.name }}</b>
-            <span>{{ trait.text }}</span>
+          <div class="scs-copy kr-scroll">
+            <p>{{ preview.hook }}</p>
+            <section class="scs-power" data-testid="slime-crew-power">
+              <span class="scs-kicker">SIGNATURE POWER · ONCE PER MATCH</span>
+              <h3>{{ power.symbol }} {{ power.name }}</h3>
+              <p>{{ power.text }}</p>
+              <p><b>OVERCHARGED:</b> {{ power.overcharge }}</p>
+              <small>{{ OVERCHARGE_RULE }}</small>
+            </section>
+            <section class="scs-traits" data-testid="slime-crew-traits">
+              <h3>CREW SPECIALTIES</h3>
+              <div v-for="trait in specialties[preview.id]" :key="trait.name">
+                <b>{{ trait.name }}</b>
+                <span>{{ trait.text }}</span>
+              </div>
+            </section>
+            <dl>
+              <dt>WINS BY</dt>
+              <dd>{{ identities[preview.id].pattern }}</dd>
+              <dt>BEAT IT</dt>
+              <dd>{{ identities[preview.id].counters }}</dd>
+            </dl>
           </div>
-        </section>
-        <dl>
-          <dt>WINS BY</dt>
-          <dd>{{ identities[preview.id].pattern }}</dd>
-          <dt>BEAT IT</dt>
-          <dd>{{ identities[preview.id].counters }}</dd>
-        </dl>
-        </div>
-      </article>
-      <button
+        </article>
+        <button
           type="button"
           class="scs-confirm"
           :disabled="preview.id === activeTeam"
@@ -179,8 +175,14 @@ const preview = computed(
 const power = computed(() => factionPower(preview.value.id))
 const specialties: Record<TeamId, { name: string; text: string }[]> = {
   catgirls: [
-    { name: 'Ambush', text: 'Strike immediately, with +1 power on the first blow.' },
-    { name: 'Regeneration', text: 'Recover extra life at the end of the round.' },
+    {
+      name: 'Ambush',
+      text: 'Strike immediately, with +1 power on the first blow.',
+    },
+    {
+      name: 'Regeneration',
+      text: 'Recover extra life at the end of the round.',
+    },
   ],
   bloodfairies: [
     { name: 'Swarm', text: 'Fight harder beside another friendly fighter.' },
@@ -188,10 +190,16 @@ const specialties: Record<TeamId, { name: string; text: string }[]> = {
   ],
   ironjaw: [
     { name: 'Armor', text: 'Absorb incoming damage before losing life.' },
-    { name: 'Bulldoze', text: 'Excess damage on a defeated fighter hits the boss.' },
+    {
+      name: 'Bulldoze',
+      text: 'Excess damage on a defeated fighter hits the boss.',
+    },
   ],
   riot: [
-    { name: 'Volatile', text: 'On defeat, damage the opposite fighter or boss.' },
+    {
+      name: 'Volatile',
+      text: 'On defeat, damage the opposite fighter or boss.',
+    },
     { name: 'Blast', text: 'Damage multiple enemies with explosive specials.' },
   ],
   undertow: [
@@ -200,34 +208,48 @@ const specialties: Record<TeamId, { name: string; text: string }[]> = {
   ],
   exchange: [
     { name: 'Collect', text: 'Gain power when defeating a rival fighter.' },
-    { name: 'Life drain', text: 'Steal life from the enemy boss to sustain your own.' },
+    {
+      name: 'Life drain',
+      text: 'Steal life from the enemy boss to sustain your own.',
+    },
   ],
 }
 
 const identities: Record<TeamId, { pattern: string; counters: string }> = {
   catgirls: {
-    pattern: 'Strike immediately with Ambush, then keep your fighters alive with Regeneration and Nine Lives.',
-    counters: 'Finish wounded fighters before the round ends; stun can delay their attacks until Nine Lives clears it.',
+    pattern:
+      'Strike immediately with Ambush, then keep your fighters alive with Regeneration and Nine Lives.',
+    counters:
+      'Finish wounded fighters before the round ends; stun can delay their attacks until Nine Lives clears it.',
   },
   bloodfairies: {
-    pattern: 'Pack adjacent alleys, hit harder together, and heal through combat. Mosh Pit rewards a full lineup.',
+    pattern:
+      'Pack adjacent alleys, hit harder together, and heal through combat. Mosh Pit rewards a full lineup.',
     counters: 'Break up adjacent allies and use armor to absorb smaller hits.',
   },
   ironjaw: {
-    pattern: 'Absorb damage behind armor, then turn excess damage into boss damage with Bulldoze.',
-    counters: 'Use Pierce and stuns rather than trading blows with a heavily armored wall.',
+    pattern:
+      'Absorb damage behind armor, then turn excess damage into boss damage with Bulldoze.',
+    counters:
+      'Use Pierce and stuns rather than trading blows with a heavily armored wall.',
   },
   riot: {
-    pattern: 'Use volatile fighters and explosive specials to deal damage even when your own fighters fall.',
-    counters: 'Use armor and healing to survive blasts; fuse-cutting snares can remove Volatile.',
+    pattern:
+      'Use volatile fighters and explosive specials to deal damage even when your own fighters fall.',
+    counters:
+      'Use armor and healing to survive blasts; fuse-cutting snares can remove Volatile.',
   },
   undertow: {
-    pattern: 'Stun dangerous opponents, bypass armor, and eliminate a key fighter with Sewer Snipe.',
-    counters: 'Field several threats instead of relying on one heavily armored fighter.',
+    pattern:
+      'Stun dangerous opponents, bypass armor, and eliminate a key fighter with Sewer Snipe.',
+    counters:
+      'Field several threats instead of relying on one heavily armored fighter.',
   },
   exchange: {
-    pattern: 'Grow your collectors by defeating rival fighters and drain the rival boss to sustain your own.',
-    counters: 'Deny easy finishing blows and pressure their boss before the collectors grow stronger.',
+    pattern:
+      'Grow your collectors by defeating rival fighters and drain the rival boss to sustain your own.',
+    counters:
+      'Deny easy finishing blows and pressure their boss before the collectors grow stronger.',
   },
 }
 
@@ -339,7 +361,9 @@ function pick(team: TeamId): void {
   border-radius: 0.75rem;
   background: #101c22;
   color: #eef6ef;
-  box-shadow: 8px 8px 0 #000, 0 24px 80px #000c;
+  box-shadow:
+    8px 8px 0 #000,
+    0 24px 80px #000c;
 }
 .scs-menu::backdrop {
   background: #03080ce0;

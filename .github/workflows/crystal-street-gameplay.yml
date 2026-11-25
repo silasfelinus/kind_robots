@@ -17,6 +17,7 @@ on:
       - 'utils/scripts/verifyCrystalStreetDiscovery.test.ts'
       - 'utils/scripts/verifyCrystalStreetFuzz.test.ts'
       - 'utils/scripts/verifyCrystalStreetAchievements.test.ts'
+      - 'utils/scripts/verifyCrystalStreetScrapbookRender.test.ts'
       - 'utils/achievements/catalog/main/crystal-street.ts'
       - 'utils/scripts/checkCrystalStreetFile.ts'
       - 'utils/scripts/crystalStreetArtContract.ts'
@@ -45,5 +46,6 @@ jobs:
       - run: npx tsx utils/scripts/verifyCrystalStreetDiscovery.test.ts
       - run: npx tsx utils/scripts/verifyCrystalStreetFuzz.test.ts
       - run: npx tsx utils/scripts/verifyCrystalStreetAchievements.test.ts
+      - run: npx tsx utils/scripts/verifyCrystalStreetScrapbookRender.test.ts
       - run: npx tsx utils/scripts/crystalStreetArtContract.ts
       - run: npx tsx utils/scripts/verifyPlaybook.test.ts

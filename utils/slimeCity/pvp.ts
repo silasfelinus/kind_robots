@@ -87,8 +87,20 @@ export function pvpMeatRewards(
           .length >= PVP_MIN_REWARD_PLAYS,
     )
   return {
-    player: eligible ? (outcome === 'draw' ? 15 : outcome === 'player' ? 30 : 10) : 0,
-    enemy: eligible ? (outcome === 'draw' ? 15 : outcome === 'enemy' ? 30 : 10) : 0,
+    player: eligible
+      ? outcome === 'draw'
+        ? 15
+        : outcome === 'player'
+          ? 30
+          : 10
+      : 0,
+    enemy: eligible
+      ? outcome === 'draw'
+        ? 15
+        : outcome === 'enemy'
+          ? 30
+          : 10
+      : 0,
   }
 }
 

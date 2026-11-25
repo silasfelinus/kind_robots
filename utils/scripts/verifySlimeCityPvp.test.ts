@@ -1034,16 +1034,22 @@ assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
     player: 15,
     enemy: 15,
   })
-  assert.deepEqual(pvpMeatRewards({ ...state, round: 1 }, 'player', joined, now), {
-    player: 0,
-    enemy: 0,
-  })
+  assert.deepEqual(
+    pvpMeatRewards({ ...state, round: 1 }, 'player', joined, now),
+    {
+      player: 0,
+      enemy: 0,
+    },
+  )
   assert.deepEqual(pvpMeatRewards(state, 'enemy', joined, now - 1), {
     player: 0,
     enemy: 0,
   })
-  assert.deepEqual(pvpMeatRewards({ ...state, commands: [] }, 'enemy', joined, now), {
-    player: 0,
-    enemy: 0,
-  })
+  assert.deepEqual(
+    pvpMeatRewards({ ...state, commands: [] }, 'enemy', joined, now),
+    {
+      player: 0,
+      enemy: 0,
+    },
+  )
 }

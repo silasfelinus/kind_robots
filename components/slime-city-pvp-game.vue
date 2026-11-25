@@ -797,7 +797,6 @@ const resultNote = computed(() => {
     : 'Boss life at the final bell.'
   const meat = pvp.duel?.meatReward ?? 0
   return how + (meat ? ' Your cut: +' + meat + ' Meat.' : ' No Meat earned.')
-
 })
 const rivalIsFriend = computed(() =>
   pvp.friends.some((friend) => friend.id === pvp.duel?.rivalId),

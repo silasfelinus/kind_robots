@@ -544,7 +544,13 @@ export async function commandSlimeCityDuel(
       lastActionAt: new Date().toISOString(),
     }
     if (after.victor)
-      next.meatRewards = await settleDuelMeat(tx, row, next, after, after.victor)
+      next.meatRewards = await settleDuelMeat(
+        tx,
+        row,
+        next,
+        after,
+        after.victor,
+      )
     const updated = await tx.slimeCityMatch.update({
       where: { id },
       data: {

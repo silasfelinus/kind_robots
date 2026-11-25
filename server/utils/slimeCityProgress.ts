@@ -360,7 +360,7 @@ export async function finishSlimeCityCpuMatch(
     throw createError({ statusCode: 400, message: 'Invalid match id.' })
   return prisma.$transaction(async (tx) => {
     const match = await tx.slimeCityMatch.findFirst({ where: { id, userId } })
-    if (!match || match.settledAt)
+    if (!match || match.settledAt || match.mode === 'clash-pvp')
       throw createError({
         statusCode: 409,
         message: 'CPU match not found or already rewarded.',

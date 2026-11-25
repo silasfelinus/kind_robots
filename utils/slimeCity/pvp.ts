@@ -49,6 +49,8 @@ export interface PvpRecord {
   isPublic?: boolean
   lastActionAt?: string
   forfeitedBy?: Side
+  meatRewards?: Record<Side, number>
+  joinedAt?: string
   /** Duels created after 2026-11-22 PT deal each next hand at turn end. */
   dealEarly?: boolean
   /**
@@ -64,6 +66,30 @@ export interface PvpRecord {
   /** Take-backs used in the current turn, keyed `round:side`. */
   undoneThisTurn?: { key: string; count: number }
   commands: ClashCommand[]
+}
+
+export const PVP_MIN_REWARD_ROUND = 4
+export const PVP_MIN_REWARD_PLAYS = 3
+export const PVP_MIN_REWARD_MS = 5 * 60 * 1000
+
+export function pvpMeatRewards(
+  state: Pick<ClashState, 'round' | 'commands'>,
+  outcome: NonNullable<ClashState['victor']>,
+  joinedAt: string | undefined,
+  now: number,
+): Record<Side, number> {
+  const eligible =
+    state.round >= PVP_MIN_REWARD_ROUND &&
+    (!joinedAt || now - Date.parse(joinedAt) >= PVP_MIN_REWARD_MS) &&
+    (['player', 'enemy'] as const).every(
+      (side) =>
+        state.commands.filter((c) => c.t === 'play' && c.side === side)
+          .length >= PVP_MIN_REWARD_PLAYS,
+    )
+  return {
+    player: eligible ? (outcome === 'draw' ? 15 : outcome === 'player' ? 30 : 10) : 0,
+    enemy: eligible ? (outcome === 'draw' ? 15 : outcome === 'enemy' ? 30 : 10) : 0,
+  }
 }
 
 export const PVP_TAKEBACKS_ANY = 99
@@ -256,6 +282,7 @@ export interface PvpSnapshot {
   revision: number
   outcome: ClashState['victor']
   forfeitedBy: Side | null
+  meatReward?: number
   /** The other seated player, sent only to the duel's two players. */
   rivalId?: number | null
   rivalName?: string | null

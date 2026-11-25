@@ -332,6 +332,36 @@ try {
       await wait(150)
       await snap('power-tip')
 
+      // Every chapter boss renders over its district art with its targets readable.
+      for (const stage of [5, 10, 15, 20, 25, 30]) {
+        const boss = await page.evaluate((stage) => {
+          const game = (window.__spectrums ?? [])
+            .filter((entry) => !entry.demo)
+            .at(-1).game
+          game.level = stage
+          game.resetBoard()
+          game.banner = 0
+          game.powerTip = null
+          // A boss arrives once its stage's board is cleared.
+          game.board = game.board.map((row) => row.map(() => null))
+          game.boss = { hits: 0, misses: 0 }
+          game.prepareBossShot()
+          return Boolean(game.boss)
+        }, stage)
+        assert.ok(boss, `${tag}: boss ${stage} stands`)
+        await wait(80)
+        if (width === 390) await snap(`boss-${stage}`)
+      }
+      await page.evaluate(() => {
+        const game = (window.__spectrums ?? [])
+          .filter((entry) => !entry.demo)
+          .at(-1).game
+        game.boss = null
+        game.level = 1
+        game.resetBoard()
+        game.banner = 0
+      })
+
       // Clear the board: the career records the stage and its stars, and survives a reopen.
       await clearBoard(page)
       game = await spectrum(page)

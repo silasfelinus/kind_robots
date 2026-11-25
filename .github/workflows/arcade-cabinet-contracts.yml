@@ -109,6 +109,9 @@ jobs:
         run: node utils/scripts/verifySuperkateSpectrumHub.browser.test.mjs
         env:
           SPECTRUM_HUB_SHOTS: cabinet-contract-shots/superkate-spectrum-hub
+      - name: Superkate Spectrum — two devices, one account (guest adoption, 409 merge, switch, outage)
+        if: always()
+        run: node utils/scripts/verifySuperkateSpectrumAccounts.browser.test.mjs
       - name: Preserve cabinet states
         if: always()
         uses: actions/upload-artifact@v4

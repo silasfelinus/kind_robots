@@ -61,7 +61,8 @@ const stores = {
       })
       return window.__arcadeStore
     }`,
-  userStore: `export function useUserStore() { return { user: null } }`,
+  // Opt-in (window.__user, set by openCabinet's \`account\`): a signed-in player for account sync.
+  userStore: `export function useUserStore() { return window.__user ?? { user: null } }`,
   supportStore: `export function useSupportStore() { return { recordRunFinished() {} } }`,
   channelContentStore: `
     import { resolveChannels } from '@/stores/helpers/channelContent'
@@ -390,6 +391,8 @@ export async function openCabinet(
     audioProbe = false,
     serveArt = false,
     mediaDir = null,
+    account = null,
+    routes = [],
     containedHeight = 0,
   },
 ) {
@@ -430,6 +433,8 @@ export async function openCabinet(
           }
         },
       )
+    // Opt-in: extra routes on this origin (e.g. a mock account API), as [RegExp, handler] pairs.
+    for (const [pattern, handler] of routes) await page.route(pattern, handler)
     // Opt-in: serve /images/... (the site's external media origin) from a local copy, for visual QA.
     if (mediaDir)
       await page.route(new RegExp(`^${ORIGIN}images/(.+)$`), (route) => {
@@ -468,6 +473,7 @@ export async function openCabinet(
       }
     })
   }
+  if (account) await signIn(page, account)
   await mountCabinet(page, fixture, {
     slug,
     seats,
@@ -476,6 +482,47 @@ export async function openCabinet(
     containedHeight,
   })
   return { page, errors, context }
+}
+
+/**
+ * Sign a page in as `account` ({ id, token }) for the stubbed user store, and give it the global
+ * \`$fetch\` Nuxt provides (throwing with .status on a non-2xx reply), so account sync really runs.
+ * Pass null to sign out. Takes effect at the next mount (openCabinet / reopenCabinet).
+ */
+export async function signIn(page, account) {
+  // Installed now and on every later load (a reopen reloads the page).
+  await page.addInitScript(installAccount, account)
+  await page.evaluate(installAccount, account)
+}
+
+/** Runs in the page: the stubbed user store's player and a minimal Nuxt \`$fetch\`. */
+function installAccount(account) {
+  window.__user = account
+    ? {
+        user: { id: account.id },
+        authenticatedUserId: account.id,
+        token: account.token,
+      }
+    : null
+  window.$fetch = async (url, options = {}) => {
+    const reply = await fetch(url, {
+      method: options.method ?? 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers ?? {}),
+      },
+      body:
+        options.body === undefined ? undefined : JSON.stringify(options.body),
+    })
+    const data = await reply.json().catch(() => null)
+    if (!reply.ok) {
+      const error = new Error(data?.message ?? 'fetch failed')
+      error.status = reply.status
+      error.statusCode = reply.status
+      throw error
+    }
+    return data
+  }
 }
 
 /**

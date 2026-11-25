@@ -2719,7 +2719,7 @@ const glossarySample = 'Tap (skip strike): grant BULLDOZE and faction power.'
 const glossaryParts = clashGlossaryParts(glossarySample)
 assert.equal(glossaryParts.map((part) => part.text).join(''), glossarySample)
 assert.deepEqual(
-  glossaryParts.flatMap((part) => part.entry ? [part.entry.term] : []),
+  glossaryParts.flatMap((part) => (part.entry ? [part.entry.term] : [])),
   ['Tap', 'Tap', 'Bulldoze', 'Faction power'],
 )
 assert.equal(clashGlossaryParts('attacker')[0]?.entry, undefined)

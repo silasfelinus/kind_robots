@@ -382,10 +382,13 @@
                   <span
                     v-if="unit(side, lane)!.armor > 0"
                     class="scpvp-armor-badge"
-                    :title="'Armor: reduces damage by ' + unit(side, lane)!.armor"
+                    :title="
+                      'Armor: reduces damage by ' + unit(side, lane)!.armor
+                    "
                     :aria-label="unit(side, lane)!.armor + ' armor'"
                     data-testid="slime-pvp-armor"
-                  >🛡 {{ unit(side, lane)!.armor }}</span>
+                    >🛡 {{ unit(side, lane)!.armor }}</span
+                  >
                 </span>
                 <SlimeCityLevelFrame :level="unit(side, lane)!.level" />
                 <SlimeCitySummoningSickness

@@ -46,14 +46,20 @@
           <template v-for="(part, j) in line" :key="j">
             <span
               v-if="part.entry"
-              :class="{ 'ccf-label': part.label, 'ccf-term': glossaryInteractive }"
+              :class="{
+                'ccf-label': part.label,
+                'ccf-term': glossaryInteractive,
+              }"
               :title="part.entry.definition"
               @pointerenter="showTerm(part.entry)"
               @pointerleave="leaveTerm"
               @pointerdown="termPointerDown"
               @click="toggleTerm($event, part.entry)"
-            >{{ part.text }}</span>
-            <span v-else :class="{ 'ccf-label': part.label }">{{ part.text }}</span>
+              >{{ part.text }}</span
+            >
+            <span v-else :class="{ 'ccf-label': part.label }">{{
+              part.text
+            }}</span>
           </template>
         </span>
       </span>
@@ -80,7 +86,10 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { clashGlossaryParts, type ClashGlossaryEntry } from '~/utils/slimeCity/glossary'
+import {
+  clashGlossaryParts,
+  type ClashGlossaryEntry,
+} from '~/utils/slimeCity/glossary'
 import { slimeArtId, slimeCardArtId } from '~/utils/slimeCity/artManifest'
 import { cardById } from '~/utils/slimeCity/prototypes'
 import {
@@ -111,7 +120,14 @@ const props = withDefaults(
      */
     flavor?: boolean
   }>(),
-  { note: '', glossaryInteractive: false, level: 1, preview: false, pick: undefined, flavor: false },
+  {
+    note: '',
+    glossaryInteractive: false,
+    level: 1,
+    preview: false,
+    pick: undefined,
+    flavor: false,
+  },
 )
 const maxLevel = CLASH_MAX_LEVEL
 const lab = useSlimeCityStore()
@@ -135,8 +151,14 @@ const ruleLines = computed(() =>
         sentence,
       )
       return [
-        ...clashGlossaryParts(m ? m[1] + ': ' : '').map((part) => ({ ...part, label: true })),
-        ...clashGlossaryParts(m ? m[2] ?? '' : sentence).map((part) => ({ ...part, label: false })),
+        ...clashGlossaryParts(m ? m[1] + ': ' : '').map((part) => ({
+          ...part,
+          label: true,
+        })),
+        ...clashGlossaryParts(m ? (m[2] ?? '') : sentence).map((part) => ({
+          ...part,
+          label: false,
+        })),
       ]
     }),
 )
@@ -164,7 +186,10 @@ function toggleTerm(event: MouseEvent, entry: ClashGlossaryEntry) {
     lockedTerm.value = true
   }
 }
-watch(() => [props.cardId, props.level, props.pick, props.glossaryInteractive], clearTerm)
+watch(
+  () => [props.cardId, props.level, props.pick, props.glossaryInteractive],
+  clearTerm,
+)
 const plays = computed(() => clashPlayCost(card.value))
 const kind = computed(() =>
   card.value.kind === 'creature'

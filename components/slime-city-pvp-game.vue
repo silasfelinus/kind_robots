@@ -376,8 +376,15 @@
                   ><i :class="'lv-' + unit(side, lane)!.level">{{
                     '★'.repeat(unit(side, lane)!.level)
                   }}</i
-                  >{{ cardById(unit(side, lane)!.cardId).name }}</span
-                >
+                  >{{ cardById(unit(side, lane)!.cardId).name }}
+                  <span
+                    v-if="unit(side, lane)!.armor > 0"
+                    class="scpvp-armor-badge"
+                    :title="'Armor: reduces damage by ' + unit(side, lane)!.armor"
+                    :aria-label="unit(side, lane)!.armor + ' armor'"
+                    data-testid="slime-pvp-armor"
+                  >🛡 {{ unit(side, lane)!.armor }}</span>
+                </span>
                 <SlimeCityLevelFrame :level="unit(side, lane)!.level" />
               </template>
               <span v-else class="scpvp-empty">{{
@@ -953,12 +960,6 @@ function fighterTags(
           ? '↷ USED'
           : '↷ TAP',
       title: evoTapText(stage),
-    })
-  if (fighter.armor)
-    tags.push({
-      kind: 'armor',
-      text: '🛡 ' + fighter.armor,
-      title: fighter.armor + ' armor',
     })
   if (fighter.guard)
     tags.push({
@@ -2051,7 +2052,7 @@ watch(
   position: absolute;
   inset: calc(0.8rem + clamp(0.72rem, 1.9vw, 1.2rem)) 0 auto;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   align-items: center;
   padding: 0.2rem;
   background: linear-gradient(#07131ad9, transparent);
@@ -2060,6 +2061,16 @@ watch(
   line-height: 1.1;
   text-align: center;
   text-shadow: 0 1px 3px #000;
+}
+.scpvp-armor-badge {
+  padding: 0.15rem 0.35rem;
+  border: 1px solid #9fd3ff88;
+  border-radius: 0.35rem;
+  background: #102339ee;
+  color: #d7edff;
+  font-size: clamp(0.65rem, 1.4vw, 0.95rem);
+  font-weight: 950;
+  white-space: nowrap;
 }
 .scpvp-unit-label i {
   color: #8af2c2;

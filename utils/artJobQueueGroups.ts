@@ -35,7 +35,24 @@ export type ArtJobGroupSourceRow = {
   name?: unknown
 }
 
+export type ArtJobGroupPreview = {
+  artImageId: number
+  jobId: number
+  version: string
+  isMature: boolean
+  isPublic: boolean
+}
+
+export type ArtJobGroupPreviewRow = ArtJobGroupSourceRow & {
+  artImageId: number | bigint
+  finishedAt: Date | string
+  isMature: number | bigint | boolean | null
+  isPublic: number | bigint | boolean | null
+}
+
 export type ArtJobQueueGroup = {
+  preview?: ArtJobGroupPreview
+
   name: string
   count: number
   minPriority: number
@@ -135,6 +152,28 @@ export function summarizeArtJobQueueGroups(
     maxPriority: groups.length
       ? Math.max(...groups.map((group) => group.maxPriority))
       : null,
+  }
+}
+
+// Rows arrive newest completed first; use the same naming rule as pending jobs.
+export function attachArtJobGroupPreviews(
+  summary: ArtJobQueueGroupSummary,
+  rows: ArtJobGroupPreviewRow[],
+): void {
+  const remaining = new Map(summary.groups.map((group) => [group.name, group]))
+  for (const row of rows) {
+    const name = artJobGroupName(row)
+    const group = remaining.get(name)
+    if (!group) continue
+    group.preview = {
+      artImageId: Number(row.artImageId),
+      jobId: Number(row.id),
+      version: String(new Date(row.finishedAt).getTime()),
+      isMature: Boolean(row.isMature),
+      isPublic: Boolean(row.isPublic),
+    }
+    remaining.delete(name)
+    if (!remaining.size) break
   }
 }
 

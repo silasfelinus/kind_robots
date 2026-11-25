@@ -334,6 +334,7 @@
               @pointerenter="hoverSlot($event, side, lane)"
               @pointerleave="hoverUid = null"
             >
+              <SlimeCityTrapSlice :trap="trapAt(side, lane)" />
               <template v-if="unit(side, lane)">
                 <SlimeCityArtwork
                   :image-id="
@@ -387,16 +388,7 @@
                     : 'TARGET'
                   : lane + 1
               }}</span>
-              <span
-                v-if="
-                  board.traps.some(
-                    (trap) => trap.side === side && trap.lane === lane,
-                  )
-                "
-                class="scpvp-own-trap"
-                aria-label="Your hidden trap in this alley"
-                >✦ ARMED</span
-              >
+
               <span
                 v-for="pop in floatsAt(side, lane)"
                 :key="pop.key"
@@ -679,7 +671,12 @@ import {
   clashPowerSpent,
   type ClashStrike,
 } from '~/utils/slimeCity/clash'
-import { pvpCardRow, pvpClashView, type PvpBoard } from '~/utils/slimeCity/pvp'
+import {
+  pvpCardRow,
+  pvpClashView,
+  visibleClashTrapAt,
+  type PvpBoard,
+} from '~/utils/slimeCity/pvp'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { CLASH_SPEED_PACE } from '~/stores/helpers/slimeCityClashPreference'
 import { OVERCHARGE_RULE, factionPower } from '~/utils/slimeCity/factionPowers'
@@ -890,6 +887,9 @@ function unit(side: Side, lane: number) {
   return board.value?.units.find(
     (item) => item.side === side && item.lane === lane,
   )
+}
+function trapAt(side: Side, lane: number) {
+  return visibleClashTrapAt(board.value?.traps ?? [], seat.value, side, lane)
 }
 type BoardUnit = NonNullable<ReturnType<typeof unit>>
 function tapStage(fighter: BoardUnit) {
@@ -1116,7 +1116,9 @@ function whyNot(side: Side, lane: number): string {
       card.name +
       (rowFor(id) === seat.value
         ? ' goes in one of your own alleys.'
-        : ' targets a rival fighter.')
+        : card.kind === 'trap'
+          ? ' goes in a rival alley.'
+          : ' targets a rival fighter.')
     )
   if (!canClashPlay(view.value, seat.value, id, lane))
     return card.name + ' cannot go in alley ' + (lane + 1) + '.'
@@ -1247,6 +1249,9 @@ function slotLabel(side: Side, lane: number): string {
           .map((tag) => ', ' + tag.title)
           .join('')
       : ', empty') +
+    (trapAt(side, lane)
+      ? ', your armed trap: ' + cardById(trapAt(side, lane)!.cardId).name
+      : '') +
     (targetable(side, lane) ? ', playable target' : '')
   )
 }
@@ -1986,6 +1991,7 @@ watch(
 }
 .scpvp-stats {
   position: absolute;
+  z-index: 2;
   inset: 0.25rem 0.25rem auto;
   display: flex;
   justify-content: space-between;
@@ -2011,6 +2017,7 @@ watch(
 }
 .scpvp-tags {
   position: absolute;
+  z-index: 2;
   inset: auto 0.25rem 0.25rem;
   display: flex;
   flex-wrap: wrap;
@@ -2044,6 +2051,7 @@ watch(
 }
 .scpvp-unit-label {
   position: absolute;
+  z-index: 2;
   inset: calc(0.8rem + clamp(0.72rem, 1.9vw, 1.2rem)) 0 auto;
   display: flex;
   flex-direction: column-reverse;
@@ -2071,6 +2079,7 @@ watch(
 }
 .scpvp-empty {
   position: absolute;
+  z-index: 2;
   inset: 0;
   display: grid;
   place-items: center;
@@ -2084,17 +2093,6 @@ watch(
   font-size: clamp(0.6rem, 1.4vw, 0.9rem);
   letter-spacing: 0.1em;
   opacity: 1;
-}
-.scpvp-own-trap {
-  position: absolute;
-  left: 0.25rem;
-  bottom: 2.4rem;
-  padding: 0.1rem 0.3rem;
-  border-radius: 0.3rem;
-  background: #152632ea;
-  color: #e8f787;
-  font-size: 0.6rem;
-  font-weight: 900;
 }
 .scpvp-float {
   position: absolute;

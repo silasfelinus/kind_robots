@@ -55,7 +55,9 @@ import {
   type RosterHeroine,
 } from './savePlumberRoster'
 import {
+  PLUMBER_ENDING_COPY,
   SLOT_COUNT,
+  plumberFinaleEnding,
   readPlumberFile,
   mergePlumberAlbum,
   readPlumberSave,
@@ -4922,8 +4924,16 @@ export class PlumberRun implements ArcadeGameInstance {
     )
   }
 
+  /** The ending this run's finale shows (conductor save-the-plumber t-028). */
+  get finaleEnding() {
+    return plumberFinaleEnding({ gears: this.gears, secrets: this.secrets })
+  }
+
   private renderFinale(g: CanvasRenderingContext2D) {
-    const art = stagePlate(PLUMBER_ART.cutscene('finale-reversal'))
+    const ending = PLUMBER_ENDING_COPY[this.finaleEnding]
+    const art =
+      stagePlate(PLUMBER_ART.cutscene(ending.plate)) ??
+      stagePlate(PLUMBER_ART.cutscene('finale-reversal'))
     if (art) g.drawImage(art, 0, 0, W, H)
     else {
       g.fillStyle = '#1c2946'
@@ -4932,23 +4942,11 @@ export class PlumberRun implements ArcadeGameInstance {
     g.fillStyle = 'rgba(12, 24, 40, 0.45)'
     g.fillRect(0, 0, W, 104)
     g.fillRect(0, H - 34, W, 34)
-    this.text(g, 'THE RIVERS RUN HOME!', W / 2, 40, 28, '#ffd98a')
-    this.text(
-      g,
-      `Lady Spigot lets the last river go, and ${this.member.name} frees Teo.`,
-      W / 2,
-      66,
-      12,
-      '#fff4dc',
-    )
-    this.text(
-      g,
-      'Every stolen stream tumbles back down to the land.',
-      W / 2,
-      84,
-      12,
-      '#d6f2ee',
-    )
+    const line = (i: 0 | 1) =>
+      ending.lines[i].replace('{name}', this.member.name)
+    this.text(g, ending.title, W / 2, 40, 28, '#ffd98a')
+    this.text(g, line(0), W / 2, 66, 12, '#fff4dc')
+    this.text(g, line(1), W / 2, 84, 12, '#d6f2ee')
     const teo = drawSprite(g, PLUMBER_ART.cast('teo-helping'), 160, 236, 120)
     if (!teo) drawSprite(g, PLUMBER_ART.cast('teo-caged'), 160, 236, 120)
     this.drawHeroSprite(g, 320, 236, 'cheer', 1.95)

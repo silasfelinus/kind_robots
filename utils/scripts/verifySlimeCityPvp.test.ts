@@ -622,7 +622,10 @@ console.log(
   assert.match(board, /data-testid="slime-pvp-rematch-back"/)
   assert.match(board, /<details[^>]*data-testid="slime-pvp-share-menu"/)
   const bulletin = readFileSync('components/slime-city-vs.vue', 'utf8')
-  assert.match(bulletin, /async function challengeFriend[\s\S]*?if \(duel\) await pvp\.loadGames\(\)/)
+  assert.match(
+    bulletin,
+    /async function challengeFriend[\s\S]*?if \(duel\) await pvp\.loadGames\(\)/,
+  )
   assert.doesNotMatch(bulletin, /if \(duel\) open\(duel\.id\)/)
   assert.match(board, /to="\/play\/slime-city\?vs=1"[\s\S]*?BACK TO VS/)
   assert.match(

@@ -61,15 +61,17 @@
             <p>
               {{
                 choosingRematch
-                  ? 'Challenge ' + (pvp.duel?.rivalName ?? 'your rival') + ' again. Keep your crew or try another.'
+                  ? 'Challenge ' +
+                    (pvp.duel?.rivalName ?? 'your rival') +
+                    ' again. Keep your crew or try another.'
                   : answering
                     ? (pvp.duel!.challenge ? 'Your friend' : 'Your rival') +
-                    ' brings ' +
-                    nameOf(pvp.duel!.hostTeam) +
-                    '. Pick your crew, then enter the pit.'
-                  : invitedId
-                    ? 'Pick your crew, then enter the pit.'
-                    : 'Choose a crew, create a private duel, and send your opponent the invitation.'
+                      ' brings ' +
+                      nameOf(pvp.duel!.hostTeam) +
+                      '. Pick your crew, then enter the pit.'
+                    : invitedId
+                      ? 'Pick your crew, then enter the pit.'
+                      : 'Choose a crew, create a private duel, and send your opponent the invitation.'
               }}
             </p>
           </div>
@@ -112,7 +114,9 @@
             class="scpvp-primary"
             type="button"
             :disabled="pvp.sending || pvp.loading"
-            @click="choosingRematch ? sendRematch() : invitedId ? join() : start()"
+            @click="
+              choosingRematch ? sendRematch() : invitedId ? join() : start()
+            "
           >
             {{
               pvp.sending
@@ -121,9 +125,9 @@
                   ? 'SEND REMATCH CHALLENGE'
                   : invitedId
                     ? 'JOIN THIS DUEL'
-                  : openDuel
-                    ? 'CREATE OPEN DUEL'
-                    : 'CREATE PRIVATE DUEL'
+                    : openDuel
+                      ? 'CREATE OPEN DUEL'
+                      : 'CREATE PRIVATE DUEL'
             }}
           </button>
           <button
@@ -153,13 +157,13 @@
                 ? 'Your rival will get a notification and can choose their own crew.'
                 : answering
                   ? pvp.duel!.challenge
-                  ? 'This challenge was sent to you.'
-                  : pvp.duel!.open
-                    ? 'Open challenge: the first player to join takes the seat.'
-                    : 'You hold a private invite.'
-                : openDuel
-                  ? 'Open duels are listed in VS for any signed-in player.'
-                  : 'Only someone with your link can join.'
+                    ? 'This challenge was sent to you.'
+                    : pvp.duel!.open
+                      ? 'Open challenge: the first player to join takes the seat.'
+                      : 'You hold a private invite.'
+                  : openDuel
+                    ? 'Open duels are listed in VS for any signed-in player.'
+                    : 'Only someone with your link can join.'
             }}
             These fights award no Meat or cards.
           </p>

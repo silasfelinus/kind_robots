@@ -294,9 +294,7 @@ export function pvpRematch(
 ): { team: TeamId; friendId: number } | null {
   if (duel.stage !== 'finished' || !duel.rivalId) return null
   const team = duel.seat === 'player' ? duel.hostTeam : duel.guestTeam
-  return team
-    ? { team: selectedTeam ?? team, friendId: duel.rivalId }
-    : null
+  return team ? { team: selectedTeam ?? team, friendId: duel.rivalId } : null
 }
 
 export function isPvpTeam(value: unknown): value is TeamId {

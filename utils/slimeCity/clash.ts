@@ -378,8 +378,8 @@ export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
   regen: 'Regen: heals 1 after each round.',
   swarm: 'Swarm: +1 power next to an ally.',
   leech: 'Leech: heals 1 when it hits.',
-  bulldoze: 'Bulldoze: overkill hits the boss.',
-  volatile: 'Volatile: explodes on defeat.',
+  bulldoze: 'Bulldoze: extra damage hits boss.',
+  volatile: 'Volatile: bursts on defeat.',
   pierce: 'Pierce: ignores 1 armor.',
   snare: 'Snare: struck rivals skip a strike.',
   collect: 'Collect: gains +1 power on a kill.',
@@ -581,7 +581,7 @@ export function clashCardText(card: Card, level = 1, pick?: EvoPick): string {
   const evolvedText = clashTwistText(card.id, level)
   if (card.kind !== 'creature' && evolvedText)
     return isArmorCutterSnare(card)
-      ? evolvedText + ' Cuts armor, defuses VOLATILE.'
+      ? evolvedText + ' Cuts armor; removes Volatile.'
       : evolvedText
   if (card.kind === 'creature')
     return [
@@ -604,8 +604,8 @@ function clashBaseText(card: Card, level: number): string {
       'Next foe: ' +
       b.power +
       ' damage.' +
-      (card.roots ? ' Skips a strike.' : '') +
-      (isArmorCutterSnare(card) ? ' Cuts armor, defuses VOLATILE.' : '')
+      (card.roots ? ' Stuns foe.' : '') +
+      (isArmorCutterSnare(card) ? ' Cuts armor; removes Volatile.' : '')
     )
   switch (card.effect) {
     case 'heal':
@@ -641,7 +641,7 @@ function clashBaseText(card: Card, level: number): string {
       return 'Deal 1–' + b.power + ' to a rival fighter.'
     case 'root':
       return (
-        'Stun a rival fighter: no block now, no strike next turn.' +
+        'Stun a rival fighter: no counterattack or next strike.' +
         (b.level > 1 ? ' Deals ' + (b.level - 1) + '.' : '')
       )
     case 'snare':
@@ -2640,6 +2640,12 @@ export function passClash(input: ClashState, side: Side): ClashState {
   s.commands.push({ t: 'pass', side })
   return s
 }
+export function clashSummoningSick(
+  unit: Pick<ClashUnit, 'fresh' | 'keywords'>,
+): boolean {
+  return unit.fresh && !unit.keywords.includes('ambush')
+}
+
 /** Next alley (left to right) where `side` still has a ready fighter, or -1. */
 export function nextClashStrike(s: ClashState, side: Side): number {
   if (s.victor || s.active !== side || s.phase !== 'attack') return -1
@@ -2652,7 +2658,7 @@ export function nextClashStrike(s: ClashState, side: Side): number {
       !u.rooted &&
       !u.attacked &&
       clashPower(s, u) > 0 &&
-      !(u.fresh && !has(u, 'ambush'))
+      !clashSummoningSick(u)
     )
       return lane
   }

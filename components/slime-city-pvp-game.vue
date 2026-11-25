@@ -358,8 +358,8 @@
                 <span class="scpvp-tags">
                   <span
                     v-for="tag in fighterTags(unit(side, lane)!).filter(
-                      (entry) =>
-                        entry.kind !== 'armor' && entry.kind !== 'guard',
+                      (tag) =>
+                        tag.kind !== 'new' && tag.kind !== 'guard',
                     )"
                     :key="tag.text"
                     class="scpvp-tag"
@@ -375,12 +375,16 @@
                       unit(side, lane)!.armor + (unit(side, lane)!.guard ?? 0) >
                       0,
                   }"
-                  ><i :class="'lv-' + unit(side, lane)!.level">{{
-                    '★'.repeat(unit(side, lane)!.level)
-                  }}</i
-                  >{{ cardById(unit(side, lane)!.cardId).name }}</span
                 >
+                  {{ cardById(unit(side, lane)!.cardId).name }}
+                  <i :class="'lv-' + unit(side, lane)!.level">{{
+                    '★'.repeat(unit(side, lane)!.level)
+                  }}</i>
+                </span>
                 <SlimeCityLevelFrame :level="unit(side, lane)!.level" />
+                <SlimeCitySummoningSickness
+                  v-if="!board.victor && clashSummoningSick(unit(side, lane)!)"
+                />
               </template>
               <span v-else class="scpvp-empty">{{
                 targetable(side, lane)
@@ -553,9 +557,7 @@
             type="button"
             class="scpvp-tap"
             :disabled="!canAct || !pinnedTap.ready"
-            :title="
-              'Use ' + pinnedTap.title + ' instead of attacking this turn'
-            "
+            :title="pinnedTap.title"
             :data-testid="'slime-pvp-tap-' + pinnedTap.uid"
             @click="tapFighter(pinnedTap.uid)"
           >
@@ -635,6 +637,20 @@
           </p>
         </div>
       </section>
+      <section v-else class="scpvp-waiting" role="status">
+        <div class="scpvp-lobby-tools">
+          <strong>{{ pvp.error || 'Waiting for the battlefield…' }}</strong>
+          <button
+            type="button"
+            class="scpvp-primary"
+            :disabled="pvp.loading || pvp.sending"
+            @click="pvp.load(pvp.duel.id)"
+          >
+            {{ pvp.loading ? 'LOADING…' : 'RETRY' }}
+          </button>
+          <NuxtLink to="/play/slime-city?vs=1">← BACK TO VS</NuxtLink>
+        </div>
+      </section>
     </div>
   </main>
 </template>
@@ -671,8 +687,10 @@ import {
   clashPlayLimit,
   clashPowers,
   clashPowerSpent,
+  clashSummoningSick,
   type ClashStrike,
 } from '~/utils/slimeCity/clash'
+import { evoTapText } from '~/utils/slimeCity/evolutions/dsl'
 import {
   pvpCardRow,
   pvpClashView,
@@ -829,8 +847,14 @@ const canAct = computed(
     !sweeping.value,
 )
 const canPlay = computed(() => canAct.value && board.value?.phase === 'play')
-const playLimit = computed(() =>
-  view.value ? clashPlayLimit(view.value, view.value.active) : 2,
+const playLimit = computed(
+  () =>
+    board.value?.playLimit ??
+    (view.value && view.value.active === seat.value
+      ? clashPlayLimit(view.value, view.value.active)
+      : board.value?.round === 1 && board.value.active === 'player'
+        ? 1
+        : 2),
 )
 const playsUsed = computed(() =>
   Math.min(playLimit.value, board.value?.plays[board.value.active] ?? 0),
@@ -915,11 +939,11 @@ function fighterTags(
       text: 'STUN',
       title: 'Stunned: skips its strike',
     })
-  else if (fighter.fresh && !fighter.keywords.includes('ambush'))
+  if (!board.value?.victor && clashSummoningSick(fighter))
     tags.push({
       kind: 'new',
       text: '⏳ NEW',
-      title: 'Just landed: it blocks, but cannot strike until its next turn',
+      title: 'Summoning sickness: cannot attack this turn, but still blocks',
     })
   else if (fighter.keywords.includes('ambush') && fighter.fresh)
     tags.push({
@@ -935,16 +959,7 @@ function fighterTags(
         fighter.attacked || fighter.activatedRound === board.value?.round
           ? '↷ USED'
           : '↷ TAP',
-      title:
-        'Tap ability: ' +
-        stage.title +
-        '. Using it skips this fighter’s strike this turn.',
-    })
-  if (fighter.armor)
-    tags.push({
-      kind: 'armor',
-      text: 'ARMOR ' + fighter.armor,
-      title: fighter.armor + ' armor',
+      title: evoTapText(stage),
     })
   if (fighter.guard)
     tags.push({
@@ -953,21 +968,6 @@ function fighterTags(
       title: 'Shielded for the next hit',
     })
   return tags
-}
-function fighterNote(fighter: BoardUnit): string {
-  const status = fighterTags(fighter)
-    .map((tag) => tag.title)
-    .join(' · ')
-  return (
-    (fighter.side === seat.value ? 'YOUR FIGHTER' : 'RIVAL FIGHTER') +
-    ' · ⚔ ' +
-    fighter.power +
-    ' · ♥ ' +
-    fighter.hp +
-    '/' +
-    fighter.maxHp +
-    (status ? ' · ' + status : '')
-  )
 }
 const inspect = computed(() => {
   const units = board.value?.units ?? []
@@ -982,7 +982,11 @@ const inspect = computed(() => {
     id: fighter.cardId,
     level: fighter.level,
     pick: fighter.evoChoice === 1 ? (1 as const) : (0 as const),
-    note: fighterNote(fighter),
+    liveStats: {
+      attack: fighter.power,
+      hp: fighter.hp,
+      maxHp: fighter.maxHp,
+    },
     hover: !pinned,
     dock: fighter.lane <= 2 ? ('right' as const) : ('left' as const),
   }
@@ -1009,7 +1013,7 @@ const pinnedTap = computed(() => {
   if (!fighter || !stage || !view.value) return null
   return {
     uid: fighter.uid,
-    title: stage.title,
+    title: evoTapText(stage),
     ready: canClashActivate(view.value, seat.value, fighter.uid),
   }
 })
@@ -2045,12 +2049,16 @@ watch(
 .scpvp-tag.is-stun {
   color: #ff9aa0;
 }
+.scpvp-tag.is-armor,
+.scpvp-tag.is-guard {
+  color: #cfe7ff;
+}
 .scpvp-unit-label {
   position: absolute;
   inset: calc(0.8rem + clamp(0.72rem, 1.9vw, 1.2rem)) 0 auto;
   z-index: 2;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   align-items: center;
   padding: 0.2rem;
   background: linear-gradient(#07131ad9, transparent);

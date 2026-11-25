@@ -962,7 +962,7 @@ assert.match(
 {
   let peak = 0
   for (let t = 0; t < 400; t++) {
-    for (const period of [3, 6]) {
+    for (const period of [3, 6, 8]) {
       const full = rainbowSignalPulse(t, period)
       const calm = rainbowSignalPulse(t, period, true)
       peak = Math.max(peak, Math.abs(full))
@@ -987,5 +987,15 @@ assert.match(
     preview,
     /Math\.sin\(tick \/ [36]\)/,
     'no raw fast signal pulse is left',
+  )
+  assert.equal(
+    (preview.match(/rainbowSignalPulse\(frame, 8, calm\)/g) ?? []).length,
+    4,
+    'the three route-fork lines and the lighthouse lane marker use the calm-aware pulse',
+  )
+  assert.doesNotMatch(
+    preview,
+    /Math\.sin\(frame \/ 8\)/,
+    'no raw route-marker flicker is left',
   )
 }

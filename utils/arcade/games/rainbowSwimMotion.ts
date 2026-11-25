@@ -261,7 +261,8 @@ export function rainbowCurrentCrackle(
 
 /**
  * Conductor rainbow t-011: the small signal lights — the captive's collar, a glowing prism pylon's core, a
- * relay pylon's lamp and a staggered dolphin's daze ring — pulse every few frames. Calm motion keeps a fifth
+ * relay pylon's lamp and a staggered dolphin's daze ring — pulse every few frames, as do the dashed route-fork
+ * lines (trench, wreckyard, crown reef) and the lighthouse's next-lamp lane marker. Calm motion keeps a fifth
  * of each swing, the share every other flicker keeps, so each light still reads as live without blinking.
  * Returns the signed swing (−1..1 in full motion) to scale by the caller's own depth. Draw-only.
  */

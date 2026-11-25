@@ -826,6 +826,33 @@ for (let chapter = 0; chapter < BOSS_PATTERNS.length; chapter++) {
     bossContact(target, { ...target, banked: false }),
     target.bank ? 'blocked' : 'hit',
   )
+  for (let hit = 0; hit < BOSS_PATTERNS[chapter]!.targets.length; hit++) {
+    const core = bossTarget(chapter, hit)
+    for (const guard of core.guards) {
+      assert.equal(
+        bossContact(core, { ...guard, hue: core.hue, banked: true }),
+        'blocked',
+        'Even a correctly colored bank shot cannot pass a shield',
+      )
+    }
+  }
+  const guard = target.guards[0]
+  if (guard) {
+    run.shot = {
+      x: guard.x,
+      y: guard.y,
+      vx: 0,
+      vy: 0,
+      hue: target.hue,
+      power: null,
+      banked: true,
+    }
+    run.update(emptyInput())
+    assert.equal(run.shot, null)
+    assert.equal(run.boss?.hits, 0)
+    assert.equal(run.boss?.misses, 1)
+    assert.equal(run.save.career.stars[stage - 1], 0)
+  }
   finishBoss(run)
   assert.ok((run.save.career.stars[stage - 1] ?? 0) > 0)
   assert.equal(run.won, stage === 30)

@@ -92,9 +92,9 @@ try {
         ? 'chessweeper-triple'
         : 'chessweeper-triple-' + bracket
     const expected = {
-      easy: { hearts: 5, mineCount: 6, discCount: 2, cpuChoices: 7 },
-      medium: { hearts: 3, mineCount: 10, discCount: 3, cpuChoices: 3 },
-      hard: { hearts: 2, mineCount: 15, discCount: 4, cpuChoices: 2 },
+      easy: { hearts: 4, mineCount: 6, discCount: 3, cpuChoices: 7 },
+      medium: { hearts: 3, mineCount: 10, discCount: 5, cpuChoices: 3 },
+      hard: { hearts: 2, mineCount: 15, discCount: 7, cpuChoices: 2 },
     }[bracket]
     assert.equal(
       await page.locator('.play-panel').count(),
@@ -185,6 +185,14 @@ try {
     assert.equal(beginning.mineCount, expected.mineCount)
     assert.equal(beginning.discCount, expected.discCount)
     assert.equal(beginning.cpuChoices, expected.cpuChoices)
+    const limits = { easy: [30, 90], medium: [25, 75], hard: [20, 60] }
+    const [chessLimit, mineLimit] = limits[bracket]
+    assert.ok(beginning.chessRemaining > chessLimit - 1)
+    assert.ok(beginning.mineRemaining > mineLimit - 1)
+    assert.equal(
+      await page.locator('#mine-time').innerText(),
+      String(mineLimit).padStart(3, '0'),
+    )
     assert.equal(await page.locator('#chess-board button').count(), 64)
     assert.equal(await page.locator('#mine-board button').count(), 64)
     await screenshot(page, 'triple-' + width + '-playing')
@@ -294,9 +302,12 @@ try {
   )
   assert.equal(cata.maxHearts, 1)
   assert.equal(cata.mineCount, 20)
-  assert.equal(cata.discCount, 6)
+  assert.equal(cata.discCount, 9)
   assert.equal(cata.cpuChoices, 1)
-  assert.ok(cata.discSpeed > 1.5)
+  assert.ok(cata.chessRemaining > 14)
+  assert.ok(cata.mineRemaining > 44)
+  assert.equal(cata.discSpeed, 1.95)
+  assert.ok(cata.nextDisc <= 8)
   assert.match(
     await catastrophe.locator('#difficulty-badge').innerText(),
     /CATA/,
@@ -317,6 +328,58 @@ try {
   )
   assert.equal(practiceSubmissions.length, 0)
   await practice.close()
+  const { page: timed } = await openAt(1440)
+  const snapshot = () =>
+    timed.evaluate(() => window.__chessweeperTriple.snapshot())
+  await timed.selectOption('#difficulty', 'hard')
+  await timed.click('#start')
+  assert.equal(await timed.locator('#chess-clock').innerText(), '20s')
+  assert.equal(await timed.locator('#mine-time').innerText(), '060')
+  await timed.clock.fastForward(4000)
+  const beforePause = await snapshot()
+  assert.ok(beforePause.chessRemaining > 15 && beforePause.chessRemaining <= 16)
+  assert.ok(beforePause.mineRemaining > 55 && beforePause.mineRemaining <= 56)
+  await timed.click('#pause')
+  const paused = await snapshot()
+  await timed.clock.fastForward(20_000)
+  assert.equal((await snapshot()).chessRemaining, paused.chessRemaining)
+  assert.equal((await snapshot()).mineRemaining, paused.mineRemaining)
+  await timed.click('#resume')
+  await timed.clock.fastForward(16500)
+  const expired = await snapshot()
+  assert.equal(expired.hearts, paused.hearts - 1)
+  assert.equal(expired.chessRound, 2)
+  assert.ok(expired.chessRemaining > 19)
+  await timed.getByRole('button', { name: 'e2 white pawn' }).click()
+  await timed.getByRole('button', { name: 'e4 empty' }).click()
+  assert.equal((await snapshot()).chessBusy, true)
+  await timed.clock.fastForward(1000)
+  const replied = await snapshot()
+  assert.equal(replied.chessBusy, false)
+  assert.ok(replied.chessRemaining > 19 && replied.chessRemaining <= 20)
+  await timed.click('#pause')
+  await timed.click('#restart')
+  await timed.click('#start')
+  assert.equal((await snapshot()).chessRound, 1)
+  assert.ok((await snapshot()).chessRemaining > 19)
+  await timed.close()
+  const { page: mineDeadline } = await openAt(1440)
+  await mineDeadline.selectOption('#difficulty', 'easy')
+  await mineDeadline.click('#start')
+  await mineDeadline.clock.fastForward(91_000)
+  const failed = await mineDeadline.evaluate(() =>
+    window.__chessweeperTriple.snapshot(),
+  )
+  assert.equal(failed.mineRemaining, 0)
+  assert.equal(failed.minePendingReset, true)
+  assert.equal(failed.hearts, 2, 'chess and mine timeout each cost a heart')
+  await mineDeadline.clock.fastForward(500)
+  const fresh = await mineDeadline.evaluate(() =>
+    window.__chessweeperTriple.snapshot(),
+  )
+  assert.equal(fresh.minePendingReset, false)
+  assert.ok(fresh.mineRemaining > 89)
+  await mineDeadline.close()
   assert.deepEqual(errors, [], 'no browser exceptions')
   console.log(
     '[triple] four difficulties, ranked brackets and 3 viewports passed',

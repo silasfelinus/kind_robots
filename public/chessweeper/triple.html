@@ -50,6 +50,9 @@
         <section class="play-panel chess-panel" aria-label="Chess game">
           <div class="status-strip chess-strip">
             <output id="clock" aria-label="Shared time left">02:00</output>
+            <output id="chess-clock" aria-label="Chess turn time left"
+              >25s</output
+            >
             <output id="total" aria-label="Total score" title="Total score"
               >0</output
             >
@@ -80,8 +83,11 @@
             >
               ☺
             </button>
-            <output id="mine-time" class="digital" aria-label="Elapsed seconds"
-              >000</output
+            <output
+              id="mine-time"
+              class="digital"
+              aria-label="Minefield time left in seconds"
+              >075</output
             >
           </div>
           <div
@@ -152,14 +158,14 @@
             </label>
           </div>
           <p id="difficulty-hint" class="difficulty-hint" aria-live="polite">
-            Medium: 3 hearts · 10 mines · 3 blades · balanced opponent.
+            Medium: 3 hearts · 25s chess · 75s mines · 10 mines · 5 blades.
           </p>
           <p class="help">
-            Chess: click a piece and destination. Mines: tap to reveal, long
-            press or toggle 🚩 to flag. Survival: WASD, or drag on the arena.
-            All three panels stay active. Losing all three shared hearts ends
-            the run. Only 120-second Standard runs qualify for global rankings,
-            which are separated by difficulty.
+            Chess: move before your turn timer expires. Mines: clear the field
+            before its countdown expires; tap to reveal, long press or toggle 🚩
+            to flag. Either timeout costs a shared heart and resets that board.
+            Survival: WASD or drag. Losing all shared hearts ends the run. Only
+            120-second Standard runs qualify for global rankings.
           </p>
           <div class="buttons">
             <button id="start" class="primary">▶ START TRIPLE THREAT</button>

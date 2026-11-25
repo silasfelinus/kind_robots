@@ -183,6 +183,7 @@ export type ClashFormat = 'standard' | 'alliance'
 export interface ClashOptions {
   /** ALLIANCE: each side's 20-card two-crew deck; `teams` become the generals. */
   alliance?: Record<Side, AllianceDeck>
+  seatAllies?: Record<Side, TeamId | null>
   /** SOLO CLASH: a side's own 20-card deck instead of its canonical deck. */
   decks?: Partial<Record<Side, string[]>>
   /** City and Story terms: each side's starting (and maximum) boss life. */
@@ -992,6 +993,10 @@ export function createClash(
   if (alliance) {
     s.format = 'alliance'
     s.allies = { player: alliance.player.ally, enemy: alliance.enemy.ally }
+  }
+  if (options.seatAllies) {
+    s.allies = { ...options.seatAllies }
+    if (s.allies.player || s.allies.enemy) s.format = 'alliance'
   }
   if (options.bosses) {
     const cap = (side: Side) =>

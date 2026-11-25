@@ -9,6 +9,7 @@ import {
   type ClashOptions,
   type ClashState,
 } from './clash'
+import type { ClashRewardSetup } from './clashRewards'
 import { CARDS, TEAMS, type Card, type Side, type TeamId } from './prototypes'
 
 export const PVP_MODE = 'clash-pvp'
@@ -35,6 +36,7 @@ export function isPvpExpired(
 export interface PvpRecord {
   version: 1
   guestId: number | null
+  deckSetups?: Partial<Record<Side, ClashRewardSetup>>
   /**
    * A challenge sent to one friend (Silas, 2026-11-11 PT: "You should be able
    * to challenge players on your friends list. And they should get
@@ -101,7 +103,7 @@ export function replayPvpTrail(
   guest: TeamId,
   seed: number,
   commands: ClashCommand[],
-  rules: Pick<ClashOptions, 'dealEarly'> = {},
+  rules: Pick<ClashOptions, 'dealEarly' | 'decks' | 'seatAllies'> = {},
   keep = 12,
 ): { state: ClashState; strikes: PvpStrike[] } {
   let state = createClash(host, guest, seed, rules)
@@ -230,6 +232,7 @@ export interface PvpBoard {
   strike: ClashState['strike']
   victor: ClashState['victor']
   format: ClashState['format']
+  allies?: ClashState['allies']
   powersUsed: ClashState['powersUsed']
   hand: string[]
   levels: Record<string, number>
@@ -393,9 +396,21 @@ export function pvpCommand(raw: unknown, side: Side): ClashCommand | null {
 
 /** The engine rules a stored duel was created under. */
 export function pvpRules(
-  record: Pick<PvpRecord, 'dealEarly'>,
-): Pick<ClashOptions, 'dealEarly'> {
-  return record.dealEarly ? { dealEarly: true } : {}
+  record: Pick<PvpRecord, 'dealEarly' | 'deckSetups'>,
+): Pick<ClashOptions, 'dealEarly' | 'decks' | 'seatAllies'> {
+  const options: ClashOptions = record.dealEarly ? { dealEarly: true } : {}
+  if (record.deckSetups) {
+    options.decks = {}
+    options.seatAllies = { player: null, enemy: null }
+    for (const side of ['player', 'enemy'] as const) {
+      const setup = record.deckSetups[side]
+      if (!setup) continue
+      options.decks[side] =
+        setup.format === 'alliance' ? setup.deck.cards : setup.cards
+      if (setup.format === 'alliance') options.seatAllies[side] = setup.deck.ally
+    }
+  }
+  return options
 }
 
 export function replayPvp(
@@ -403,7 +418,7 @@ export function replayPvp(
   guest: TeamId,
   seed: number,
   commands: ClashCommand[],
-  rules: Pick<ClashOptions, 'dealEarly'> = {},
+  rules: Pick<ClashOptions, 'dealEarly' | 'decks' | 'seatAllies'> = {},
 ): ClashState {
   return replayClash(host, guest, seed, commands, rules)
 }
@@ -412,7 +427,7 @@ export function newPvpGame(
   host: TeamId,
   guest: TeamId,
   seed: number,
-  rules: Pick<ClashOptions, 'dealEarly'> = {},
+  rules: Pick<ClashOptions, 'dealEarly' | 'decks' | 'seatAllies'> = {},
 ): ClashState {
   return createClash(host, guest, seed, rules)
 }
@@ -457,6 +472,7 @@ export function pvpBoard(state: ClashState, seat: Side): PvpBoard {
     strike: state.strike ? { ...state.strike } : null,
     victor: state.victor,
     format: state.format,
+    ...(state.allies ? { allies: { ...state.allies } } : {}),
     powersUsed: state.powersUsed
       ? {
           player: [...state.powersUsed.player],
@@ -668,6 +684,7 @@ export function pvpClashView(
     deathMarks: { player: {}, enemy: {} },
     fallen: { player: [], enemy: [] },
     ...(board.format ? { format: board.format } : {}),
+    ...(board.allies ? { allies: { ...board.allies } } : {}),
     ...(board.powersUsed
       ? {
           powersUsed: {

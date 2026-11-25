@@ -70,7 +70,7 @@
           </div>
         </article>
         <article class="vs-card vs-cpu" data-testid="slime-vs-cpu">
-          <h3><span aria-hidden="true">🤖</span> VS CPU</h3>
+          <h3>YOUR DECK · VS CPU / PLAYERS</h3>
           <div class="vs-format" role="group" aria-label="Deck format">
             <button
               type="button"
@@ -96,7 +96,7 @@
               data-testid="slime-vs-deck"
               @change="pickDeck"
             >
-              <option value="">{{ lab.team.name }} starter alliance</option>
+              <option value="">{{ lab.team.name }} saved alliance</option>
               <option
                 v-for="deck in readyDecks"
                 :key="deck.id"
@@ -488,8 +488,13 @@ function open(id: string): void {
 function joinInvite(): void {
   if (inviteId.value) open(inviteId.value)
 }
+function selectedDuelDeck() {
+  return lab.clashFormat === 'alliance'
+    ? { format: 'alliance' as const, deck: lab.playAlliance }
+    : lab.duelDeck(lab.activeTeam)
+}
 async function challenge(isPublic: boolean): Promise<void> {
-  const duel = await pvp.start(lab.activeTeam, { isPublic })
+  const duel = await pvp.start(lab.activeTeam, { isPublic, deck: selectedDuelDeck() })
   if (duel) await Promise.all([pvp.loadGames(), pvp.loadOpen()])
 }
 /** Cancelling a duel or declining a challenge takes two taps. */
@@ -505,7 +510,7 @@ async function cancelGame(id: string): Promise<void> {
 /** Challenge a friend: they get a notification that opens the duel. */
 async function challengeFriend(friendId: number): Promise<void> {
   challenging.value = friendId
-  const duel = await pvp.start(lab.activeTeam, { friendId })
+  const duel = await pvp.start(lab.activeTeam, { friendId, deck: selectedDuelDeck() })
   challenging.value = null
   if (duel) await pvp.loadGames()
 }

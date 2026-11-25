@@ -1,3 +1,4 @@
+import type { ClashRewardSetup } from '~/utils/slimeCity/clashRewards'
 import {
   CLASH_SPEEDS,
   type ClashSpeed,
@@ -1791,6 +1792,17 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const playSolo = computed<string[]>(
     () => savedSolo.value[activeTeam.value] ?? soloStarter(activeTeam.value),
   )
+  function duelDeck(team: TeamId, deckId?: string): ClashRewardSetup {
+    const entry = library.value.find(
+      (item) => item.id === deckId && item.general === team && libraryDeckReady(item.id),
+    )
+    if (entry)
+      return {
+        format: 'alliance',
+        deck: { general: entry.general, ally: entry.ally, cards: [...entry.cards] },
+      }
+    return { format: 'solo', cards: [...(savedSolo.value[team] ?? soloStarter(team))] }
+  }
   const soloCards = computed(() => soloCardPool(activeTeam.value))
   function commitSolo(cards: string[], done: string): void {
     const team = activeTeam.value
@@ -3159,6 +3171,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     currentSolo,
     currentSoloProblems,
     playSolo,
+    duelDeck,
     soloCards,
     toggleSoloCard,
     restoreSoloStarter,

@@ -475,6 +475,27 @@ for (const broken of [false, true]) {
   mixer.setVolume(0.5)
   assert.equal(base.volumes.at(-1), 0.5 * theme.sfx)
   assert.equal(mixer.volume, 0.5)
+  // A game's own mix (Spectrum's music and effects levels) sits under the volume.
+  assert.deepEqual(mixer.mix, { music: 1, effects: 1 })
+  mixer.setMix({ music: 0.5, effects: 0.25 })
+  assert.deepEqual(mixer.mix, { music: 0.5, effects: 0.25 })
+  assert.equal(base.volumes.at(-1), 0.5 * theme.sfx * 0.25)
+  // (The boom above still ducks it on this clock; the release lands on the mixed level.)
+  assert.ok(
+    Math.abs(
+      eventsOf(recordedBus, 'target').at(-1)![1] - 0.5 * 0.5 * theme.music,
+    ) < 1e-9,
+  )
+  assert.ok(
+    Math.abs(eventsOf(oscillatorBus, 'target').at(-1)![1] - 0.5 * 0.5) < 1e-9,
+  )
+  const calls = base.volumes.length
+  mixer.setMix({ music: 0.5, effects: 0.25 })
+  assert.equal(base.volumes.length, calls, 'an unchanged mix is a no-op')
+  mixer.setMix({ music: 7, effects: -1 })
+  assert.deepEqual(mixer.mix, { music: 1, effects: 0 }, 'levels are clamped')
+  mixer.setMix({ music: 1, effects: 1 })
+  assert.equal(base.volumes.at(-1), 0.5 * theme.sfx)
   mixer.setMuted(true)
   assert.equal(mixer.muted, true)
   const sets = eventsOf(recordedBus, 'set')

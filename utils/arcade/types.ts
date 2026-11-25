@@ -283,6 +283,13 @@ export interface ArcadeGameInstance {
   setComms?(level: ArcadeComms): void
   /** Keep a game's in-cabinet audio menu synchronized with Arcade controls. */
   setAudio?(settings: ArcadeAudioSettings): void
+  /**
+   * Where the player's career is kept right now (the cabinet's account sync state), for a game that
+   * shows it in its own menus, where the cabinet's title plate is hidden on a pinned phone.
+   */
+  setSaveStatus?(status: ArcadeSaveStatus): void
+  /** The game's own music and effects levels (0..1) under the Arcade volume, read as it plays. */
+  readonly audioMix?: { music: number; effects: number }
   /** Mastery goals earned this game, for a cabinet with a ladder. */
   readonly mastered?: readonly string[]
   /** Achievement deeds performed since the last call, for a table that reports them. */
@@ -396,6 +403,10 @@ export type ArcadeGameModule = {
    */
   guide?(earned: ReadonlySet<string>): ArcadeGuidePage[]
 }
+
+/** The arcade store's cloud-save state for a game with an account career (Superkate's Spectrum). */
+export type ArcadeSaveStatus =
+  'local' | 'checking' | 'saving' | 'synced' | 'offline'
 
 export function emptyInput(): InputFrame {
   const held = {} as Record<ArcadeButton, boolean>

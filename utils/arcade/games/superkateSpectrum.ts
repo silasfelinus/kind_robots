@@ -3,6 +3,7 @@ import type {
   ArcadeGameModule,
   ArcadeGameOptions,
   ArcadeAudioSettings,
+  ArcadeSaveStatus,
   ArcadeStagePointer,
   InputFrame,
 } from '../types'
@@ -290,6 +291,11 @@ export function atelierBoard(index: number): Board {
   }
   return board
 }
+
+/** Settings rows: five switches, master mute and volume, then music and effects levels. */
+export const SETTINGS_ROWS = 9
+export const settingsRowTop = (row: number) => 158 + row * 23
+const SETTINGS_ROW_HEIGHT = 21
 
 type HomeTab = 'play' | 'scrapbook' | 'achievements' | 'settings'
 const HOME_TABS: HomeTab[] = ['play', 'scrapbook', 'achievements', 'settings']
@@ -720,6 +726,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   trophyPage = 0
   optionRow = 0
   settings: SpectrumSettings
+  /** Where this career is kept (the cabinet's account sync state), shown on the hub pages. */
+  saveStatus: ArcadeSaveStatus = 'local'
   power: SpectrumPower | null = null
   powerTip: SpectrumPower | null = null
   powerTipTicks = 0
@@ -767,6 +775,25 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.next = chooseHue(this.board, this.rng)
     this.message = CHAPTERS[Math.min(5, Math.floor((this.level - 1) / 5))]!.kate
     this.choosingMode = !this.demo
+  }
+  /** The player's music and effects levels; the cabinet applies them under the Arcade volume. */
+  get audioMix() {
+    return {
+      music: this.settings.musicLevel,
+      effects: this.settings.effectsLevel,
+    }
+  }
+  setSaveStatus(status: ArcadeSaveStatus) {
+    this.saveStatus = status
+  }
+  get saveStatusLabel() {
+    return this.saveStatus === 'synced'
+      ? 'CAREER SYNCED TO YOUR ACCOUNT'
+      : this.saveStatus === 'checking' || this.saveStatus === 'saving'
+        ? 'SYNCING YOUR CAREER...'
+        : this.saveStatus === 'offline'
+          ? 'OFFLINE · SAVED ON THIS DEVICE'
+          : 'SAVED ON THIS DEVICE · SIGN IN TO SYNC'
   }
   /** Both the host switches and the game Settings page control this mixer. */
   setAudio(settings: ArcadeAudioSettings) {
@@ -1381,9 +1408,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       }
       if (this.menuTab === 'settings') {
         if (x < 28 || x > W - 28) return null
-        for (let row = 0; row < 7; row++) {
-          const top = 150 + row * 29
-          if (y >= top && y <= top + 26)
+        for (let row = 0; row < SETTINGS_ROWS; row++) {
+          const top = settingsRowTop(row)
+          if (y >= top && y <= top + SETTINGS_ROW_HEIGHT)
             return { kind: 'option', row, by: x < W / 2 ? -1 : 1 }
         }
         return null
@@ -1490,18 +1517,21 @@ class SuperkateSpectrum implements ArcadeGameInstance {
 
   private changeOption(by: number) {
     if (this.optionRow <= 4) {
-      const keys: (keyof SpectrumSettings)[] = [
-        'aimGuide',
-        'particles',
-        'highContrast',
-        'music',
-        'effects',
-      ]
+      const keys: (
+        'aimGuide' | 'particles' | 'highContrast' | 'music' | 'effects'
+      )[] = ['aimGuide', 'particles', 'highContrast', 'music', 'effects']
       const key = keys[this.optionRow]!
       this.settings[key] = !this.settings[key]
       this.remember()
     } else if (this.optionRow === 5) {
       this.changeAudio({ ...this.audio, muted: !this.audio.muted })
+    } else if (this.optionRow >= 7) {
+      const key = this.optionRow === 7 ? 'musicLevel' : 'effectsLevel'
+      this.settings[key] =
+        Math.round(
+          Math.max(0, Math.min(1, this.settings[key] + by * 0.1)) * 10,
+        ) / 10
+      this.remember()
     } else {
       this.changeAudio({
         ...this.audio,
@@ -1583,8 +1613,12 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         if (input.pressed.left) this.changeTrophyPage(-1)
         if (input.pressed.right) this.changeTrophyPage(1)
       } else if (this.menuTab === 'settings') {
-        if (input.pressed.up) this.optionRow = (this.optionRow + 6) % 7
-        if (input.pressed.down) this.optionRow = (this.optionRow + 1) % 7
+        if (input.pressed.up)
+          this.optionRow = (this.optionRow + SETTINGS_ROWS - 1) % SETTINGS_ROWS
+        if (input.pressed.down)
+          this.optionRow = (this.optionRow + 1) % SETTINGS_ROWS
+        if (this.optionRow >= 7 && (input.pressed.left || input.pressed.right))
+          this.changeOption(input.pressed.right ? 1 : -1)
         if (
           this.optionRow === 6 &&
           (input.pressed.left || input.pressed.right)
@@ -1911,20 +1945,35 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         ['SOUND EFFECTS', this.settings.effects ? 'ON' : 'OFF'],
         ['MASTER MUTE', this.audio.muted ? 'ON' : 'OFF'],
         ['MASTER VOLUME', `${Math.round(this.audio.volume * 100)}%`],
+        ['MUSIC LEVEL', `${Math.round(this.settings.musicLevel * 100)}%`],
+        ['EFFECTS LEVEL', `${Math.round(this.settings.effectsLevel * 100)}%`],
       ] as const
       for (const [index, setting] of choices.entries()) {
-        const y = 169 + index * 29
+        const top = settingsRowTop(index)
+        const y = top + 14
         g.fillStyle = index === this.optionRow ? '#6d3172e0' : '#27334ed4'
-        g.fillRect(28, y - 19, W - 56, 26)
+        g.fillRect(28, top, W - 56, SETTINGS_ROW_HEIGHT)
         label(g, setting[0], 110, y, 10)
         label(g, setting[1], 253, y, 11, '#9ff2e5')
       }
-      label(g, 'TAP ROW · VOLUME: LEFT − / RIGHT +', W / 2, 371, 10)
+      label(g, 'TAP ROW · LEVELS: LEFT − / RIGHT +', W / 2, 378, 10)
     }
     // The run's HUD and launcher sit under the home pages; cover them so the hint reads alone.
     g.fillStyle = '#100d27'
     g.fillRect(0, 388, W, 459 - 388)
-    label(g, 'X: NEXT TAB  Y: PREVIOUS', W / 2, 412, 11, '#f3d78d')
+    label(
+      g,
+      this.saveStatusLabel,
+      W / 2,
+      404,
+      10,
+      this.saveStatus === 'synced'
+        ? '#9ff2e5'
+        : this.saveStatus === 'offline'
+          ? '#ffb48a'
+          : '#d8d3f0',
+    )
+    label(g, 'X: NEXT TAB  Y: PREVIOUS', W / 2, 430, 11, '#f3d78d')
     this.renderMenuTabs(g)
   }
 

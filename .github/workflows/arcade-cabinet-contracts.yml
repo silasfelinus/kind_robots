@@ -16,6 +16,7 @@ on:
       - 'utils/scripts/verifySavePlumberAudio.test.ts'
       - 'utils/scripts/verifySuperkateSpectrum.test.ts'
       - 'utils/scripts/verifySpectrumCampaign.test.ts'
+      - 'utils/scripts/verifyArcadeSoundtrackMixer.test.ts'
       - 'utils/scripts/verifySpectrumRecordedMusic.test.ts'
       - 'utils/scripts/verifyCabinetSpectrumSaveRace.test.ts'
       - 'public/audio/arcade/superkate-spectrum/**'
@@ -89,6 +90,9 @@ jobs:
       - name: Superkate Spectrum — full 30-stage campaign to all three endings, and careless play
         if: always()
         run: npx tsx utils/scripts/verifySpectrumCampaign.test.ts
+      - name: Soundtrack mixer — recorded/oscillator buses, ducking, cues and game mix levels
+        if: always()
+        run: npx tsx utils/scripts/verifyArcadeSoundtrackMixer.test.ts
       - name: Superkate Spectrum — recorded music masters
         if: always()
         run: npx tsx utils/scripts/verifySpectrumRecordedMusic.test.ts
@@ -100,6 +104,14 @@ jobs:
         run: node utils/scripts/verifySuperkateSpectrumCabinet.browser.test.mjs
         env:
           SPECTRUM_CABINET_SHOTS: cabinet-contract-shots/superkate-spectrum
+      - name: Superkate Spectrum — hub scrapbook, trophies, settings and save state at 390/768/1440
+        if: always()
+        run: node utils/scripts/verifySuperkateSpectrumHub.browser.test.mjs
+        env:
+          SPECTRUM_HUB_SHOTS: cabinet-contract-shots/superkate-spectrum-hub
+      - name: Superkate Spectrum — two devices, one account (guest adoption, 409 merge, switch, outage)
+        if: always()
+        run: node utils/scripts/verifySuperkateSpectrumAccounts.browser.test.mjs
       - name: Preserve cabinet states
         if: always()
         uses: actions/upload-artifact@v4

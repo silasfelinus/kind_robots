@@ -38,7 +38,13 @@ export type SoundtrackLoader = (url: string) => Promise<ArrayBuffer | null>
 
 export type MusicSource = 'silent' | 'loading' | 'recorded' | 'oscillator'
 
+/** A game's own music and effects levels (0..1), under the Arcade master volume. */
+export type ArcadeAudioMix = { music: number; effects: number }
+
 export type ArcadeSoundtrack = ArcadeSound & {
+  /** Set the current game's music and effects levels (1 and 1 when it has none). */
+  setMix: (mix: ArcadeAudioMix) => void
+  readonly mix: ArcadeAudioMix
   /** Play `scene` for the current cabinet; `fallback` is its oscillator loop. */
   startCabinetMusic: (
     scene: ArcadeMusicScene,
@@ -124,6 +130,7 @@ export function createArcadeSoundtrack(
   let game = options.game
   let theme = arcadeAudioTheme(game)
   let volume = clampVolume(options.volume, 1)
+  let mix: ArcadeAudioMix = { music: 1, effects: 1 }
   let unlocked = false
   let disposed = false
   let source: MusicSource = 'silent'
@@ -142,7 +149,7 @@ export function createArcadeSoundtrack(
 
   const levelFor = (recorded: boolean, ducked: boolean) =>
     arcadeMusicGain({
-      volume,
+      volume: volume * mix.music,
       level: recorded ? theme.music : 1,
       duckDepth: theme.duckDepth,
       ducked,
@@ -157,7 +164,7 @@ export function createArcadeSoundtrack(
 
   /** Set both music buses, ducked now if a stinger is still sounding. */
   const syncLevels = () => {
-    base.setVolume(volume * theme.sfx)
+    base.setVolume(volume * theme.sfx * mix.effects)
     if (!ctx) return
     const now = ctx.currentTime
     const ducked = now < duckUntil
@@ -366,7 +373,7 @@ export function createArcadeSoundtrack(
     if (!ctx) return
     const node = ctx.createBufferSource()
     const gain = ctx.createGain()
-    gain.gain.value = clampVolume(volume * theme.sfx, 0)
+    gain.gain.value = clampVolume(volume * theme.sfx * mix.effects, 0)
     node.buffer = buffer
     node.connect(gain)
     gain.connect(ctx.destination)
@@ -430,6 +437,16 @@ export function createArcadeSoundtrack(
     setVolume(next) {
       volume = clampVolume(next, volume)
       syncLevels()
+    },
+    setMix(next) {
+      const music = clampVolume(next.music, 1)
+      const effects = clampVolume(next.effects, 1)
+      if (music === mix.music && effects === mix.effects) return
+      mix = { music, effects }
+      syncLevels()
+    },
+    get mix() {
+      return { ...mix }
     },
     context: () => base.context(),
     routeMusic: (node) => base.routeMusic(node),

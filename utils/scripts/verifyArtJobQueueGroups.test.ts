@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs'
 import { artJobTitle } from '../artJobFields'
 import {
   UNTITLED_ART_JOB_GROUP,
+  attachArtJobGroupPreviews,
   artJobGroupName,
   artJobIdsInGroup,
   artJobSlugGroupName,
@@ -118,6 +119,48 @@ check('summary counts groups, jobs and priority ranges', () => {
     newestJobId: 12,
   })
 })
+
+check(
+  'previews use the newest eligible completed image in the same group',
+  () => {
+    const summary = summarizeArtJobQueueGroups(rows)
+    const preview = {
+      finishedAt: '2026-11-25T10:00:00Z',
+      isMature: false,
+      isPublic: true,
+      priority: 0,
+    }
+    attachArtJobGroupPreviews(summary, [
+      { ...preview, id: 99, projectSlug: 'unrelated', artImageId: 199 },
+      {
+        ...preview,
+        id: 98,
+        projectSlug: 'hybridizer:' + fusionId,
+        artImageId: 198,
+      },
+      { ...preview, id: 97, projectSlug: 'hybridizer', artImageId: 197 },
+      {
+        ...preview,
+        id: 96,
+        projectSlug: 'facet',
+        label: '"Butterfly wing"',
+        artImageId: 196,
+      },
+    ])
+    assert.equal(
+      summary.groups.find((g) => g.name === 'hybridizer')?.preview?.artImageId,
+      198,
+    )
+    assert.equal(
+      summary.groups.find((g) => g.name === 'Butterfly wing')?.preview?.jobId,
+      96,
+    )
+    assert.equal(
+      summary.groups.find((g) => g.name === 'raw text')?.preview,
+      undefined,
+    )
+  },
+)
 
 check('groups are ordered the way the relay claims them', () => {
   const names = summarizeArtJobQueueGroups(rows).groups.map((g) => g.name)

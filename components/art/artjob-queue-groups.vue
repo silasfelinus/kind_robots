@@ -60,14 +60,46 @@
       No pending jobs.
     </p>
 
-    <ul v-else class="grid max-h-[22rem] gap-1.5 overflow-y-auto pr-1">
+    <ul
+      v-else
+      class="grid max-h-[26rem] grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-2 overflow-y-auto pr-1"
+    >
       <li
         v-for="group in summary?.groups ?? []"
         :key="group.name"
-        class="grid gap-1.5 rounded-xl border border-base-200 p-2"
+        class="flex min-w-0 flex-col gap-2 rounded-xl border border-base-300 bg-base-200/30 p-2"
       >
-        <div class="flex flex-wrap items-baseline justify-between gap-x-2">
-          <span class="truncate text-sm font-bold" :title="group.name">
+        <div
+          class="relative aspect-[16/9] overflow-hidden rounded-lg bg-base-200"
+        >
+          <img
+            v-if="previewSrc(group)"
+            :key="group.preview?.version"
+            :src="previewSrc(group)"
+            :alt="`Latest completed image for ${group.name}`"
+            class="h-full w-full object-cover"
+            loading="lazy"
+            data-missing-image-report="false"
+            @error="markPreviewFailed(group)"
+          />
+          <div
+            v-else
+            class="flex h-full flex-col items-center justify-center gap-1 text-xs text-base-content/60"
+          >
+            <icon name="kind-icon:image" class="text-3xl" />
+            {{
+              group.preview ? 'Preview unavailable' : 'No visible render yet'
+            }}
+          </div>
+          <span
+            v-if="previewSrc(group)"
+            class="absolute bottom-1 left-1 rounded-full bg-base-100/90 px-2 py-1 text-[10px]"
+          >
+            Latest · #{{ group.preview?.jobId }}
+          </span>
+        </div>
+        <div class="grid gap-1">
+          <span class="break-words text-sm font-bold" :title="group.name">
             {{ group.name }}
           </span>
           <span class="text-[11px] text-base-content/60">
@@ -80,7 +112,7 @@
           </span>
         </div>
 
-        <div class="flex flex-wrap items-center gap-1">
+        <div class="mt-auto flex flex-wrap items-center gap-1">
           <button
             v-for="preset in presets"
             :key="preset.label"
@@ -95,7 +127,7 @@
           </button>
 
           <form
-            class="ml-auto flex items-center gap-1"
+            class="flex w-full items-center gap-1"
             @submit.prevent="applyDraft(group.name)"
           >
             <input
@@ -128,7 +160,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive } from 'vue'
+import { computed, onMounted, reactive, watch } from 'vue'
+import { useArtJobStore } from '@/stores/artJobStore'
+import { useUserStore } from '@/stores/userStore'
 import { useArtJobPriorityStore } from '@/stores/artJobPriorityStore'
 import {
   BACK_OF_QUEUE_PRIORITY,
@@ -144,6 +178,9 @@ import {
 } from '@/utils/artJobQueueGroups'
 
 const priorityStore = useArtJobPriorityStore()
+const artJobStore = useArtJobStore()
+const userStore = useUserStore()
+const failedPreviews = reactive(new Set<string>())
 const summary = computed(() => priorityStore.groupSummary)
 const drafts = reactive<Record<string, string | number>>({})
 
@@ -160,6 +197,40 @@ const presets = [
     className: 'btn-warning',
   },
 ]
+
+function previewKey(group: ArtJobQueueGroup): string {
+  return `${group.preview?.artImageId}:${group.preview?.version}`
+}
+
+function previewSrc(group: ArtJobQueueGroup): string {
+  const preview = group.preview
+  if (!preview || failedPreviews.has(previewKey(group))) return ''
+  if (
+    preview.isMature &&
+    (userStore.isMaturityRestricted || !userStore.showMature)
+  )
+    return ''
+  if (artJobStore.jobMaturityFilter === 'safe' && preview.isMature) return ''
+  if (artJobStore.jobMaturityFilter === 'mature' && !preview.isMature) return ''
+  if (preview.isPublic && !preview.isMature) {
+    return `/api/art/images/${preview.artImageId}/file?v=${preview.version}`
+  }
+  return artJobStore.imageVersionById[preview.artImageId] === preview.version
+    ? artJobStore.imageSrcById[preview.artImageId] || ''
+    : ''
+}
+
+function markPreviewFailed(group: ArtJobQueueGroup): void {
+  failedPreviews.add(previewKey(group))
+}
+
+watch(
+  () => [artJobStore.jobMaturityFilter, userStore.showMature],
+  () => {
+    failedPreviews.clear()
+    void priorityStore.fetchGroups()
+  },
+)
 
 function isBusy(name: string): boolean {
   return priorityStore.updatingGroupNames.includes(name)

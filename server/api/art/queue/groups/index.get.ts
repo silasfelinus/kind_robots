@@ -3,19 +3,43 @@
 // Admin view of the PENDING backlog grouped by job name (the queue card's
 // title): how many groups, how many jobs in each, and each group's priority
 // range, ordered the way the relay will reach them.
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, getQuery } from 'h3'
 import { errorHandler } from '../../../../utils/error'
 import { requireAdminApiUser } from '../../../../utils/authGuard'
-import { loadPendingArtJobGroupRows } from '../../../../utils/artJobQueueGroupRows'
-import { summarizeArtJobQueueGroups } from '~/utils/artJobQueueGroups'
+import {
+  loadCompletedArtJobGroupPreviewRows,
+  loadPendingArtJobGroupRows,
+} from '../../../../utils/artJobQueueGroupRows'
+import {
+  getArtImageAccessContext,
+  readGalleryMaturityFilter,
+} from '../../../../utils/artImageAccess'
+import {
+  attachArtJobGroupPreviews,
+  summarizeArtJobQueueGroups,
+} from '~/utils/artJobQueueGroups'
 
 export default defineEventHandler(async (event) => {
   try {
-    await requireAdminApiUser(event)
+    const auth = await requireAdminApiUser(event)
 
     const summary = summarizeArtJobQueueGroups(
       await loadPendingArtJobGroupRows(),
     )
+
+    if (summary.groups.length) {
+      const access = await getArtImageAccessContext(event)
+      const requested = readGalleryMaturityFilter(
+        getQuery(event).maturity as string | undefined,
+      )
+      if (access.showMature || requested !== 'mature') {
+        const maturity = access.showMature ? requested : 'safe'
+        attachArtJobGroupPreviews(
+          summary,
+          await loadCompletedArtJobGroupPreviewRows(auth.user.id, maturity),
+        )
+      }
+    }
 
     return {
       success: true,

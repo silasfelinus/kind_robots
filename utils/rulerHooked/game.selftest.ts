@@ -186,21 +186,22 @@ const fresh = (id = 'sv_a'): RunSave =>
   }
   assert.ok(found?.card)
   const turn = found
-  turn.save.pendingCardId = turn.card.id
+  const card = turn.card!
+  turn.save.pendingCardId = card.id
   turn.save.createdAt = '2026-11-25T00:00:00Z'
   writeSave(turn.save, '2026-11-25T00:01:00Z')
   const loaded = loadSave(turn.save.saveId)!
   const checkpoint = readCourtCheckpoint(C, loaded)
-  assert.equal(checkpoint.card?.id, turn.card.id)
+  assert.equal(checkpoint.card?.id, card.id)
   assert.equal(checkpoint.arcId, turn.arcId ?? null)
   assert.equal(loaded.turnCount, turn.save.turnCount)
   assert.equal(loaded.counters.fishCaught, turn.save.counters.fishCaught)
   const backup = royalBackup([loaded], {})
   assert.equal(
     readCourtCheckpoint(C, backup.reigns[0]!).card?.id,
-    turn.card.id,
+    card.id,
   )
-  const answered = resolveChoice(loaded, checkpoint.card!, turn.card.choices[0]!)
+  const answered = resolveChoice(loaded, checkpoint.card!, card.choices[0]!)
   delete answered.pendingCardId
   writeSave(answered, '2026-11-25T00:02:00Z')
   assert.equal(readCourtCheckpoint(C, loadSave(answered.saveId)!).card, null)

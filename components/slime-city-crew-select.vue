@@ -2,9 +2,8 @@
   CREW SELECT. Silas, 2026-11-11 PT: "We repeat the faction select twice. The
   top one is too much freedom. The user should change the factions in specific
   formats as needed ... Make sure the elements that need it: story, vs,
-  deckbuilder, have their space to select." One compact crew button lives in
-  each screen that needs it (Journey, Practice, Collection) and opens a row of
-  the six crew emblems.
+  deckbuilder, have their space to select." One compact crew button lives in each screen that needs it and opens
+  an illustrated comic dossier. Controlled callers own their selection.
   Silas, 2026-11-24 PT: "vs. mode no longer shows description of the factions
   when selecting a team." The menu carries a dossier: a first tap previews a
   crew (motto, story, how it wins, how to beat it); the confirm button or a
@@ -22,20 +21,20 @@
       class="scs-current"
       :aria-expanded="open"
       aria-haspopup="dialog"
-      :aria-label="label + ': ' + lab.team.name + '. Change crew'"
-      :title="label + ': ' + lab.team.name"
+      :aria-label="label + ': ' + (currentTeam?.name ?? 'Choose crew')"
+      :title="label + ': ' + (currentTeam?.name ?? 'Choose crew')"
       data-testid="slime-crew-select-toggle"
       @click="toggle"
     >
       <SlimeCityArtwork
-        :image-id="slimeArtId('crews', lab.activeTeam)"
-        :alt="lab.team.name + ' crew emblem'"
-        :fallback="lab.team.insignia"
+        :image-id="currentTeam ? slimeArtId('crews', currentTeam.id) : null"
+        :alt="(currentTeam?.name ?? 'Choose crew') + ' crew emblem'"
+        :fallback="currentTeam?.insignia ?? '+'"
         compact
       />
       <span v-if="!compact" class="scs-name">
         <small>{{ label }}</small>
-        <b>{{ lab.team.name }}</b>
+        <b>{{ currentTeam?.name ?? 'Choose crew' }}</b>
       </span>
       <span class="scs-caret" aria-hidden="true">▾</span>
     </button>
@@ -55,11 +54,11 @@
         </header>
         <div class="scs-roster" role="group" aria-label="Preview a crew">
       <button
-        v-for="team in lab.teams"
+        v-for="team in availableTeams"
         :key="team.id"
         type="button"
         class="scs-crew"
-        :class="['tone-' + team.color, { previewed: preview.id === team.id }]"
+        :class="'tone-' + team.color"
         :aria-pressed="preview.id === team.id"
         :title="team.name + ': ' + team.motto"
         :data-testid="'slime-crew-' + team.id"
@@ -113,21 +112,21 @@
         </section>
         <dl>
           <dt>WINS BY</dt>
-          <dd>{{ preview.pattern }}</dd>
+          <dd>{{ identities[preview.id].pattern }}</dd>
           <dt>BEAT IT</dt>
-          <dd>{{ preview.counters }}</dd>
+          <dd>{{ identities[preview.id].counters }}</dd>
         </dl>
         </div>
       </article>
       <button
           type="button"
           class="scs-confirm"
-          :disabled="preview.id === lab.activeTeam"
+          :disabled="preview.id === activeTeam"
           data-testid="slime-crew-confirm"
           @click="pick(preview.id)"
         >
           {{
-            preview.id === lab.activeTeam
+            preview.id === activeTeam
               ? 'CURRENT CREW'
               : 'PLAY AS ' + preview.name + ' ›'
           }}
@@ -144,11 +143,13 @@ import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { factionPower, OVERCHARGE_RULE } from '~/utils/slimeCity/factionPowers'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     label?: string
     compact?: boolean
     align?: 'left' | 'right'
+    teamId?: TeamId | null
+    excludeTeam?: TeamId
   }>(),
   { label: 'Crew', compact: false, align: 'left' },
 )
@@ -159,13 +160,26 @@ const trigger = ref<HTMLButtonElement | null>(null)
 const menu = ref<HTMLDialogElement | null>(null)
 /** The crew the dossier describes: the active crew until another is tapped. */
 const previewId = ref<TeamId | null>(null)
+const activeTeam = computed(() =>
+  props.teamId === undefined ? lab.activeTeam : props.teamId,
+)
+const availableTeams = computed(() =>
+  lab.teams.filter((team) => team.id !== props.excludeTeam),
+)
+const currentTeam = computed(() =>
+  availableTeams.value.find((team) => team.id === activeTeam.value),
+)
 const preview = computed(
-  () => lab.teams.find((team) => team.id === previewId.value) ?? lab.team,
+  () =>
+    availableTeams.value.find((team) => team.id === previewId.value) ??
+    currentTeam.value ??
+    availableTeams.value[0] ??
+    lab.team,
 )
 const power = computed(() => factionPower(preview.value.id))
 const specialties: Record<TeamId, { name: string; text: string }[]> = {
   catgirls: [
-    { name: 'Ambush', text: 'Strike on the turn a fighter lands.' },
+    { name: 'Ambush', text: 'Strike immediately, with +1 power on the first blow.' },
     { name: 'Regeneration', text: 'Recover extra life at the end of the round.' },
   ],
   bloodfairies: [
@@ -177,7 +191,7 @@ const specialties: Record<TeamId, { name: string; text: string }[]> = {
     { name: 'Bulldoze', text: 'Excess damage on a defeated fighter hits the boss.' },
   ],
   riot: [
-    { name: 'Volatile', text: 'Explode when defeated, damaging nearby enemies.' },
+    { name: 'Volatile', text: 'On defeat, damage the opposite fighter or boss.' },
     { name: 'Blast', text: 'Damage multiple enemies with explosive specials.' },
   ],
   undertow: [
@@ -190,12 +204,39 @@ const specialties: Record<TeamId, { name: string; text: string }[]> = {
   ],
 }
 
+const identities: Record<TeamId, { pattern: string; counters: string }> = {
+  catgirls: {
+    pattern: 'Strike immediately with Ambush, then keep your fighters alive with Regeneration and Nine Lives.',
+    counters: 'Finish wounded fighters before the round ends; stun can delay their attacks until Nine Lives clears it.',
+  },
+  bloodfairies: {
+    pattern: 'Pack adjacent alleys, hit harder together, and heal through combat. Mosh Pit rewards a full lineup.',
+    counters: 'Break up adjacent allies and use armor to absorb smaller hits.',
+  },
+  ironjaw: {
+    pattern: 'Absorb damage behind armor, then turn excess damage into boss damage with Bulldoze.',
+    counters: 'Use Pierce and stuns rather than trading blows with a heavily armored wall.',
+  },
+  riot: {
+    pattern: 'Use volatile fighters and explosive specials to deal damage even when your own fighters fall.',
+    counters: 'Use armor and healing to survive blasts; fuse-cutting snares can remove Volatile.',
+  },
+  undertow: {
+    pattern: 'Stun dangerous opponents, bypass armor, and eliminate a key fighter with Sewer Snipe.',
+    counters: 'Field several threats instead of relying on one heavily armored fighter.',
+  },
+  exchange: {
+    pattern: 'Grow your collectors by defeating rival fighters and drain the rival boss to sustain your own.',
+    counters: 'Deny easy finishing blows and pressure their boss before the collectors grow stronger.',
+  },
+}
+
 async function toggle(): Promise<void> {
   if (open.value) {
     close()
     return
   }
-  previewId.value = lab.activeTeam
+  previewId.value = activeTeam.value
   open.value = true
   await nextTick()
   menu.value?.showModal()
@@ -213,8 +254,8 @@ function tap(team: TeamId): void {
 }
 function pick(team: TeamId): void {
   close()
-  if (team === lab.activeTeam) return
-  lab.chooseTeam(team)
+  if (team === activeTeam.value) return
+  if (props.teamId === undefined) lab.chooseTeam(team)
   emit('picked', team)
 }
 </script>
@@ -293,7 +334,7 @@ function pick(team: TeamId): void {
   max-width: none;
   max-height: calc(100% - 1rem);
   padding: 0;
-  overflow: auto;
+  overflow: hidden;
   border: 3px solid #b9f151;
   border-radius: 0.75rem;
   background: #101c22;
@@ -307,9 +348,11 @@ function pick(team: TeamId): void {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  max-height: calc(100dvh - 1rem - 6px);
   padding: 0.65rem;
 }
 .scs-heading {
+  flex: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -325,6 +368,7 @@ function pick(team: TeamId): void {
   cursor: pointer;
 }
 .scs-roster {
+  flex: none;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 0.35rem;
@@ -362,6 +406,10 @@ function pick(team: TeamId): void {
 }
 .scs-dossier {
   --ink: #b9f151;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: min(55vh, 32rem);
+  overflow-y: auto;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
   gap: 0.55rem;
@@ -430,7 +478,7 @@ function pick(team: TeamId): void {
   flex-direction: column;
   gap: 0.55rem;
   min-width: 0;
-  max-height: min(55vh, 32rem);
+  min-height: 0;
   overflow-y: auto;
   padding: 0.25rem;
   font-size: 0.9rem;
@@ -477,6 +525,7 @@ function pick(team: TeamId): void {
   margin-top: 0.4rem;
 }
 .scs-confirm {
+  flex: none;
   padding: 0.65rem;
   border: 2px solid #b9f151;
   border-radius: 0.35rem;
@@ -504,7 +553,7 @@ function pick(team: TeamId): void {
     height: 25vh;
   }
   .scs-copy {
-    max-height: 30vh;
+    overflow: visible;
   }
 }
 </style>

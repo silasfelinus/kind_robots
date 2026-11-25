@@ -37,7 +37,7 @@
         <div class="scpvp-poster">
           <SlimeCityArtwork
             :image-id="
-              slimeArtId('crews', answering ? pvp.duel!.hostTeam : selectedTeam)
+              slimeArtId('crews', selectedTeam)
             "
             :alt="nameOf(selectedTeam) + ' crew poster'"
             fallback="⚔"
@@ -69,28 +69,15 @@
           </div>
         </div>
         <div class="scpvp-lobby-tools">
-          <div
-            class="scpvp-crew-grid"
-            role="group"
-            aria-label="Choose your crew"
-          >
-            <button
-              v-for="team in TEAMS"
-              :key="team.id"
-              type="button"
-              :class="{ chosen: selectedTeam === team.id }"
-              :aria-pressed="selectedTeam === team.id"
-              :aria-label="team.name"
-              @click="selectedTeam = team.id"
-            >
-              <SlimeCityArtwork
-                :image-id="slimeArtId('crews', team.id)"
-                :alt="team.name"
-                :fallback="team.insignia"
-                compact
-              />
-              <span>{{ team.name }}</span>
-            </button>
+          <SlimeCityCrewSelect
+            class="scpvp-lobby-crew"
+            label="Your crew"
+            :team-id="selectedTeam"
+            @picked="selectedTeam = $event"
+          />
+          <div class="scpvp-lobby-power">
+            <b>{{ factionPower(selectedTeam).name }}</b>
+            <p>{{ factionPower(selectedTeam).text }}</p>
           </div>
           <div
             v-if="!invitedId"
@@ -1672,31 +1659,27 @@ watch(
   justify-content: center;
   gap: 1rem;
 }
-.scpvp-crew-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
-}
-.scpvp-crew-grid button {
-  border: 2px solid #416264;
-  border-radius: 0.75rem;
-  overflow: hidden;
-  text-align: left;
-  background: #112933;
-}
-.scpvp-crew-grid button.chosen {
-  border-color: #d4f960;
-  box-shadow: 0 0 0 2px #d4f96044;
-}
-.scpvp-crew-grid button > :first-child {
+.scpvp-lobby-crew :deep(.scs-current) {
   width: 100%;
-  aspect-ratio: 4/3;
+  min-height: 3.5rem;
 }
-.scpvp-crew-grid button span {
-  display: block;
-  padding: 0.35rem;
-  font-size: 0.75rem;
-  font-weight: 800;
+.scpvp-lobby-crew :deep(.scs-current .slime-art) {
+  width: 3rem;
+  height: 3rem;
+}
+.scpvp-lobby-crew :deep(.scs-name b) {
+  max-width: none;
+  font-size: 1rem;
+}
+.scpvp-lobby-power {
+  padding: 0.65rem;
+  border: 2px solid #d4f960;
+  background: #112933;
+  font-size: 0.85rem;
+}
+.scpvp-lobby-power b {
+  color: #d4f960;
+  font-weight: 900;
 }
 .scpvp-primary {
   padding: 0.7rem 1rem;
@@ -1887,12 +1870,6 @@ watch(
   }
   .scpvp-poster-copy {
     padding: 0.6rem;
-  }
-  .scpvp-crew-grid button > :first-child {
-    aspect-ratio: 2/1;
-  }
-  .scpvp-crew-grid button span {
-    font-size: 0.59rem;
   }
   .scpvp-lobby-tools {
     gap: 0.4rem;

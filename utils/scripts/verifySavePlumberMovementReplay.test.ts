@@ -265,6 +265,44 @@ for (const dir of [-1, 1] as const) {
   assert.ok(glide.hero.vx * dir < 0, 'gliding still permits counter-steering')
 }
 
+for (const dir of [-1, 1] as const) {
+  const run = labRun()
+  run.power = 'sailwing'
+  run.hero.x = 20 * TILE
+  run.hero.y = FLOOR - HERO_TALL - 150
+  run.hero.vx = dir * 4
+  run.hero.vy = 4
+  run.ground = false
+  const start = run.hero.x
+  replay(
+    run,
+    30,
+    (_, input) => {
+      input.held.a = true
+    },
+    () => {
+      assert.ok(run.hero.vy <= 1.8, 'Sailwing caps descent speed')
+      assert.equal(embedded(run), null)
+    },
+  )
+  assert.ok((run.hero.x - start) * dir > 95, 'Sailwing crosses long gaps')
+  assert.ok(Math.abs(run.hero.vx) > 2.9, 'Sailwing conserves momentum')
+  replay(run, 8, () => {})
+  assert.ok(run.hero.vy > 1.8, 'release exits the glide')
+  replay(run, 120, () => {})
+  assert.ok(run.ground, 'glide ends on ordinary terrain')
+}
+{
+  const normal = labRun()
+  const powered = labRun()
+  powered.power = 'sailwing'
+  for (const run of [normal, powered])
+    replay(run, 1, (_, input) => {
+      input.held.a = input.pressed.a = true
+    })
+  assert.equal(powered.hero.vy, normal.hero.vy, 'Sailwing is not a jump boost')
+}
+
 {
   const run = labRun()
   run.hero.x = 54 * TILE
@@ -661,6 +699,7 @@ const POWERS: (PlumberPower | null)[] = [
   'springstep',
   'bottled-storm',
   'pocket-lift',
+  'sailwing',
 ]
 const FUZZ_FRAMES = 2400
 let fuzzFrames = 0

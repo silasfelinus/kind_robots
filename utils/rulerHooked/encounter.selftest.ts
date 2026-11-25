@@ -358,4 +358,38 @@ function playHighlighted(
   console.log({ attempts, catches, escapes })
 }
 
+// A first-time angler following the highlighted targets can be a little
+// early or late without snapping every common line. The offsets are fixed
+// percentage points of the bar, not frame counts or a perfect timing bot.
+{
+  let landed = 0
+  let missed = 0
+  for (let i = 0; i < 128; i++) {
+    const save = fresh()
+    save.seed = `novice-${i}`
+    const start = startFishingEncounterForFish(save, 'parlour-rustfish')
+    let current = start
+    while (!fishingEncounterFinished(current)) {
+      const profile = timingProfileFor(current)
+      const target = fightTargetFor(profile, fightAim(current))
+      const error = current.beat % 2 === 0 ? -3 : 3
+      current = applyFishingStop(
+        current,
+        target.start + target.width / 2 + error,
+      )
+      assert.ok(current.beat <= current.maxBeats)
+    }
+    if (current.phase === 'LANDED') landed++
+
+    let reckless = start
+    while (!fishingEncounterFinished(reckless)) {
+      reckless = applyFishingStop(reckless, 0)
+    }
+    if (reckless.phase === 'ESCAPED') missed++
+  }
+  assert.ok(landed >= 120, `Common beginner catches: ${landed}/128`)
+  assert.equal(missed, 128, 'A complete miss never earns a free fish')
+  console.log(`Common beginner catches: ${landed}/128`)
+}
+
 console.log('ruler-hooked ENCOUNTER self-test: ALL PASS')

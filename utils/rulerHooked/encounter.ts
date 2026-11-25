@@ -227,7 +227,13 @@ function resolveFight(encounter: FishingEncounter, action: FishingAction, qualit
   const surge = Math.floor(rng.next() * 8)
   const resistance = Math.floor(rng.next() * 5)
   const applied = effectiveAction(encounter, action)
-  const q = Math.max(0, Math.min(1, quality))
+  const rawQuality = Math.max(0, Math.min(1, quality))
+  // Common fish forgive a slightly off-center stop without rewarding a
+  // complete miss. Higher rarities retain the original precision curve.
+  const q =
+    encounter.rarity === 'COMMON'
+      ? 1 - (1 - rawQuality) ** 2
+      : rawQuality
 
   if (applied === 'REEL') {
     // quality=1: progressPerReel - resistance, tensionPerReel + surge -- identical to the original fixed formula.

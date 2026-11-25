@@ -1001,7 +1001,23 @@ for (const file of [
   assert.match(duel, /'arena'\s*'rail'\s*'console'/)
   assert.match(duel, /--W: min\(20rem, 36cqw, 46cqh\)/)
   assert.match(duel, /--rest: 1;/)
-  assert.match(duel, /--y: calc\(var\(--W\) \* 1\.5 - 2\.5rem\)/)
+  assert.match(duel, /--y: calc\(var\(--hand-width\) \* 1\.5 - 2\.5rem\)/)
+  assert.match(
+    duel,
+    /--hand-width: min\([\s\S]*?\(100cqw - 1rem - var\(--n1\) \* var\(--hand-gap\)\) \/ \(var\(--n1\) \+ 1\)/,
+    'resting cards reserve separate full-width slots',
+  )
+  assert.match(
+    duel,
+    /--x: calc\(var\(--o\) \* \(var\(--hand-width\) \+ var\(--hand-gap\)\)\);/,
+    'adjacent faces do not overlap',
+  )
+  assert.match(duel, /--rules-open: 1;/, 'resting cards expose ability text')
+  assert.match(
+    duel,
+    /\.ccf-badge\) \{\s*white-space: normal;\s*overflow: visible;/,
+    'combat stats cannot be ellipsized',
+  )
   assert.match(
     duel,
     /\.scpvp-unit-label \{\s*position: absolute;\s*inset: calc\(0\.8rem/,

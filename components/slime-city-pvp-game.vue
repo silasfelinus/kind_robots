@@ -2915,15 +2915,47 @@ watch(
   pointer-events: none;
 }
 .scpvp-arena :deep(.cxh.open .cxh-card:not(.big):not(.dragging)) {
-  --x: calc(
-    var(--o) * min(var(--W) * 0.8, (100cqw - var(--W) - 1rem) / var(--n1, 1))
+  --hand-gap: 0.35rem;
+  --hand-width: min(
+    var(--W),
+    (100cqw - 1rem - var(--n1) * var(--hand-gap)) / (var(--n1) + 1)
   );
-  --y: -0.5rem;
+  --x: calc(var(--o) * (var(--hand-width) + var(--hand-gap)));
+  --y: calc(-0.75rem + var(--drop) * 0.35);
   --s: 1;
   --r: 0deg;
+  --rules-open: 1;
+  width: var(--hand-width);
+}
+.scpvp-arena :deep(.cxh.open .cxh-card:not(.big):not(.dragging) .ccf) {
+  display: flex;
+  flex-direction: column;
+}
+.scpvp-arena :deep(.cxh.open .cxh-card:not(.big):not(.dragging) .ccf-head) {
+  position: relative;
+  inset: auto;
+  margin: 3.5cqw;
+  flex: none;
+}
+.scpvp-arena :deep(.cxh.open .cxh-card:not(.big):not(.dragging) .ccf-top) {
+  flex-wrap: wrap;
+}
+.scpvp-arena :deep(.cxh.open .cxh-card:not(.big):not(.dragging) .ccf-badge) {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+.scpvp-arena :deep(.cxh.open .cxh-card:not(.big):not(.dragging) .ccf-name) {
+  overflow-wrap: anywhere;
+}
+.scpvp-arena :deep(.cxh.open .cxh-card:not(.big):not(.dragging) .ccf-rules) {
+  position: relative;
+  margin-top: auto;
+  min-height: 0;
+  overflow-y: auto;
 }
 .scpvp-arena :deep(.cxh.holding.open .cxh-card:not(.big):not(.dragging)) {
-  --y: calc(var(--W) * 1.5 - 2.5rem);
+  --y: calc(var(--hand-width) * 1.5 - 2.5rem);
 }
 .scpvp-arena :deep(.cxh .cxh-card.big:not(.dragging)) {
   width: var(--pvp-preview-width);

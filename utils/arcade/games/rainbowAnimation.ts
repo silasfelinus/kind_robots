@@ -153,6 +153,73 @@ export function drawRainbowInterlude(
   return height
 }
 
+/**
+ * Ending plates that move (presentation critic P-03: "the endings are 3 still plates"): a one-shot WAN 2.2 clip of
+ * each reviewed plate (conductor ANIM-BACKLOG-2026-11-24), keyed by the plate's name (`restore`, `loyal-sever`).
+ * Listed only once reviewed; an ending without a clip shows its still plate.
+ */
+export const RAINBOW_ENDING_MOTION: readonly string[] = []
+
+/** The plate an ending shows: the loyal road has its own; sever's plate is the crew-free lantern scene. */
+export function rainbowEndingPlateName(
+  choice: 'restore' | 'evacuate' | 'sever',
+  road: 'rebel' | 'loyal' | null,
+): string {
+  if (road === 'loyal') return `loyal-${choice}`
+  return choice === 'sever' ? 'sever-open' : choice
+}
+
+export function rainbowEndingMotionPath(name: string): string {
+  return `/rainbow-princess-video/endings/${name}.mp4`
+}
+
+const endingVideos = new Map<string, HTMLVideoElement | null>()
+/**
+ * Draw the ending's moving plate at (x, y), `width` wide, `elapsed` frames into the ending (the clip starts over
+ * when the ending begins and holds its last frame); returns its height, or 0 under calm motion, in the Classic
+ * look, without a reviewed clip or while it loads, so the caller draws the still plate.
+ */
+export function drawRainbowEndingMotion(
+  g: CanvasRenderingContext2D,
+  name: string,
+  x: number,
+  y: number,
+  width: number,
+  calm: boolean,
+  elapsed: number,
+): number {
+  if (
+    calm ||
+    rainbowLook() !== 'fever' ||
+    !RAINBOW_ENDING_MOTION.includes(name)
+  )
+    return 0
+  let video = endingVideos.get(name)
+  if (video === undefined) {
+    video = null
+    if (typeof document !== 'undefined') {
+      const made = document.createElement('video')
+      made.muted = true
+      made.loop = false
+      made.playsInline = true
+      made.preload = 'auto'
+      made.onerror = () => endingVideos.set(name, null)
+      made.src = rainbowEndingMotionPath(name)
+      void made.play()?.catch?.(() => {})
+      video = made
+    }
+    endingVideos.set(name, video)
+  }
+  if (!video || video.readyState < 2 || video.videoWidth <= 0) return 0
+  if (elapsed < 2 && video.currentTime > 0.05) {
+    video.currentTime = 0
+    void video.play()?.catch?.(() => {})
+  }
+  const height = (width * video.videoHeight) / video.videoWidth
+  g.drawImage(video, x, y, width, height)
+  return height
+}
+
 export type RainbowPose = 'hit' | 'victory'
 /**
  * Pilots (by first name, lower case) with painted poses: Kontext edits of each CAST-QA identity lock (conductor

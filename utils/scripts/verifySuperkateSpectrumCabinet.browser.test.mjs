@@ -319,6 +319,19 @@ try {
       assert.ok(game.shotsThisBoard >= 1, `${tag}: the orb lands`)
       await snap('stage-1')
 
+      // A first power orb explains itself on a card (t-186), drawn over the live board.
+      const tip = await page.evaluate(() => {
+        const game = (window.__spectrums ?? [])
+          .filter((entry) => !entry.demo)
+          .at(-1).game
+        game.banner = 0
+        game.grantPower('ribbon')
+        return game.powerTip
+      })
+      assert.equal(tip, 'ribbon', `${tag}: the first ribbon shows its tip`)
+      await wait(150)
+      await snap('power-tip')
+
       // Clear the board: the career records the stage and its stars, and survives a reopen.
       await clearBoard(page)
       game = await spectrum(page)

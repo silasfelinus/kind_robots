@@ -1185,3 +1185,75 @@ console.log(
   // Without the opt-in the upright tablet keeps its full-width stage (floating controls).
   assert.equal(plan(768, 1024), null)
 }
+
+// Power tutorials (t-186): the first Prism, Burst and Ribbon of a visit each explain themselves on
+// a card that firing dismisses; a repeat grant, or the attract demo, shows none.
+{
+  const { POWER_TIPS } = await import('../arcade/games/superkateSpectrum')
+  type Tipped = ReturnType<typeof create> & {
+    grantPower: (power: 'prism' | 'burst' | 'ribbon') => void
+    banner: number
+  }
+  const recorder = () => {
+    const text: string[] = []
+    const gradient = { addColorStop() {} }
+    const context = new Proxy(
+      {},
+      {
+        get: (_, key) =>
+          key === 'fillText'
+            ? (value: string) => text.push(value)
+            : key === 'createLinearGradient' || key === 'createRadialGradient'
+              ? () => gradient
+              : key === 'measureText'
+                ? () => ({ width: 10 })
+                : () => {},
+        set: () => true,
+      },
+    ) as unknown as CanvasRenderingContext2D
+    return { text, context }
+  }
+  const tipped = create({
+    ...options,
+    resume: readSpectrumSave(null),
+  } as Parameters<typeof create>[0]) as Tipped
+  const play = emptyInput()
+  play.pressed.a = true
+  tipped.update(play)
+  assert.equal(tipped.choosingMode, false, 'stage 1 begins')
+  tipped.banner = 0
+  for (const power of ['prism', 'burst', 'ribbon'] as const) {
+    tipped.grantPower(power)
+    assert.equal(tipped.power, power)
+    assert.equal(tipped.powerTip, power, `${power} explains itself first time`)
+    const drawn = recorder()
+    tipped.render(drawn.context)
+    for (const line of [POWER_TIPS[power].title, ...POWER_TIPS[power].lines])
+      assert.ok(drawn.text.includes(line), `${power} tip draws "${line}"`)
+    const fire = emptyInput()
+    fire.pressed.a = true
+    tipped.update(fire)
+    assert.equal(tipped.powerTip, null, `${power} tip clears on firing`)
+    for (let i = 0; i < 200 && tipped.shot; i++) tipped.update(emptyInput())
+    tipped.grantPower(power)
+    assert.equal(tipped.powerTip, null, `${power} tip shows once per visit`)
+    assert.equal(tipped.power, power)
+    tipped.power = null
+  }
+  // The tip times out by itself (only while no chapter card is up).
+  const timed = create({
+    ...options,
+    resume: readSpectrumSave(null),
+  } as Parameters<typeof create>[0]) as Tipped
+  timed.update(play)
+  timed.banner = 0
+  timed.grantPower('burst')
+  for (let i = 0; i < 300; i++) timed.update(emptyInput())
+  assert.equal(timed.powerTip, null, 'the tip times out')
+  const demo = create({
+    ...options,
+    demo: true,
+  } as Parameters<typeof create>[0]) as Tipped
+  demo.grantPower('prism')
+  assert.equal(demo.powerTip, null, 'the attract demo shows no tutorial')
+}

@@ -337,6 +337,31 @@ export const BOSS_PATTERNS = [
   },
 ] as const
 
+/** The first time each power is earned in a visit, a short card says what it does (t-186). */
+export const POWER_TIPS: Record<
+  SpectrumPower,
+  { title: string; lines: readonly [string, string]; ring: string }
+> = {
+  prism: {
+    title: 'PRISM ORB EARNED',
+    lines: [
+      'IT TAKES THE COLOR OF THE BIGGEST',
+      'GROUP IT TOUCHES. AIM AT A CROWD!',
+    ],
+    ring: '#9df7ff',
+  },
+  burst: {
+    title: 'BURST ORB EARNED',
+    lines: ['IT POPS EVERY BUBBLE AROUND', 'WHERE IT LANDS, ANY COLOR.'],
+    ring: '#ff9cae',
+  },
+  ribbon: {
+    title: 'RIBBON ORB EARNED',
+    lines: ['IT SWEEPS THE WHOLE ROW IT', 'LANDS IN. AIM AT A WIDE ROW!'],
+    ring: '#ffe382',
+  },
+}
+
 type BossGuard = { x: number; y: number; radius: number }
 
 function bossGuards(chapter: number, hit: number): BossGuard[] {
@@ -563,6 +588,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   optionRow = 0
   settings: SpectrumSettings
   power: SpectrumPower | null = null
+  powerTip: SpectrumPower | null = null
+  powerTipTicks = 0
+  private powerTipsShown = new Set<SpectrumPower>()
   sparks: Spark[] = []
   boss: BossState | null = null
   private pointerAction: PointerAction | null = null
@@ -764,6 +792,14 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.earned.add(id)
     this.feats.push(id)
   }
+  /** Hand Superkate a power orb; the first of each kind this visit explains itself. */
+  private grantPower(power: SpectrumPower) {
+    this.power = power
+    if (this.demo || this.powerTipsShown.has(power)) return
+    this.powerTipsShown.add(power)
+    this.powerTip = power
+    this.powerTipTicks = 300
+  }
   private resetBoard() {
     this.pointerAction = null
     this.choiceResponseVisible = false
@@ -854,7 +890,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         if (this.specialMeter >= charge) {
           this.specialMeter = 0
           const rank = rankForXp(this.career.xp)
-          this.power = specialForStage(this.level, rank, this.specialCount++)
+          this.grantPower(
+            specialForStage(this.level, rank, this.specialCount++),
+          )
         }
       }
       this.score +=
@@ -994,7 +1032,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     const index = this.pendingChoice
     this.storyChoices[index] = this.choiceCursor
     if (this.choiceCursor === 0) this.lives = Math.min(9, this.lives + 1)
-    else this.power = STORY_DECISIONS[index]!.power
+    else this.grantPower(STORY_DECISIONS[index]!.power)
     this.message = STORY_DECISIONS[index]!.options[this.choiceCursor].response
     this.choiceResponseVisible = true
     this.pendingChoice = null
@@ -1027,6 +1065,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.playEffect('shoot')
     this.shot = this.makeShot()
     this.power = null
+    this.powerTip = null
+    this.powerTipTicks = 0
   }
 
   private boardContact(shot: Shot) {
@@ -1290,6 +1330,10 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       this.cosmeticUnlockTicks--
       if (this.cosmeticUnlockTicks === 0) this.cosmeticUnlock = null
     }
+    if (this.powerTipTicks > 0 && this.banner === 0) {
+      this.powerTipTicks--
+      if (this.powerTipTicks === 0) this.powerTip = null
+    }
     if (this.banner > 0) this.banner--
     if (input.held.left) this.angle -= 0.035
     if (input.held.right) this.angle += 0.035
@@ -1307,6 +1351,41 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       return
     }
     if (this.shot.y <= 40 || this.boardContact(this.shot)) this.settle()
+  }
+  private renderPowerTip(
+    g: CanvasRenderingContext2D,
+    power: SpectrumPower,
+    style: BubbleStyle,
+  ) {
+    const tip = POWER_TIPS[power]
+    g.fillStyle = this.settings.highContrast ? '#0c0b25' : '#0c0b25e0'
+    g.fillRect(14, 318, W - 28, 66)
+    g.strokeStyle = tip.ring
+    g.lineWidth = 2
+    g.strokeRect(14, 318, W - 28, 66)
+    bubble(
+      g,
+      44,
+      351,
+      this.loaded,
+      13,
+      style,
+      this.settings.particles ? this.tick : 0,
+      this.settings.highContrast,
+    )
+    g.strokeStyle = tip.ring
+    g.beginPath()
+    g.arc(
+      44,
+      351,
+      18 + (this.settings.particles ? Math.sin(this.tick / 5) * 2 : 0),
+      0,
+      Math.PI * 2,
+    )
+    g.stroke()
+    label(g, tip.title, 178, 337, 12, tip.ring)
+    label(g, tip.lines[0], 178, 356, 9, '#fff4f6')
+    label(g, tip.lines[1], 178, 371, 9, '#fff4f6')
   }
   private renderStoryChoice(g: CanvasRenderingContext2D) {
     const scene = STORY_DECISIONS[this.pendingChoice!]!
@@ -1738,8 +1817,16 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       this.settings.particles ? this.tick : 0,
       this.settings.highContrast,
     )
+    // The loaded power reads beside the launcher, clear of the DROP counter above it.
     if (this.power)
-      label(g, this.power.toUpperCase(), W / 2, SHOT_Y - 21, 11, '#fff89d')
+      label(
+        g,
+        `★ ${this.power.toUpperCase()}`,
+        W / 2 + 70,
+        SHOT_Y + 4,
+        11,
+        '#fff89d',
+      )
     label(g, 'NEXT', 44, SHOT_Y + 24, 10, '#d6faff')
     label(
       g,
@@ -1933,6 +2020,14 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       this.renderMenuTabs(g)
       return
     }
+    if (
+      this.powerTip &&
+      this.banner === 0 &&
+      !this.over &&
+      !this.boss &&
+      this.pendingChoice === null
+    )
+      this.renderPowerTip(g, this.powerTip, style)
     if (this.banner > 0 || this.over) {
       g.fillStyle = '#0c0b25e6'
       g.fillRect(10, 154, W - 20, 132)

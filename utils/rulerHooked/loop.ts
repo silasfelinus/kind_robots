@@ -124,9 +124,12 @@ export function takeTurn(
   const next = cloneSave(save)
   const fishRng = makeRng(`${next.seed}:${next.turnCount}:fish`)
 
+  const caught = resolveFishingCatch(next, fishRng)
   next.turnCount += 1
   next.cyclePosition = cyclePosition(next.turnCount)
-  const caught = resolveFishingCatch(next, fishRng)
+  if (caught.newDiscovery) {
+    next.fishopedia[caught.fishSlug]!.firstCaughtTurn = next.turnCount
+  }
   const narrative = resolveNarrative(bundle, next, rng, interruptChance)
 
   return {

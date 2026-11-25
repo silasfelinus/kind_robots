@@ -704,7 +704,11 @@ import {
 import { drawText, lineStep, measureText } from '~/utils/arcade/font'
 import { mulberry32 } from '~/utils/arcade/curve'
 import { INITIALS_ALPHABET, isAllowedInitials } from '~/utils/arcade/initials'
-import { initialsFromUsername } from '~/utils/arcade/leaderboard'
+import {
+  initialsFromUsername,
+  spectrumBoardKey,
+  type SpectrumRankedMode,
+} from '~/utils/arcade/leaderboard'
 import { masteryLine, masteryProgress } from '~/utils/arcade/mastery'
 import {
   ARCADE_COMMS,
@@ -725,6 +729,7 @@ const props = defineProps<{
   contained?: boolean
   suspended?: boolean
   rainbowReplay?: unknown
+  plumberLaunch?: 'new' | 'continue'
 }>()
 const contained = computed(() => props.contained === true)
 const isRainbowReplay = computed(
@@ -1252,7 +1257,23 @@ function onLoopError(error: unknown) {
   }
 }
 
-const board = computed(() => store.board(props.slug, 'all'))
+const spectrumRankMode = ref<SpectrumRankedMode>('story')
+const boardGame = computed(() =>
+  props.slug === 'superkate-spectrum'
+    ? spectrumBoardKey(spectrumRankMode.value)
+    : props.slug,
+)
+const board = computed(() => store.board(boardGame.value, 'all'))
+function fetchCabinetBoards() {
+  const keys =
+    props.slug === 'superkate-spectrum'
+      ? [spectrumBoardKey('story'), spectrumBoardKey('classic')]
+      : [props.slug]
+  for (const key of keys) {
+    void store.fetchBoard(key, 'all')
+    void store.fetchBoard(key, 'today')
+  }
+}
 const hiScore = () => board.value[0]?.score ?? 0
 
 function unlockArcadeAudio() {
@@ -1671,8 +1692,7 @@ function enterPhase(next: ArcadePhase) {
     demoGame = null
   }
   if (next === 'scores') {
-    void store.fetchBoard(props.slug, 'all')
-    void store.fetchBoard(props.slug, 'today')
+    fetchCabinetBoards()
   }
   if (next === 'initials') {
     initials = readSavedInitials()
@@ -1711,6 +1731,8 @@ function startGame() {
       players: players.value,
       mastery: store.masteryFor(props.slug),
       resume: isRainbowReplay.value ? undefined : store.saveFor(props.slug),
+      plumberLaunch:
+        props.slug === 'save-the-plumber' ? props.plumberLaunch : undefined,
       rainbowReplay: isRainbowReplay.value ? props.rainbowReplay : undefined,
       rainbowHangar:
         props.slug === 'rainbow-bullet-hell-space-princess'
@@ -1817,7 +1839,7 @@ async function submitInitials() {
   submitting = true
   store.rememberInitials(value)
   await store.submitScore({
-    game: props.slug,
+    game: boardGame.value,
     initials: value,
     score: lastScore,
     level: lastLevel,
@@ -1888,6 +1910,15 @@ function tick() {
       demoGame.update(frame)
       if (demoGame.over) dispatch({ type: 'demoOver' })
     }
+    if (
+      current === 'scores' &&
+      props.slug === 'superkate-spectrum' &&
+      frame.pressed.left
+    ) {
+      spectrumRankMode.value =
+        spectrumRankMode.value === 'story' ? 'classic' : 'story'
+      fetchCabinetBoards()
+    }
     if (frame.pressed.right) dispatch({ type: 'skip' })
     dispatch({ type: 'tick', ms: TICK_MS })
     return
@@ -1935,7 +1966,13 @@ function tick() {
           score: lastScore,
           level: lastLevel,
         })
+        const rankedKey = 'scoreBoard' in game ? game.scoreBoard : undefined
+        if (props.slug === 'superkate-spectrum') {
+          spectrumRankMode.value =
+            rankedKey === spectrumBoardKey('classic') ? 'classic' : 'story'
+        }
         qualifies =
+          (props.slug !== 'superkate-spectrum' || rankedKey != null) &&
           ARCADE_GAMES.some((entry) => entry.slug === props.slug) &&
           qualifiesForBoard(lastScore, board.value)
         emit('scored', lastScore)
@@ -2247,13 +2284,22 @@ function render() {
   }
 
   if (current === 'scores') {
-    drawText(g, 'HIGH SCORES', w / 2, 22, {
+    const heading =
+      props.slug === 'superkate-spectrum'
+        ? `${spectrumRankMode.value.toUpperCase()} SCORES`
+        : 'HIGH SCORES'
+    drawText(g, heading, w / 2, 22, {
       scale: 3,
       align: 'center',
       color: '#ffffff',
       shadow: accent,
     })
     drawBoardRows(g, w, 64)
+    if (props.slug === 'superkate-spectrum')
+      drawText(g, 'LEFT: SWITCH STORY / CLASSIC', w / 2, h - 32, {
+        align: 'center',
+        color: '#fde68a',
+      })
     if (store.offline) {
       drawText(g, 'SAVED ON THIS DEVICE', w / 2, h - 16, {
         align: 'center',
@@ -2725,8 +2771,8 @@ async function boot() {
     if (generation !== bootGeneration) return
     loadError.value = 'This cabinet could not start. Try reloading.'
   }
-  void store.fetchBoard(info.slug, 'all')
-  void store.fetchBoard(info.slug, 'today')
+  spectrumRankMode.value = 'story'
+  fetchCabinetBoards()
 }
 
 onMounted(() => {

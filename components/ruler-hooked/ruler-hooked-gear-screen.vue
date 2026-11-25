@@ -35,6 +35,10 @@
         </div>
       </header>
 
+      <p v-if="!store.canShop" role="status">
+        The tackle room is closed during a catch, petition, or ending.
+      </p>
+
       <ul class="rh-gear__grid">
         <li
           v-for="item in items"
@@ -64,8 +68,11 @@
           <button
             type="button"
             class="rh-btn"
-            :class="{ 'rh-btn--gold': !item.owned && coins >= item.cost }"
-            :disabled="item.owned || coins < item.cost"
+            :class="{
+              'rh-btn--gold':
+                store.canShop && !item.owned && coins >= item.cost,
+            }"
+            :disabled="!store.canShop || item.owned || coins < item.cost"
             @click="buy(item.id)"
           >
             <template v-if="item.owned">Owned</template>

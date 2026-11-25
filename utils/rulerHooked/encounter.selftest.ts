@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict'
 import { RULER_HOOKED_CONTENT as C } from './content'
 import { createRun } from './newGame'
-import { advanceAfterFishingAttempt, takeTurn } from './loop'
+import { advanceAfterFishingAttempt, eligibleEnding, takeTurn } from './loop'
 import { makeRng } from './seed'
 import {
   applyFishingAction,
@@ -15,7 +15,17 @@ import {
   type FishingAction,
   type FishingEncounter,
 } from './encounter'
-import { resolveTimingStop, timingProfileFor } from './timingBar'
+import { fightAim, fightTargetFor, resolveTimingStop, timingProfileFor } from './timingBar'
+import { cloneSave, resolveChoice } from './applyEffects'
+import {
+  CASTS_PER_DAY,
+  DAILY_EVENTS,
+  PROCLAMATION_COUNTER,
+  PROCLAMATION_EVENT_INDEX_COUNTER,
+  hearProclamation,
+} from './dailyEvents'
+import { resolveFishingCatch } from './fish'
+import { GEAR_CATALOG, purchaseGearFor } from './economy'
 
 const fresh = () => createRun(C, {
   saveId: 'encounter-test',
@@ -227,6 +237,125 @@ function playSmart(encounter: FishingEncounter): FishingEncounter {
     assert.deepEqual(applyFishingStop(start, -50), applyFishingStop(start, 0))
     assert.deepEqual(applyFishingStop(start, 150), applyFishingStop(start, 100))
   }
+}
+
+// The last cast of a day still receives that day's crier bonus. Before this
+// fix the reward was rolled after incrementing the day, unlike the preview.
+{
+  const eventIndex = DAILY_EVENTS.findIndex((event) =>
+    event.fishBoostSlugs?.includes('orchardjaw-perch'),
+  )
+  assert.ok(eventIndex >= 0)
+  let witnesses = 0
+  for (let i = 0; i < 256; i++) {
+    const save = fresh()
+    save.seed = `day-boundary-${i}`
+    save.turnCount = CASTS_PER_DAY - 1
+    save.kingdomHealth.joy = 70
+    save.flags.newlywedsGarden = true
+    save.counters[PROCLAMATION_COUNTER] = 1
+    save.counters[PROCLAMATION_EVENT_INDEX_COUNTER] = eventIndex
+    const fishSeed = `${save.seed}:${save.turnCount}:fish`
+    const preview = startFishingEncounter(save)
+    const expected = resolveFishingCatch(cloneSave(save), makeRng(fishSeed))
+    const expired = cloneSave(save)
+    expired.turnCount += 1
+    const oldReward = resolveFishingCatch(expired, makeRng(fishSeed))
+    if (oldReward.fishSlug !== preview.fishSlug) witnesses += 1
+    const result = takeTurn(C, save, makeRng('boundary-narrative'))
+    assert.deepEqual(result.catch, expected, save.seed)
+    assert.equal(result.catch.fishSlug, preview.fishSlug)
+    assert.equal(result.save.turnCount, CASTS_PER_DAY)
+    assert.equal(
+      result.save.fishopedia[result.catch.fishSlug]!.firstCaughtTurn,
+      CASTS_PER_DAY,
+    )
+    assert.equal(save.counters.fishCaught, 0)
+  }
+  assert.ok(witnesses > 0, 'the old day-boundary mismatch must be exercised')
+}
+
+function playHighlighted(
+  start: FishingEncounter,
+  reckless: boolean,
+): FishingEncounter {
+  let fight = start
+  while (!fishingEncounterFinished(fight)) {
+    const target = fightTargetFor(timingProfileFor(fight), fightAim(fight))
+    const position = reckless ? 0 : target.start + target.width / 2
+    fight = applyFishingStop(fight, position)
+    assert.ok(fight.beat <= fight.maxBeats)
+  }
+  return fight
+}
+
+// Exercise the actual highlighted-input loop, day proclamations, earned
+// purchases and authored petitions over repeatable multi-day reigns.
+{
+  let catches = 0
+  let escapes = 0
+  let attempts = 0
+  for (let seed = 0; seed < 12; seed++) {
+    let save = fresh()
+    save.seed = `guided-reign-${seed}`
+    for (let turn = 0; turn < 60 && save.status === 'ACTIVE'; turn++) {
+      save = hearProclamation(save)
+      for (const gear of GEAR_CATALOG) {
+        const before = save
+        save = purchaseGearFor(save, gear.id)
+        if (save !== before) {
+          assert.equal(
+            save.counters.coins,
+            (before.counters.coins ?? 0) - gear.cost,
+          )
+          assert.ok(save.counters.coins! >= 0)
+        }
+      }
+      const start = startFishingEncounter(save)
+      const reckless = turn % 7 === 6
+      const fight = playHighlighted(start, reckless)
+      assert.deepEqual(playHighlighted(start, reckless), fight)
+      const narrativeSeed = `${save.seed}:${save.turnCount}`
+      const before = save
+      attempts++
+      if (fight.phase === 'LANDED') {
+        catches++
+        const result = takeTurn(C, save, makeRng(narrativeSeed))
+        assert.equal(result.catch.fishSlug, start.fishSlug)
+        assert.equal(
+          result.save.counters.fishCaught,
+          (before.counters.fishCaught ?? 0) + 1,
+        )
+        assert.equal(
+          result.save.counters.coins ?? 0,
+          (before.counters.coins ?? 0) + result.catch.coinsFound,
+        )
+        save = result.save
+        if (result.card?.choices.length) {
+          const choice = result.card.choices[seed % result.card.choices.length]!
+          save = resolveChoice(save, result.card, choice)
+          save.counters.cardsResolved = (save.counters.cardsResolved ?? 0) + 1
+        }
+      } else {
+        escapes++
+        const result = advanceAfterFishingAttempt(C, save, makeRng(narrativeSeed))
+        assert.deepEqual(result.save.fishopedia, before.fishopedia)
+        assert.equal(result.save.counters.fishCaught, before.counters.fishCaught)
+        assert.equal(result.save.counters.coins, before.counters.coins)
+        save = result.save
+        if (result.card?.choices.length) {
+          const choice = result.card.choices[seed % result.card.choices.length]!
+          save = resolveChoice(save, result.card, choice)
+          save.counters.cardsResolved = (save.counters.cardsResolved ?? 0) + 1
+        }
+      }
+      assert.equal(save.turnCount, before.turnCount + 1)
+      if (eligibleEnding(C, save)) break
+    }
+  }
+  assert.equal(catches + escapes, attempts)
+  assert.ok(catches > 0 && escapes > 0)
+  console.log({ attempts, catches, escapes })
 }
 
 console.log('ruler-hooked ENCOUNTER self-test: ALL PASS')

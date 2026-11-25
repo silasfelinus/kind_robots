@@ -193,9 +193,16 @@
         class="cxh-toggle"
         :aria-expanded="isOpen"
         :aria-label="
-          isOpen
-            ? 'Close your hand'
-            : 'Open your hand: ' + cards.length + ' cards'
+          focusToggle
+            ? isOpen
+              ? 'Show battlefield: close your hand'
+              : 'Show cards: ' + cards.length + ' in hand'
+            : isOpen
+              ? 'Close your hand'
+              : 'Open your hand: ' + cards.length + ' cards'
+        "
+        :title="
+          focusToggle ? game.decks[me].length + ' cards in deck' : undefined
         "
         data-testid="clash-hand-toggle"
         @click="toggle"
@@ -215,7 +222,8 @@
             "
         /></span>
         <b>{{ cards.length }}</b>
-        <small>{{ game.decks[me].length }} DECK</small>
+        <small v-if="focusToggle">{{ isOpen ? 'BATTLE' : 'CARDS' }}</small>
+        <small v-else>{{ game.decks[me].length }} DECK</small>
       </button>
     </Teleport>
   </div>
@@ -265,6 +273,7 @@ const props = defineProps<{
    * rail beside the board) with the `--held-reach` CSS variable.
    */
   dockHeld?: boolean
+  focusToggle?: boolean
 }>()
 const emit = defineEmits<{
   pick: [index: number | null]
@@ -279,20 +288,22 @@ const ready = computed(
     props.game.active === me.value &&
     props.game.phase === 'play',
 )
-const userClosed = ref(false)
+const userClosed = ref(!!props.focusToggle)
 const userPeek = ref(false)
 const isOpen = computed(() =>
-  ready.value
+  props.focusToggle || ready.value
     ? !userClosed.value
     : (props.openOffTurn ? !userClosed.value : userPeek.value) &&
       cards.value.length > 0,
 )
 watch(ready, (now) => {
+  if (props.focusToggle) return
   userClosed.value = false
   if (now) userPeek.value = false
 })
 function toggle(): void {
-  if (ready.value || props.openOffTurn) userClosed.value = !userClosed.value
+  if (props.focusToggle || ready.value || props.openOffTurn)
+    userClosed.value = !userClosed.value
   else userPeek.value = !userPeek.value
   if (!isOpen.value) emit('pick', null)
 }

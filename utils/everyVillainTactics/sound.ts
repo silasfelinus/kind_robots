@@ -399,6 +399,7 @@ export class TacticsSound {
   private nextStep = 0
   private hidden = false
   private enabled = true
+  private voices = new Map<OscillatorNode, { gain: GainNode; bus: GainNode }>()
 
   get unlocked(): boolean {
     return this.context !== null
@@ -427,18 +428,32 @@ export class TacticsSound {
       this.nextStep = this.context.currentTime + 0.03
       this.timer = setInterval(() => this.pump(), 60)
     }
-    if (!this.hidden) void this.context.resume().catch(() => {})
+    if (!this.hidden && this.context.state !== 'running') {
+      this.cancelVoices()
+      this.resetClock()
+      void this.context.resume().catch(() => {})
+    }
     return true
   }
 
   setEnabled(enabled: boolean): void {
+    if (this.enabled === enabled) return
     this.enabled = enabled
-    if (enabled && this.context) this.nextStep = this.context.currentTime + 0.05
+    this.cancelVoices()
+    this.resetClock()
     this.applyMix()
   }
 
   setMix(mix: TacticsMix): void {
+    const musicWasAudible = this.canPlayMusic()
     this.mix = parseTacticsMix(mix)
+    if (this.mix.muted || this.mix.master === 0) this.cancelVoices()
+    else {
+      if (this.music && this.mix.music === 0) this.cancelVoices(this.music)
+      if (this.effects && this.mix.effects === 0)
+        this.cancelVoices(this.effects)
+    }
+    if (musicWasAudible !== this.canPlayMusic()) this.resetClock()
     this.applyMix()
   }
 
@@ -446,7 +461,8 @@ export class TacticsSound {
     if (this.mood === mood) return
     this.mood = mood
     this.step = 0
-    if (this.context) this.nextStep = this.context.currentTime + 0.05
+    this.cancelVoices()
+    this.resetClock()
   }
 
   play(cues: readonly TacticsCue[]): void {
@@ -455,7 +471,10 @@ export class TacticsSound {
       !this.effects ||
       this.hidden ||
       this.mix.muted ||
-      !this.enabled
+      this.mix.master === 0 ||
+      this.mix.effects === 0 ||
+      !this.enabled ||
+      this.context.state !== 'running'
     )
       return
     for (const [index, cue] of cues.slice(0, 3).entries()) {
@@ -477,16 +496,16 @@ export class TacticsSound {
   setHidden(hidden: boolean): void {
     this.hidden = hidden
     if (!this.context) return
+    this.cancelVoices()
+    this.resetClock()
     if (hidden) void this.context.suspend().catch(() => {})
-    else {
-      this.nextStep = this.context.currentTime + 0.04
-      void this.context.resume().catch(() => {})
-    }
+    else void this.context.resume().catch(() => {})
   }
 
   dispose(): void {
     if (this.timer) clearInterval(this.timer)
     this.timer = null
+    this.cancelVoices()
     if (this.context) void this.context.close().catch(() => {})
     this.context = null
     this.master = null
@@ -494,6 +513,30 @@ export class TacticsSound {
     this.effects = null
     this.step = 0
     this.nextStep = 0
+  }
+
+  private canPlayMusic(): boolean {
+    return (
+      this.enabled &&
+      !this.mix.muted &&
+      this.mix.master > 0 &&
+      this.mix.music > 0
+    )
+  }
+
+  private resetClock(): void {
+    if (this.context) this.nextStep = this.context.currentTime + 0.05
+  }
+
+  private cancelVoices(bus?: GainNode): void {
+    for (const [tone, voice] of this.voices) {
+      if (bus && voice.bus !== bus) continue
+      this.voices.delete(tone)
+      tone.onended = null
+      tone.stop()
+      tone.disconnect()
+      voice.gain.disconnect()
+    }
   }
 
   private applyMix(): void {
@@ -527,6 +570,12 @@ export class TacticsSound {
     gain.gain.exponentialRampToValueAtTime(0.0001, at + length)
     tone.connect(gain)
     gain.connect(bus)
+    this.voices.set(tone, { gain, bus })
+    tone.onended = () => {
+      if (!this.voices.delete(tone)) return
+      tone.disconnect()
+      gain.disconnect()
+    }
     tone.start(at)
     tone.stop(at + length + 0.025)
   }
@@ -537,10 +586,15 @@ export class TacticsSound {
       !context ||
       !this.music ||
       this.hidden ||
-      !this.enabled ||
+      !this.canPlayMusic() ||
       context.state !== 'running'
-    )
+    ) {
+      if (context && context.state !== 'running') {
+        this.cancelVoices()
+        this.resetClock()
+      }
       return
+    }
     const score = TACTICS_THEMES[this.mood]
     const stepSeconds = 60 / score.bpm / 4
     if (this.nextStep < context.currentTime - 0.3)

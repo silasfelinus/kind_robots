@@ -902,13 +902,34 @@ for (const file of ['slime-city-campaign.vue', 'slime-city-clash.vue'])
     'utf8',
   )
   assert.match(crewSelect, /data-testid="slime-crew-dossier"/)
-  for (const field of ['motto', 'hook', 'pattern', 'counters'])
+  for (const field of ['motto', 'hook'])
     assert.match(
       crewSelect,
       new RegExp('preview\\.' + field),
       'crew menu dossier shows ' + field,
     )
   assert.match(crewSelect, /data-testid="slime-crew-confirm"/)
+  assert.match(crewSelect, /<dialog\b/)
+  assert.match(crewSelect, /showModal\(\)/)
+  assert.match(crewSelect, /data-testid="slime-crew-power"/)
+  assert.match(crewSelect, /factionPower\(preview\.value\.id\)/)
+  assert.match(crewSelect, /identities\[preview\.id\]\.pattern/)
+  assert.match(crewSelect, /identities\[preview\.id\]\.counters/)
+  assert.match(crewSelect, /power\.text/)
+  assert.match(crewSelect, /power\.overcharge/)
+  assert.match(crewSelect, /OVERCHARGE_RULE/)
+  assert.match(crewSelect, /data-testid="slime-crew-traits"/)
+  assert.match(crewSelect, /specialties\[preview\.id\]/)
+  assert.match(crewSelect, /slimeArtId\('crews', preview\.id\)/)
+  assert.match(crewSelect, /if \(props\.teamId === undefined\) lab\.chooseTeam/)
+  assert.match(page, /<SlimeCityCrewSelect label="Choose general"/)
+  assert.match(page, /:exclude-team="lab\.activeTeam"/)
+  const pvpGame = readFileSync(
+    new URL('../../components/slime-city-pvp-game.vue', import.meta.url),
+    'utf8',
+  )
+  assert.match(pvpGame, /:team-id="selectedTeam"/)
+  assert.match(pvpGame, /@picked="selectedTeam = \$event"/)
 }
 
 // Silas, 2026-11-24 PT: "flavor should only be in collection view." The

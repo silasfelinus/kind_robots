@@ -677,13 +677,24 @@ export function pvpClashView(
   }
 }
 
-/** Which row a card lands on: fighters, traps and buffs mine, the rest theirs. */
+/** Which row a card lands on: fighters and buffs mine, traps and attacks theirs. */
 export function pvpCardRow(card: Card): 'own' | 'rival' {
-  if (card.kind === 'creature' || card.kind === 'trap') return 'own'
+  if (card.kind === 'creature') return 'own'
   if (
     card.kind === 'equipment' ||
     ['heal', 'armor', 'sharpen', 'boost', 'grant'].includes(card.effect ?? '')
   )
     return 'own'
   return 'rival'
+}
+
+/** A trap's side is its owner, not the battlefield row it occupies. */
+export function visibleClashTrapAt(
+  traps: ClashState['traps'],
+  viewer: Side,
+  row: Side,
+  lane: number,
+): ClashState['traps'][number] | undefined {
+  if (row === viewer) return undefined
+  return traps.find((trap) => trap.side === viewer && trap.lane === lane)
 }

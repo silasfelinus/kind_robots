@@ -18,6 +18,7 @@
       <span class="sce-card">
         <SlimeCityClashCardFace
           :card-id="cardId"
+          glossary-interactive
           :level="stage.level"
           :pick="stage.pick"
         />

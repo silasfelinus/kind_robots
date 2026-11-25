@@ -176,6 +176,23 @@
         >
           <span aria-hidden="true">❚❚</span>
         </button>
+        <dl
+          v-if="touchPlan?.readout && readout?.length"
+          class="cabinet-readout"
+          aria-label="Run status"
+          :style="placedAt(touchPlan.readout, true)"
+        >
+          <div
+            v-for="(row, index) in readout"
+            :key="index"
+            class="cabinet-readout-row"
+            :class="{ 'cabinet-readout-row--head': index === 0 }"
+            :style="row.color ? { color: row.color } : undefined"
+          >
+            <dt>{{ row.label }}</dt>
+            <dd>{{ row.value }}</dd>
+          </div>
+        </dl>
         <p
           v-if="touchPlan?.hint"
           class="cabinet-rotate-hint"
@@ -699,6 +716,7 @@ import {
   type ArcadeGuidePage,
   type ArcadeMasteryGoal,
   type ArcadePlayableInstance,
+  type ArcadeReadoutRow,
   type InputFrame,
 } from '~/utils/arcade/types'
 
@@ -801,6 +819,19 @@ const touchControls = ref(false)
 const paddleTouchX = ref<number | null>(null)
 let paddlePointer: number | null = null
 const paddleActions = ref<Partial<Record<'a' | 'b', string>>>({})
+/** The game's status in words (ArcadeGameInstance.readout), sampled a few times a second for an upright phone. */
+const readout = ref<readonly ArcadeReadoutRow[] | null>(null)
+let readoutKey = ''
+function syncReadout(game: ArcadePlayableInstance | null) {
+  const next =
+    game && 'readout' in game && touchPlan.value?.readout
+      ? (game.readout ?? null)
+      : null
+  const key = next ? JSON.stringify(next) : ''
+  if (key === readoutKey) return
+  readoutKey = key
+  readout.value = next
+}
 const compactDpad = computed(
   () => props.slug === 'rainbow-bullet-hell-space-princess' || labelled.value,
 )
@@ -1877,6 +1908,7 @@ function tick() {
     gameMenu.value = menuOpenOf(game)
     paddleActions.value =
       'touchActions' in game ? (game.touchActions ?? {}) : {}
+    if (ticks % 6 === 0) syncReadout(game)
     const feats = game.drainFeats?.()
     if (!isRainbowReplay.value && feats?.length)
       void store.awardFeats(props.slug, feats)
@@ -3275,6 +3307,47 @@ onBeforeUnmount(() => {
     max(0.4rem, env(safe-area-inset-right))
     max(0.4rem, env(safe-area-inset-bottom))
     max(0.4rem, env(safe-area-inset-left));
+}
+
+/* An upright phone's status in large type, in the gap between the chips and the controls (P-09). */
+.cabinet-overlay .cabinet-readout {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem;
+  margin: 0;
+  overflow: hidden;
+  pointer-events: none;
+  color: #ffe7f5;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.cabinet-overlay .cabinet-readout-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.cabinet-overlay .cabinet-readout-row dt {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.cabinet-overlay .cabinet-readout-row dd {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.cabinet-overlay .cabinet-readout-row--head {
+  color: rgba(253, 230, 138, 0.95);
+  font-size: 0.8rem;
 }
 
 .cabinet-overlay .cabinet-rotate-hint {

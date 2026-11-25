@@ -1,7 +1,7 @@
 import type { MusicLoop } from '../sound'
 
-/** Original chip melodies, synthesized live until approved recordings arrive. */
-export const SPECTRUM_THEMES: readonly MusicLoop[] = [
+/** Original chip melodies with deterministic mastered recordings and live fallbacks. */
+const REGION_MELODIES: readonly MusicLoop[] = [
   {
     bpm: 118,
     stepsPerBeat: 2,
@@ -106,9 +106,78 @@ export const SPECTRUM_THEMES: readonly MusicLoop[] = [
   },
 ]
 
+const REGION_RESPONSES = [
+  'E5 . G5 . C6 - B5 . A5 . G5 . E5 - D5 .',
+  'C5 . E5 . G5 - A5 . F5 - E5 . D5 - C5 .',
+  'D5 . F5 G5 . Bb5 G5 . F5 . D5 C5 . Bb4 . .',
+  'F5 - . C5 . A4 . D5 . E5 - D5 . A4 . C5',
+  'A4 . C5 D5 . F5 E5 . D5 . C5 . Bb4 A4 . G4',
+  'C5 E5 A5 . B5 - A5 G5 . E5 . D5 G5 E5 - .',
+] as const
+
+const REGION_HARMONIES = [
+  'E4 - . . F4 - . . E4 - . . D4 - . .',
+  'C4 - . . E4 - . . F4 - . . G4 - . .',
+  'Bb3 . . F4 . . D4 . Bb3 . . A3 . . F4 .',
+  'F4 - . . E4 - . . A3 - . . G3 - . .',
+  'A3 . . C4 . . Bb3 . D4 . . A3 . . G3 .',
+  'E4 - . . G4 - . . F4 - . . D4 - . .',
+] as const
+
+function phrase(steps: string): string {
+  const tokens = steps.trim().split(/\s+/)
+  return [...tokens, ...Array(Math.max(0, 16 - tokens.length)).fill('.')].join(
+    ' ',
+  )
+}
+
+function arrangeRegion(theme: MusicLoop, index: number): MusicLoop {
+  return {
+    ...theme,
+    tracks: [
+      ...theme.tracks.map((track, voice) => ({
+        ...track,
+        steps: [
+          phrase(track.steps),
+          phrase(voice === 0 ? REGION_RESPONSES[index]! : track.steps),
+        ].join(' '),
+      })),
+      {
+        steps: [
+          phrase('. . . . . . . . . . . . . . . .'),
+          phrase(REGION_HARMONIES[index]!),
+        ].join(' '),
+        type: 'sine',
+        vol: 0.012,
+      },
+    ],
+  }
+}
+
+const REGION_TRACKS = [
+  'rainbow-salon',
+  'botanic-dome',
+  'night-market',
+  'cloud-library',
+  'prism-workshop',
+  'heart-of-hue',
+] as const
+
+function recording(name: string) {
+  return { src: `/audio/arcade/superkate-spectrum/${name}.wav` }
+}
+
+export const SPECTRUM_THEMES: readonly MusicLoop[] = REGION_MELODIES.map(
+  (theme, index) => ({
+    ...arrangeRegion(theme, index),
+    recorded: recording(REGION_TRACKS[index]!),
+  }),
+)
+
 /** Six denser, faster arrangements for each fifth-stage chapter showdown. */
 export const SPECTRUM_BOSS_MUSIC: readonly MusicLoop[] = SPECTRUM_THEMES.map(
   (theme, index) => ({
+    recorded: recording(`${REGION_TRACKS[index]}-boss`),
     bpm: Math.min(170, theme.bpm + 18),
     stepsPerBeat: 2,
     tracks: [
@@ -116,13 +185,14 @@ export const SPECTRUM_BOSS_MUSIC: readonly MusicLoop[] = SPECTRUM_THEMES.map(
       {
         steps:
           index % 2 === 0
-            ? 'C3 . G2 . C3 . G2 . Bb2 . F2 . G2 . Bb2 .'
-            : 'A2 . E2 . A2 . E2 . G2 . D2 . E2 . G2 .',
+            ? 'C3 . G2 . C3 . G2 . Bb2 . F2 . G2 . Bb2 . C3 . G2 . Bb2 . C3 . F3 . C3 . G2 . G2 .'
+            : 'A2 . E2 . A2 . E2 . G2 . D2 . E2 . G2 . A2 . E2 . G2 . A2 . D3 . A2 . E2 . E2 .',
         type: 'sawtooth' as const,
         vol: 0.015,
       },
       {
-        steps: 'x . . x x . x . x . x x . x . x',
+        steps:
+          'x . . x x . x . x . x x . x . x x . x . x x . x x . x . x x x .',
         noise: true,
         vol: 0.013,
       },
@@ -131,6 +201,7 @@ export const SPECTRUM_BOSS_MUSIC: readonly MusicLoop[] = SPECTRUM_THEMES.map(
 )
 
 export const SPECTRUM_CLASSIC_MUSIC: MusicLoop = {
+  recorded: recording('classic'),
   bpm: 128,
   stepsPerBeat: 2,
   tracks: [
@@ -149,6 +220,7 @@ export const SPECTRUM_CLASSIC_MUSIC: MusicLoop = {
 }
 
 export const SPECTRUM_MENU_MUSIC: MusicLoop = {
+  recorded: recording('menu'),
   bpm: 86,
   stepsPerBeat: 2,
   tracks: [

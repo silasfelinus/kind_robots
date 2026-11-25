@@ -39,10 +39,27 @@ assert.match(page, /ArcadeCabinet slug="save-the-plumber"/)
 assert.match(page, /ArcadeCabinet slug="save-the-plumber" contained/)
 assert.match(page, /plumber-viewport/)
 assert.match(page, /plumber-motion-video/)
-assert.match(
-  page,
-  /type Screen = 'title' \| 'story' \| 'worlds' \| 'crew' \| 'guide' \| 'maker' \| 'play'/,
-)
+for (const screen of [
+  'title',
+  'story',
+  'worlds',
+  'crew',
+  'guide',
+  'settings',
+  'maker',
+  'play',
+])
+  assert.ok(page.includes(`screen === '${screen}'`) || screen === 'play')
+assert.match(page, /@click="go\('settings'\)"/)
+assert.match(page, /aria-labelledby="settings-heading"/)
+assert.match(page, /arcade\.loadPreferences\(reducedMotion\.value\)/)
+assert.match(page, /arcade\.setVolume\(/)
+assert.match(page, /arcade\.setMuted\(!arcade\.muted\)/)
+assert.match(page, /arcade\.setStillCamera\(!arcade\.stillCamera\)/)
+assert.match(page, /arcade\.setHighContrast\(!arcade\.highContrast\)/)
+assert.match(page, /aria-label="Arcade volume"/)
+assert.match(page, /:disabled="arcade.muted"/)
+assert.doesNotMatch(page, /localStorage/)
 assert.match(page, /prefers-reduced-motion: reduce/)
 assert.doesNotMatch(page, /PlumberTitleScene|href="#plumber-/)
 for (let world = 1; world <= 8; world++) {
@@ -101,6 +118,39 @@ assert.equal(game.lives, 3)
 input.held.right = false
 for (let frame = 0; frame < 30; frame++) game.update(input)
 assert.equal(game.over, false)
+
+const calmRun = createSavePlumberPreview({
+  ...options,
+  stillCamera: true,
+  highContrast: true,
+})
+calmRun.loadStage(0)
+calmRun.mode = 'play'
+calmRun.foes.length = 0
+for (let frame = 0; frame < 20; frame++) {
+  const keys = emptyInput()
+  keys.held.right = true
+  keys.held.b = true
+  calmRun.update(keys)
+}
+assert.ok(calmRun.hero.vx > 0, 'calm motion does not stop movement')
+assert.equal(calmRun.cameraLead, 0, 'still camera removes anticipatory lead')
+
+const edgeColors = new Set<string>()
+const edgeProbe = {
+  fillStyle: '',
+  save() {},
+  restore() {},
+  fillRect() {
+    edgeColors.add(this.fillStyle)
+  },
+}
+const contrast = calmRun as unknown as {
+  renderContrastEdges(g: CanvasRenderingContext2D): void
+}
+contrast.renderContrastEdges(edgeProbe as unknown as CanvasRenderingContext2D)
+assert.ok(edgeColors.has('#ffffff'), 'contrast marks exposed terrain')
+assert.ok(edgeColors.has('#101820'), 'contrast backs edges with a dark stroke')
 
 assert.equal(PLUMBER_WORLD_MUSIC.length, 8)
 const melodies = new Set<string>()

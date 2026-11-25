@@ -2011,7 +2011,7 @@ watch(
 }
 .scpvp-tags {
   position: absolute;
-  inset: calc(0.5rem + clamp(0.72rem, 1.9vw, 1.2rem) + 0.3rem) 0.25rem auto;
+  inset: auto 0.25rem 0.25rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.2rem;
@@ -2044,11 +2044,12 @@ watch(
 }
 .scpvp-unit-label {
   position: absolute;
-  inset: auto 0 0;
+  inset: calc(0.8rem + clamp(0.72rem, 1.9vw, 1.2rem)) 0 auto;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   align-items: center;
-  padding: 0.3rem 0.2rem;
+  padding: 0.2rem;
+  background: linear-gradient(#07131ad9, transparent);
   font-size: clamp(0.55rem, 1.25vw, 0.85rem);
   font-weight: 900;
   line-height: 1.1;
@@ -2423,7 +2424,7 @@ watch(
   (its right edge on the rail's), so every alley stays visible and tappable.
   The hand may overhang the arena for this; the stage still clips the page.
 */
-@media (min-width: 691px) {
+@media (min-width: 691px) and (orientation: landscape) {
   .scpvp-arena :deep(.cxh) {
     --held-reach: calc(clamp(10rem, 17vw, 15rem) + 0.4rem + 1px);
     overflow: visible;
@@ -2643,7 +2644,7 @@ watch(
   console stacks at the foot of the rail, under the bosses: the deck, BACK,
   powers and LOG in a wrapping row, the turn button full width below.
 */
-@media (min-width: 691px) {
+@media (min-width: 691px) and (orientation: landscape) {
   .scpvp-battle {
     grid-template-rows: minmax(0, 1fr) auto;
     grid-template-areas:
@@ -2708,7 +2709,7 @@ watch(
   bosses become name, life bar and HP; the console buttons tighten so the
   rail still ends in a full-width turn button.
 */
-@media (min-width: 691px) and (max-height: 540px) {
+@media (min-width: 691px) and (max-height: 540px) and (orientation: landscape) {
   .scpvp-rail {
     grid-template-rows: auto auto auto;
     align-content: start;
@@ -2816,6 +2817,86 @@ watch(
   }
   .scpvp-takeback span {
     display: none;
+  }
+}
+@media (orientation: portrait) {
+  .scpvp-battle {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'arena arena'
+      'rail console';
+  }
+  .scpvp-rail {
+    display: flex;
+    align-items: stretch;
+    gap: 0.3rem;
+    padding: 0;
+  }
+  .scpvp-boss {
+    flex: 1 1 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem;
+  }
+  .scpvp-boss > .slime-art {
+    flex: none;
+    width: clamp(2rem, 5vw, 3.5rem);
+    height: clamp(2rem, 5vw, 3.5rem);
+    border-radius: 0.4rem;
+  }
+  .scpvp-boss-info {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    background: none;
+  }
+  .scpvp-turn {
+    flex: none;
+    font-size: 0.75rem;
+  }
+  .scpvp-console {
+    flex-wrap: wrap;
+    align-content: center;
+  }
+  .scpvp-choice {
+    flex-basis: 100%;
+  }
+  .scpvp-fight {
+    flex: 1 1 5rem;
+    max-width: none;
+  }
+  .scpvp-arena :deep(.cxh) {
+    --W: min(18rem, 42cqw, 28cqh);
+  }
+  .scpvp-arena :deep(.cxh .cxh-card) {
+    --rest: 0.84;
+    --peek: 0.92;
+  }
+  .scpvp-arena :deep(.cxh.open .cxh-card:not(.big)) {
+    --x: calc(
+      50cqw - 1.2rem - var(--W) * var(--rest) / 2 + (2 * var(--o) - var(--i)) *
+        min(var(--W) * var(--rest) * 0.66, 13cqw)
+    );
+    --r: calc(var(--rot) * 0.5);
+  }
+  .scpvp-arena :deep(.cxh .cxh-card.big.held-dock) {
+    --y: calc(0.5rem + var(--W) * 1.5 - 100cqh);
+  }
+  .scpvp-arena :deep(.cxh .cxh-levels.docked.held-dock) {
+    top: calc(0.5rem + var(--W) * 0.55);
+  }
+}
+@media (max-width: 690px) and (orientation: portrait) {
+  .scpvp-battle {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      'arena'
+      'rail'
+      'console';
   }
 }
 @media (prefers-reduced-motion: reduce) {

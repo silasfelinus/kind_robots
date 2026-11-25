@@ -1,7 +1,11 @@
 import { identityFor } from './identityArcs'
 import { henchmanForVillain } from './villainHenchmen'
 import { campaignStagesFor } from './identityCampaignStages'
-import { identityArtKey, identityArtwork } from './artSlots'
+import {
+  identityArtCandidateKeys,
+  identityArtKey,
+  reviewedIdentityArtwork,
+} from './artSlots'
 import type { SignaturePowerId } from './specialPowers'
 
 export type ComicIntroRole = 'hero' | 'villain' | 'henchman' | 'lieutenant'
@@ -14,6 +18,18 @@ export type ComicIntro = {
   caption: string
   artKey: string | null
   motif: 'sunrise' | 'danger' | 'underworld' | 'command'
+}
+
+function comicIntroArtKey(
+  signature: string,
+  role: 'hero' | 'villain',
+): string | null {
+  return (
+    [
+      ...identityArtCandidateKeys(signature, role),
+      identityArtKey(signature, 'student'),
+    ].find((key) => reviewedIdentityArtwork(key)) ?? null
+  )
 }
 
 export function comicIntroFor(
@@ -36,7 +52,7 @@ export function comicIntroFor(
         tagline: identity.hero.focus.toUpperCase() + ' / THE CITY NEEDS A HERO',
         caption: identity.hero.method,
         motif: 'sunrise',
-        artKey: identityArtKey(signature, 'hero'),
+        artKey: comicIntroArtKey(signature, 'hero'),
       }
     case 'villain':
       return {
@@ -45,7 +61,7 @@ export function comicIntroFor(
         tagline: "VILLAIN / EVERYONE IS SOMEONE ELSE'S NEMESIS",
         caption: identity.villain.method,
         motif: 'danger',
-        artKey: identityArtKey(signature, 'villain'),
+        artKey: comicIntroArtKey(signature, 'villain'),
       }
     case 'henchman':
       return {
@@ -97,8 +113,6 @@ export function comicIntroArt(intro: ComicIntro): string | null {
   if (intro.role !== 'hero' && intro.role !== 'villain') return null
   // Do not use rendered outcomes rejected by the visual canon audit.
   const [signature = ''] = intro.key.split(':')
-  return (
-    identityArtwork(signature, intro.role) ??
-    identityArtwork(signature, 'student')
-  )
+  const key = comicIntroArtKey(signature, intro.role)
+  return key ? reviewedIdentityArtwork(key) : null
 }

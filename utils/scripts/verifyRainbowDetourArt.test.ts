@@ -9,7 +9,10 @@ import {
   rainbowDetourSkyOffset,
 } from '../arcade/games/rainbowDetourPlanes'
 import { RAINBOW_DOODLE_ART } from '../arcade/games/rainbowDoodleArt'
-import { RAINBOW_HAZARD_SPRITES } from '../arcade/games/rainbowGameArt'
+import {
+  RAINBOW_HAZARD_SPRITES,
+  RAINBOW_STAGE_PAINTINGS,
+} from '../arcade/games/rainbowGameArt'
 import { nurseryFlightCheckpointValid } from '../arcade/games/rainbowLanternNursery'
 import { readRainbowSave } from '../arcade/games/rainbowLoadouts'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
@@ -48,9 +51,14 @@ for (const path of ACT_PLANES) {
   assert.ok(existsSync(publicFile(`doodle/${path}`)), `${path} ships`)
   assert.ok(RAINBOW_DOODLE_ART.includes(path), `${path} is registered`)
 }
-// Planes with flying craft or a watermark were refused and keep the reviewed coral crop.
+// Kontext planes with flying craft or a watermark were refused (2026-11-23). One ships only as its later text-only
+// scenery render (art backlog 2026-11-24), which lands in both looks together.
 for (const path of ['stages/s03-far', 'stages/s05-mid', 'stages/s04-far'])
-  assert.ok(!RAINBOW_DOODLE_ART.includes(path), `${path} refused`)
+  assert.ok(
+    !RAINBOW_DOODLE_ART.includes(path) ||
+      RAINBOW_STAGE_PAINTINGS.includes(path),
+    `${path} refused, or replaced by a reviewed scenery-only render`,
+  )
 
 // Bands sit on the floor, back to front, faster and stronger the nearer they are.
 for (const detour of ['x1', 'x2', 'x3', 'x4'] as const) {

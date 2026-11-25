@@ -65,11 +65,14 @@ import {
 } from '../arcade/games/rainbowGuardian'
 import { setRainbowLook } from '../arcade/games/rainbowGameArt'
 import {
+  BOSS_RECOIL_FRAMES,
   applyRainbowSwimMotion,
+  rainbowBossRecoil,
   rainbowBossWindup,
   rainbowHitFlinch,
   rainbowShipPose,
   rainbowSwimPose,
+  stackRainbowBossPose,
 } from '../arcade/games/rainbowSwimMotion'
 import { emptyInput } from '../arcade/types'
 
@@ -658,3 +661,59 @@ assert.match(
 console.log(
   `rainbow effects: ok (craft ${firstCraft.full}/${firstCraft.still} sparks, boss burst ${bossBurst}, peak ${maxFull}/${maxStill} of ${RAINBOW_EFFECTS.maxSparks}, halos, calm drift and no flash)`,
 )
+
+// t-011: a boss a shot just hit rocks back and squashes, settling within BOSS_RECOIL_FRAMES; calm stays still.
+{
+  const rest = { pull: 0, scaleX: 1, scaleY: 1 }
+  const fresh = rainbowBossRecoil(0)
+  const later = rainbowBossRecoil(BOSS_RECOIL_FRAMES - 2)
+  assert.ok(
+    fresh.pull > later.pull && later.pull > 0 && fresh.scaleX < 1,
+    'the recoil is deepest on the hit frame and eases out',
+  )
+  assert.ok(
+    fresh.pull <= 2.5 && fresh.scaleY <= 1.025 && fresh.scaleX >= 0.96,
+    'the recoil stays a small draw-only pose',
+  )
+  assert.deepEqual(rainbowBossRecoil(BOSS_RECOIL_FRAMES), rest, 'settled')
+  assert.deepEqual(rainbowBossRecoil(-1), rest, 'no recoil before a hit')
+  assert.deepEqual(rainbowBossRecoil(Number.NaN), rest, 'never hit')
+  assert.deepEqual(rainbowBossRecoil(0, true), rest, 'calm keeps it still')
+  const stacked = stackRainbowBossPose(
+    rainbowBossWindup(1, BOSS_TELEGRAPH_FRAMES),
+    fresh,
+  )
+  const windupOnly = rainbowBossWindup(1, BOSS_TELEGRAPH_FRAMES)
+  assert.ok(
+    Math.abs(stacked.pull - (windupOnly.pull + fresh.pull)) < 1e-9 &&
+      Math.abs(stacked.scaleY - windupOnly.scaleY * fresh.scaleY) < 1e-9,
+    'a recoil stacks on a windup',
+  )
+  assert.deepEqual(
+    stackRainbowBossPose(windupOnly, rest),
+    windupOnly,
+    'no recoil leaves the windup unchanged',
+  )
+  for (const body of [
+    'guardian',
+    'boss',
+    'moonBoss',
+    'clawBoss',
+    'delphion',
+    'sawtooth',
+    'lanternRay',
+    'glassEel',
+    'leviathan',
+  ]) {
+    assert.match(
+      previewSource,
+      new RegExp(`hurtBoss\\(${body}\\)`),
+      `${body} records the hit`,
+    )
+    assert.match(
+      previewSource,
+      new RegExp(`bossRecoil\\(${body}, calm\\)`),
+      `${body} draws the recoil`,
+    )
+  }
+}

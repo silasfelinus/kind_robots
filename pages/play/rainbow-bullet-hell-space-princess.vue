@@ -297,7 +297,7 @@
         <div
           role="group"
           aria-label="Luminous Ocean alternate route nodes"
-          class="grid shrink-0 grid-cols-4 gap-1 rounded-xl bg-cover bg-center p-1"
+          class="relative grid aspect-[16/5] max-h-40 shrink-0 grid-cols-4 content-end gap-1 rounded-xl bg-cover bg-center p-1"
           :style="{
             backgroundImage: `url(${rainbowGen2Art('route-map', look)})`,
           }"
@@ -390,7 +390,7 @@
           </span>
         </div>
         <ol
-          class="grid min-h-0 flex-1 grid-cols-2 grid-rows-4 gap-2 @3xl:grid-cols-4 @3xl:grid-rows-2"
+          class="grid min-h-0 flex-1 auto-cols-[minmax(160px,46%)] grid-flow-col gap-2 overflow-x-auto @3xl:auto-cols-auto @3xl:grid-flow-row @3xl:grid-cols-4 @3xl:grid-rows-2 @3xl:overflow-visible"
         >
           <li
             v-for="(stage, index) in stages"
@@ -413,21 +413,27 @@
               width="640"
               height="366"
               loading="lazy"
-              class="min-h-0 w-full flex-1 object-cover"
+              class="aspect-[16/9] w-full flex-none object-cover @3xl:aspect-auto @3xl:min-h-0 @3xl:flex-1"
               :class="{ 'grayscale opacity-50': !seaProgress[index]?.explored }"
             />
+            <!-- Route intel and progress share one wrapping row, so on a narrow card they stack instead of colliding
+                 (presentation critic P-18). -->
             <div
-              class="absolute right-2 top-2 rounded-full bg-[#1a0d33]/90 px-2 py-1 text-xs font-black"
-              :aria-label="seaProgress[index]?.label"
+              class="pointer-events-none absolute inset-x-2 top-2 flex flex-wrap-reverse justify-between gap-1"
             >
-              {{ seaProgress[index]?.label }}
+              <p
+                v-if="routeIntel.some((route) => route.act === index + 1)"
+                class="max-w-full truncate rounded-full bg-[#1a0d33]/90 px-2 py-1 text-xs font-bold"
+              >
+                {{ routeIntel.find((route) => route.act === index + 1)?.label }}
+              </p>
+              <div
+                class="ml-auto max-w-full truncate rounded-full bg-[#1a0d33]/90 px-2 py-1 text-xs font-black"
+                :aria-label="seaProgress[index]?.label"
+              >
+                {{ seaProgress[index]?.label }}
+              </div>
             </div>
-            <p
-              v-if="routeIntel.some((route) => route.act === index + 1)"
-              class="absolute left-2 top-2 rounded-full bg-[#1a0d33]/90 px-2 py-1 text-xs font-bold"
-            >
-              {{ routeIntel.find((route) => route.act === index + 1)?.label }}
-            </p>
             <div class="flex shrink-0 items-center gap-2 px-3 py-2">
               <span
                 class="rounded-full bg-pink-200 px-2 py-0.5 font-mono text-xs font-bold text-[#37204e]"

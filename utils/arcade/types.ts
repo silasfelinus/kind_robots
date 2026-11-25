@@ -247,6 +247,13 @@ export const ARCADE_DIFFICULTIES: readonly ArcadeDifficulty[] = [
 export type ArcadeSoundLike = Pick<ArcadeSound, 'play'> &
   Partial<Pick<ArcadeSound, 'playNotes'>>
 
+/** One row of ArcadeGameInstance.readout: a label, its value, and an optional colour (a pilot's). */
+export type ArcadeReadoutRow = {
+  label: string
+  value: string
+  color?: string
+}
+
 export type ArcadeStagePointer = {
   phase: 'down' | 'move' | 'up' | 'cancel'
   x: number
@@ -292,6 +299,12 @@ export interface ArcadeGameInstance {
   /** Contextual touch actions (shown only when they can do something). */
   readonly touchActions?: Readonly<Partial<Record<'a' | 'b', string>>>
   stagePointer?(event: ArcadeStagePointer): void
+  /**
+   * The run's status in words, for a cabinet that shows it in large type off the stage (an upright
+   * phone, where the canvas HUD is too small to read). null while there is nothing to report
+   * (menus, the demo, game over).
+   */
+  readonly readout?: readonly ArcadeReadoutRow[] | null
   /**
    * Advance one fixed 1/60 s tick. `input` is player 1's; a game seating more
    * players also gets every seated player's frame, player 1 first.

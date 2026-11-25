@@ -156,12 +156,19 @@ export function summarizeArtJobQueueGroups(
 }
 
 // Rows arrive newest completed first; use the same naming rule as pending jobs.
+// Called once per page of completions: a group that already has a preview from
+// a newer page keeps it. Returns how many groups still lack one.
 export function attachArtJobGroupPreviews(
   summary: ArtJobQueueGroupSummary,
   rows: ArtJobGroupPreviewRow[],
-): void {
-  const remaining = new Map(summary.groups.map((group) => [group.name, group]))
+): number {
+  const remaining = new Map(
+    summary.groups
+      .filter((group) => !group.preview)
+      .map((group) => [group.name, group]),
+  )
   for (const row of rows) {
+    if (!remaining.size) break
     const name = artJobGroupName(row)
     const group = remaining.get(name)
     if (!group) continue
@@ -173,8 +180,8 @@ export function attachArtJobGroupPreviews(
       isPublic: Boolean(row.isPublic),
     }
     remaining.delete(name)
-    if (!remaining.size) break
   }
+  return remaining.size
 }
 
 export function artJobIdsInGroup(

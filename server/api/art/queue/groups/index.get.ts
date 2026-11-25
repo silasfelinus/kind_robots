@@ -7,6 +7,8 @@ import { defineEventHandler, getQuery } from 'h3'
 import { errorHandler } from '../../../../utils/error'
 import { requireAdminApiUser } from '../../../../utils/authGuard'
 import {
+  ART_JOB_GROUP_PREVIEW_MAX_PAGES,
+  ART_JOB_GROUP_PREVIEW_PAGE_SIZE,
   loadCompletedArtJobGroupPreviewRows,
   loadPendingArtJobGroupRows,
 } from '../../../../utils/artJobQueueGroupRows'
@@ -34,10 +36,17 @@ export default defineEventHandler(async (event) => {
       )
       if (access.showMature || requested !== 'mature') {
         const maturity = access.showMature ? requested : 'safe'
-        attachArtJobGroupPreviews(
-          summary,
-          await loadCompletedArtJobGroupPreviewRows(auth.user.id, maturity),
-        )
+        let beforeId: number | undefined
+        for (let page = 0; page < ART_JOB_GROUP_PREVIEW_MAX_PAGES; page++) {
+          const rows = await loadCompletedArtJobGroupPreviewRows(
+            auth.user.id,
+            maturity,
+            beforeId,
+          )
+          if (!attachArtJobGroupPreviews(summary, rows)) break
+          if (rows.length < ART_JOB_GROUP_PREVIEW_PAGE_SIZE) break
+          beforeId = Number(rows[rows.length - 1]!.id)
+        }
       }
     }
 

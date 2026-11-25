@@ -108,9 +108,9 @@
           </label>
           <p class="vs-note">
             {{
-              lab.progressLoaded
-                ? 'Signed in: wins pay XP and Meat and count toward bounties.'
-                : 'Sign in to earn XP and Meat from CPU wins.'
+              lab.cpuRewardsAvailable && lab.progressLoaded
+                ? 'CPU wins pay XP and Meat and count toward bounties.'
+                : 'CPU practice is free. Fair player duels pay Meat.'
             }}
           </p>
           <div

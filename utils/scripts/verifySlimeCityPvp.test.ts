@@ -27,6 +27,7 @@ import {
   stepPvp,
 } from '../slimeCity/pvp'
 import { cardById } from '../slimeCity/prototypes'
+import { allianceStarter, soloStarter } from '../slimeCity/alliance'
 import {
   CLASH_DECK_SIZE,
   canClashPlay,
@@ -1011,3 +1012,34 @@ for (const file of [
 const armorView = readFileSync('components/slime-city-pvp-game.vue', 'utf8')
 assert.match(armorView, /<SlimeCityArmorStat/)
 assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
+
+// Replay independently selected Solo and Alliance decks without exposing cards.
+{
+  const solo = soloStarter('catgirls')
+  const alliance = allianceStarter('ironjaw', 'riot')
+  const rules = pvpRules({
+    dealEarly: true,
+    deckSetups: {
+      player: { format: 'solo', cards: solo },
+      enemy: { format: 'alliance', deck: alliance },
+    },
+  })
+  const state = newPvpGame('catgirls', 'ironjaw', 42, rules)
+  assert.deepEqual(state.allies, { player: null, enemy: 'riot' })
+  assert.deepEqual(
+    [...state.decks.player, ...state.hands.player].sort(),
+    [...solo].sort(),
+  )
+  assert.deepEqual(
+    [...state.decks.enemy, ...state.hands.enemy].sort(),
+    [...alliance.cards].sort(),
+  )
+  const board = pvpBoard(state, 'player')
+  assert.deepEqual(board.allies, state.allies)
+  assert.deepEqual(
+    pvpClashView(board, 'player', 'catgirls', 'ironjaw').allies,
+    state.allies,
+  )
+  assert.equal('deckSetups' in board, false)
+  assert.deepEqual(replayPvp('catgirls', 'ironjaw', 42, [], rules), state)
+}

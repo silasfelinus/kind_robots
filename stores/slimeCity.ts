@@ -466,9 +466,19 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       progressBusy.value = false
     }
   }
+  const cpuRewardsAvailable = computed(() => net.value?.user.isAdmin ?? false)
   async function startCpuBattle(
     format: DeckFormat = clashFormat.value,
   ): Promise<void> {
+    if (!cpuRewardsAvailable.value) {
+      launchClash({
+        kind: 'practice',
+        format,
+        enemy: rivalFor(activeTeam.value),
+        seed: rollSeed(),
+      })
+      return
+    }
     if (!correctAccount() || !progressLoaded.value) {
       await hydrateProgression()
       if (!correctAccount() || !progressLoaded.value) return
@@ -2039,7 +2049,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
    */
   async function launchBout(next: Omit<ClashLaunch, 'id'>): Promise<void> {
     boutUnrewarded.value = ''
-    const signedIn = progressLoaded.value && correctAccount()
+    const signedIn = cpuRewardsAvailable.value && progressLoaded.value && correctAccount()
     const alliance =
       next.format === 'alliance' ? (next.alliance ?? playAlliance.value) : null
     const cards = alliance ? alliance.cards : (next.cards ?? playSolo.value)
@@ -3058,6 +3068,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     city,
     progress,
     progressLoaded,
+    cpuRewardsAvailable,
     progressBusy,
     progressError,
     progressNotice,

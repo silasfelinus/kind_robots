@@ -6,6 +6,7 @@ import {
   applyCrossfireCarryover,
   applyCrossfireFinaleNetwork,
   crossfireCarryover,
+  crossfireCampaignScore,
   crossfireFinaleNetwork,
   crossfireChapterTitle,
   crossfireScrapbookSaves,
@@ -68,6 +69,12 @@ assert.equal(started.completed.length, 0)
 assert.equal(started.finished, false)
 assert.ok(readCrossfireJournal(JSON.stringify(started)))
 assert.equal(advanceCrossfire(started), null, 'no free chapter advances')
+assert.deepEqual(crossfireCampaignScore(started), {
+  chapters: [],
+  cleared: 0,
+  total: 0,
+  medals: 0,
+})
 assert.deepEqual(crossfireScrapbookSaves(started), [first])
 assert.equal(scoreFromSave(crossfireScrapbookSaves(started)[0]!), null)
 assert.equal(
@@ -136,6 +143,19 @@ for (let chapter = 0; chapter < CROSSFIRE_CHAPTERS.length; chapter++) {
   assert.equal(recovered.at(-1)?.checksum, victory.checksum)
   const next = advanceCrossfire(checkpoint)!
   assert.ok(next, 'the earned victory advances to next chapter')
+  const beforeAdvance = crossfireCampaignScore(checkpoint)!
+  const afterAdvance = crossfireCampaignScore(next)!
+  assert.equal(beforeAdvance.cleared, chapter + 1)
+  assert.deepEqual(beforeAdvance, afterAdvance, 'no duplicate on advance')
+  assert.equal(
+    afterAdvance.total,
+    next.completed.reduce((sum, save) => sum + scoreFromSave(save)!.total, 0),
+  )
+  assert.deepEqual(
+    crossfireCampaignScore(JSON.stringify(next)),
+    afterAdvance,
+    'score survives reload without granting new points',
+  )
   assert.equal(next.completed.length, chapter + 1)
   assert.equal(next.chapter, Math.min(chapter + 1, 5))
   assert.ok(readCrossfireJournal(JSON.stringify(next)))
@@ -165,6 +185,14 @@ wrongOrder.completed.reverse()
 assert.equal(readCrossfireJournal(wrongOrder), null)
 assert.deepEqual(crossfireScrapbookSaves(forgedPrefix), [])
 assert.deepEqual(crossfireScrapbookSaves(wrongOrder), [])
+assert.equal(crossfireCampaignScore(wrongOrder), null)
+assert.equal(crossfireCampaignScore(forgedPrefix), null)
+assert.equal(crossfireCampaignScore(journal)?.cleared, 6)
+assert.equal(
+  crossfireCampaignScore(snapshotCrossfire(started, losing))?.total,
+  0,
+  'a defeat cannot add to the earned campaign score',
+)
 assert.deepEqual(crossfireScrapbookSaves('not JSON'), [])
 assert.deepEqual(crossfireScrapbookSaves(null), [])
 const recoveredCampaign = crossfireScrapbookSaves(JSON.stringify(journal))
@@ -832,6 +860,8 @@ assert.ok(front.includes('data-testid="front-new-story"'))
 assert.ok(page.includes('data-testid="tactics-crossfire-advance"'))
 assert.ok(page.includes('data-testid="tactics-crossfire-epilogue"'))
 assert.ok(page.includes('data-testid="tactics-crossfire-earned-ending"'))
+assert.ok(page.includes('data-testid="tactics-crossfire-score"'))
+assert.ok(store.includes('const crossfireScore = computed('))
 assert.ok(store.includes('const crossfireAftermath = computed('))
 assert.ok(store.includes('const crossfireEnding = computed('))
 console.log(

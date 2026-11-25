@@ -1,6 +1,7 @@
 import type { SignaturePowerId } from '../cometAcademy/specialPowers'
 import { createStory } from './firstBellStory'
 import { createSave, loadSave, type EvtSave } from './saves'
+import { scoreFromSave } from './scores'
 import { clonePreset } from './studio'
 import { trainingState } from './training'
 
@@ -302,6 +303,31 @@ export function crossfireScrapbookSaves(raw: unknown): EvtSave[] {
   return journal.finished
     ? [...journal.completed]
     : [...journal.completed, journal.active]
+}
+
+/** A campaign total is a read-only view of its validated journal, not a
+ * farmable balance. The current victory counts once, even before advancing. */
+export function crossfireCampaignScore(raw: unknown) {
+  const journal = readCrossfireJournal(raw)
+  if (!journal) return null
+  const victories = [...journal.completed]
+  if (!journal.finished && earnedVictory(journal.active, journal.chapter))
+    victories.push(journal.active)
+  const chapters = victories.map((save, index) => {
+    const result = scoreFromSave(save)!
+    return {
+      id: CROSSFIRE_CHAPTERS[index]!.id,
+      title: CROSSFIRE_CHAPTERS[index]!.title,
+      points: result.total,
+      medals: result.medals.length,
+    }
+  })
+  return {
+    chapters,
+    cleared: chapters.length,
+    total: chapters.reduce((sum, chapter) => sum + chapter.points, 0),
+    medals: chapters.reduce((sum, chapter) => sum + chapter.medals, 0),
+  }
 }
 
 /** Save the live fight without copying it into the legacy auto/slot keys. */

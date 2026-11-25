@@ -155,10 +155,23 @@ assert.ok(calmRun.hero.vx > 0, 'calm motion does not stop movement')
 assert.equal(calmRun.cameraLead, 0, 'still camera removes anticipatory lead')
 
 const edgeColors = new Set<string>()
+const edgeSegments: number[][] = []
 const edgeProbe = {
   fillStyle: '',
+  strokeStyle: '',
+  lineWidth: 0,
   save() {},
   restore() {},
+  beginPath() {},
+  moveTo(x: number, y: number) {
+    edgeSegments.push([x, y])
+  },
+  lineTo(x: number, y: number) {
+    edgeSegments.at(-1)!.push(x, y)
+  },
+  stroke() {
+    edgeColors.add(this.strokeStyle)
+  },
   fillRect() {
     edgeColors.add(this.fillStyle)
   },
@@ -169,6 +182,10 @@ const contrast = calmRun as unknown as {
 contrast.renderContrastEdges(edgeProbe as unknown as CanvasRenderingContext2D)
 assert.ok(edgeColors.has('#ffffff'), 'contrast marks exposed terrain')
 assert.ok(edgeColors.has('#101820'), 'contrast backs edges with a dark stroke')
+assert.ok(
+  edgeSegments.some(([x1, y1, x2, y2]) => x1 !== x2 && y1 !== y2),
+  'contrast follows the diagonal ramp surface',
+)
 
 assert.equal(PLUMBER_WORLD_MUSIC.length, 8)
 const melodies = new Set<string>()

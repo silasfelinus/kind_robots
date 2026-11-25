@@ -15,6 +15,10 @@ requiredRole: ADMIN
 tutorial:
   title: Slime City • same game as Play
   body: >-
+    Win by reducing the rival boss to zero health. Both bosses normally start
+    at 40. Ready fighters hit the rival boss when their opposing alley is
+    empty and no trap stops them. If both bosses survive round 24, the boss
+    with more health wins; equal health is a draw.
     This is the same Slime City that players reach at /play/slime-city: HOME,
     VS, JOURNEY, TOWER and COLLECTION, with every fight played as five-alley
     CLASH. Signed in as an admin, your Meat, XP, packs and journey save to

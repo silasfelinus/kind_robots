@@ -375,6 +375,23 @@ assert.match(
   'page-bar Teleport target must remain mounted for other game control strips',
 )
 const appSource = readFileSync('app.vue', 'utf8')
+assert.match(appSource, />\s*Tutorial\s*<\/p>/)
+assert.match(appSource, /aria-label="Close tutorial"/)
+assert.match(workspaceHeaderSource, /'Open tutorial'/)
+for (const path of [
+  'content/channels/arcade/slime-city.md',
+  'content/channels/arcade/slime-city-duels.md',
+  'content/channels/admin/slime-city.md',
+]) {
+  const source = readFileSync(path, 'utf8')
+  const tutorial = parseYaml(source.split('---')[1]!).tutorial
+  assert.match(tutorial.body, /rival boss to zero health/)
+  assert.match(tutorial.body, /round 24/)
+  assert.match(tutorial.body, /equal health is a draw/)
+  if (path.includes('/arcade/')) {
+    assert.equal(tutorial.sections[0].title, 'How to win')
+  }
+}
 assert.match(
   appSource,
   /v-if="workspaceSheetOpen"[\s\S]*?class="[^"]*\bright-0\b[^"]*"/,

@@ -315,7 +315,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   wreckingfist: [
     'Permanently sharpen a friendly fighter.',
-    'Permanently sharpen a fighter and grant BULLDOZE (extra damage after defeating a fighter hits the rival boss).',
+    'Permanently sharpen a fighter and grant BULLDOZE (extra damage hits boss).',
     'Sharpen and grant BULLDOZE; damaging a blocker deals 2 to boss and 1 to an adjacent rival.',
   ],
   slap: [

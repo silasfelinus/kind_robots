@@ -219,13 +219,28 @@ for (const part of [
   '<PlumberHeroineFace',
   'plumber-guide-grid',
   'plumber-footer-back',
-  'ArcadeCabinet slug="save-the-plumber" contained',
 ])
   assert.ok(page.includes(part), `console experience includes ${part}`)
 assert.match(
   page,
-  /type Screen = 'title' \| 'story' \| 'worlds' \| 'crew' \| 'guide' \| 'maker' \| 'play'/,
+  /<ArcadeCabinet\s+slug="save-the-plumber"\s+contained\b/,
+  'console experience embeds the contained Save the Plumber cabinet',
 )
+const screenUnion = page.match(/type Screen =([^\n]*(?:\n\s*\|[^\n]*)*)/)
+assert.ok(screenUnion, 'the console declares its Screen union')
+const screens = [...screenUnion[1].matchAll(/'([a-z]+)'/g)].map((m) => m[1])
+for (const name of [
+  'title',
+  'story',
+  'worlds',
+  'crew',
+  'guide',
+  'settings',
+  'achievements',
+  'maker',
+  'play',
+])
+  assert.ok(screens.includes(name), `console offers the ${name} screen`)
 assert.doesNotMatch(
   page,
   /PlumberTitleScene|<ConsoleTabs|href="#plumber-|!user\.isAdmin/,

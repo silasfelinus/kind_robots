@@ -128,22 +128,28 @@ function play(
 }
 
 const reports: { name: string; teams: Record<string, Rate> }[] = []
-for (const [variant, plan] of plans.entries()) {
-  const tally = Object.fromEntries(crews.map((team) => [team, rate()]))
-  for (let left = 0; left < crews.length; left++)
-    for (let right = left + 1; right < crews.length; right++) {
-      const a = crews[left]!
-      const b = crews[right]!
-      const deckA = plan.build(a)
-      const deckB = plan.build(b)
-      for (let trial = 0; trial < 4; trial++) {
-        const seed = 13001 + variant * 101 + trial * 17 + left * 7 + right
-        play(a, b, seed, deckA, deckB, tally, trial === 0)
-        play(b, a, seed, deckB, deckA, tally, false)
+// Exercise the same legal decks on two disjoint seed families. A single
+// family can miss rare but legitimate CPU plays; no card is forced to play.
+for (const offset of [0, 5000]) {
+  for (const [variant, plan] of plans.entries()) {
+    const tally = Object.fromEntries(crews.map((team) => [team, rate()]))
+    for (let left = 0; left < crews.length; left++)
+      for (let right = left + 1; right < crews.length; right++) {
+        const a = crews[left]!
+        const b = crews[right]!
+        const deckA = plan.build(a)
+        const deckB = plan.build(b)
+        for (let trial = 0; trial < 4; trial++) {
+          const seed = 13001 + offset + variant * 101 + trial * 17 + left * 7 + right
+          play(a, b, seed, deckA, deckB, tally, trial === 0)
+          play(b, a, seed, deckB, deckA, tally, false)
+        }
       }
-    }
-  reports.push({ name: plan.name, teams: tally })
+    reports.push({ name: plan.name + (offset ? '+5000' : ''), teams: tally })
+  }
 }
+assert.equal(games, 2160, 'both complete seed families are exercised')
+assert.equal(replays, 270, 'both seed families replay deterministically')
 
 const signatureGroups = new Map<string, string[]>()
 let repeatedStage = 0

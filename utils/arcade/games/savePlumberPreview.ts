@@ -1955,6 +1955,9 @@ export class PlumberRun implements ArcadeGameInstance {
     this.jumpBuffer = 0
     this.jumpHeld = !!up
     this.running = false
+    this.specialTimer = 0
+    this.floating = false
+    this.airSpecial = false
     if (this.heroMoveX(hero.vx)) hero.vx = 0
     const hit = this.heroMoveY(hero.vy)
     if (hit) {

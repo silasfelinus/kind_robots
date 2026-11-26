@@ -329,10 +329,14 @@ unprotected.update(emptyInput())
 assert.equal(unprotected.mode, 'dying')
 swimmer.hero = deepWater()
 swimmer.ground = false
+swimmer.specialTimer = 12
+swimmer.floating = true
 const swimRight = emptyInput()
 swimRight.held.right = true
 swimRight.held.down = true
 for (let i = 0; i < 12; i++) swimmer.update(swimRight)
+assert.equal(swimmer.specialTimer, 0, 'swimming cancels land specials')
+assert.equal(swimmer.floating, false)
 assert.ok(swimmer.hero.x > 25 * 16 + 24)
 assert.ok(swimmer.hero.y > 20 * 16 + 12)
 assert.equal(swimmer.mode, 'play')

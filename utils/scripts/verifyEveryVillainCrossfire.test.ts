@@ -894,6 +894,54 @@ for (const perspective of ['hero', 'villain'] as const)
 
 // Each authored origin identity has independently authored playable
 // hero and villain scenes. The actual squad member speaks, not a stale slot.
+const campaignPassages = new Set<string>()
+for (const person of IDENTITY_ARCS.filter((entry) =>
+  entry.signature.startsWith('accident-'),
+)) {
+  for (const perspective of ['hero', 'villain'] as const) {
+    for (let chapter = 0; chapter < 6; chapter++) {
+      const flags = [
+        [],
+        ['lab-rescued', 'lab-evidence'],
+        ['crosswalk-medics', 'crosswalk-jammed'],
+        ['roof-warning', 'roof-jammed'],
+        ['breach-vented', 'breach-evidence'],
+        ['prom-shelter'],
+      ][chapter]!
+      const passages = (['rescue', 'evidence', 'command'] as const)
+        .filter((choice) => chapter !== 5 || choice !== 'evidence')
+        .map((choice) => {
+          const scene = crossfireChapterBeat(
+            chapter,
+            {
+              state: {
+                phase: 'victory',
+                flags: choice === 'command' || chapter === 0
+                  ? []
+                  : [flags[choice === 'rescue' ? 0 : 1]!],
+              },
+              story: {
+                mercy: false,
+                civilians: chapter === 0 && choice === 'rescue' ? 2 : 0,
+                evidence: chapter === 0 && choice === 'evidence' ? 1 : 0,
+              },
+            },
+            person.signature,
+            'magic-social',
+            perspective,
+          )
+          assert.equal(scene.choice, choice)
+          assert.ok(scene.text.includes(person.hero.alias))
+          assert.ok(!campaignPassages.has(scene.text), person.signature + ':' + chapter + ':' + choice)
+          campaignPassages.add(scene.text)
+          return scene
+        })
+      assert.equal(new Set(passages.map((scene) => scene.title)).size, passages.length)
+    }
+  }
+}
+assert.equal(campaignPassages.size, 272)
+
 const personalScenes = new Set<string>()
 for (const person of IDENTITY_ARCS) {
   for (const perspective of ['hero', 'villain'] as const) {

@@ -2349,7 +2349,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           kind: 'arc-step',
           characters: ['envoy-thistle', 'taxman-gristle'],
           title: 'A Hard Bargain',
-          body: 'Thistle's smile has thinned. The final contract will fill the treasury, but relatives will pay each time they cross the bridge. She lays a smaller counteroffer beside it. Gristle has already prepared the receipts for the expensive version.',
+          body: 'Thistle’s smile has thinned. The final contract will fill the treasury, but relatives will pay each time they cross the bridge. She lays a smaller counteroffer beside it. Gristle has already prepared the receipts for the expensive version.',
           art: 'card-envoy-tough',
           choices: [
             {

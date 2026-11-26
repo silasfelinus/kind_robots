@@ -198,8 +198,7 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
 
   function setMode(next: FishingMode) {
     mode.value = next
-    if (!fishing.activeFishing || fishing.activeClassicFishing)
-      resetQuestion()
+    if (!fishing.activeFishing || fishing.activeClassicFishing) resetQuestion()
     saveSettings()
   }
 
@@ -207,29 +206,25 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
     if (!isMandarinQuizScope(next)) return
     mandarinScope.value = next
     progressScopeLoaded = null
-    if (!fishing.activeFishing || fishing.activeClassicFishing)
-      resetQuestion()
+    if (!fishing.activeFishing || fishing.activeClassicFishing) resetQuestion()
     saveSettings()
   }
 
   function setLessonMode(next: FishingLessonMode) {
     lessonMode.value = next
-    if (!fishing.activeFishing || fishing.activeClassicFishing)
-      resetQuestion()
+    if (!fishing.activeFishing || fishing.activeClassicFishing) resetQuestion()
     saveSettings()
   }
 
   function setDifficulty(next: FishingQuizDifficulty) {
     difficulty.value = next
-    if (!fishing.activeFishing || fishing.activeClassicFishing)
-      resetQuestion()
+    if (!fishing.activeFishing || fishing.activeClassicFishing) resetQuestion()
     saveSettings()
   }
 
   function setPromptDirection(next: FishingPromptDirection) {
     promptDirection.value = next
-    if (!fishing.activeFishing || fishing.activeClassicFishing)
-      resetQuestion()
+    if (!fishing.activeFishing || fishing.activeClassicFishing) resetQuestion()
     saveSettings()
   }
 
@@ -241,8 +236,7 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
   function toggleModule(module: FishingQuizModule) {
     modules.value[module] = !modules.value[module]
     if (!enabled.value.length) modules.value[module] = true
-    if (!fishing.activeFishing || fishing.activeClassicFishing)
-      resetQuestion()
+    if (!fishing.activeFishing || fishing.activeClassicFishing) resetQuestion()
     saveSettings()
   }
 
@@ -342,7 +336,8 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
       }
       if (request !== requestId || currentQuizId() !== encounterId) return
       if (!tutor.cards.some((card) => card.key === saved.question?.cardKey)) {
-        error.value = 'This saved Mandarin word is unavailable. Retry or fish in Classic mode.'
+        error.value =
+          'This saved Mandarin word is unavailable. Retry or fish in Classic mode.'
         return
       }
       if (saved.question.cardKey)
@@ -516,8 +511,12 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
   }
 
   function finishAnswerSheet() {
-    if (!answerSheet.value || !question.value ||
-      questionEncounterId !== currentQuizId()) return
+    if (
+      !answerSheet.value ||
+      !question.value ||
+      questionEncounterId !== currentQuizId()
+    )
+      return
     settleAnswer(pendingCatch.value)
   }
 

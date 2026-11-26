@@ -25,11 +25,19 @@ function validQuestion(value: unknown): value is FishingQuizQuestion {
     !Array.isArray(options) ||
     options.length < 1 ||
     options.length > 4
-  ) return false
-  if (!options.every((option) =>
-    object(option) && text(option.id) && text(option.label) &&
-    (option.icon === undefined || text(option.icon)) && image(option.image),
-  )) return false
+  )
+    return false
+  if (
+    !options.every(
+      (option) =>
+        object(option) &&
+        text(option.id) &&
+        text(option.label) &&
+        (option.icon === undefined || text(option.icon)) &&
+        image(option.image),
+    )
+  )
+    return false
   if (new Set(options.map((option) => option.id)).size !== options.length)
     return false
   if (!options.some((option) => option.id === value.correctId)) return false
@@ -41,16 +49,23 @@ function validQuestion(value: unknown): value is FishingQuizQuestion {
 export function validQuizCheckpoint(
   value: unknown,
 ): value is QuizFishingCheckpoint {
-  if (!object(value) || !text(value.encounterId) ||
-    value.encounterId.length > 512) return false
+  if (
+    !object(value) ||
+    !text(value.encounterId) ||
+    value.encounterId.length > 512
+  )
+    return false
   if (value.question === undefined)
-    return value.scope === undefined &&
+    return (
+      value.scope === undefined &&
       value.introduction === undefined &&
       value.feedback === undefined &&
       value.answerSheet === undefined
+    )
   return (
     validQuestion(value.question) &&
-    typeof value.scope === 'string' && isMandarinQuizScope(value.scope) &&
+    typeof value.scope === 'string' &&
+    isMandarinQuizScope(value.scope) &&
     typeof value.introduction === 'boolean' &&
     typeof value.answerSheet === 'boolean' &&
     text(value.feedback) &&
@@ -60,7 +75,9 @@ export function validQuizCheckpoint(
   )
 }
 
-export function readQuizCheckpoint(save: RunSave): QuizFishingCheckpoint | null {
+export function readQuizCheckpoint(
+  save: RunSave,
+): QuizFishingCheckpoint | null {
   const checkpoint = save.pendingQuizFishing
   if (
     save.status !== 'ACTIVE' ||
@@ -69,6 +86,7 @@ export function readQuizCheckpoint(save: RunSave): QuizFishingCheckpoint | null 
     save.pendingClassicFishing ||
     !validQuizCheckpoint(checkpoint) ||
     checkpoint.encounterId !== startFishingEncounter(save).id
-  ) return null
+  )
+    return null
   return checkpoint
 }

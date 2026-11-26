@@ -185,7 +185,9 @@ function speak() {
 onMounted(() => void quiz.resumeQuestion())
 watch(
   () => fishing.save?.pendingQuizFishing?.encounterId,
-  (id) => { if (id) void quiz.resumeQuestion() },
+  (id) => {
+    if (id) void quiz.resumeQuestion()
+  },
 )
 </script>
 

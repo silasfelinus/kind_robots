@@ -8,7 +8,10 @@ import { defineStore } from 'pinia'
 import { RULER_HOOKED_CONTENT as BUNDLE } from '~/utils/rulerHooked/content'
 import { createRun } from '~/utils/rulerHooked/newGame'
 import { readCourtCheckpoint } from '~/utils/rulerHooked/courtCheckpoint'
-import { readQuizCheckpoint, validQuizCheckpoint } from '~/utils/rulerHooked/quizCheckpoint'
+import {
+  readQuizCheckpoint,
+  validQuizCheckpoint,
+} from '~/utils/rulerHooked/quizCheckpoint'
 import {
   classicCheckpoint,
   readClassicCheckpoint,
@@ -314,7 +317,8 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
       activeClassicFishing.value ||
       !validQuizCheckpoint(checkpoint) ||
       checkpoint.encounterId !== save.value.pendingQuizFishing?.encounterId
-    ) return false
+    )
+      return false
     save.value.pendingQuizFishing = checkpoint
     persist()
     return true

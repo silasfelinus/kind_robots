@@ -5,6 +5,12 @@ import { TECH_ARCS } from './techArcs'
 import { MAGIC_ARCS } from './magicArcs'
 import { ALIEN_ARCS } from './alienArcs'
 import { PSYCHIC_ARCS } from './psychicArcs'
+import {
+  applySupport,
+  supportPlan,
+  supportReport,
+  type SupportAction,
+} from './supportAgency'
 import { recordTrigger, type TrainingState } from './training'
 
 export type Perspective = 'hero' | 'villain' | 'henchman' | 'sidekick'
@@ -33,6 +39,8 @@ export type StoryRun = {
   evidence: number
   mercy: boolean
   completed: boolean
+  /** Optional for historical saves: independent NPC actions already resolved. */
+  supportActions?: SupportAction[]
 }
 
 const a = (speaker: string, text: string): StoryLine => ({ speaker, text })
@@ -567,7 +575,7 @@ export function storyMoment(
       : undefined
   const person = IDENTITY_ARCS.find((identity) => identity.signature === lead)
   const support = state?.units.find(
-    (unit) => unit.team === 'squad' && unit.identity !== lead,
+    (unit) => unit.team === 'squad' && unit.id !== 'backdraft' && unit.hp > 0,
   )
   const supporter =
     IDENTITY_ARCS.find(
@@ -580,7 +588,9 @@ export function storyMoment(
           title: personal[0],
           lines: [
             a(person.hero.alias, personal[1]),
-            a(supporter.hero.alias, personal[2]),
+            state && !support
+              ? a('FIELD REPORT', 'No supporting fighter is available.')
+              : a(supporter.hero.alias, personal[2]),
           ],
         }
       : base
@@ -610,7 +620,32 @@ export function storyMoment(
       lines.splice(1, 0, PERSONAL_ROUTE[role])
     }
   }
+  if (state && personal && (beat === 'alarm' || beat === 'reckoning')) {
+    scene.choices = scene.choices.map((choice) => {
+      const plan = supportPlan(state, beat, choice.effect)
+      const actor =
+        plan && state.units.find((unit) => unit.id === plan.action.actor)
+      const name =
+        actor &&
+        IDENTITY_ARCS.find((entry) => entry.signature === actor.identity)?.hero
+          .alias
+      return {
+        ...choice,
+        detail:
+          choice.detail +
+          (plan && name
+            ? ' ' + name + ': ' + plan.text
+            : ' No additional companion action available.'),
+      }
+    })
+  }
   if (beat === 'victory' || beat === 'defeat') {
+    if (state)
+      for (const action of run.supportActions ?? []) {
+        const report = supportReport(state, action)
+        if (report)
+          lines.push(a('FIELD REPORT', report.speaker + ': ' + report.text))
+      }
     const outcome =
       run.civilians > 0
         ? a(
@@ -619,7 +654,9 @@ export function storyMoment(
               ' students evacuated. ' +
               (run.mercy
                 ? 'An injured rival accepted aid.'
-                : 'The remaining rivals retreated.'),
+                : beat === 'victory'
+                  ? 'The remaining rivals retreated.'
+                  : 'The squad was forced to retreat.'),
           )
         : a(
             'FIELD REPORT',
@@ -660,6 +697,12 @@ export function applyChoice(
   const beat = run.current
   if (!beat || !SCRIPT[role][beat].choices.some((c) => c.effect === effect))
     return false
+  const support =
+    (role === 'hero' || role === 'villain') &&
+    (beat === 'alarm' || beat === 'reckoning') &&
+    !run.supportActions?.some((action) => action.beat === beat)
+      ? supportPlan(state, beat, effect)
+      : null
   if (beat === 'arrival') {
     run.approach = effect === 'catwalk' ? 'catwalk' : 'service'
     // One free pre-battle reposition. Distinct approach lanes give different
@@ -685,6 +728,8 @@ export function applyChoice(
   } else if (beat === 'victory' || beat === 'defeat') {
     run.completed = true
   }
+  if (support && applySupport(state, support.action))
+    (run.supportActions ??= []).push(support.action)
   run.decisions.push(effect)
   run.seen.push(beat)
   recordTrigger(state, 'story:' + beat)

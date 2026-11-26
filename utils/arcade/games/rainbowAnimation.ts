@@ -162,6 +162,8 @@ export const RAINBOW_ENDING_MOTION: readonly string[] = [
   'restore',
   'evacuate',
   'sever-open',
+  'loyal-restore',
+  'loyal-evacuate',
 ]
 
 /** The plate an ending shows: the loyal road has its own; sever's plate is the crew-free lantern scene. */

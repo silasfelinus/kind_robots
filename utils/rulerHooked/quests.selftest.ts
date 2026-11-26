@@ -950,16 +950,18 @@ for (const id of QUESTS)
       `Ending witness ${target}: ${witness.seed}, ${witness.save.turnCount} casts`,
     )
     console.log(JSON.stringify(witness.actions))
-    console.log(JSON.stringify({
-      finale: ending.title,
-      epilogue: ending.body,
-      transcript: witness.save.choiceLog.map((entry) => ({
-        turn: entry.turn,
-        petition: entry.prompt,
-        decree: entry.choiceText,
-        consequence: entry.resultText,
-      })),
-    }))
+    console.log(
+      JSON.stringify({
+        finale: ending.title,
+        epilogue: ending.body,
+        transcript: witness.save.choiceLog.map((entry) => ({
+          turn: entry.turn,
+          petition: entry.prompt,
+          decree: entry.choiceText,
+          consequence: entry.resultText,
+        })),
+      }),
+    )
   }
 }
 
@@ -1023,8 +1025,8 @@ for (const id of QUESTS)
 }
 
 // Editorial acceptance: every authored narrative node has a distinct,
- // resolving choice, art binding, and readable consequence. Walk every arc
- // edge, assert terminal paths, and emit complete edited route transcripts.
+// resolving choice, art binding, and readable consequence. Walk every arc
+// edge, assert terminal paths, and emit complete edited route transcripts.
 {
   const freeCards = allDeckCards(C)
   const cards = [...freeCards, ...C.arcs.flatMap((a) => a.steps)]
@@ -1033,22 +1035,34 @@ for (const id of QUESTS)
   const cast = new Set(C.characters.map((character) => character.slug))
   const rewards = new Set(C.rewards.map((reward) => reward.slug))
   for (const card of cards) {
-    assert.ok(card.title.trim() && card.body.trim(), card.id)
+    assert.ok(card.title.trim() && card.body?.trim(), card.id)
     assert.ok(CARD_PROMPTS[card.id], card.id + ' has a scene prompt')
     const resolving = card.choices.filter((choice) => !choice.requeue)
     assert.ok(resolving.length >= 2, card.id + ' offers two real choices')
-    assert.equal(new Set(card.choices.map((choice) => choice.id)).size, card.choices.length)
+    assert.equal(
+      new Set(card.choices.map((choice) => choice.id)).size,
+      card.choices.length,
+    )
     for (const character of card.characters ?? [])
-      assert.ok(cast.has(character), card.id + ': unknown character ' + character)
+      assert.ok(
+        cast.has(character),
+        card.id + ': unknown character ' + character,
+      )
     for (const choice of card.choices) {
-      assert.ok(choice.text.trim() && choice.result?.trim(), card.id + '/' + choice.id)
-      for (const grant of choice.effects.grant ?? [])
+      assert.ok(
+        choice.text.trim() && choice.result?.trim(),
+        card.id + '/' + choice.id,
+      )
+      for (const grant of choice.effects?.grant ?? [])
         assert.ok(rewards.has(grant.reward), card.id + ': unknown reward')
-      for (const revoke of choice.effects.revoke ?? [])
+      for (const revoke of choice.effects?.revoke ?? [])
         assert.ok(rewards.has(revoke), card.id + ': unknown revoked reward')
     }
     for (const prerequisite of card.trigger?.requires?.cardsSeen ?? [])
-      assert.ok(ids.has(prerequisite), card.id + ': unknown prerequisite ' + prerequisite)
+      assert.ok(
+        ids.has(prerequisite),
+        card.id + ': unknown prerequisite ' + prerequisite,
+      )
   }
   for (const a of C.arcs) {
     const reached = new Set<string>()
@@ -1059,7 +1073,7 @@ for (const id of QUESTS)
       assert.ok(step, a.id + ': missing step ' + stepId)
       reached.add(stepId)
       for (const choice of step.choices) {
-        const next = choice.effects.arc
+        const next = choice.effects?.arc
         const path = [...choices, choice.id]
         if (next?.advance) walk(next.advance, [...history, stepId], path)
         else {
@@ -1084,7 +1098,15 @@ for (const id of QUESTS)
       console.log(JSON.stringify(transcript))
     }
   }
-  console.log('Editorial catalog: ' + cards.length + ' cards, ' + C.arcs.length + ' arcs, ' + C.endings.length + ' finales')
+  console.log(
+    'Editorial catalog: ' +
+      cards.length +
+      ' cards, ' +
+      C.arcs.length +
+      ' arcs, ' +
+      C.endings.length +
+      ' finales',
+  )
 }
 
 // One-time decisions and ecological bargain consequences must match the text.
@@ -1100,12 +1122,21 @@ for (const id of QUESTS)
   base.turnCount = 50
   const choose = (save: RunSave, cardId: string, choiceId: string) => {
     const card = cards.find((candidate) => candidate.id === cardId)!
-    return resolveChoice(save, card, card.choices.find((choice) => choice.id === choiceId)!)
+    return resolveChoice(
+      save,
+      card,
+      card.choices.find((choice) => choice.id === choiceId)!,
+    )
   }
-  const bargain = runQuest('bog-witch-bargain', ['accept-hex', 'complete-accept'])
+  const bargain = runQuest('bog-witch-bargain', [
+    'accept-hex',
+    'complete-accept',
+  ])
   const refused = choose(bargain, 'mossy-price', 'refuse-price')
   assert.equal(refused.flags.bogBloomed, false)
-  assert.ok(!refused.inventory.items.some((reward) => reward.slug === 'mossy-hex'))
+  assert.ok(
+    !refused.inventory.items.some((reward) => reward.slug === 'mossy-hex'),
+  )
   refused.kingdomHealth.nature = 100
   refused.kingdomHealth.joy = 100
   refused.flags.treelineSanctuarySettled = true
@@ -1113,16 +1144,27 @@ for (const id of QUESTS)
   const introduced = choose(base, 'smuggler-dock', 'allow-smuggling')
   const reported = choose(introduced, 'brack-lures', 'tip-cordelia')
   const exiled = choose(reported, 'brack-trial', 'exile-brack')
-  assert.ok(!eligiblePool(exiled, cards).some((card) => card.id === 'brack-lures'))
+  assert.ok(
+    !eligiblePool(exiled, cards).some((card) => card.id === 'brack-lures'),
+  )
   const pardoned = choose(reported, 'brack-trial', 'pardon-brack')
-  assert.ok(!eligiblePool(pardoned, cards).some((card) => card.id === 'brack-lures'))
+  assert.ok(
+    !eligiblePool(pardoned, cards).some((card) => card.id === 'brack-lures'),
+  )
   for (const [cardId, choiceId] of [
     ['sunken-cache', 'dive-for-it'],
     ['robin-ash-garden', 'grant-garden'],
   ] as const) {
-    const save = { ...introduced, flags: { ...introduced.flags, weddingCompleted: true } }
+    const save = {
+      ...introduced,
+      flags: { ...introduced.flags, weddingCompleted: true },
+    }
     assert.ok(eligiblePool(save, cards).some((card) => card.id === cardId))
-    assert.ok(!eligiblePool(choose(save, cardId, choiceId), cards).some((card) => card.id === cardId))
+    assert.ok(
+      !eligiblePool(choose(save, cardId, choiceId), cards).some(
+        (card) => card.id === cardId,
+      ),
+    )
   }
 }
 

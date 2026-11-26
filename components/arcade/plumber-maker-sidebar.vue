@@ -213,6 +213,59 @@
         />
         ✧ ZERO GRAVITY / AIR JET
       </label>
+      <label class="maker-check">
+        <input
+          type="checkbox"
+          :checked="!!maker.level.autoScroll"
+          @change="toggleAutoScroll"
+        />
+        FORCED SCROLL
+      </label>
+      <template v-if="maker.level.autoScroll">
+        <div
+          class="maker-size-settings"
+          role="group"
+          aria-label="Forced scroll columns"
+        >
+          <label>
+            START COLUMN
+            <input
+              type="number"
+              min="0"
+              :max="maker.level.autoScroll.to - 1"
+              step="1"
+              :value="maker.level.autoScroll.from"
+              @change="changeScroll('from', $event)"
+            />
+          </label>
+          <label>
+            END COLUMN
+            <input
+              type="number"
+              :min="maker.level.autoScroll.from + 1"
+              :max="maker.level.rows[0]!.length - 2"
+              step="1"
+              :value="maker.level.autoScroll.to"
+              @change="changeScroll('to', $event)"
+            />
+          </label>
+        </div>
+        <label>
+          CAMERA SPEED
+          <input
+            type="number"
+            min="0.25"
+            max="2.5"
+            step="0.25"
+            :value="maker.level.autoScroll.speed"
+            @change="changeScroll('speed', $event)"
+          />
+        </label>
+        <p class="maker-help">
+          Columns start at 0. Keep moving when the camera starts chasing you.
+          Leave a safe route past the end column.
+        </p>
+      </template>
       <p v-if="maker.level.space === true" class="maker-help">
         AIR-JET RULES: Aim your travel direction with arrows, hold C to blast
         air in the opposite direction, release to coast, hold A to brake. Each
@@ -351,6 +404,22 @@ function changeSpace(e: Event) {
   maker.updateSettings({
     space: (e.target as HTMLInputElement).checked ? true : undefined,
   })
+}
+function toggleAutoScroll(event: Event) {
+  const input = event.target as HTMLInputElement
+  maker.updateSettings({
+    autoScroll: input.checked
+      ? { from: 8, to: maker.level.rows[0]!.length - 6, speed: 1 }
+      : undefined,
+  })
+  input.checked = !!maker.level.autoScroll
+}
+function changeScroll(key: 'from' | 'to' | 'speed', event: Event) {
+  const input = event.target as HTMLInputElement
+  const rail = maker.level.autoScroll
+  if (!rail) return
+  maker.updateSettings({ autoScroll: { ...rail, [key]: input.valueAsNumber } })
+  input.value = String(maker.level.autoScroll?.[key] ?? rail[key])
 }
 function changeDark(e: Event) {
   maker.updateSettings({ dark: (e.target as HTMLInputElement).checked })

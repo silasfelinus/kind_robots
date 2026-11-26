@@ -16,6 +16,7 @@ export type MakerLevel = {
   dark: boolean
   snow?: true
   space?: true
+  autoScroll?: NonNullable<StageDef['autoScroll']>
   rows: string[]
 }
 
@@ -254,6 +255,30 @@ export function validateMakerLevel(input: unknown): MakerLevel {
     Number(value.theme) > 8
   )
     throw new Error('Choose one of the eight available worlds')
+  let autoScroll: MakerLevel['autoScroll']
+  if (value.autoScroll !== undefined) {
+    if (!value.autoScroll || typeof value.autoScroll !== 'object')
+      throw new Error('Invalid auto-scroll settings')
+    const { from, to, speed } = value.autoScroll as Record<string, unknown>
+    if (
+      typeof from !== 'number' ||
+      typeof to !== 'number' ||
+      !Number.isInteger(from) ||
+      !Number.isInteger(to) ||
+      from < 0 ||
+      to <= from ||
+      to > width - 2
+    )
+      throw new Error('Auto-scroll columns must increase and leave exit room')
+    if (
+      typeof speed !== 'number' ||
+      !Number.isFinite(speed) ||
+      speed < 0.25 ||
+      speed > 2.5
+    )
+      throw new Error('Auto-scroll speed must be 0.25 to 2.5')
+    autoScroll = { from, to, speed }
+  }
   const result: MakerLevel = {
     v: 1,
     title: textField(value.title, 64, 'Untitled Course'),
@@ -262,6 +287,7 @@ export function validateMakerLevel(input: unknown): MakerLevel {
     dark: value.dark === true,
     ...(value.snow === true ? { snow: true as const } : {}),
     ...(value.space === true ? { space: true as const } : {}),
+    ...(autoScroll ? { autoScroll } : {}),
     rows: rows.slice(),
   }
   try {
@@ -287,6 +313,7 @@ export function toMakerStage(level: MakerLevel): StageDef {
     dark: level.dark,
     snow: level.snow === true,
     space: level.space === true,
+    ...(level.autoScroll ? { autoScroll: { ...level.autoScroll } } : {}),
   }
 }
 

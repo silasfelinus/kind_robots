@@ -58,6 +58,7 @@ const blankReviewSummary = (): PlumberReviewSummary => ({
 const clone = (level: MakerLevel): MakerLevel => ({
   ...level,
   rows: level.rows.slice(),
+  ...(level.autoScroll ? { autoScroll: { ...level.autoScroll } } : {}),
 })
 
 export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
@@ -326,7 +327,10 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
 
   function updateSettings(
     patch: Partial<
-      Pick<MakerLevel, 'title' | 'author' | 'theme' | 'dark' | 'snow' | 'space'>
+      Pick<
+        MakerLevel,
+        'title' | 'author' | 'theme' | 'dark' | 'snow' | 'space' | 'autoScroll'
+      >
     >,
   ) {
     try {

@@ -701,6 +701,7 @@ const POWERS: (PlumberPower | null)[] = [
   'bottled-storm',
   'pocket-lift',
   'sailwing',
+  'ballast',
 ]
 const FUZZ_FRAMES = 2400
 let fuzzFrames = 0

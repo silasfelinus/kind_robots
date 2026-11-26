@@ -688,6 +688,35 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
     !isBool(story.completed)
   )
     return reject('Story progress is malformed.')
+  if (story.supportActions !== undefined) {
+    if (
+      save.stage ||
+      !['hero', 'villain'].includes(save.perspective) ||
+      !Array.isArray(story.supportActions) ||
+      story.supportActions.length > 2 ||
+      new Set(story.supportActions.map((action) => action?.beat)).size !==
+        story.supportActions.length ||
+      !story.supportActions.every(
+        (action) =>
+          action &&
+          ['alarm', 'reckoning'].includes(action.beat) &&
+          story.seen.includes(action.beat) &&
+          ['guarded', 'marked'].includes(action.effect) &&
+          state.units.some(
+            (unit) =>
+              unit.id === action.actor &&
+              unit.team === 'squad' &&
+              unit.id !== 'backdraft',
+          ) &&
+          state.units.some(
+            (unit) =>
+              unit.id === action.target &&
+              unit.team === (action.effect === 'guarded' ? 'squad' : 'rival'),
+          ),
+      )
+    )
+      return reject('Supporting actor history is invalid.')
+  }
   for (const beat of story.seen)
     if (!state.fired.includes('story:' + beat))
       return reject('Story beat ' + beat + ' is missing from trigger history.')

@@ -960,6 +960,76 @@ for (const person of IDENTITY_ARCS) {
 }
 assert.equal(personalScenes.size, 480)
 
+// Across every canonical lead and both allegiances, each support action is
+// previewed, applied to a real living fighter, persisted, and never replayed.
+// Controlled combat events isolate the narrative decisions from hit RNG.
+for (const person of IDENTITY_ARCS)
+  for (const perspective of ['hero', 'villain'] as const)
+    for (const alarm of ['rescue', 'contain'] as const)
+      for (const reckoning of ['spare', 'press'] as const) {
+        const state = trainingState(123, undefined, { lead: person.signature })
+        const run = createStory()
+        const seed = state.seed
+        assert.ok(applyChoice(run, state, perspective, 'catwalk'))
+        state.turn = 2
+        enqueueBeat(run, state)
+        const preview = storyMoment(perspective, 'alarm', person.signature, run, state)
+        assert.match(preview.choices.find((choice) => choice.effect === alarm)!.detail, /marked|guarded/)
+        assert.ok(applyChoice(run, state, perspective, alarm))
+        assert.equal(run.supportActions?.length, 1)
+        const firstAction = run.supportActions![0]!
+        assert.ok(state.units.find((unit) => unit.id === firstAction.target)!.statuses.includes(firstAction.effect))
+        assert.equal(applyChoice(run, state, perspective, alarm), false)
+        const saved = createSave({ slot: 'auto', perspective, leadSignature: person.signature, stage: null, state, story: run })
+        const restored = loadSave(JSON.stringify(saved))
+        assert.ok(restored.ok)
+        assert.deepEqual(restored.save.story.supportActions, run.supportActions)
+        const battle = restored.save.state
+        const story = restored.save.story
+        battle.units.find((unit) => unit.team === 'rival')!.hp = 0
+        enqueueBeat(story, battle)
+        assert.ok(applyChoice(story, battle, perspective, reckoning))
+        assert.equal(story.supportActions?.length, 2)
+        const secondAction = story.supportActions![1]!
+        assert.notEqual(firstAction.actor, secondAction.actor)
+        assert.ok(battle.units.find((unit) => unit.id === secondAction.target)!.statuses.includes(secondAction.effect))
+        if (reckoning === 'press') assert.equal(secondAction.effect, 'guarded')
+        assert.equal(battle.seed, seed)
+        battle.phase = 'victory'
+        enqueueBeat(story, battle)
+        const report = storyMoment(perspective, 'victory', person.signature, story, battle)
+        assert.ok(report.lines.some((line) => line.text.includes('independently guarded')))
+        assert.ok(applyChoice(story, battle, perspective, 'finish'))
+        assert.ok(story.completed)
+      }
+
+// No phantom aid from fallen companions; legacy four-role saves remain valid.
+for (const role of ['hero', 'villain', 'sidekick', 'henchman'] as const) {
+  const state = trainingState(88)
+  const run = createStory()
+  assert.ok(applyChoice(run, state, role, 'service'))
+  if (role === 'hero' || role === 'villain')
+    for (const unit of state.units)
+      if (unit.team === 'squad' && unit.id !== 'backdraft') unit.hp = 0
+  state.turn = 2
+  enqueueBeat(run, state)
+  assert.ok(applyChoice(run, state, role, 'contain'))
+  assert.equal(run.supportActions, undefined)
+}
+const forgedAgency = createSave({
+  slot: 'auto',
+  perspective: 'hero',
+  leadSignature: 'accident-fire',
+  stage: null,
+  state: trainingState(),
+  story: {
+    ...createStory(),
+    supportActions: [{ beat: 'alarm', actor: 'backdraft', target: 'priya', effect: 'guarded' }],
+  },
+})
+assert.equal(loadSave(JSON.stringify(forgedAgency)).ok, false)
+
+
 const missionChoices = [
   ['science-lab', 'lab-rescued', 'lab-evidence'],
   ['crosswalk-crisis', 'crosswalk-medics', 'crosswalk-jammed'],

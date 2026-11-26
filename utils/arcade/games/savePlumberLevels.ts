@@ -1514,8 +1514,7 @@ export function enclosedPipeRooms(stage: Stage): PipeRoom[] {
     }
     if (
       !rooms.some(
-        (existing) =>
-          existing.left === room.left && existing.top === room.top,
+        (existing) => existing.left === room.left && existing.top === room.top,
       )
     )
       rooms.push(room)

@@ -655,6 +655,16 @@ function label(
   g.fillStyle = color
   g.fillText(value, x, y)
 }
+/**
+ * Painted orbs (Silas 2026-11-25 PT: painted must replace code-drawn art): one per hue and bubble
+ * style, from conductor's art queue (superkate-spectrum-orb-<style>-<hue>). Until an orb is
+ * delivered the drawn gradient shows; high contrast always keeps the flat drawn orb.
+ */
+export const spectrumOrbArt = (style: BubbleStyle, hue: Hue) =>
+  `/images/arcade/superkate-spectrum/orbs/${style}-${hue}.webp`
+export const SPECTRUM_LAUNCHER_ART =
+  '/images/arcade/superkate-spectrum/orbs/launcher.webp'
+
 function bubble(
   g: CanvasRenderingContext2D,
   x: number,
@@ -677,6 +687,17 @@ function bubble(
   g.arc(x, y, size, 0, Math.PI * 2)
   g.fill()
   g.shadowBlur = 0
+  const painted = highContrast ? null : loadedImage(spectrumOrbArt(style, hue))
+  if (painted) {
+    g.save()
+    g.beginPath()
+    g.arc(x, y, size, 0, Math.PI * 2)
+    g.clip()
+    // A little over the circle, so the painting's own soft edge never shows.
+    const span = size * 2.3
+    g.drawImage(painted, x - span / 2, y - span / 2, span, span)
+    g.restore()
+  }
   g.strokeStyle = highContrast
     ? '#ffffff'
     : style === 'prismatic'
@@ -689,10 +710,9 @@ function bubble(
     const sparkle = 2 + Math.sin(tick / 9 + x * 0.1) * 1.5
     g.fillRect(x - 5, y - 8, sparkle, sparkle)
   }
-  // Each color has a distinct geometric emblem for color-blind play.
+  // Each color has a distinct geometric emblem for color-blind play (a light halo keeps it
+  // readable over painted orbs).
   const index = COLORS.indexOf(hue)
-  g.strokeStyle = '#21132e'
-  g.lineWidth = 2
   g.beginPath()
   if (index === 0) {
     g.moveTo(x - 5, y)
@@ -718,6 +738,13 @@ function bubble(
     g.moveTo(x + 5, y - 4)
     g.lineTo(x - 5, y + 4)
   }
+  if (painted) {
+    g.strokeStyle = '#ffffffd9'
+    g.lineWidth = 4
+    g.stroke()
+  }
+  g.strokeStyle = '#21132e'
+  g.lineWidth = 2
   g.stroke()
   g.restore()
 }
@@ -2196,6 +2223,10 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     g.beginPath()
     g.arc(W / 2, SHOT_Y + 13, 20, Math.PI, 0)
     g.fill()
+    const cannon = this.settings.highContrast
+      ? null
+      : loadedImage(SPECTRUM_LAUNCHER_ART)
+    if (cannon) g.drawImage(cannon, W / 2 - 26, SHOT_Y - 14, 52, 33)
     bubble(
       g,
       W / 2,

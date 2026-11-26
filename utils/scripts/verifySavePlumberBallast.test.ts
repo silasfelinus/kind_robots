@@ -6,7 +6,11 @@
 // boots never change her jump.
 import assert from 'node:assert/strict'
 import { HERO_TALL, PlumberRun } from '../arcade/games/savePlumberPreview'
-import { SOLID_CRATE, TILE, type StageDef } from '../arcade/games/savePlumberLevels'
+import {
+  SOLID_CRATE,
+  TILE,
+  type StageDef,
+} from '../arcade/games/savePlumberLevels'
 import { emptyInput, type InputFrame } from '../arcade/types'
 
 const options = {
@@ -142,7 +146,10 @@ const crateAfterDrop = (power: 'ballast' | null, down: boolean) => {
   play(run, 40, (_, input) => {
     input.held.down = down
   })
-  return { crate: run.solidAt(30, 21) === SOLID_CRATE, tokens: run.tokens - tokens }
+  return {
+    crate: run.solidAt(30, 21) === SOLID_CRATE,
+    tokens: run.tokens - tokens,
+  }
 }
 const slam = crateAfterDrop('ballast', true)
 assert.equal(slam.crate, false, 'a Ballast slam breaks the crate underfoot')

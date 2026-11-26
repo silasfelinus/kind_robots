@@ -3776,7 +3776,11 @@ export class PlumberRun implements ArcadeGameInstance {
       if (reach > 4 && reach < JET + HALF && hero.y + TALL > boss.y - 72)
         this.hurt(boss.dir)
     }
-    if (boss.state === 'burst' && boss.kind === 'gale' && this.power !== 'ballast')
+    if (
+      boss.state === 'burst' &&
+      boss.kind === 'gale' &&
+      this.power !== 'ballast'
+    )
       this.moveX(hero, HALF, TALL, hero.x < boss.x ? -1.5 : 1.5)
     if (boss.kind === 'burrow' && boss.state === 'tell') return
     const top =

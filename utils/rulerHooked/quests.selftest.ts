@@ -1317,7 +1317,14 @@ for (const id of QUESTS)
       }
       assert.equal(applyFishingStop(fight, 50), fight)
       trace.push(
-        'cast:' + region + ':' + slug + ':' + fight.phase + ':' + stops.join(','),
+        'cast:' +
+          region +
+          ':' +
+          slug +
+          ':' +
+          fight.phase +
+          ':' +
+          stops.join(','),
       )
       const before = save
       const narrative = makeRng(seed + ':' + save.turnCount)

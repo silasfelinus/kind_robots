@@ -28,6 +28,7 @@ import {
   stepPvp,
 } from '../slimeCity/pvp'
 import { cardById } from '../slimeCity/prototypes'
+import { allianceStarter, soloStarter } from '../slimeCity/alliance'
 import {
   CLASH_DECK_SIZE,
   canClashPlay,
@@ -615,7 +616,7 @@ console.log(
   )
   assert.match(
     client,
-    /start\(next\.team, \{\s*friendId: next\.friendId\s*\}/,
+    /start\(next\.team, \{\s*friendId: next\.friendId,\s*deck\s*\}/,
     'REMATCH is a private friend challenge through the normal start path',
   )
   assert.match(client, /pvpTally\(games\.value\)/)
@@ -623,7 +624,7 @@ console.log(
   assert.match(board, /data-testid="slime-pvp-result"/)
   assert.match(board, /data-testid="slime-pvp-rematch"/)
   assert.match(board, /@click="chooseRematch"/)
-  assert.match(board, /pvp\.rematch\(selectedTeam\.value\)/)
+  assert.match(board, /pvp\.rematch\(selectedTeam\.value, duelDeck\.value\)/)
   assert.match(board, /data-testid="slime-pvp-rematch-back"/)
   assert.match(board, /<details[^>]*data-testid="slime-pvp-share-menu"/)
   const bulletin = readFileSync('components/slime-city-vs.vue', 'utf8')
@@ -1081,6 +1082,83 @@ assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
       enemy: 0,
     },
   )
+}
+
+// Replay independently selected Solo and Alliance decks without exposing cards.
+{
+  const solo = soloStarter('catgirls')
+  const alliance = allianceStarter('ironjaw', 'riot')
+  const rules = pvpRules({
+    dealEarly: true,
+    deckSetups: {
+      player: { format: 'solo', cards: solo },
+      enemy: { format: 'alliance', deck: alliance },
+    },
+  })
+  const state = newPvpGame('catgirls', 'ironjaw', 42, rules)
+  assert.deepEqual(state.allies, { player: null, enemy: 'riot' })
+  assert.deepEqual(
+    [...state.decks.player, ...state.hands.player].sort(),
+    [...solo].sort(),
+  )
+  assert.deepEqual(
+    [...state.decks.enemy, ...state.hands.enemy].sort(),
+    [...alliance.cards].sort(),
+  )
+  const board = pvpBoard(state, 'player')
+  assert.deepEqual(board.allies, state.allies)
+  assert.deepEqual(
+    pvpClashView(board, 'player', 'catgirls', 'ironjaw').allies,
+    state.allies,
+  )
+  assert.equal('deckSetups' in board, false)
+  assert.deepEqual(replayPvp('catgirls', 'ironjaw', 42, [], rules), state)
+}
+
+// Every human duel entry point uses the same four-way deck picker.
+{
+  const picker = readFileSync(
+    'components/slime-city-duel-deck-picker.vue',
+    'utf8',
+  )
+  for (const mode of [
+    'faction-classic',
+    'faction-constructed',
+    'alliance-classic',
+    'alliance-constructed',
+  ])
+    assert.ok(picker.includes(mode))
+  for (const path of [
+    'components/slime-city-vs.vue',
+    'components/slime-city-pvp-game.vue',
+  ])
+    assert.match(readFileSync(path, 'utf8'), /<SlimeCityDuelDeckPicker/)
+  const store = readFileSync('stores/slimeCity.ts', 'utf8')
+  assert.match(
+    store,
+    /mode === 'faction-classic'\)\s*return \{ format: 'solo', cards: soloStarter\(team\) \}/,
+  )
+  assert.match(store, /allianceStarter\(team, ally\)/)
+}
+
+// Turn email is explicit opt-in, authenticated, verified and sent after commit.
+{
+  const service = readFileSync('server/utils/slimeCityPvp.ts', 'utf8')
+  const mail = readFileSync('server/utils/slimeCityTurnEmail.ts', 'utf8')
+  assert.match(service, /!after\.victor && before\.active !== after\.active/)
+  assert.match(service, /await notifySlimeCityTurn\(nextTurnUserId, id\)/)
+  assert.match(mail, /raw\.pvpTurnEmail === true/)
+  assert.match(mail, /user\.emailVerified/)
+  assert.match(mail, /if \(!optedIn\(row\?\.data\)\) return/)
+  assert.match(mail, /version: row\.version/)
+  for (const route of ['get', 'patch'])
+    assert.match(
+      readFileSync(
+        'server/api/slime-city/pvp/turn-email.' + route + '.ts',
+        'utf8',
+      ),
+      /requireSlimeCityPlayer\(event\)/,
+    )
 }
 
 // Existing duel records replay the original tuning; new records retain v2.

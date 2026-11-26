@@ -581,6 +581,62 @@ for (let s = 1; s <= 60; s++) {
 }
 assert.ok(finished >= 36, `most auto-played delves survive (${finished}/60)`)
 
+type SurvivalCount = { survived: number; total: number }
+const survivalBySize = new Map<number, SurvivalCount>()
+const survivalByRole = new Map<string, SurvivalCount>()
+const survivalByCombination = new Map<string, SurvivalCount>()
+
+function countSurvival<K>(
+  counts: Map<K, SurvivalCount>,
+  key: K,
+  survived: boolean,
+) {
+  const count = counts.get(key) ?? { survived: 0, total: 0 }
+  count.total++
+  if (survived) count.survived++
+  counts.set(key, count)
+}
+
+// Cross every preset with every legal party size and two distinct seeds.
+// Keep the original 60-run regression unchanged for historical comparison.
+for (const [index, lead] of CHARACTERS.entries()) {
+  const pool = ids.filter((id) => id !== lead.id)
+  for (const size of [1, 2, 3]) {
+    for (let trial = 0; trial < 2; trial++) {
+      const seed = (index * 6 + (size - 1) * 2 + trial + 1) * 104729
+      const offset = (index * 7 + trial * 19 + size * 11) % pool.length
+      const companions = Array.from(
+        { length: size },
+        (_, slot) => pool[(offset + slot * 13) % pool.length]!,
+      )
+      const run = autoplay(createRun(hero(lead.id), companions, seed))
+      assert.equal(run.phase, 'ended', `balance seed ${seed} terminates`)
+      assert.ok(run.ending, `balance seed ${seed} has an ending`)
+      const survived = run.ending !== 'fallen'
+      countSurvival(survivalBySize, size + 1, survived)
+      countSurvival(survivalByRole, lead.role, survived)
+      countSurvival(survivalByCombination, `${size + 1}:${lead.role}`, survived)
+    }
+  }
+}
+
+assert.equal(survivalBySize.size, 3)
+for (const count of survivalBySize.values()) assert.equal(count.total, 100)
+assert.equal(survivalByRole.size, Object.keys(ROLES).length)
+
+function printSurvival<K>(label: string, counts: Map<K, SurvivalCount>) {
+  for (const [key, count] of counts) {
+    const percent = ((100 * count.survived) / count.total).toFixed(1)
+    console.log(
+      `Deepheart balance ${label} ${key}: ${count.survived}/${count.total} (${percent}%)`,
+    )
+  }
+}
+
+printSurvival('party', survivalBySize)
+printSurvival('role', survivalByRole)
+printSurvival('party-role', survivalByCombination)
+
 // ── Every ending from a fresh seed ───────────────────────────────────────
 type Plan = {
   hero: HeroSetup

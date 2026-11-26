@@ -3,6 +3,7 @@ import { createError } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { createNotification } from '~/server/utils/notify'
+import { notifySlimeCityTurn } from '~/server/utils/slimeCityTurnEmail'
 import {
   PVP_MAX_COMMANDS,
   PVP_MODE,
@@ -35,6 +36,12 @@ import {
   restoreProgression,
 } from '~/utils/slimeCity/progression'
 import type { ClashState } from '~/utils/slimeCity/clash'
+import {
+  clashRewardCards,
+  clashRewardSetupProblem,
+  type ClashRewardSetup,
+} from '~/utils/slimeCity/clashRewards'
+import { STARTER_CARD_IDS } from '~/utils/slimeCity/alliance'
 import type { Side, TeamId } from '~/utils/slimeCity/prototypes'
 
 function fail(statusCode: number, message: string): never {
@@ -158,6 +165,36 @@ async function withRivalName(duel: PvpSnapshot): Promise<PvpSnapshot> {
   return { ...duel, rivalName: rival?.username ?? null }
 }
 
+async function validateDuelDeck(
+  userId: number,
+  team: TeamId,
+  raw: unknown,
+): Promise<ClashRewardSetup | undefined> {
+  if (raw === undefined) return undefined
+  const problem = clashRewardSetupProblem(team, raw)
+  if (problem) return fail(400, problem)
+  const setup = raw as ClashRewardSetup
+  if (setup.bout) return fail(400, 'Story modifiers are not legal in duels.')
+  const wallet = await prisma.slimeCityAccount.findUnique({ where: { userId } })
+  const owned = new Set(restoreProgression(wallet?.data).cards)
+  if (
+    clashRewardCards(setup).some(
+      (id) => !STARTER_CARD_IDS.has(id) && !owned.has(id),
+    )
+  )
+    return fail(403, 'Unlock every card in your duel deck first.')
+  return setup.format === 'solo'
+    ? { format: 'solo', cards: [...setup.cards] }
+    : {
+        format: 'alliance',
+        deck: {
+          general: setup.deck.general,
+          ally: setup.deck.ally,
+          cards: [...setup.deck.cards],
+        },
+      }
+}
+
 /**
  * Invite duels for signed-in players. No matchmaking, wallet, payout or
  * production economy changes. Only the inviter and the first authenticated
@@ -169,6 +206,7 @@ export async function createSlimeCityDuel(
   friendId?: unknown,
   isPublic?: unknown,
   takebacks?: unknown,
+  rawDeck?: unknown,
 ) {
   if (!isPvpTeam(team)) return fail(400, 'Choose a Slime City crew.')
   if (takebacks !== undefined && !PVP_TAKEBACK_CHOICES.includes(takebacks as 0))
@@ -195,6 +233,7 @@ export async function createSlimeCityDuel(
       return fail(403, 'You can only challenge players on your friends list.')
     invitedId = Number(friendId)
   }
+  const setup = await validateDuelDeck(userId, team, rawDeck)
   const recent = await prisma.slimeCityMatch.count({
     where: {
       userId,
@@ -215,6 +254,7 @@ export async function createSlimeCityDuel(
       commands: asJson({
         version: 1,
         guestId: null,
+        ...(setup ? { deckSetups: { player: setup } } : {}),
         dealEarly: true,
         balanceVersion: 2,
         takebacks: PVP_TAKEBACKS_ANY,
@@ -408,8 +448,10 @@ export async function joinSlimeCityDuel(
   id: string,
   userId: number,
   team: unknown,
+  rawDeck?: unknown,
 ) {
   if (!isPvpTeam(team)) return fail(400, 'Choose a Slime City crew.')
+  const setup = await validateDuelDeck(userId, team, rawDeck)
   return prisma.$transaction(async (tx) => {
     if (!validId(id)) return fail(404, 'Duel not found.')
     await tx.$queryRaw`SELECT id FROM SlimeCityMatch WHERE id = ${id} FOR UPDATE`
@@ -428,6 +470,7 @@ export async function joinSlimeCityDuel(
       ...record,
       guestId: userId,
       joinedAt: new Date().toISOString(),
+      ...(setup ? { deckSetups: { ...record.deckSetups, enemy: setup } } : {}),
       lastActionAt: new Date().toISOString(),
     }
     const updated = await tx.slimeCityMatch.update({
@@ -490,6 +533,7 @@ export async function commandSlimeCityDuel(
 ) {
   if (!Number.isSafeInteger(revision) || Number(revision) < 0)
     return fail(400, 'Invalid match revision.')
+  let nextTurnUserId: number | null = null
   const duel = await prisma.$transaction(async (tx) => {
     if (!validId(id)) return fail(404, 'Duel not found.')
     await tx.$queryRaw`SELECT id FROM SlimeCityMatch WHERE id = ${id} FOR UPDATE`
@@ -563,8 +607,11 @@ export async function commandSlimeCityDuel(
           : {}),
       },
     })
+    if (!after.victor && before.active !== after.active)
+      nextTurnUserId = after.active === 'player' ? row.userId : record.guestId
     return snapshot(updated, next, userId)
   })
+  if (nextTurnUserId !== null) await notifySlimeCityTurn(nextTurnUserId, id)
   return duel.stage === 'finished' ? withRivalName(duel) : duel
 }
 

@@ -263,6 +263,27 @@ export function sendPatronTokensGrantedEmail(
   })
 }
 
+/** Optional, transactional turn-ready notice. No rival or hidden card data. */
+export function sendSlimeCityTurnEmail(
+  to: string,
+  name: string,
+  duelId: string,
+) {
+  const url =
+    appBaseUrl() + '/play/slime-city-pvp?duel=' + encodeURIComponent(duelId)
+  const settings = appBaseUrl() + '/play/slime-city?vs=1'
+  return sendTransactionalEmail({
+    to,
+    toName: name,
+    subject: 'Slime City: your turn!',
+    html: shell(
+      'Your rival has finished their turn',
+      `<p>You're up in Slime City. Return to your duel whenever you're ready.</p>${button(url, 'Play your turn')}<p>You're receiving this because you opted into Slime City turn emails. <a href="${settings}">Turn these emails off in VS</a>.</p>`,
+    ),
+    text: `Your rival has finished their turn. Play: ${url}\nTurn emails off in VS: ${settings}`,
+  })
+}
+
 function escapeHtml(v: string): string {
   return String(v || '')
     .replace(/&/g, '&amp;')

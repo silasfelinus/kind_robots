@@ -463,5 +463,7 @@ export function storyFromAccount(raw: unknown): SlimeCityStory {
 
 export function accountWithStory(raw: unknown, progression: object): object {
   const story = savedStory(raw)
-  return story ? { ...progression, story } : progression
+  const turnEmail =
+    record(raw) && raw.pvpTurnEmail === true ? { pvpTurnEmail: true } : {}
+  return { ...progression, ...turnEmail, ...(story ? { story } : {}) }
 }

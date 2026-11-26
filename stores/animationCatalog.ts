@@ -1284,7 +1284,7 @@ export const ANIMATION_EFFECTS = [
     label: 'Cranberry Bog Harvest',
     reveal:
       'A floating boom gathers a flooded bog of cranberries into a crimson raft',
-    icon: 'kind-icon:fruit',
+    icon: 'kind-icon:wave',
     tooltip:
       'Hundreds of floating cranberries jostle on a golden-hour bog as a yellow boom slowly gathers them in 🍒 sweep the pointer to draw a wake, click to drop a ripple',
     color: '#c8203a',

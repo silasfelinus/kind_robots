@@ -174,7 +174,7 @@
       return layered(
         `<svg viewBox="0 0 100 100" aria-hidden="true">${fillArt(world.blockers.tangle.art, { dark: '#3b2b5c', light: '#ffffff', main: '#9c97ad' }, 'tangle')}</svg>`,
         world.id,
-        'tangle',
+        'knot',
         badge,
       )
     }
@@ -209,7 +209,7 @@
       return layered(
         `<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M26 70 a18 18 0 0 1 4 -35 a22 22 0 0 1 40 -4 a16 16 0 0 1 6 39 z" fill="${world.blockers.gloom.color2}" stroke="${world.blockers.gloom.color}" stroke-width="4"/><path d="M36 82 l-4 8 M52 82 l-4 8 M68 82 l-4 8" stroke="${world.blockers.gloom.color2}" stroke-width="4" stroke-linecap="round"/></svg>`,
         world.id,
-        'gloom',
+        'mist',
         '',
       )
     if (goal.type === 'gloom')

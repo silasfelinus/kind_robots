@@ -2541,6 +2541,7 @@ console.log(
 )
 // On a failed sweep, collect measured alternatives in CI before asserting the
 // original acceptance limits. The diagnostic never changes the tested engine.
+console.log('CLASH worst pairings:', worstClashPairings(sweep).slice(0, 5))
 const rates = Object.values(sweep.crews).map((r) => r.wins / r.games)
 if (
   rates.some((rate) => rate <= 0.42 || rate >= 0.58) ||

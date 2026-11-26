@@ -385,8 +385,8 @@ export const CLASH_CREW_BUDGET: Partial<Record<TeamId, number>> = {
 const CLASH_V2_CREW_ADJUSTMENT: Partial<
   Record<TeamId, [number, number, number]>
 > = {
-  ironjaw: [0, -0.5, -0.5],
-  riot: [0, 0.5, 0],
+  ironjaw: [-0.5, 0.5, 0],
+  riot: [0, 0.5, 0.5],
   exchange: [-0.5, -0.5, -0.5],
 }
 export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {

@@ -16,12 +16,14 @@ type Candidate = {
   ironjaw: TierBudget
   riot: TierBudget
   exchange: TierBudget
+  undertow?: TierBudget
 }
 type Result = {
   rates: Record<string, number>
   first: number
   limit: number
   worst: number
+  worstPairings: { pairing: string; rate: number }[]
   spread: number
 }
 
@@ -61,7 +63,7 @@ export function reportCalibrationCandidates(): void {
         "import { sweepClash, worstClashPairings } from './slimeCityClashBalanceReport'",
         'const s = sweepClash(Number(process.argv[2]), Number(process.argv[3]))',
         'const rates = Object.fromEntries(Object.entries(s.crews).map(([id, r]) => [id, r.wins / r.games]))',
-        'console.log(JSON.stringify({ rates, first: s.firstSeatWins / s.games, limit: s.roundLimit / s.games, worst: worstClashPairings(s)[0]!.rate, spread: Math.max(...Object.values(rates)) - Math.min(...Object.values(rates)) }))',
+        'console.log(JSON.stringify({ rates, first: s.firstSeatWins / s.games, limit: s.roundLimit / s.games, worst: worstClashPairings(s)[0]!.rate, worstPairings: worstClashPairings(s).slice(0, 3).map(({ pairing, rate }) => ({ pairing, rate })), spread: Math.max(...Object.values(rates)) - Math.min(...Object.values(rates)) }))',
       ].join('\n'),
     )
     function run(candidate: Candidate, seeds: number, offset: number): Result {
@@ -84,35 +86,37 @@ export function reportCalibrationCandidates(): void {
       return JSON.parse(line || '{}') as Result
     }
 
+    // The first scan established a good aggregate baseline; now use the
+    // full acceptance seed set for every refinement. A tiny screen can hide
+    // a bad matchup or over-rank a candidate due to sampling noise.
     const iron: TierBudget[] = [
-      [0, -0.5, -0.5],
       [-0.5, 0, 0],
-      [0, -0.5, 0],
-      [0, 0, 0],
+      [-0.5, 0.5, 0],
+      [-0.5, 0, 0.5],
+      [-0.5, 0.5, 0.5],
     ]
-    const riot: TierBudget[] = [
-      [0, 0.5, 0],
-      [0, 0.5, 0.5],
-      [0.5, 0, 0],
-      [0, 0, 0.5],
+    const exchange: TierBudget[] = [
+      [-0.5, -0.5, -0.5],
+      [-0.5, 0, 0],
+      [0, -0.5, -0.5],
+      [-0.5, 0.5, 0],
     ]
     const candidates: Candidate[] = []
     for (const a of iron)
-      for (const b of riot)
-        candidates.push({
-          ironjaw: a,
-          riot: b,
-          exchange: [-0.5, -0.5, -0.5],
-        })
+      for (const b of exchange)
+        candidates.push({ ironjaw: a, riot: [0, 0.5, 0.5], exchange: b })
+    for (const a of iron)
+      candidates.push({
+        ironjaw: a,
+        riot: [0, 0.5, 0.5],
+        exchange: [-0.5, -0.5, -0.5],
+        undertow: [0, -0.5, 0],
+      })
     const screened = candidates
-      .map((candidate) => ({
-        candidate,
-        result: run(candidate, 12, 700),
-      }))
+      .map((candidate) => ({ candidate, result: run(candidate, 40, 700) }))
       .sort((a, b) => penalty(a.result) - penalty(b.result))
     console.log('CLASH_CALIBRATION_SCREEN', JSON.stringify(screened))
-    const verified = screened.slice(0, 4).map(({ candidate }) => {
-      const result = run(candidate, 40, 700)
+    const verified = screened.slice(0, 6).map(({ candidate, result }) => {
       const holdout = run(candidate, 40, 1400)
       return { candidate, result, holdout, penalty: penalty(result) }
     })

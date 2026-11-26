@@ -38,7 +38,7 @@ import {
 } from '../deepheart/court'
 import { UNDERCITY_EVENTS } from '../deepheart/society'
 import { SUPPORT_SEQUELS } from '../deepheart/campStories'
-import { EVENTS, LAYERS, REVEAL_TEXT } from '../deepheart/dungeon'
+import { ENEMIES, EVENTS, LAYERS, REVEAL_TEXT } from '../deepheart/dungeon'
 import {
   SUPPORT_MOMENTS,
   abilityModifier,
@@ -102,6 +102,33 @@ const hero = (presetId: string, extra: Partial<HeroSetup> = {}): HeroSetup => {
     boon: c.edge,
     ...extra,
   }
+}
+
+// Every ordinary enemy must be reachable through an actual seeded fight door.
+assert.equal(Object.keys(ENEMIES).length, 40, 'forty distinct enemies')
+assert.equal(new Set(Object.values(ENEMIES).map((e) => e.name)).size, 40)
+assert.equal(new Set(Object.values(ENEMIES).map((e) => e.look)).size, 40)
+const ordinaryEnemies = LAYERS.flatMap((layer) => layer.enemies)
+assert.equal(new Set(ordinaryEnemies).size, 36)
+assert.deepEqual(
+  [...ordinaryEnemies, ...LAYERS.map((layer) => layer.boss), 'mimic'].sort(),
+  Object.keys(ENEMIES).sort(),
+)
+for (const layer of LAYERS) {
+  assert.equal(layer.enemies.length, 12)
+  const seen = new Set<string>()
+  for (let seed = 1; seed <= 256; seed++) {
+    const run = createRun(hero('idris'), ['brannoc', 'fen'], seed * 104729)
+    run.layer = layer.id
+    run.rooms = [[{ kind: 'fight', known: true }]]
+    chooseDoor(run, 0)
+    assert.ok(run.combat)
+    for (const enemy of run.combat.enemies) {
+      assert.ok(layer.enemies.includes(enemy.id))
+      seen.add(enemy.id)
+    }
+  }
+  assert.deepEqual([...seen].sort(), [...layer.enemies].sort())
 }
 
 // ── Roster ───────────────────────────────────────────────────────────────

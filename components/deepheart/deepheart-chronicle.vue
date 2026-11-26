@@ -45,8 +45,8 @@
       >
         <p class="pf-display text-primary">Account backup</p>
         <p class="text-xs">
-          Copy your slots and chronicle between devices. Local saves work
-          offline.
+          Copy your slots, chronicle, scrapbook and settings between devices.
+          Local saves work offline.
         </p>
         <div class="flex flex-wrap gap-2">
           <button
@@ -79,7 +79,7 @@
             {{
               confirmAccount === 'backup'
                 ? 'Replace the account backup with this device’s progress?'
-                : 'Replace this device’s slots and chronicle with the account backup?'
+                : 'Replace this device’s progress and settings with the account backup?'
             }}
           </p>
           <button

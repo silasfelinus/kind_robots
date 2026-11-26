@@ -9,6 +9,7 @@ import {
 } from '../deepheart/sound'
 import { noteFreq, parseLoop, type ArcadeSound } from '../arcade/sound'
 import { parseDeepheartBackup } from '../deepheart/accountBackup'
+import { DEFAULT_KIT_SETTINGS } from '../playbookKit/settings'
 import { readFileSync, readdirSync } from 'node:fs'
 import { parse as parseYaml } from 'yaml'
 import {
@@ -1299,6 +1300,44 @@ const archive = {
   saves: { version: 1, slots: [archiveSlot] },
 }
 assert.deepEqual(parseDeepheartBackup(JSON.stringify(archive)), archive)
+const kitArchive = {
+  ...archive,
+  kit: {
+    version: 1,
+    settings: { ...DEFAULT_KIT_SETTINGS, sound: 'off', textSize: 'large' },
+    progress: {
+      moments: { campfire: '2026-11-25T00:00:00.000Z' },
+      reveals: { gate: '2026-11-25T00:00:00.000Z' },
+      endings: { fallen: '2026-11-25T00:00:00.000Z' },
+      trailerSeen: true,
+    },
+  },
+}
+assert.deepEqual(parseDeepheartBackup(JSON.stringify(kitArchive)), kitArchive)
+assert.throws(() =>
+  parseDeepheartBackup(
+    JSON.stringify({ ...kitArchive, kit: { ...kitArchive.kit, version: 99 } }),
+  ),
+)
+assert.throws(() =>
+  parseDeepheartBackup(
+    JSON.stringify({
+      ...kitArchive,
+      kit: {
+        ...kitArchive.kit,
+        progress: { ...kitArchive.kit.progress, moments: { campfire: 42 } },
+      },
+    }),
+  ),
+)
+assert.match(
+  readFileSync('stores/deepheartStore.ts', 'utf8'),
+  /kit\(\)\.accountSnapshot\('deepheart'\)/,
+)
+assert.match(
+  readFileSync('stores/deepheartStore.ts', 'utf8'),
+  /kit\(\)\.restoreAccount\('deepheart', backup\.kit\)/,
+)
 assert.throws(() =>
   parseDeepheartBackup(JSON.stringify({ ...archive, version: 99 })),
 )

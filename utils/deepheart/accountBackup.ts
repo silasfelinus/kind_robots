@@ -1,11 +1,13 @@
 import { decodeChronicle, decodeSaves } from './chronicle'
 import type { Chronicle, SaveFile } from './chronicle'
+import { decodeKitSave, type KitSave } from '../playbookKit/settings'
 
 export interface DeepheartBackup {
   kind: 'deepheart'
   version: 1
   chronicle: Chronicle
   saves: SaveFile
+  kit?: KitSave
 }
 
 const object = (value: unknown): value is Record<string, unknown> =>
@@ -164,5 +166,26 @@ export function parseDeepheartBackup(source: string): DeepheartBackup {
   const saves = decodeSaves(JSON.stringify(raw.saves))
   if (!chronicle || !saves)
     throw new Error('Unsupported Deepheart save version.')
-  return { kind: 'deepheart', version: 1, chronicle, saves }
+  if (raw.kit === undefined)
+    return { kind: 'deepheart', version: 1, chronicle, saves }
+
+  const kit = raw.kit
+  if (
+    !object(kit) ||
+    kit.version !== 1 ||
+    !object(kit.settings) ||
+    !object(kit.progress) ||
+    typeof kit.progress.trailerSeen !== 'boolean' ||
+    !['moments', 'reveals', 'endings'].every((key) => {
+      const entries = (kit.progress as Record<string, unknown>)[key]
+      return (
+        object(entries) &&
+        Object.values(entries).every((entry) => typeof entry === 'string')
+      )
+    })
+  )
+    throw new Error('Invalid Deepheart scrapbook or settings.')
+  const decoded = decodeKitSave(JSON.stringify(kit))
+  if (!decoded) throw new Error('Unsupported Deepheart kit save.')
+  return { kind: 'deepheart', version: 1, chronicle, saves, kit: decoded }
 }

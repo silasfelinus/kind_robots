@@ -92,10 +92,7 @@ export const usePlaybookKitStore = defineStore('playbookKit', () => {
     }
   }
 
-  function open(gameId: string) {
-    game.value = gameId
-    pane.value = null
-    lightbox.value = null
+  function loadGame(gameId: string) {
     if (!saves.value[gameId]) {
       const store = storage()
       if (!store) writeWarning.value = BLOCKED
@@ -103,7 +100,29 @@ export const usePlaybookKitStore = defineStore('playbookKit', () => {
       held.value = { ...held.value, [gameId]: decoded === null }
       saves.value = { ...saves.value, [gameId]: decoded ?? freshSave() }
     }
+  }
+
+  function open(gameId: string) {
+    game.value = gameId
+    pane.value = null
+    lightbox.value = null
+    loadGame(gameId)
     trailerOpen.value = trailerDue(save.value.settings, save.value.progress)
+  }
+
+  function accountSnapshot(gameId: string): KitSave | null {
+    loadGame(gameId)
+    if (held.value[gameId]) return null
+    return decodeKitSave(JSON.stringify(saves.value[gameId]))
+  }
+
+  function restoreAccount(gameId: string, snapshot: KitSave): boolean {
+    if (!accountSnapshot(gameId)) return false
+    const decoded = decodeKitSave(JSON.stringify(snapshot))
+    if (!decoded) return false
+    saves.value = { ...saves.value, [gameId]: decoded }
+    persist(gameId)
+    return true
   }
 
   function update(change: (current: KitSave) => KitSave) {
@@ -184,6 +203,8 @@ export const usePlaybookKitStore = defineStore('playbookKit', () => {
     progress,
     storageWarning,
     open,
+    accountSnapshot,
+    restoreAccount,
     setSetting,
     resetSettings,
     unlock,

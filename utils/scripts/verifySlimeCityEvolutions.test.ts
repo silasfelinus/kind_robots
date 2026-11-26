@@ -25,6 +25,7 @@ import {
   canClashPlay,
   chooseClashCpu,
   clashBalance,
+  clashGrantPower,
   clashDeck,
   clashCardText,
   clashPower,
@@ -1524,38 +1525,50 @@ for (const [id, evolution] of Object.entries(CLASH_EVOLUTIONS)) {
       ],
       [
         's3-exchange-acquisition-clause',
-        (b, a) => assert.equal(at(a, 1)!.attack, at(b, 1)!.attack + 2),
+        (b, a) =>
+          assert.equal(
+            at(a, 1)!.attack,
+            at(b, 1)!.attack + 2 + clashGrantPower(1, b.balanceVersion ?? 1),
+          ),
       ],
       [
         's3-catgirls-stolen-saw',
         (b, a) => {
-          assert.equal(at(a, 1)!.attack, at(b, 1)!.attack + 1)
+          assert.equal(
+            at(a, 1)!.attack,
+            at(b, 1)!.attack + 1 + clashGrantPower(1, b.balanceVersion ?? 1),
+          )
           assert.ok(at(a, 9)!.hp < at(b, 9)!.hp, 'first cut lands across')
         },
       ],
     ]
-  for (const [id, check] of deadPass) {
-    const card = cardById(id)
-    const one = clashEvolutionStage(id, 1)
-    assert.ok(
-      one?.abilities.some((ab) => ab.when === 'enter'),
-      id + ' L1',
-    )
-    const s = createClash(card.team as TeamId, 'catgirls', 11)
-    s.units = [
-      fighter('player', 1, 1, { cardId: s.hands.player[0]! }),
-      fighter('player', 2, 2, { cardId: s.hands.player[0]! }),
-      fighter('enemy', 1, 9, { cardId: 'lynx', hp: 8, maxHp: 8 }),
-    ]
-    s.nextUid = 100
-    s.round = 3
-    s.plays.player = 0
-    s.hands.player = [id, ...s.hands.player.slice(0, 4)]
-    s.levels.player[id] = 1
-    const before = structuredClone(s)
-    const after = playClash(s, 'player', id, 1)
-    assert.notEqual(after, s, id + ' L1 is playable')
-    check(before, after)
+  // Exercise both replay profiles: the authored stage remains additive.
+  for (const version of [1, 2] as const) {
+    for (const [id, check] of deadPass) {
+      const card = cardById(id)
+      const one = clashEvolutionStage(id, 1)
+      assert.ok(
+        one?.abilities.some((ab) => ab.when === 'enter'),
+        id + ' L1',
+      )
+      const s = createClash(card.team as TeamId, 'catgirls', 11, {
+        balanceVersion: version,
+      })
+      s.units = [
+        fighter('player', 1, 1, { cardId: s.hands.player[0]! }),
+        fighter('player', 2, 2, { cardId: s.hands.player[0]! }),
+        fighter('enemy', 1, 9, { cardId: 'lynx', hp: 8, maxHp: 8 }),
+      ]
+      s.nextUid = 100
+      s.round = 3
+      s.plays.player = 0
+      s.hands.player = [id, ...s.hands.player.slice(0, 4)]
+      s.levels.player[id] = 1
+      const before = structuredClone(s)
+      const after = playClash(s, 'player', id, 1)
+      assert.notEqual(after, s, id + ' L1 is playable')
+      check(before, after)
+    }
   }
 }
 

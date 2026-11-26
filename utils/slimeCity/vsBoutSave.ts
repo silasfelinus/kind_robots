@@ -17,6 +17,7 @@ export const VS_BOUT_MAX_AGE_MS = 86400000
 const MAX_DECK = 60
 
 export interface VsBoutLaunch {
+  balanceVersion?: 1 | 2
   kind: 'practice' | 'reward'
   format: 'solo' | 'alliance'
   player: TeamId
@@ -44,6 +45,12 @@ const team = (id: unknown): id is TeamId =>
   typeof id === 'string' && TEAMS.some((t) => t.id === id)
 
 function validLaunch(launch: Record<string, unknown>): boolean {
+  if (
+    launch.balanceVersion !== undefined &&
+    launch.balanceVersion !== 1 &&
+    launch.balanceVersion !== 2
+  )
+    return false
   if (launch.kind !== 'practice' && launch.kind !== 'reward') return false
   if (!team(launch.player) || !team(launch.enemy) || !uint(launch.seed))
     return false

@@ -527,7 +527,21 @@ jobs:
         run: npm run test:art-image-offload
 
       - name: Slime City square-grid prototype mechanics and replay contract
+        id: slime_city_contract
         run: npm run test:slime-city-lab
+
+      - name: Upload Slime City simulation sources on failure
+        if: failure() && steps.slime_city_contract.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: slime-city-simulation-source
+          retention-days: 3
+          path: |
+            utils/slimeCity/
+            utils/scripts/slimeCityClashBalanceReport.ts
+            utils/scripts/slimeCityCalibrationDiagnostic.ts
+            utils/scripts/verifySlimeCityClashConstructed.test.ts
+            utils/scripts/lib/slimeCityCpuReach.ts
 
       - name: Monstress Convention first case and two-investigator logic
         run: npx tsx utils/scripts/verifyMonstressPrologue.test.ts

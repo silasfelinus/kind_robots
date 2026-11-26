@@ -43,7 +43,7 @@ export interface ClashBoutTerms {
 export type ClashRewardSetup = (
   | { format: 'solo'; cards: string[] }
   | { format: 'alliance'; deck: AllianceDeck }
-) & { bout?: ClashBoutTerms }
+) & { bout?: ClashBoutTerms; balanceVersion?: 1 | 2 }
 
 export const CLASH_REWARD_MODES = {
   solo: 'clash',
@@ -126,14 +126,17 @@ export function clashRewardStart(
   setup: ClashRewardSetup,
 ): ClashState {
   const bosses = setup.bout ? { bosses: setup.bout.bosses } : {}
+  const balanceVersion = setup.balanceVersion ?? 2
   return setup.format === 'alliance'
     ? createClash(teamId, foeId, seed, {
         alliance: { player: setup.deck, enemy: cpuAlliance(foeId, seed) },
         ...bosses,
+        balanceVersion,
       })
     : createClash(teamId, foeId, seed, {
         decks: { player: setup.cards },
         ...bosses,
+        balanceVersion,
       })
 }
 

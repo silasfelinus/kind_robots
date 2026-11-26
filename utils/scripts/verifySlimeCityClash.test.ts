@@ -27,6 +27,9 @@ import {
   canClashPlay,
   chooseClashCpu,
   clashBalance,
+  clashArmorGain,
+  clashArmorHeal,
+  clashGrantPower,
   clashDeck,
   CLASH_CRAFTED_DECKS,
   clashPower,
@@ -55,6 +58,7 @@ import {
   worstClashPairings,
 } from './slimeCityClashBalanceReport'
 import { clashSpectacle } from '../slimeCity/clashSpectacle'
+import { reportCalibrationCandidates } from './slimeCityCalibrationDiagnostic'
 
 // Canonical editorial contract: every currently playable card renders complete
 // level-specific text. Choice A and B are separately inspectable; no branch
@@ -543,7 +547,7 @@ for (const card of CARDS) {
           clashCardText(card, level).includes(CLASH_TRAIT_TEXT[k]),
           card.id + k,
         )
-    } else assert.ok(b.power >= 1 && b.power <= 10, card.id)
+    } else assert.ok(b.power >= 1 && b.power <= 12, card.id)
     const badge = clashCardBadge(card, level)
     assert.ok(badge.length > 0 && badge.length < 16, card.id)
     assert.ok(
@@ -1789,7 +1793,9 @@ assert.equal(
 )
 // One-play snares are an answer to armor, not a dead draw into Ironjaw.
 // Check real fighter entry, armor stripping, deterministic replay and trap cleanup.
-const armoredWire = createClash('ironjaw', 'bloodfairies', 1962)
+const armoredWire = createClash('ironjaw', 'bloodfairies', 1962, {
+  balanceVersion: 1,
+})
 armoredWire.round = 2
 armoredWire.hands.player = ['scrapper']
 armoredWire.traps = [{ side: 'enemy', lane: 2, cardId: 'bloodwire', level: 1 }]
@@ -1842,7 +1848,7 @@ for (const name of [
   assert.equal(clashPlayCost(trap), 1, `${name} must cost one Clash play`)
   if (trap.team === 'mercenary')
     throw new Error(`${name} must belong to a playable faction`)
-  const state = createClash('ironjaw', trap.team, 1962)
+  const state = createClash('ironjaw', trap.team, 1962, { balanceVersion: 1 })
   state.round = 2
   state.hands.player = ['scrapper']
   state.traps = [{ side: 'enemy', lane: 2, cardId: trap.id, level: 1 }]
@@ -1874,7 +1880,9 @@ for (const name of [
 
 // One-play snares also defuse (slime-city/t-048): a VOLATILE fighter caught by
 // one loses its death burst, while a two-play snare leaves the fuse lit.
-const fuseWire = createClash('riot', 'bloodfairies', 1963)
+const fuseWire = createClash('riot', 'bloodfairies', 1963, {
+  balanceVersion: 1,
+})
 fuseWire.round = 2
 fuseWire.hands.player = ['firebrand']
 fuseWire.traps = [{ side: 'enemy', lane: 1, cardId: 'bloodwire', level: 1 }]
@@ -1927,7 +1935,7 @@ assert.match(
 )
 // The CPU knows the payoff: with a cheap snare in hand it springs it on the
 // VOLATILE fighter rather than an identical-threat empty alley.
-const cpuWire = createClash('bloodfairies', 'riot', 1964)
+const cpuWire = createClash('bloodfairies', 'riot', 1964, { balanceVersion: 1 })
 cpuWire.round = 2
 cpuWire.hands.player = ['bloodwire']
 cpuWire.units = [
@@ -2531,6 +2539,16 @@ console.log(
     ]),
   ),
 )
+// On a failed sweep, collect measured alternatives in CI before asserting the
+// original acceptance limits. The diagnostic never changes the tested engine.
+console.log('CLASH worst pairings:', worstClashPairings(sweep).slice(0, 5))
+const rates = Object.values(sweep.crews).map((r) => r.wins / r.games)
+if (
+  rates.some((rate) => rate <= 0.42 || rate >= 0.58) ||
+  Math.max(...rates) - Math.min(...rates) > 0.12 ||
+  worstClashPairings(sweep)[0]!.rate <= 0.3
+)
+  reportCalibrationCandidates()
 assert.ok(
   sweep.firstSeatWins / sweep.games > 0.4 &&
     sweep.firstSeatWins / sweep.games < 0.62,
@@ -2804,3 +2822,99 @@ for (const card of CARDS)
         clashCardText(card, level),
         /^Armor: blocks 1 per hit\./,
       )
+
+// Versioned tempo tuning: every trap and permanent stat upgrade gets more value.
+for (const card of CARDS) {
+  for (const level of [1, 2, 3]) {
+    const old = clashBalance(card, level, 1)
+    const next = clashBalance(card, level, 2)
+    if (card.kind === 'trap') assert.equal(next.power, old.power + 2, card.id)
+    if (
+      card.kind === 'equipment' &&
+      (card.effect === 'boost' || card.effect === 'sharpen')
+    )
+      assert.ok(next.bonus > old.bonus, card.id)
+    if (card.effect === 'armor') {
+      assert.ok(
+        clashArmorGain(card.id, level, 2) >= clashArmorGain(card.id, level, 1),
+      )
+      assert.equal(clashArmorHeal(level, 2), clashArmorHeal(level, 1) + 2)
+    }
+    if (card.effect === 'grant')
+      assert.equal(clashGrantPower(level, 2), clashGrantPower(level, 1) + 1)
+  }
+}
+assert.equal(createClash().balanceVersion, 2)
+assert.equal(
+  createClash('catgirls', 'ironjaw', 1, { balanceVersion: 1 }).balanceVersion,
+  undefined,
+)
+
+// Actual gear plays (not only the printed formulas) use the stronger profile.
+for (const version of [1, 2] as const) {
+  const state = createClash('ironjaw', 'catgirls', 1108, {
+    balanceVersion: version,
+  })
+  state.round = 2
+  state.hands.player = ['plating']
+  state.units = [{ ...follower('player', 2, 9001, 8, 2), hp: 4 }]
+  const plated = playClash(state, 'player', 'plating', 2)
+  assert.equal(plated.units[0]!.armor, version === 2 ? 2 : 1)
+  assert.equal(plated.units[0]!.hp, version === 2 ? 6 : 4)
+}
+
+// The stronger live trap can kill outright. Legacy fixtures above still prove
+// the original survival, armor-shear and defuse rules without changing them.
+{
+  const state = createClash('ironjaw', 'bloodfairies', 1962, {
+    balanceVersion: 2,
+  })
+  state.round = 2
+  state.hands.player = ['scrapper']
+  state.traps = [{ side: 'enemy', lane: 2, cardId: 'bloodwire', level: 1 }]
+  const sprung = playClash(state, 'player', 'scrapper', 2)
+  const victim = sprung.units.find((u) => u.side === 'player' && u.lane === 2)
+  assert.equal(sprung.traps.length, 0)
+  assert.ok(!victim || victim.hp <= caughtFighter!.hp - 2)
+  assert.deepEqual(
+    sprung,
+    playClash(structuredClone(state), 'player', 'scrapper', 2),
+  )
+}
+
+// Constructed heavy removal competes with two separate plays. V1 keeps its
+// original power; actual V2 damage and the printed rules must agree.
+for (const [id, extra] of [
+  ['s2-exchange-compound-interest-notice', 3],
+  ['s3-exchange-compound-notice', 3],
+  ['s2-bloodfairies-glitterglass-flood', 3],
+  ['s3-bloodfairies-cathedral-noise', 2],
+  ['s2-riot-friendly-fire-rehearsal', 2],
+] as const) {
+  const card = cardById(id)
+  assert.equal(card.kind, 'spell')
+  assert.equal(clashPlayCost(card), 2)
+  for (const level of [1, 2, 3])
+    assert.equal(
+      clashBalance(card, level, 2).power,
+      clashBalance(card, level, 1).power + extra,
+      id,
+    )
+  for (const version of [1, 2] as const) {
+    assert.ok(card.team !== 'mercenary')
+    const state = createClash(card.team, 'ironjaw', 1108, {
+      balanceVersion: version,
+    })
+    state.round = 2
+    state.hands.player = [id]
+    state.units = [follower('enemy', 2, 9001, 12)]
+    const cast = playClash(state, 'player', id, 2)
+    const target = cast.units.find((u) => u.uid === 9001)!
+    const power = clashBalance(card, 1, version).power
+    assert.equal(target.hp, 12 - power, id)
+    assert.ok(
+      clashCardText(card, 1, undefined, version).includes(String(power)),
+    )
+    if (card.effect === 'debt') assert.ok(target.rooted)
+  }
+}

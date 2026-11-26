@@ -679,7 +679,13 @@ console.log('Slime City VS finish: result, rematch and record PASS')
     'early deals never mint or lose cards',
   )
   assert.deepEqual(
-    replayPvp(host, guest, seed, afterGuest.commands, { dealEarly: true }),
+    replayPvp(
+      host,
+      guest,
+      seed,
+      afterGuest.commands,
+      pvpRules({ dealEarly: true }),
+    ),
     afterGuest,
     'early-deal duels replay deterministically',
   )
@@ -1154,3 +1160,7 @@ assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
       /requireSlimeCityPlayer\(event\)/,
     )
 }
+
+// Existing duel records replay the original tuning; new records retain v2.
+assert.equal(pvpRules({}).balanceVersion, 1)
+assert.equal(pvpRules({ balanceVersion: 2 }).balanceVersion, 2)

@@ -176,7 +176,7 @@ export async function startSlimeCityCpuMatch(
   }
   const problem = clashRewardSetupProblem(team, setup)
   if (problem) throw createError({ statusCode: 400, message: problem })
-  const clash = setup as ClashRewardSetup
+  const clash = { ...(setup as ClashRewardSetup), balanceVersion: 2 as const }
   const account = await prisma.slimeCityAccount.findUnique({
     where: { userId },
   })
@@ -242,7 +242,7 @@ export function validateSlimeCityClash(
       setup.teamId as TeamId,
       setup.foeId as TeamId,
       setup.seed,
-      stored,
+      { ...stored, balanceVersion: stored.balanceVersion ?? 1 },
     ),
     commands,
   )

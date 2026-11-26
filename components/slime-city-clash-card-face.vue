@@ -25,7 +25,9 @@
       <span class="ccf-top">
         <b class="ccf-cost">{{ plays }} PLAY{{ plays === 2 ? 'S' : '' }}</b>
         <span class="ccf-combat">
-          <em class="ccf-badge">{{ clashCardBadge(card, level) }}</em>
+          <em class="ccf-badge">{{
+            clashCardBadge(card, level, balanceVersion)
+          }}</em>
           <SlimeCityArmorStat
             v-if="card.kind === 'creature'"
             :armor="balance.armor"
@@ -119,6 +121,7 @@ const props = withDefaults(
     note?: string
     glossaryInteractive?: boolean
     level?: number
+    balanceVersion?: 1 | 2
     preview?: boolean
     /** A choose-one level three already played as option 0 or 1. */
     pick?: EvoPick
@@ -132,6 +135,7 @@ const props = withDefaults(
     note: '',
     glossaryInteractive: false,
     level: 1,
+    balanceVersion: 2,
     preview: false,
     pick: undefined,
     flavor: false,
@@ -144,8 +148,12 @@ const card = computed(() => cardById(props.cardId))
 const stageTitle = computed(() =>
   clashStageTitle(props.cardId, props.level, props.pick),
 )
-const balance = computed(() => clashBalance(card.value, props.level))
-const rules = computed(() => clashCardText(card.value, props.level, props.pick))
+const balance = computed(() =>
+  clashBalance(card.value, props.level, props.balanceVersion),
+)
+const rules = computed(() =>
+  clashCardText(card.value, props.level, props.pick, props.balanceVersion),
+)
 /**
  * The rules as one line per sentence, with a leading "Label:" (Armor, Regen,
  * Arrive, Tap (skip strike), Cast...) split out so it can be picked out.

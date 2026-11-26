@@ -892,11 +892,12 @@ for (const perspective of ['hero', 'villain'] as const)
           assert.equal(run.mercy, reckoning === 'spare')
         }
 
-// Each accident-origin identity has independently authored playable
+// Each authored accident- or mutant-origin identity has independently authored playable
 // hero and villain scenes. The actual squad member speaks, not a stale slot.
-const accidentScenes = new Set<string>()
+const personalScenes = new Set<string>()
 for (const person of IDENTITY_ARCS.filter((entry) =>
-  entry.signature.startsWith('accident-'),
+  entry.signature.startsWith('accident-') ||
+  entry.signature.startsWith('mutant-'),
 )) {
   for (const perspective of ['hero', 'villain'] as const) {
     const run = createStory()
@@ -929,8 +930,8 @@ for (const person of IDENTITY_ARCS.filter((entry) =>
         .slice(0, 2)
         .map((line) => line.text)
         .join(' ')
-      assert.ok(!accidentScenes.has(dialogue), person.signature + ':' + beat)
-      accidentScenes.add(dialogue)
+      assert.ok(!personalScenes.has(dialogue), person.signature + ':' + beat)
+      personalScenes.add(dialogue)
       assert.equal(
         scene.choices.length,
         beat === 'victory' || beat === 'defeat' ? 1 : 2,
@@ -959,7 +960,7 @@ for (const person of IDENTITY_ARCS.filter((entry) =>
     assert.ok(run.completed)
   }
 }
-assert.equal(accidentScenes.size, 80)
+assert.equal(personalScenes.size, 160)
 
 const missionChoices = [
   ['science-lab', 'lab-rescued', 'lab-evidence'],

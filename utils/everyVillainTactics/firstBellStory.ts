@@ -1,5 +1,6 @@
 import { identityFor, IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import { ACCIDENT_ARCS } from './accidentArcs'
+import { MUTANT_ARCS } from './mutantArcs'
 import { recordTrigger, type TrainingState } from './training'
 
 export type Perspective = 'hero' | 'villain' | 'henchman' | 'sidekick'
@@ -553,7 +554,7 @@ export function storyMoment(
   const base = SCRIPT[role][beat]
   const personal =
     role === 'hero' || role === 'villain'
-      ? ACCIDENT_ARCS[lead]?.[role]?.[beat]
+      ? (ACCIDENT_ARCS[lead] ?? MUTANT_ARCS[lead])?.[role]?.[beat]
       : undefined
   const person = IDENTITY_ARCS.find((identity) => identity.signature === lead)
   const support = state?.units.find(
@@ -575,8 +576,21 @@ export function storyMoment(
         }
       : base
   const lines = [...scene.lines]
-  if (!personal && beat === 'arrival' && lead === 'accident-fire')
-    lines.splice(1, 0, PERSONAL_ROUTE[role])
+  if (beat === 'arrival' && lead === 'accident-fire') {
+    if (personal && person) {
+      lines.push(
+        PERSONAL_ROUTE[role],
+        a(
+          supporter.hero.alias,
+          role === 'hero'
+            ? 'I can cover the catwalk or the service corridor. We need a route that keeps the rescue team together.'
+            : 'Choose the rigging or the service hall. I will not sign off on a plan that seals our own exit.',
+        ),
+      )
+    } else {
+      lines.splice(1, 0, PERSONAL_ROUTE[role])
+    }
+  }
   if (beat === 'victory' || beat === 'defeat') {
     const outcome =
       run.civilians > 0

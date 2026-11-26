@@ -178,7 +178,7 @@ for (const [enemy, key] of [
   ['brine', 'cast:mother-brine'],
   ['king', 'cast:hollow-king'],
   ['mimic', 'moment:mimic'],
-]) {
+] as const) {
   assert.ok(enemyArt(enemy)?.src)
   assert.equal(enemyArt(enemy)?.src, deepheartArtSrc(key))
 }

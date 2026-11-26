@@ -484,7 +484,7 @@ const jumpTop = (hold: number) => {
 }
 assert.ok(jumpTop(30) > jumpTop(2) + 30, 'holding A jumps higher')
 
-// Opening flow: title, file select, heroine select, story, then the world map, saving the choice.
+// Opening flow: title, file select, heroine select, name entry, story, then the world map, saving the choice.
 const fresh = createSavePlumberPreview(options())
 const tap = (button: ArcadeButton) => {
   const f = emptyInput()
@@ -507,6 +507,8 @@ assert.notEqual(
   'B surprises',
 )
 const picked = fresh.cursor
+tap('a')
+assert.equal(fresh.mode, 'name', 'picking her opens name entry')
 tap('a')
 assert.equal(fresh.mode, 'story', 'a new game opens with the story')
 assert.equal(fresh.storyPanel, 0)

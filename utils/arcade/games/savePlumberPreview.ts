@@ -64,7 +64,10 @@ import {
 } from './savePlumberRoster'
 import {
   PLUMBER_ENDING_COPY,
+  PLUMBER_NAME_ALPHABET,
+  PLUMBER_NAME_MAX,
   SLOT_COUNT,
+  plumberName,
   plumberFinaleEnding,
   readPlumberFile,
   mergePlumberAlbum,
@@ -220,6 +223,7 @@ type Mode =
   | 'title'
   | 'files'
   | 'select'
+  | 'name'
   | 'map'
   | 'story'
   | 'intro'
@@ -490,6 +494,11 @@ export class PlumberRun implements ArcadeGameInstance {
   /** Stages cleared this game, for tests and the demo loop. */
   cleared: string[] = []
   heroineSeed: number
+  /** The name typed at heroine select for this file; undefined keeps her roster name. */
+  heroName: string | undefined
+  /** Name entry: the letters so far and the wheel position being edited. */
+  nameDraft: string[] = []
+  nameCursor = 0
   tokens = 0
   hearts = HEARTS
   tick = 0
@@ -765,6 +774,7 @@ export class PlumberRun implements ArcadeGameInstance {
 
   /** Load a slot's memory into the run (or clear it for a new slot). */
   private loadSlotMemory(slot: PlumberSlot | null) {
+    this.heroName = slot?.name
     this.gears = new Set(slot?.gears ?? [])
     this.done = new Set(slot?.done ?? [])
     this.secrets = new Set(slot?.secrets ?? [])
@@ -788,6 +798,11 @@ export class PlumberRun implements ArcadeGameInstance {
     return rosterFor(rosterHeroine(this.heroineSeed))
   }
 
+  /** What the story, HUD and finale call her: the typed name, else her roster name. */
+  get displayName(): string {
+    return (!this.endless && this.heroName) || this.member.name
+  }
+
   private get menuItems(): ('play' | 'endless')[] {
     return ['play', 'endless']
   }
@@ -808,6 +823,7 @@ export class PlumberRun implements ArcadeGameInstance {
       gears: [...this.gears],
       deaths: this.deaths,
       time: this.timeBase + Math.floor(this.playFrames / 60),
+      ...(this.heroName ? { name: this.heroName } : {}),
       ...extra,
     }
     this.file = {
@@ -874,6 +890,8 @@ export class PlumberRun implements ArcadeGameInstance {
         return this.updateMap(keys)
       case 'select':
         return this.updateSelect(keys)
+      case 'name':
+        return this.updateName(keys)
       case 'story':
         return this.updateStory(keys)
       case 'intro':
@@ -1079,14 +1097,84 @@ export class PlumberRun implements ArcadeGameInstance {
       this.cursor = (this.cursor + 1 + Math.floor(this.rng() * (n - 1))) % n
     if (this.cursor !== before) this.sound.play('blip')
     if (!(keys.pressed.a || keys.pressed.start)) return
-    this.sound.play('level')
     this.heroineSeed = seedForRoster(this.cursor, this.rng)
-    if (this.pickEndless) return this.beginEndless()
+    if (this.pickEndless) {
+      this.sound.play('level')
+      return this.beginEndless()
+    }
+    this.sound.play('pickup')
+    this.nameDraft = [...this.member.name.toUpperCase()]
+    this.nameCursor = Math.min(this.nameDraft.length, PLUMBER_NAME_MAX - 1)
+    this.setMode('name')
+  }
+
+  /**
+   * Name entry: ▲▼ turn the letter wheel, ◀▶ move along the name, B rubs out
+   * a letter (on an empty name it goes back to the roster), Y restores her
+   * roster name, and A or Start begins the adventure.
+   */
+  private updateName(keys: InputFrame) {
+    const wheel = PLUMBER_NAME_ALPHABET
+    const draft = this.nameDraft
+    const before = draft.join('') + this.nameCursor
+    if (keys.pressed.up || keys.pressed.down) {
+      const at = this.nameCursor
+      const step = keys.pressed.up ? 1 : wheel.length - 1
+      const current = draft[at]
+      const index =
+        current === undefined
+          ? keys.pressed.up
+            ? -1
+            : 0
+          : wheel.indexOf(current)
+      draft[at] = wheel[(index + step) % wheel.length]!
+    }
+    if (keys.pressed.right)
+      this.nameCursor = Math.min(
+        this.nameCursor + 1,
+        draft.length,
+        PLUMBER_NAME_MAX - 1,
+      )
+    if (keys.pressed.left) this.nameCursor = Math.max(0, this.nameCursor - 1)
+    if (keys.pressed.y) {
+      this.nameDraft = [...this.member.name.toUpperCase()]
+      this.nameCursor = Math.min(this.nameDraft.length, PLUMBER_NAME_MAX - 1)
+    }
+    if (keys.pressed.b) {
+      if (!draft.length) {
+        this.sound.play('blip')
+        this.setMode('select')
+        return
+      }
+      const at =
+        this.nameCursor < draft.length ? this.nameCursor : draft.length - 1
+      draft.splice(at, 1)
+      this.nameCursor = Math.min(at, draft.length)
+    }
+    if (this.nameDraft.join('') + this.nameCursor !== before)
+      this.sound.play('blip')
+    if (!(keys.pressed.a || keys.pressed.start)) return
+    const typed = this.nameDraft.join('')
+    const name = typed ? plumberName(typed) : this.member.name
+    if (!name) {
+      this.sound.play('warn')
+      return
+    }
+    this.heroName =
+      name.toLowerCase() === this.member.name.toLowerCase() ? undefined : name
+    this.beginCampaign()
+  }
+
+  /** A brand-new file: the chosen heroine, World 1, the opening story. */
+  private beginCampaign() {
+    const heroName = this.heroName
+    this.sound.play('level')
     this.score = 0
     this.lives = START_LIVES
     this.tokens = 0
     this.reserve = null
     this.loadSlotMemory(null)
+    this.heroName = heroName
     this.stageIndex = 0
     this.loadStage(0)
     this.remember()
@@ -4609,6 +4697,8 @@ export class PlumberRun implements ArcadeGameInstance {
         return this.renderMap(g)
       case 'select':
         return this.renderSelect(g)
+      case 'name':
+        return this.renderName(g)
       case 'victory':
         return this.renderVictory(g)
       case 'story':
@@ -4809,7 +4899,15 @@ export class PlumberRun implements ArcadeGameInstance {
       }
       const minutes = Math.floor((slot.time ?? 0) / 60)
       const where = node?.stage ?? `World ${node?.world ?? 1}`
-      this.text(g, member.name.toUpperCase(), 62, y + 40, 12, '#d6f2ee', 'left')
+      this.text(
+        g,
+        (slot.name ?? member.name).toUpperCase(),
+        62,
+        y + 40,
+        12,
+        '#d6f2ee',
+        'left',
+      )
       this.text(
         g,
         `${completionPercent(progress)}%`,
@@ -5193,6 +5291,97 @@ export class PlumberRun implements ArcadeGameInstance {
     )
   }
 
+  /** Name entry: her portrait beside an arcade letter wheel. */
+  private renderName(g: CanvasRenderingContext2D) {
+    this.plate(g, '1-1', 0.2)
+    g.fillStyle = 'rgba(12, 40, 52, 0.7)'
+    g.fillRect(0, 0, W, H)
+    const member = this.member
+    this.text(g, 'WHAT IS HER NAME?', W / 2, 30, 20, '#ffd98a')
+    const portrait = stagePlate(rosterPortrait(member))
+    const pw = 96
+    const ph = 132
+    const px = 28
+    const py = 52
+    g.fillStyle = '#ffd98a'
+    g.fillRect(px - 3, py - 3, pw + 6, ph + 6)
+    g.fillStyle = '#d6f2ee'
+    g.fillRect(px, py, pw, ph)
+    if (portrait) {
+      const s = Math.max(
+        pw / portrait.naturalWidth,
+        ph / portrait.naturalHeight,
+      )
+      g.save()
+      g.beginPath()
+      g.rect(px, py, pw, ph)
+      g.clip()
+      g.drawImage(
+        portrait,
+        px + (pw - portrait.naturalWidth * s) / 2,
+        py,
+        portrait.naturalWidth * s,
+        portrait.naturalHeight * s,
+      )
+      g.restore()
+    } else if (typeof Path2D !== 'undefined')
+      drawHeroine(
+        g,
+        rosterHeroine(this.heroineSeed),
+        px + pw / 2,
+        py + ph - 8,
+        100,
+        {
+          stride: 0,
+          run: 0,
+          airborne: false,
+          rising: false,
+          facing: 1,
+          tick: this.tick,
+        },
+      )
+    this.text(g, member.special.name, px + pw / 2, py + ph + 20, 11, '#ffd98a')
+    const cell = 26
+    const left = 150
+    const top = 92
+    const blink = Math.floor(this.tick / 15) % 2 === 0
+    for (let i = 0; i < PLUMBER_NAME_MAX; i++) {
+      const x = left + i * (cell + 4)
+      const on = i === this.nameCursor
+      g.fillStyle = on ? 'rgba(255, 217, 138, 0.28)' : 'rgba(27, 52, 64, 0.6)'
+      g.fillRect(x, top, cell, cell + 8)
+      g.fillStyle = on ? '#ffd98a' : '#5ed1c3'
+      g.fillRect(x, top + cell + 6, cell, 2)
+      const letter = this.nameDraft[i]
+      if (letter)
+        this.text(g, letter, x + cell / 2, top + cell - 2, 20, '#fff4dc')
+      else if (on && blink)
+        this.text(g, '_', x + cell / 2, top + cell - 2, 20, '#ffd98a')
+      if (on) {
+        this.text(g, '▲', x + cell / 2, top - 6, 10, '#ffd98a')
+        this.text(g, '▼', x + cell / 2, top + cell + 22, 10, '#ffd98a')
+      }
+    }
+    const typed = this.nameDraft.join('')
+    const name = typed ? plumberName(typed) : member.name
+    this.text(
+      g,
+      name ? `“${name}” sets out to save Teo` : 'Try another name',
+      left + (PLUMBER_NAME_MAX * (cell + 4)) / 2,
+      top + 72,
+      12,
+      name ? '#d6f2ee' : '#ff9f8a',
+    )
+    this.text(
+      g,
+      '▲ ▼  LETTER    ◀ ▶  MOVE    B  ERASE    Y  RESET    A  START',
+      W / 2,
+      260,
+      10,
+      '#fff4dc',
+    )
+  }
+
   private renderStory(g: CanvasRenderingContext2D) {
     const panel = STORY[Math.min(this.storyPanel, STORY.length - 1)]!
     const art = stagePlate(PLUMBER_ART.cutscene(panel.art))
@@ -5209,7 +5398,7 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     g.fillStyle = 'rgba(12, 24, 40, 0.68)'
     g.fillRect(0, H - 62, W, 62)
-    const name = this.member.name
+    const name = this.displayName
     panel.lines.forEach((line, i) =>
       this.read(
         g,
@@ -5247,12 +5436,12 @@ export class PlumberRun implements ArcadeGameInstance {
     this.text(
       g,
       this.endless
-        ? `${this.member.name}  ·  ONE LIFE  ·  HOW FAR CAN YOU RUN?`
+        ? `${this.displayName}  ·  ONE LIFE  ·  HOW FAR CAN YOU RUN?`
         : this.mazeRooms
           ? 'FOLLOW THE RISING DRIPS · DOWN AT A DOOR'
           : chapelCourse(this.stage.code)
             ? 'REACH THE VALVE TO SOLIDIFY SWITCH BLOCKS'
-            : `${this.member.name}  ×${this.lives}`,
+            : `${this.displayName}  ×${this.lives}`,
       W / 2,
       172,
       12,
@@ -5329,7 +5518,7 @@ export class PlumberRun implements ArcadeGameInstance {
     g.fillRect(0, 0, W, 118)
     g.fillRect(0, H - 34, W, 34)
     const line = (i: 0 | 1) =>
-      ending.lines[i].replace('{name}', this.member.name)
+      ending.lines[i].replace('{name}', this.displayName)
     this.text(g, ending.title, W / 2, 40, 28, '#ffd98a')
     this.read(g, line(0), W / 2, 66, 12, '#fff4dc')
     this.read(g, line(1), W / 2, 84, 12, '#d6f2ee')
@@ -6940,7 +7129,7 @@ export class PlumberRun implements ArcadeGameInstance {
       g,
       this.endless
         ? `BEST ${Math.max(this.endlessBest, this.distance)}`
-        : `${this.member.name} ×${this.lives}`,
+        : `${this.displayName} ×${this.lives}`,
       316,
       17,
       this.endless ? 10 : 12,

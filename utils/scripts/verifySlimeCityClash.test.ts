@@ -2779,3 +2779,14 @@ for (const card of CARDS) {
 }
 assert.equal(createClash().balanceVersion, 2)
 assert.equal(createClash('catgirls', 'ironjaw', 1, { balanceVersion: 1 }).balanceVersion, undefined)
+
+// Actual gear plays (not only the printed formulas) use the stronger profile.
+for (const version of [1, 2] as const) {
+  const state = createClash('ironjaw', 'catgirls', 1108, { balanceVersion: version })
+  state.round = 2
+  state.hands.player = ['plating']
+  state.units = [{ ...follower('player', 2, 9001, 8, 2), hp: 4 }]
+  const plated = playClash(state, 'player', 'plating', 2)
+  assert.equal(plated.units[0]!.armor, version === 2 ? 2 : 1)
+  assert.equal(plated.units[0]!.hp, version === 2 ? 6 : 4)
+}

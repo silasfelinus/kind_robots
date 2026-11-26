@@ -300,6 +300,7 @@ export const STARTER_MATCHUPS: [TeamId, TeamId][] = [
 export type ClashKind =
   'practice' | 'reward' | 'rival' | 'contract' | 'campaign' | 'tower'
 export interface ClashLaunch {
+  balanceVersion?: 1 | 2
   id: number
   kind: ClashKind
   format: DeckFormat
@@ -1864,7 +1865,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
               }),
         }
       : next
-    clashLaunch.value = { ...frozen, id: clashLaunch.value.id + 1 }
+    clashLaunch.value = {
+      ...frozen,
+      balanceVersion: next.balanceVersion ?? (next.resume ? 1 : 2),
+      id: clashLaunch.value.id + 1,
+    }
     if (next.kind === 'tower')
       recordTowerCommands(clashLaunch.value.id, next.resume ?? [])
     if (vs) {
@@ -1908,6 +1913,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         player: launch.player ?? activeTeam.value,
         enemy: launch.enemy,
         seed: launch.seed,
+        balanceVersion: launch.balanceVersion ?? 2,
         ...(launch.rewardId ? { rewardId: launch.rewardId } : {}),
         ...(launch.format === 'alliance'
           ? { alliance: launch.alliance ?? playAlliance.value }
@@ -1983,6 +1989,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         player: launch.player ?? activeTeam.value,
         enemy: launch.enemy,
         seed: launch.seed,
+        balanceVersion: launch.balanceVersion ?? 2,
         ...(launch.rewardId ? { rewardId: launch.rewardId } : {}),
         alliance: launch.alliance,
         ...(launch.bosses ? { bosses: launch.bosses } : {}),
@@ -2104,6 +2111,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
             },
           }
         : { decks: { player: launch.cards ?? playSolo.value } }
+    options.balanceVersion = launch.balanceVersion ?? 2
     if (launch.bosses) options.bosses = launch.bosses
     return {
       player: launch.player ?? activeTeam.value,

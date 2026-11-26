@@ -3870,7 +3870,11 @@ export function chooseClashCpu(
           mine &&
           card.effect === 'armor'
         )
-          score += Math.min(clashArmorGain(id, b.level, s.balanceVersion ?? 1), Math.max(0, 3 - mine.armor)) * 2 + (s.balanceVersion === 2 ? Math.min(clashArmorHeal(b.level, 2), mine.maxHp - mine.hp) : 0)
+          score +=
+            s.balanceVersion === 2
+              ? Math.min(clashArmorGain(id, b.level, 2), Math.max(0, 3 - mine.armor)) * 2 +
+                Math.min(clashArmorHeal(b.level, 2), mine.maxHp - mine.hp)
+              : Math.max(0, 3 - mine.armor) * 2
       } else
         score =
           2.2 +

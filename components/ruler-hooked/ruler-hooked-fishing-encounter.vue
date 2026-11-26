@@ -176,7 +176,8 @@ let lastStop = -Infinity
 let displayedBeat: string | null = null
 let acceptedBeat: string | null = null
 const beatKey = computed(
-  () => `${props.encounter.id}:${props.encounter.beat}:${props.encounter.phase}`,
+  () =>
+    `${props.encounter.id}:${props.encounter.beat}:${props.encounter.phase}`,
 )
 function tick(time: number) {
   if (!startedAt) startedAt = time
@@ -209,8 +210,7 @@ function playfieldKeydown(event: KeyboardEvent) {
   if (!isStopKey(event)) return
   event.preventDefault()
   event.stopPropagation()
-  if (!event.repeat && !event.altKey && !event.ctrlKey && !event.metaKey)
-    stop()
+  if (!event.repeat && !event.altKey && !event.ctrlKey && !event.metaKey) stop()
 }
 function playfieldKeyup(event: KeyboardEvent) {
   if (!isStopKey(event)) return

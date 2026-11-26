@@ -142,7 +142,10 @@ export function replayPvpTrail(
   guest: TeamId,
   seed: number,
   commands: ClashCommand[],
-  rules: Pick<ClashOptions, 'dealEarly' | 'decks' | 'seatAllies' | 'balanceVersion'> = {},
+  rules: Pick<
+    ClashOptions,
+    'dealEarly' | 'decks' | 'seatAllies' | 'balanceVersion'
+  > = {},
   keep = 12,
 ): { state: ClashState; strikes: PvpStrike[] } {
   let state = createClash(host, guest, seed, rules)
@@ -466,7 +469,10 @@ export function replayPvp(
   guest: TeamId,
   seed: number,
   commands: ClashCommand[],
-  rules: Pick<ClashOptions, 'dealEarly' | 'decks' | 'seatAllies' | 'balanceVersion'> = {},
+  rules: Pick<
+    ClashOptions,
+    'dealEarly' | 'decks' | 'seatAllies' | 'balanceVersion'
+  > = {},
 ): ClashState {
   return replayClash(host, guest, seed, commands, rules)
 }
@@ -475,7 +481,10 @@ export function newPvpGame(
   host: TeamId,
   guest: TeamId,
   seed: number,
-  rules: Pick<ClashOptions, 'dealEarly' | 'decks' | 'seatAllies' | 'balanceVersion'> = {},
+  rules: Pick<
+    ClashOptions,
+    'dealEarly' | 'decks' | 'seatAllies' | 'balanceVersion'
+  > = {},
 ): ClashState {
   return createClash(host, guest, seed, rules)
 }

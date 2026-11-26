@@ -106,6 +106,12 @@
                     >{{ cardById(unit(side, lane)!.cardId).name }}</span
                   >
                   <span class="clash-tags">
+                    <SlimeCityAbilityIcon
+                      v-for="keyword in unit(side, lane)!.keywords"
+                      :key="keyword"
+                      :term="keyword"
+                      class="clash-tag"
+                    />
                     <span
                       v-if="status(unit(side, lane)!)"
                       class="clash-status"
@@ -1141,7 +1147,6 @@ function healthWidth(side: Side): string {
 }
 function status(u: ClashUnit): string {
   if (u.rooted) return 'STUN'
-  if (u.guard) return 'WALL +' + u.guard
   return ''
 }
 function playableNow(id: string): boolean {

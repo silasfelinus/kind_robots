@@ -77,7 +77,10 @@
             </h3>
             <dl v-if="step.key === 'slime-city-glossary'" class="flex flex-col gap-3">
               <div v-for="entry in CLASH_GLOSSARY" :key="entry.term">
-                <dt class="font-bold text-base-content">{{ entry.term }}</dt>
+                <dt class="font-bold text-base-content">
+                  <SlimeCityAbilityIcon :term="entry.aliases[0]!" />
+                  {{ entry.term }}
+                </dt>
                 <dd class="text-sm leading-relaxed text-base-content/80">{{ entry.definition }}</dd>
               </div>
             </dl>

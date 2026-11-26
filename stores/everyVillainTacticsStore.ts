@@ -1076,6 +1076,7 @@ export const useEveryVillainTacticsStore = defineStore(
             story.value.current,
             leadSignature.value,
             story.value,
+            state.value,
           )
         : null,
     )

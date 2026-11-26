@@ -892,6 +892,56 @@ for (const perspective of ['hero', 'villain'] as const)
           assert.equal(run.mercy, reckoning === 'spare')
         }
 
+// Each accident-origin identity has independently authored playable
+// hero and villain scenes. The actual squad member speaks, not a stale slot.
+const accidentScenes = new Set<string>()
+for (const person of IDENTITY_ARCS.filter((entry) =>
+  entry.signature.startsWith('accident-'),
+)) {
+  for (const perspective of ['hero', 'villain'] as const) {
+    const run = createStory()
+    const battle = trainingState(0x53a1b7, undefined, {
+      lead: person.signature,
+    })
+    const support = battle.units.find(
+      (unit) => unit.team === 'squad' && unit.identity !== person.signature,
+    )!
+    const supportName = IDENTITY_ARCS.find(
+      (entry) => entry.signature === support.identity,
+    )!.hero.alias
+    for (const beat of [
+      'arrival',
+      'alarm',
+      'reckoning',
+      'victory',
+      'defeat',
+    ] as const) {
+      const scene = storyMoment(perspective, beat, person.signature, run, battle)
+      assert.equal(scene.lines[0]?.speaker, person.hero.alias)
+      assert.equal(scene.lines[1]?.speaker, supportName)
+      const dialogue = scene.lines.slice(0, 2).map((line) => line.text).join(' ')
+      assert.ok(!accidentScenes.has(dialogue), person.signature + ':' + beat)
+      accidentScenes.add(dialogue)
+      assert.equal(scene.choices.length, beat === 'victory' || beat === 'defeat' ? 1 : 2)
+    }
+    assert.ok(applyChoice(run, battle, perspective, 'catwalk'))
+    battle.turn = 2
+    enqueueBeat(run, battle)
+    assert.ok(applyChoice(run, battle, perspective, 'rescue'))
+    assert.equal(run.civilians, 2)
+    battle.units.find((unit) => unit.team === 'rival')!.hp = 0
+    enqueueBeat(run, battle)
+    assert.ok(applyChoice(run, battle, perspective, 'spare'))
+    battle.phase = 'victory'
+    enqueueBeat(run, battle)
+    assert.ok(storyMoment(perspective, 'victory', person.signature, run, battle)
+      .lines.some((line) => line.text.includes('2 students evacuated')))
+    assert.ok(applyChoice(run, battle, perspective, 'finish'))
+    assert.ok(run.completed)
+  }
+}
+assert.equal(accidentScenes.size, 80)
+
 const missionChoices = [
   ['science-lab', 'lab-rescued', 'lab-evidence'],
   ['crosswalk-crisis', 'crosswalk-medics', 'crosswalk-jammed'],

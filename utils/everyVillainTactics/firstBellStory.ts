@@ -1,3 +1,5 @@
+import { identityFor, IDENTITY_ARCS } from '../cometAcademy/identityArcs'
+import { ACCIDENT_ARCS } from './accidentArcs'
 import { recordTrigger, type TrainingState } from './training'
 
 export type Perspective = 'hero' | 'villain' | 'henchman' | 'sidekick'
@@ -546,10 +548,32 @@ export function storyMoment(
   beat: Beat,
   lead: string,
   run: StoryRun,
+  state?: TrainingState,
 ): StoryMoment {
-  const scene = SCRIPT[role][beat]
+  const base = SCRIPT[role][beat]
+  const personal =
+    role === 'hero' || role === 'villain'
+      ? ACCIDENT_ARCS[lead]?.[role]?.[beat]
+      : undefined
+  const person = IDENTITY_ARCS.find((identity) => identity.signature === lead)
+  const support = state?.units.find(
+    (unit) => unit.team === 'squad' && unit.identity !== lead,
+  )
+  const supporter = IDENTITY_ARCS.find(
+    (identity) => identity.signature === support?.identity,
+  ) ?? identityFor('tech-genius')
+  const scene = personal && person
+    ? {
+        ...base,
+        title: personal[0],
+        lines: [
+          a(person.hero.alias, personal[1]),
+          a(supporter.hero.alias, personal[2]),
+        ],
+      }
+    : base
   const lines = [...scene.lines]
-  if (beat === 'arrival' && lead === 'accident-fire')
+  if (!personal && beat === 'arrival' && lead === 'accident-fire')
     lines.splice(1, 0, PERSONAL_ROUTE[role])
   if (beat === 'victory' || beat === 'defeat') {
     const outcome =

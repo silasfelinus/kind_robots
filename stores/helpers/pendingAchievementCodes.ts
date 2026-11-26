@@ -46,3 +46,19 @@ export function resolvePendingAchievementCodes<T>(
     return achievement === undefined ? [] : [{ code, achievement }]
   })
 }
+
+export async function settlePendingAchievementCodes<T>(
+  ready: readonly { code: string; achievement: T }[],
+  reward: (achievement: T) => Promise<boolean>,
+  onError: (error: unknown) => void,
+): Promise<string[]> {
+  const settled: string[] = []
+  for (const { code, achievement } of ready) {
+    try {
+      if (await reward(achievement)) settled.push(code)
+    } catch (error) {
+      onError(error)
+    }
+  }
+  return settled
+}

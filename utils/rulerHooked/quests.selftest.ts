@@ -21,13 +21,21 @@ import {
   hearProclamation,
   pendingProclamation,
 } from '~/utils/rulerHooked/dailyEvents'
-import { availableFish, RULER_HOOKED_FISH, canFishAt, fishAtLocation, currentFishingRegion } from '~/utils/rulerHooked/fish'
-import { FISHING_LOCATIONS, locationUnlocked } from '~/utils/rulerHooked/fishingLocations'
+import {
+  availableFish,
+  RULER_HOOKED_FISH,
+  canFishAt,
+  fishAtLocation,
+  currentFishingRegion,
+} from '~/utils/rulerHooked/fish'
+import {
+  FISHING_LOCATIONS,
+  locationUnlocked,
+} from '~/utils/rulerHooked/fishingLocations'
 import { startFishingEncounter } from '~/utils/rulerHooked/encounter'
-import type { FishingRegion } from '~/types/ruler-hooked'
+import type { FishingRegion, AxisKey, RunSave } from '~/types/ruler-hooked'
 import { makeRng } from '~/utils/rulerHooked/seed'
 import { CARD_PROMPTS, FISH_PROMPTS } from '~/utils/rulerHooked/artPrompts'
-import type { AxisKey, RunSave } from '~/types/ruler-hooked'
 
 const QUESTS = ['millrace-weir', 'reed-shallows', 'castle-moat'] as const
 const arc = (id: string) =>
@@ -955,7 +963,10 @@ for (const id of QUESTS)
     stamp: 'T0',
   })
   const regions = Object.keys(FISHING_LOCATIONS) as FishingRegion[]
-  assert.deepEqual(regions.filter((region) => canFishAt(initial, region)), ['lake'])
+  assert.deepEqual(
+    regions.filter((region) => canFishAt(initial, region)),
+    ['lake'],
+  )
   const river = runQuest('millrace-weir', ['build-weir', 'open-sluice'])
   river.kingdomHealth.nature = 85
   river.kingdomHealth.order = 60
@@ -973,14 +984,25 @@ for (const id of QUESTS)
   river.flags.runBlocked = true
   assert.ok(!canFishAt(river, 'far_shore'))
   assert.equal(currentFishingRegion(river), 'lake')
-  assert.ok(fishAtLocation(river, 'lake').some(
-    (fish) => fish.slug === startFishingEncounter(river).fishSlug,
-  ))
-  const publicLadder = runQuest('millrace-weir', ['ladder-weir', 'open-ladder-pools'])
+  assert.ok(
+    fishAtLocation(river, 'lake').some(
+      (fish) => fish.slug === startFishingEncounter(river).fishSlug,
+    ),
+  )
+  const publicLadder = runQuest('millrace-weir', [
+    'ladder-weir',
+    'open-ladder-pools',
+  ])
   assert.ok(locationUnlocked(publicLadder, 'village_edge'))
-  const protectedLadder = runQuest('millrace-weir', ['ladder-weir', 'guard-ladder'])
+  const protectedLadder = runQuest('millrace-weir', [
+    'ladder-weir',
+    'guard-ladder',
+  ])
   assert.ok(!locationUnlocked(protectedLadder, 'village_edge'))
-  const reed = runQuest('reed-shallows', ['declare-nursery', 'catch-and-release'])
+  const reed = runQuest('reed-shallows', [
+    'declare-nursery',
+    'catch-and-release',
+  ])
   assert.ok(canFishAt(reed, 'near_bank'))
   const closed = runQuest('reed-shallows', ['declare-nursery', 'close-cove'])
   assert.ok(!canFishAt(closed, 'near_bank'))

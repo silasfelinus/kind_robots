@@ -7,7 +7,8 @@ export const FISHING_LOCATIONS: Record<
   lake: { name: 'Castle Lake', locked: '' },
   near_bank: {
     name: 'Reed Shallows',
-    locked: 'Secure public berths, catch-and-release access or the family garden.',
+    locked:
+      'Secure public berths, catch-and-release access or the family garden.',
   },
   far_shore: {
     name: 'Upstream Crossing',
@@ -15,7 +16,8 @@ export const FISHING_LOCATIONS: Record<
   },
   village_edge: {
     name: 'Millrace Pools',
-    locked: 'Open the fish ladder to anglers or establish a working waterfront.',
+    locked:
+      'Open the fish ladder to anglers or establish a working waterfront.',
   },
   castle_grounds: {
     name: 'Castle Moat',
@@ -27,24 +29,47 @@ export function isFishingRegion(value: unknown): value is FishingRegion {
   return typeof value === 'string' && Object.hasOwn(FISHING_LOCATIONS, value)
 }
 
-export function locationUnlocked(save: RunSave, region: FishingRegion): boolean {
+export function locationUnlocked(
+  save: RunSave,
+  region: FishingRegion,
+): boolean {
   const f = save.flags
   switch (region) {
     case 'lake':
       return true
     case 'near_bank':
-      return !f.coveClosed && !f.exclusivePier &&
-        !!(f.villageBerths || f.catchRelease || f.newlywedsGarden ||
-          f.workingWaterfront || f.marinaRestored)
+      return (
+        !f.coveClosed &&
+        !f.exclusivePier &&
+        !!(
+          f.villageBerths ||
+          f.catchRelease ||
+          f.newlywedsGarden ||
+          f.workingWaterfront ||
+          f.marinaRestored
+        )
+      )
     case 'far_shore':
-      return !f.runBlocked && !f.runStillBlocked &&
+      return (
+        !f.runBlocked &&
+        !f.runStillBlocked &&
         !!(f.sluiceOpened || f.riverCommons || f.riverConcession)
+      )
     case 'village_edge':
-      return !f.waterMonopoly &&
+      return (
+        !f.waterMonopoly &&
         !!(f.ladderSpot || f.workingWaterfront || f.riverConcession)
+      )
     case 'castle_grounds':
-      return !f.waterMonopoly &&
-        !!(f.poachersFined || f.poacherKeepers || f.moatHonour ||
-          f.moatFishedOut || f.moatRestored)
+      return (
+        !f.waterMonopoly &&
+        !!(
+          f.poachersFined ||
+          f.poacherKeepers ||
+          f.moatHonour ||
+          f.moatFishedOut ||
+          f.moatRestored
+        )
+      )
   }
 }

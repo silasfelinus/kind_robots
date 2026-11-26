@@ -1110,9 +1110,10 @@ function quality(score: number): FishQuality {
 }
 
 function pickFish(save: RunSave, rng: RngStream): FishDefinition {
-  const pool = save.fishingRegion === undefined
-    ? availableFish(save)
-    : fishAtLocation(save, currentFishingRegion(save))
+  const pool =
+    save.fishingRegion === undefined
+      ? availableFish(save)
+      : fishAtLocation(save, currentFishingRegion(save))
   // Parlour Rustfish is intentionally unconditional, so this is defensive only.
   if (!pool.length)
     return RULER_HOOKED_FISH.find((f) => f.slug === 'parlour-rustfish')!

@@ -111,7 +111,11 @@ import {
   sceneVistaCandidates,
 } from '~/utils/rulerHooked/artLibrary'
 import { canFishAt, fishAtLocation } from '~/utils/rulerHooked/fish'
-import { FISHING_LOCATIONS, isFishingRegion, locationUnlocked } from '~/utils/rulerHooked/fishingLocations'
+import {
+  FISHING_LOCATIONS,
+  isFishingRegion,
+  locationUnlocked,
+} from '~/utils/rulerHooked/fishingLocations'
 import {
   AXIS_LABEL,
   REGION_NAME,

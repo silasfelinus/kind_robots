@@ -349,7 +349,8 @@ export interface QuizFishingCheckpoint {
   answerSheet?: boolean
 }
 
-export type FishingRegion = 'lake' | 'near_bank' | 'far_shore' | 'village_edge' | 'castle_grounds'
+export type FishingRegion =
+  'lake' | 'near_bank' | 'far_shore' | 'village_edge' | 'castle_grounds'
 
 export interface RunSave {
   schemaVersion: number

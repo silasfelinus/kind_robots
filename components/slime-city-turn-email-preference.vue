@@ -4,7 +4,9 @@
       <input
         type="checkbox"
         :checked="preference?.enabled ?? false"
-        :disabled="busy || !preference || (!preference.eligible && !preference.enabled)"
+        :disabled="
+          busy || !preference || (!preference.eligible && !preference.enabled)
+        "
         data-testid="slime-turn-email-opt-in"
         @change="change"
       />
@@ -12,9 +14,12 @@
     </label>
     <small v-if="message" role="status">{{ message }}</small>
     <small v-else-if="preference && !preference.eligible">
-      <NuxtLink to="/account">Verify your email</NuxtLink> to enable turn emails.
+      <NuxtLink to="/account">Verify your email</NuxtLink> to enable turn
+      emails.
     </small>
-    <small v-else>Optional · one email when your rival hands over the turn.</small>
+    <small v-else
+      >Optional · one email when your rival hands over the turn.</small
+    >
   </div>
 </template>
 
@@ -25,28 +30,36 @@ import { useUserStore } from '~/stores/userStore'
 
 type Preference = { enabled: boolean; eligible: boolean }
 const user = useUserStore()
-const accountId = computed(() => user.isLoggedIn && !user.isGuest ? user.userId : null)
+const accountId = computed(() =>
+  user.isLoggedIn && !user.isGuest ? user.userId : null,
+)
 const preference = ref<Preference | null>(null)
 const busy = ref(false)
 const message = ref('')
 const path = '/api/slime-city/pvp/turn-email'
-watch(accountId, async (id) => {
-  preference.value = null
-  message.value = ''
-  busy.value = false
-  if (!id) return
-  busy.value = true
-  try {
-    const result = await performFetch<Preference>(path)
-    if (accountId.value !== id) return
-    if (!result.success || !result.data) throw new Error('Could not load email settings.')
-    preference.value = result.data
-  } catch {
-    if (accountId.value === id) message.value = 'Could not load email settings.'
-  } finally {
-    if (accountId.value === id) busy.value = false
-  }
-}, { immediate: true })
+watch(
+  accountId,
+  async (id) => {
+    preference.value = null
+    message.value = ''
+    busy.value = false
+    if (!id) return
+    busy.value = true
+    try {
+      const result = await performFetch<Preference>(path)
+      if (accountId.value !== id) return
+      if (!result.success || !result.data)
+        throw new Error('Could not load email settings.')
+      preference.value = result.data
+    } catch {
+      if (accountId.value === id)
+        message.value = 'Could not load email settings.'
+    } finally {
+      if (accountId.value === id) busy.value = false
+    }
+  },
+  { immediate: true },
+)
 
 async function change(event: Event) {
   const input = event.target as HTMLInputElement
@@ -60,7 +73,8 @@ async function change(event: Event) {
       body: JSON.stringify({ enabled: input.checked }),
     })
     if (accountId.value !== id) return
-    if (!result.success || !result.data) throw new Error('Could not save email settings.')
+    if (!result.success || !result.data)
+      throw new Error('Could not save email settings.')
     preference.value = result.data
   } catch {
     if (accountId.value === id) {

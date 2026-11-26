@@ -5,13 +5,24 @@ import { sendSlimeCityTurnEmail } from '~/server/utils/email'
 import { newProgression } from '~/utils/slimeCity/progression'
 
 function optedIn(raw: unknown): boolean {
-  return !!raw && typeof raw === 'object' && 'pvpTurnEmail' in raw && raw.pvpTurnEmail === true
+  return (
+    !!raw &&
+    typeof raw === 'object' &&
+    'pvpTurnEmail' in raw &&
+    raw.pvpTurnEmail === true
+  )
 }
 
 async function verifiedRecipient(userId: number) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { email: true, emailVerified: true, username: true, isGuest: true, isActive: true },
+    select: {
+      email: true,
+      emailVerified: true,
+      username: true,
+      isGuest: true,
+      isActive: true,
+    },
   })
   return user?.email && user.emailVerified && !user.isGuest && user.isActive
     ? { email: user.email, name: user.username }
@@ -24,12 +35,18 @@ export async function getSlimeCityTurnPreference(userId: number) {
   return { enabled: optedIn(row?.data), eligible: !!recipient }
 }
 
-export async function setSlimeCityTurnPreference(userId: number, enabled: unknown) {
+export async function setSlimeCityTurnPreference(
+  userId: number,
+  enabled: unknown,
+) {
   if (typeof enabled !== 'boolean')
     throw createError({ statusCode: 400, message: 'Choose on or off.' })
   const recipient = await verifiedRecipient(userId)
   if (enabled && !recipient)
-    throw createError({ statusCode: 403, message: 'Verify your account email first.' })
+    throw createError({
+      statusCode: 403,
+      message: 'Verify your account email first.',
+    })
   await prisma.$transaction(async (tx) => {
     const row = await tx.slimeCityAccount.upsert({
       where: { userId },
@@ -48,7 +65,10 @@ export async function setSlimeCityTurnPreference(userId: number, enabled: unknow
       },
     })
     if (result.count !== 1)
-      throw createError({ statusCode: 409, message: 'Settings changed. Retry.' })
+      throw createError({
+        statusCode: 409,
+        message: 'Settings changed. Retry.',
+      })
   })
   return { enabled, eligible: !!recipient }
 }

@@ -507,8 +507,7 @@ export async function commandSlimeCityDuel(
       nextTurnUserId = after.active === 'player' ? row.userId : record.guestId
     return snapshot(updated, next, userId)
   })
-  if (nextTurnUserId !== null)
-    await notifySlimeCityTurn(nextTurnUserId, id)
+  if (nextTurnUserId !== null) await notifySlimeCityTurn(nextTurnUserId, id)
   return duel.stage === 'finished' ? withRivalName(duel) : duel
 }
 

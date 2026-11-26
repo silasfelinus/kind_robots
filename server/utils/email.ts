@@ -264,8 +264,13 @@ export function sendPatronTokensGrantedEmail(
 }
 
 /** Optional, transactional turn-ready notice. No rival or hidden card data. */
-export function sendSlimeCityTurnEmail(to: string, name: string, duelId: string) {
-  const url = appBaseUrl() + '/play/slime-city-pvp?duel=' + encodeURIComponent(duelId)
+export function sendSlimeCityTurnEmail(
+  to: string,
+  name: string,
+  duelId: string,
+) {
+  const url =
+    appBaseUrl() + '/play/slime-city-pvp?duel=' + encodeURIComponent(duelId)
   const settings = appBaseUrl() + '/play/slime-city?vs=1'
   return sendTransactionalEmail({
     to,

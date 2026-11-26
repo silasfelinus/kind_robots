@@ -1024,7 +1024,10 @@ assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
   assert.match(mail, /version: row\.version/)
   for (const route of ['get', 'patch'])
     assert.match(
-      readFileSync('server/api/slime-city/pvp/turn-email.' + route + '.ts', 'utf8'),
+      readFileSync(
+        'server/api/slime-city/pvp/turn-email.' + route + '.ts',
+        'utf8',
+      ),
       /requireSlimeCityPlayer\(event\)/,
     )
 }

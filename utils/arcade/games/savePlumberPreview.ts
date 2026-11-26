@@ -2131,8 +2131,11 @@ export class PlumberRun implements ArcadeGameInstance {
 
   /** Move the heroine with her current hitbox (shorter while ducking). */
   private heroMoveX(dx: number): boolean {
-    if (this.scrollRail !== null && dx > 0) {
-      const edge = this.scrollRail + W - HALF - 12
+    if (this.scrollRail !== null && this.autoScroll && dx > 0) {
+      const edge = Math.min(
+        this.scrollRail + W - HALF - 12,
+        this.autoScroll.to * TILE,
+      )
       dx = Math.min(dx, Math.max(0, edge - this.hero.x))
     }
     const followRamp = this.ground && !this.riding && !this.stage.space
@@ -5482,7 +5485,7 @@ export class PlumberRun implements ArcadeGameInstance {
     g.fillStyle = '#fff4d5'
     g.font = 'bold 11px system-ui'
     g.textAlign = 'left'
-    g.fillText('» KEEP PACE', 15, H - 15)
+    g.fillText(this.scrollWarned ? '» MOVE RIGHT!' : '» KEEP PACE', 15, H - 15)
   }
 
   /** Hide the surrounding course while a sealed chamber has the camera. */

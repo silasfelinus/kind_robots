@@ -23,8 +23,8 @@ for (const [index, deity] of COURT_DEITIES.entries()) {
   )
   assert.ok(deepheartArtSrc(`court:${deity.id}`))
   assert.equal(
-    DEEPHEART.cast.find((member) => member.id === `fairy-${deity.id}`)
-      ?.portrait.src,
+    DEEPHEART.cast.find((member) => member.id === `fairy-${deity.id}`)?.portrait
+      .src,
     deepheartArtSrc(`court:${deity.id}`),
     'the playable cast uses the same approved art as the bible',
   )

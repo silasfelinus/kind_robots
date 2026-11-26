@@ -23,7 +23,18 @@ import {
   crossfireFinale,
   crossfirePreviousChapter,
 } from '../everyVillainTactics/crossfireNarrative'
-import { createStory } from '../everyVillainTactics/firstBellStory'
+import {
+  applyChoice,
+  createStory,
+  enqueueBeat,
+  storyMoment,
+} from '../everyVillainTactics/firstBellStory'
+import {
+  finishScene,
+  latchScenes,
+  pendingScriptScene,
+  walkScene,
+} from '../everyVillainTactics/sceneGraph'
 import { createSave, evtSaveKey, loadSave } from '../everyVillainTactics/saves'
 import {
   mergeBattleResults,
@@ -845,6 +856,87 @@ for (const person of IDENTITY_ARCS) {
   )
   assert.ok(passage.text.includes(person.hero.alias))
 }
+
+// Mission-scope acceptance: every authored perspective, decision and
+// outcome must reach its closing scene through the actual scene engine.
+// Combat events are controlled here; tactical objectives have separate
+// engine coverage in verifyEveryVillainStudio.test.ts.
+for (const perspective of ['hero', 'villain'] as const)
+  for (const approach of ['catwalk', 'service'] as const)
+    for (const alarm of ['rescue', 'contain'] as const)
+      for (const reckoning of ['spare', 'press'] as const)
+        for (const outcome of ['victory', 'defeat'] as const) {
+          const run = createStory()
+          const battle = trainingState(0x53a1b7)
+          assert.ok(applyChoice(run, battle, perspective, approach))
+          battle.turn = 2
+          enqueueBeat(run, battle)
+          assert.equal(run.current, 'alarm')
+          assert.ok(applyChoice(run, battle, perspective, alarm))
+          battle.units.find((unit) => unit.team === 'rival')!.hp = 0
+          enqueueBeat(run, battle)
+          assert.equal(run.current, 'reckoning')
+          assert.ok(applyChoice(run, battle, perspective, reckoning))
+          battle.phase = outcome
+          enqueueBeat(run, battle)
+          assert.equal(run.current, outcome)
+          assert.ok(
+            storyMoment(perspective, outcome, 'accident-fire', run).lines
+              .length > 0,
+          )
+          assert.ok(applyChoice(run, battle, perspective, 'finish'))
+          assert.ok(run.completed)
+          assert.equal(run.current, null)
+          assert.equal(run.evidence, alarm === 'contain' ? 1 : 0)
+          assert.equal(run.civilians, alarm === 'rescue' ? 2 : 0)
+          assert.equal(run.mercy, reckoning === 'spare')
+        }
+
+const missionChoices = [
+  ['science-lab', 'lab-rescued', 'lab-evidence'],
+  ['crosswalk-crisis', 'crosswalk-medics', 'crosswalk-jammed'],
+  ['rooftop-broadcast', 'roof-warning', 'roof-jammed'],
+  ['under-comet-breach', 'breach-vented', 'breach-evidence'],
+  ['prom-night-finale', 'prom-shelter', 'prom-command'],
+] as const
+for (const [id, rescueFlag, evidenceFlag] of missionChoices)
+  for (const perspective of ['hero', 'villain'] as const)
+    for (const choice of [0, 1] as const)
+      for (const outcome of ['victory', 'defeat'] as const) {
+        const stage = clonePreset(id)
+        const script = stage.script!
+        const battle = trainingState(0x53a1b7, stage)
+        const drainScenes = () => {
+          for (let count = 0; count < 30; count++) {
+            latchScenes(battle, script, stage)
+            const scene = pendingScriptScene(battle, script)
+            if (!scene) return
+            const preview = walkScene(scene, [], {
+              state: battle,
+              perspective,
+            })
+            assert.ok(preview, scene.id)
+            const path = preview.done ? [] : [choice]
+            assert.ok(finishScene(battle, scene, path, perspective))
+            assert.equal(finishScene(battle, scene, path, perspective), false)
+          }
+          assert.fail(id + ' scene queue did not drain')
+        }
+        drainScenes()
+        battle.turn = 2
+        drainScenes()
+        assert.ok(battle.flags?.includes(choice === 0 ? rescueFlag : evidenceFlag))
+        assert.ok(!battle.flags?.includes(choice === 0 ? evidenceFlag : rescueFlag))
+        battle.phase = outcome
+        drainScenes()
+        const closing = script.scenes.find(
+          (scene) =>
+            scene.trigger.kind === 'closing' && scene.trigger.outcome === outcome,
+        )
+        assert.ok(closing)
+        assert.ok(battle.fired?.includes('seen:scene:' + closing.id))
+        assert.equal(pendingScriptScene(battle, script), null)
+      }
 
 const store = readFileSync('stores/everyVillainTacticsStore.ts', 'utf8')
 const front = readFileSync(

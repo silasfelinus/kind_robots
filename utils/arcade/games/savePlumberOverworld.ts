@@ -267,14 +267,12 @@ const ALL_PATHS = OVERWORLD.flatMap((w) => w.paths)
  * nodes one (`secretExit`); each joins this list when t-020/t-021 build it,
  * so completion never counts an exit nobody can find.
  */
-export const SECRET_EXITS_READY: ReadonlySet<string> = new Set(
-  [
-    ...CAMPAIGN.filter((def) => def.secretExit).map(
-      (def) => BY_STAGE.get(def.code)!.id,
-    ),
-    DRIP_PARLOUR.code,
-  ],
-)
+export const SECRET_EXITS_READY: ReadonlySet<string> = new Set([
+  ...CAMPAIGN.filter((def) => def.secretExit).map(
+    (def) => BY_STAGE.get(def.code)!.id,
+  ),
+  DRIP_PARLOUR.code,
+])
 
 export function mapNode(id: string | undefined): MapNode | undefined {
   return id ? NODES.get(id) : undefined
@@ -288,7 +286,9 @@ export const startId = (world: number) => `w${world}-start`
 
 /** The node a Gen-1 stage is played from. */
 export function stageNode(code: string): MapNode | undefined {
-  return BY_STAGE.get(code) ?? (optionalCourse(code) ? NODES.get(code) : undefined)
+  return (
+    BY_STAGE.get(code) ?? (optionalCourse(code) ? NODES.get(code) : undefined)
+  )
 }
 
 /** A node she can play today. */

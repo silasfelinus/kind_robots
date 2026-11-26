@@ -5145,7 +5145,7 @@ export class PlumberRun implements ArcadeGameInstance {
           ? 'FOLLOW THE RISING DRIPS · DOWN AT A DOOR'
           : chapelCourse(this.stage.code)
             ? 'REACH THE VALVE TO SOLIDIFY SWITCH BLOCKS'
-          : `${this.member.name}  ×${this.lives}`,
+            : `${this.member.name}  ×${this.lives}`,
       W / 2,
       172,
       12,

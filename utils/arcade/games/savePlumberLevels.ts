@@ -1231,7 +1231,10 @@ export const DRIP_PARLOUR: StageDef = {
   rows: Array.from({ length: 24 }, (_, row) => {
     const line: string[] = Array.from({ length: 72 }, (_, col) => {
       if (row >= HUSH_FLOOR_ROW || row === 7) return 'B'
-      if (row >= 8 && (col % HUSH_ROOM_WIDTH === 0 || col % HUSH_ROOM_WIDTH === 23))
+      if (
+        row >= 8 &&
+        (col % HUSH_ROOM_WIDTH === 0 || col % HUSH_ROOM_WIDTH === 23)
+      )
         return 'B'
       return '.'
     })
@@ -1239,8 +1242,7 @@ export const DRIP_PARLOUR: StageDef = {
       line[12] = '@'
       line[36] = 'K'
     }
-    if (row === 18)
-      for (let col = 62; col <= 66; col++) line[col] = '='
+    if (row === 18) for (let col = 62; col <= 66; col++) line[col] = '='
     return line.join('')
   }),
 }

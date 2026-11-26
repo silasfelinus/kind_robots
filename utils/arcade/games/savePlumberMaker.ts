@@ -160,6 +160,11 @@ export const MAKER_GROUPS: MakerGroup[] = [
       { key: '2', icon: '⚡', label: 'Bottled Storm' },
       { key: '3', icon: '▤', label: 'Pocket Lift' },
       { key: '4', icon: '◈', label: 'Sailwing · hold Jump to glide' },
+      {
+        key: '5',
+        icon: '▼',
+        label: 'Ballast Boots · wind-proof, Down to slam',
+      },
       { key: '+', icon: '♥', label: 'Water heart' },
     ],
   },

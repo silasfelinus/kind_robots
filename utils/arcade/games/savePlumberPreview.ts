@@ -775,7 +775,8 @@ export class PlumberRun implements ArcadeGameInstance {
   /** Load a slot's memory into the run (or clear it for a new slot). */
   private loadSlotMemory(slot: PlumberSlot | null) {
     this.heroName = slot?.name
-    this.power = this.customLevel || this.autopilot ? null : (slot?.power ?? null)
+    this.power =
+      this.customLevel || this.autopilot ? null : (slot?.power ?? null)
     this.reserve =
       this.customLevel || this.autopilot ? null : (slot?.reserve ?? null)
     this.gears = new Set(slot?.gears ?? [])

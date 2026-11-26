@@ -482,7 +482,9 @@ export function clashBalance(
         attack * 2 -
         armor * CLASH_ARMOR_COST -
         traits +
-        (tempo ? (CLASH_V2_CREW_ADJUSTMENT.cardLife?.[card.id]?.[tier] ?? 0) : 0),
+        (tempo
+          ? (CLASH_V2_CREW_ADJUSTMENT.cardLife?.[card.id]?.[tier] ?? 0)
+          : 0),
     ),
     heavy ? 5 : 2,
     LIFE_CAP[plays][tier],

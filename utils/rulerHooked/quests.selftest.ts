@@ -1212,7 +1212,12 @@ for (const id of QUESTS)
     card.choices.map((choice) => card.id + '/' + choice.id),
   )
 
-  function explore(policy: Policy, seed: string, roundTrip = false) {
+  function explore(
+    policy: Policy,
+    seed: string,
+    roundTrip = false,
+    directives: Record<string, string> = {},
+  ) {
     let save = createRun(C, {
       saveId: 'policy-matrix',
       name: 'Policy matrix',
@@ -1377,7 +1382,12 @@ for (const id of QUESTS)
             }
           })
           .sort((a, b) => b.score - a.score)
-        const chosen = ranked[0]!
+        const directive = directives[card.id]
+        const chosen =
+          (directive &&
+          !choices.has(card.id + '/' + directive)
+            ? ranked.find((option) => option.choice.id === directive)
+            : undefined) ?? ranked[0]!
         const resolved = save.counters.cardsResolved ?? 0
         save = resolveChoice(save, card, chosen.choice)
         choices.add(chosen.key)
@@ -1467,6 +1477,80 @@ for (const id of QUESTS)
         }),
     )
   }
+  // Exercise the rare cross-arc branches through explicit legal decisions,
+  // rather than hoping a random policy happens to choose their prerequisites.
+  const commonsRoute = {
+    'weir-1': 'build-weir',
+    'weir-stone': 'net-the-run',
+    'weir-reckoning': 'reopen-migration',
+    'envoy-1': 'negotiate-tough',
+    'envoy-tough': 'finalize-tough',
+    'treaty-reckoning': 'ease-the-border',
+  }
+  const trustRoute = {
+    'weir-1': 'build-weir',
+    'weir-stone': 'net-the-run',
+    'weir-reckoning': 'keep-netting',
+    'moat-1': 'keep-moat-common',
+    'moat-crowded': 'let-moat-run',
+    'moat-reckoning': 'license-roach',
+  }
+  const targetedRoutes: Record<string, Record<string, string>> = {
+    'warlock-return/defer-vex': {},
+    'druid-sanctuary/defer-sela': {},
+    'vex-model-village/defer-terraces': {},
+    'fen-satire/answer-song': {},
+    'river-commons-vote/charter-the-run': commonsRoute,
+    'river-commons-vote/license-the-run': commonsRoute,
+    'flood-debt-council/fund-floodplain': commonsRoute,
+    'flood-debt-council/mortgage-crossing': commonsRoute,
+    'water-rights-hearing/found-the-water-trust': trustRoute,
+    'water-stewards-strike/pay-the-stewards': trustRoute,
+    'water-stewards-strike/share-the-patrol': trustRoute,
+  }
+  let targetedWitnesses = 0
+  for (const target of expected.filter((key) => !covered.has(key))) {
+    if (covered.has(target)) continue
+    const [cardId, choiceId] = target.split('/')
+    assert.ok(cardId && choiceId)
+    const directives = { ...targetedRoutes[target], [cardId]: choiceId }
+    const policy: Policy = {
+      id: 'completionist',
+      weights: cardId === 'fen-satire' ? { joy: -5 } : {},
+    }
+    let witness: ReturnType<typeof explore> | undefined
+    let witnessSeed = ''
+    for (let i = 0; i < 48 && !witness; i++) {
+      const seed = 'targeted-' + cardId + '-' + choiceId + '-' + i
+      const result = explore(policy, seed, false, directives)
+      if (result.choices.includes(target)) {
+        witness = result
+        witnessSeed = seed
+      }
+    }
+    assert.ok(witness, 'No legal seeded witness for ' + target)
+    assert.deepEqual(
+      explore(policy, witnessSeed, true, directives),
+      witness,
+    )
+    for (const key of witness.choices) covered.add(key)
+    targetedWitnesses++
+    console.log(
+      'Targeted choice witness ' +
+        JSON.stringify({
+          target,
+          seed: witnessSeed,
+          trace: witness.trace,
+        }),
+    )
+  }
+  assert.deepEqual(
+    expected.filter((key) => !covered.has(key)),
+    [],
+    'Every authored choice must have a real fresh-reign witness',
+  )
+  console.log('Targeted choice witnesses: ' + targetedWitnesses)
+
   assert.ok(attempts >= 12 * 12 * 80)
   assert.ok(misses > 0 && misses < attempts)
   assert.ok(purchases > 0)

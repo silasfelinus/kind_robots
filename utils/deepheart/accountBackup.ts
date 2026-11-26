@@ -178,8 +178,9 @@ export function parseDeepheartBackup(source: string): DeepheartBackup {
     typeof kit.progress.trailerSeen !== 'boolean' ||
     !['moments', 'reveals', 'endings'].every((key) => {
       const entries = (kit.progress as Record<string, unknown>)[key]
-      return object(entries) && Object.values(entries).every(
-        (entry) => typeof entry === 'string',
+      return (
+        object(entries) &&
+        Object.values(entries).every((entry) => typeof entry === 'string')
       )
     })
   )

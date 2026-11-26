@@ -1313,10 +1313,7 @@ const kitArchive = {
     },
   },
 }
-assert.deepEqual(
-  parseDeepheartBackup(JSON.stringify(kitArchive)),
-  kitArchive,
-)
+assert.deepEqual(parseDeepheartBackup(JSON.stringify(kitArchive)), kitArchive)
 assert.throws(() =>
   parseDeepheartBackup(
     JSON.stringify({ ...kitArchive, kit: { ...kitArchive.kit, version: 99 } }),

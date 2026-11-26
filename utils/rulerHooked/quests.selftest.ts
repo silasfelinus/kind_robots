@@ -950,6 +950,16 @@ for (const id of QUESTS)
       `Ending witness ${target}: ${witness.seed}, ${witness.save.turnCount} casts`,
     )
     console.log(JSON.stringify(witness.actions))
+    console.log(JSON.stringify({
+      finale: ending.title,
+      epilogue: ending.body,
+      transcript: witness.save.choiceLog.map((entry) => ({
+        turn: entry.turn,
+        petition: entry.prompt,
+        decree: entry.choiceText,
+        consequence: entry.resultText,
+      })),
+    }))
   }
 }
 

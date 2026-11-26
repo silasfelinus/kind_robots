@@ -986,7 +986,7 @@ function fighterTags(
     tags.push({
       kind: 'new',
       text: '⏳ NEW',
-      title: 'Summoning sickness: cannot attack this turn, but still blocks',
+      title: 'Does not attack on its first turn, but still blocks',
     })
   else if (fighter.keywords.includes('ambush') && fighter.fresh)
     tags.push({
@@ -2904,7 +2904,11 @@ watch(
   }
 }
 .scpvp-arena :deep(.cxh) {
-  --W: min(20rem, 36cqw, 46cqh);
+  --W: min(20rem, 36cqw, 20cqh);
+  --preview-center: 82%;
+  --preview-offset: 32cqw;
+  overflow: visible;
+  z-index: 15;
   --pvp-preview-width: min(18rem, 42cqw, 38cqh);
   --rest: 1;
   --peek: 1;
@@ -2915,15 +2919,15 @@ watch(
   pointer-events: none;
 }
 .scpvp-arena :deep(.cxh.open .cxh-card:not(.big):not(.dragging)) {
-  --hand-gap: 0.35rem;
+  --hand-gap: 0.65rem;
   --hand-width: min(
     var(--W),
     (100cqw - 1rem - var(--n1) * var(--hand-gap)) / (var(--n1) + 1)
   );
   --x: calc(var(--o) * (var(--hand-width) + var(--hand-gap)));
-  --y: calc(-0.75rem + var(--drop) * 0.35);
+  --y: calc(-0.4rem + var(--drop) * 0.2);
   --s: 1;
-  --r: 0deg;
+  --r: calc(var(--rot) * 0.35);
   --rules-open: 1;
   width: var(--hand-width);
 }
@@ -2955,25 +2959,33 @@ watch(
   overflow-y: auto;
 }
 .scpvp-arena :deep(.cxh.holding.open .cxh-card:not(.big):not(.dragging)) {
-  --y: calc(var(--hand-width) * 1.5 - 2.5rem);
+  --y: calc(-0.4rem + var(--drop) * 0.2);
 }
 .scpvp-arena :deep(.cxh .cxh-card.big:not(.dragging)) {
   width: var(--pvp-preview-width);
 }
 .scpvp-arena :deep(.cxh .cxh-card.big.held-dock:not(.dragging)) {
-  --x: 22cqw;
+  --x: var(--preview-offset);
   --y: calc(var(--pvp-preview-width) * 0.75 - 50cqh);
 }
 .scpvp-arena :deep(.cxh .cxh-card.cxh-inspect) {
-  left: 72%;
+  left: var(--preview-center);
   right: auto;
   transform: translate(-50%, -50%);
 }
 .scpvp-arena :deep(.cxh .cxh-levels.docked) {
-  left: 72%;
+  left: var(--preview-center);
   right: auto;
   top: max(0.25rem, calc(50% - var(--pvp-preview-width) * 0.75 - 4.6rem));
   transform: translateX(-50%);
+}
+@media (min-width: 691px) and (orientation: landscape) {
+  .scpvp-arena :deep(.cxh) {
+    --rail-width: clamp(10rem, 17vw, 15rem);
+    --preview-offset: calc(50cqw + var(--rail-width) + 0.4rem - var(--pvp-preview-width) / 2);
+    --preview-center: calc(100% + var(--rail-width) + 0.4rem - var(--pvp-preview-width) / 2);
+    --pvp-preview-width: min(20rem, 42cqw, 42cqh);
+  }
 }
 .scpvp-hand-dock :deep(.cxh-toggle) {
   transform: none;

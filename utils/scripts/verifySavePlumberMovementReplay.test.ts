@@ -1070,6 +1070,9 @@ function scrollRun() {
   standOn(entrance)
   usePipe()
   assert.deepEqual(run.activePipeRoom, room)
+  // The heroine is wider than a single tile: leave an open tile on each
+  // side of the rope so neighboring one-way ledges cannot catch her feet.
+  assert.equal(def.rows[6]!.slice(182, 185), '.|.')
   const ladderX = 183 * TILE + TILE / 2
   const steerTo = (target: number, input: InputFrame) => {
     const projected = run.hero.x + run.hero.vx * 3

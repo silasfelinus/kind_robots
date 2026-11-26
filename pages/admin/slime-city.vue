@@ -2534,7 +2534,7 @@ onUnmounted(() => {
 .sc-collection-tools {
   position: sticky;
   top: 0;
-  z-index: 3;
+  z-index: 5;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -2552,6 +2552,7 @@ onUnmounted(() => {
   margin: 0;
 }
 .sc-collection-grid {
+  isolation: isolate;
   flex: none;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 10.5rem), 1fr));
@@ -2644,23 +2645,60 @@ onUnmounted(() => {
   color: #c9e3dc;
 }
 .sc-clash-tile {
+  --rules-open: 1;
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
   width: 100%;
-  aspect-ratio: 2 / 3;
   border-radius: 0.9rem;
   container-type: inline-size;
 }
+.sc-clash-tile :deep(.ccf) {
+  position: relative;
+  inset: auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  min-height: min-content;
+  border-radius: inherit;
+}
+.sc-clash-tile :deep(.ccf-head) {
+  position: relative;
+  inset: auto;
+  flex: none;
+  margin: 3.5cqw;
+}
+.sc-clash-tile :deep(.ccf-top) {
+  flex-wrap: wrap;
+}
+.sc-clash-tile :deep(.ccf-badge) {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+.sc-clash-tile :deep(.ccf-rules) {
+  position: relative;
+  inset: auto;
+  flex: none;
+  margin-top: auto;
+  font-size: 0.9rem;
+}
+.sc-clash-tile :deep(.ccf-text) {
+  font-size: max(0.75rem, 6.4cqw);
+  overflow-wrap: anywhere;
+}
 .sc-clash-tile .sc-collect-ribbon {
-  position: absolute;
-  top: 0.4rem;
-  right: 0.4rem;
+  position: relative;
+  text-align: center;
+  white-space: normal;
   z-index: 2;
 }
 /*
-  The ribbon is a one-tap add / take-out above the inspect button. The tile is
-  a size container (its own stacking context), so the whole tile rises above
-  the inspect button and lets every tap but the ribbon's fall through to it.
+  The ribbon is a one-tap add / take-out below the card face, never over its
+  combat stats. The tile sits above the inspect button and lets every tap
+  but the ribbon's fall through to it.
 */
 .sc-collect .sc-clash-tile {
   z-index: 4;

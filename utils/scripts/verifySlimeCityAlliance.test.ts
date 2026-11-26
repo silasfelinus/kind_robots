@@ -782,3 +782,12 @@ console.log('Slime City ALLIANCE: decks, powers, replay, balance and saves OK')
   assert.match(collection, /\.sc-shelf-banner-pair :deep\(img\)/)
   assert.match(collection, /\[\{ general: lab\.activeTeam, ally: null \}\]/)
 }
+
+// Collection and pack faces always reveal rules; deck actions cannot cover stats.
+{
+  const collection = readFileSync('pages/admin/slime-city.vue', 'utf8')
+  assert.match(collection, /\.sc-clash-tile \{\s*--rules-open: 1;/)
+  assert.match(collection, /\.sc-clash-tile :deep\(\.ccf-rules\) \{\s*position: relative;/)
+  assert.match(collection, /\.sc-clash-tile \.sc-collect-ribbon \{\s*position: relative;/)
+  assert.match(collection, /\.sc-collection-grid \{\s*isolation: isolate;/)
+}

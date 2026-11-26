@@ -973,14 +973,34 @@ for (const person of IDENTITY_ARCS)
         assert.ok(applyChoice(run, state, perspective, 'catwalk'))
         state.turn = 2
         enqueueBeat(run, state)
-        const preview = storyMoment(perspective, 'alarm', person.signature, run, state)
-        assert.match(preview.choices.find((choice) => choice.effect === alarm)!.detail, /marked|guarded/)
+        const preview = storyMoment(
+          perspective,
+          'alarm',
+          person.signature,
+          run,
+          state,
+        )
+        assert.match(
+          preview.choices.find((choice) => choice.effect === alarm)!.detail,
+          /marked|guarded/,
+        )
         assert.ok(applyChoice(run, state, perspective, alarm))
         assert.equal(run.supportActions?.length, 1)
         const firstAction = run.supportActions![0]!
-        assert.ok(state.units.find((unit) => unit.id === firstAction.target)!.statuses.includes(firstAction.effect))
+        assert.ok(
+          state.units
+            .find((unit) => unit.id === firstAction.target)!
+            .statuses.includes(firstAction.effect),
+        )
         assert.equal(applyChoice(run, state, perspective, alarm), false)
-        const saved = createSave({ slot: 'auto', perspective, leadSignature: person.signature, stage: null, state, story: run })
+        const saved = createSave({
+          slot: 'auto',
+          perspective,
+          leadSignature: person.signature,
+          stage: null,
+          state,
+          story: run,
+        })
         const restored = loadSave(JSON.stringify(saved))
         assert.ok(restored.ok)
         assert.deepEqual(restored.save.story.supportActions, run.supportActions)
@@ -992,13 +1012,27 @@ for (const person of IDENTITY_ARCS)
         assert.equal(story.supportActions?.length, 2)
         const secondAction = story.supportActions![1]!
         assert.notEqual(firstAction.actor, secondAction.actor)
-        assert.ok(battle.units.find((unit) => unit.id === secondAction.target)!.statuses.includes(secondAction.effect))
+        assert.ok(
+          battle.units
+            .find((unit) => unit.id === secondAction.target)!
+            .statuses.includes(secondAction.effect),
+        )
         if (reckoning === 'press') assert.equal(secondAction.effect, 'guarded')
         assert.equal(battle.seed, seed)
         battle.phase = 'victory'
         enqueueBeat(story, battle)
-        const report = storyMoment(perspective, 'victory', person.signature, story, battle)
-        assert.ok(report.lines.some((line) => line.text.includes('independently guarded')))
+        const report = storyMoment(
+          perspective,
+          'victory',
+          person.signature,
+          story,
+          battle,
+        )
+        assert.ok(
+          report.lines.some((line) =>
+            line.text.includes('independently guarded'),
+          ),
+        )
         assert.ok(applyChoice(story, battle, perspective, 'finish'))
         assert.ok(story.completed)
       }
@@ -1024,11 +1058,12 @@ const forgedAgency = createSave({
   state: trainingState(),
   story: {
     ...createStory(),
-    supportActions: [{ beat: 'alarm', actor: 'backdraft', target: 'priya', effect: 'guarded' }],
+    supportActions: [
+      { beat: 'alarm', actor: 'backdraft', target: 'priya', effect: 'guarded' },
+    ],
   },
 })
 assert.equal(loadSave(JSON.stringify(forgedAgency)).ok, false)
-
 
 const missionChoices = [
   ['science-lab', 'lab-rescued', 'lab-evidence'],

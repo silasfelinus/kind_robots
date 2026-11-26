@@ -5,7 +5,12 @@ import { TECH_ARCS } from './techArcs'
 import { MAGIC_ARCS } from './magicArcs'
 import { ALIEN_ARCS } from './alienArcs'
 import { PSYCHIC_ARCS } from './psychicArcs'
-import { applySupport, supportPlan, supportReport, type SupportAction } from './supportAgency'
+import {
+  applySupport,
+  supportPlan,
+  supportReport,
+  type SupportAction,
+} from './supportAgency'
 import { recordTrigger, type TrainingState } from './training'
 
 export type Perspective = 'hero' | 'villain' | 'henchman' | 'sidekick'
@@ -615,18 +620,22 @@ export function storyMoment(
       lines.splice(1, 0, PERSONAL_ROUTE[role])
     }
   }
-  if (
-    state &&
-    personal &&
-    (beat === 'alarm' || beat === 'reckoning')
-  ) {
+  if (state && personal && (beat === 'alarm' || beat === 'reckoning')) {
     scene.choices = scene.choices.map((choice) => {
       const plan = supportPlan(state, beat, choice.effect)
-      const actor = plan && state.units.find((unit) => unit.id === plan.action.actor)
-      const name = actor && IDENTITY_ARCS.find((entry) => entry.signature === actor.identity)?.hero.alias
+      const actor =
+        plan && state.units.find((unit) => unit.id === plan.action.actor)
+      const name =
+        actor &&
+        IDENTITY_ARCS.find((entry) => entry.signature === actor.identity)?.hero
+          .alias
       return {
         ...choice,
-        detail: choice.detail + (plan && name ? ' ' + name + ': ' + plan.text : ' No additional companion action available.'),
+        detail:
+          choice.detail +
+          (plan && name
+            ? ' ' + name + ': ' + plan.text
+            : ' No additional companion action available.'),
       }
     })
   }
@@ -634,7 +643,8 @@ export function storyMoment(
     if (state)
       for (const action of run.supportActions ?? []) {
         const report = supportReport(state, action)
-        if (report) lines.push(a('FIELD REPORT', report.speaker + ': ' + report.text))
+        if (report)
+          lines.push(a('FIELD REPORT', report.speaker + ': ' + report.text))
       }
     const outcome =
       run.civilians > 0

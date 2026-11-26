@@ -14,29 +14,35 @@ export type SupportAction = {
 }
 
 const name = (unit: Unit) =>
-  IDENTITY_ARCS.find((entry) => entry.signature === unit.identity)?.hero.alias ??
-  unit.id
+  IDENTITY_ARCS.find((entry) => entry.signature === unit.identity)?.hero
+    .alias ?? unit.id
 
 // These are the three canonical First Bell companions (including the
 // replacement when a player selects one of the two default companions).
 // Their decisions belong to them, not to the protagonist's allegiance.
-const VOICES: Record<string, { mark: string; guard: string; refuse: string }> = {
-  'tech-genius': {
-    mark: 'My scanner can identify an active threat while you help them.',
-    guard: 'The rescue rig has spare shielding. I am covering our crew.',
-    refuse: 'I will not turn a surrendered person into a test subject. I am covering our crew instead.',
-  },
-  'mutant-earth': {
-    mark: 'I can feel the patrol moving through the floor. I will call their position.',
-    guard: 'Someone has to hold the weight while the rest of you move. I will brace the crew.',
-    refuse: 'I know what it feels like to be cornered. I will hold the line, not chase a fallen person.',
-  },
-  'accident-fire': {
-    mark: 'I know how quickly an exit can close. I will call out the active threat.',
-    guard: 'Strangers pulled me out of a fire. I can cover somebody else now.',
-    refuse: 'I survived because somebody stopped to help. I will not chase a person who is already down.',
-  },
-}
+const VOICES: Record<string, { mark: string; guard: string; refuse: string }> =
+  {
+    'tech-genius': {
+      mark: 'My scanner can identify an active threat while you help them.',
+      guard: 'The rescue rig has spare shielding. I am covering our crew.',
+      refuse:
+        'I will not turn a surrendered person into a test subject. I am covering our crew instead.',
+    },
+    'mutant-earth': {
+      mark: 'I can feel the patrol moving through the floor. I will call their position.',
+      guard:
+        'Someone has to hold the weight while the rest of you move. I will brace the crew.',
+      refuse:
+        'I know what it feels like to be cornered. I will hold the line, not chase a fallen person.',
+    },
+    'accident-fire': {
+      mark: 'I know how quickly an exit can close. I will call out the active threat.',
+      guard:
+        'Strangers pulled me out of a fire. I can cover somebody else now.',
+      refuse:
+        'I survived because somebody stopped to help. I will not chase a person who is already down.',
+    },
+  }
 
 export function supportPlan(
   state: TrainingState,
@@ -46,7 +52,9 @@ export function supportPlan(
   // First Bell only. Other chapters and Prom's interludes have their own
   // authored scene graphs and should not acquire this rule accidentally.
   if (state.stageId !== null || state.phase !== 'active') return null
-  const squad = state.units.filter((unit) => unit.team === 'squad' && unit.hp > 0)
+  const squad = state.units.filter(
+    (unit) => unit.team === 'squad' && unit.hp > 0,
+  )
   const companions = squad.filter((unit) => unit.id !== 'backdraft')
   const candidates = beat === 'alarm' ? companions : [...companions].reverse()
   const refusal = beat === 'reckoning' && order === 'press'
@@ -86,7 +94,13 @@ export function supportPlan(
         : (voice?.guard ?? 'I will protect a teammate.')
     return {
       action: { beat, actor: actor.id, target: target.id, effect },
-      text: line + ' ' + name(target) + (effect === 'marked' ? ' is marked (+20 hit chance).' : ' is guarded (−15 enemy hit chance).'),
+      text:
+        line +
+        ' ' +
+        name(target) +
+        (effect === 'marked'
+          ? ' is marked (+20 hit chance).'
+          : ' is guarded (−15 enemy hit chance).'),
     }
   }
   return null

@@ -9,13 +9,19 @@
 import assert from 'node:assert/strict'
 import { RULER_HOOKED_CONTENT as C } from '~/utils/rulerHooked/content'
 import { createRun } from '~/utils/rulerHooked/newGame'
-import { resolveChoice } from '~/utils/rulerHooked/applyEffects'
+import { applyEffect, resolveChoice } from '~/utils/rulerHooked/applyEffects'
 import { eligiblePool } from '~/utils/rulerHooked/select'
-import { allDeckCards, takeTurn } from '~/utils/rulerHooked/loop'
+import {
+  allDeckCards,
+  dismissedFinaleFlag,
+  eligibleEnding,
+  takeTurn,
+} from '~/utils/rulerHooked/loop'
+import { hearProclamation, pendingProclamation } from '~/utils/rulerHooked/dailyEvents'
 import { availableFish, RULER_HOOKED_FISH } from '~/utils/rulerHooked/fish'
 import { makeRng } from '~/utils/rulerHooked/seed'
 import { CARD_PROMPTS, FISH_PROMPTS } from '~/utils/rulerHooked/artPrompts'
-import type { RunSave } from '~/types/ruler-hooked'
+import type { AxisKey, RunSave } from '~/types/ruler-hooked'
 
 const QUESTS = ['millrace-weir', 'reed-shallows', 'castle-moat'] as const
 const arc = (id: string) =>
@@ -832,6 +838,105 @@ for (const id of QUESTS)
   const invited = runQuest('child-elopes', ['forbid', 'recognize-marriage'])
   assert.ok(invited.kingdomHealth.order < recalled.kingdomHealth.order)
   assert.ok(invited.kingdomHealth.treasury < recalled.kingdomHealth.treasury)
+}
+
+// Full ending witnesses use the same per-cast narrative seed and daily
+// proclamations as the interactive store. No slider, flag, or turn injection.
+{
+  const policies: Record<string, Partial<Record<AxisKey, number>>> = {
+    'druid-utopia': { nature: 4, joy: 3 },
+    'warlock-metropolis': { prosperity: 5, treasury: 1 },
+    'thistlewood-empire': { treasury: 5, prosperity: 4 },
+    'fishers-peace': { joy: 4, order: -5 },
+  }
+
+  function playEnding(target: string, seed: string, roundTrip = false) {
+    const weights = policies[target]!
+    let save = createRun(C, {
+      saveId: 'ending-witness',
+      name: 'Ending witness',
+      seed,
+      rulerName: 'Mo',
+      stamp: 'T0',
+    })
+    const actions: string[] = []
+    const policyRng = makeRng(`${seed}:policy`)
+    for (let cast = 0; cast < 240; cast++) {
+      const proclamation = pendingProclamation(save)
+      if (proclamation) {
+        actions.push(`hear:${proclamation.event.key}`)
+        save = hearProclamation(save)
+      }
+      const turn = takeTurn(C, save, makeRng(`${seed}:${save.turnCount}`))
+      save = turn.save
+      actions.push(`cast:${turn.catch.fishSlug}`)
+      if (turn.card) {
+        const card = turn.card
+        const ranked = card.choices
+          .filter((choice) => !choice.requeue)
+          .map((choice) => ({
+            choice,
+            next: resolveChoice(save, card, choice),
+            noise: policyRng.next() * 6,
+          }))
+          .map((option) => ({
+            ...option,
+            score:
+              option.noise +
+              Object.entries(weights).reduce(
+                (sum, [axis, weight]) =>
+                  sum +
+                  (option.next.kingdomHealth[axis as AxisKey] -
+                    save.kingdomHealth[axis as AxisKey]) *
+                    weight,
+                0,
+              ),
+          }))
+          .sort((a, b) => b.score - a.score)
+        const selected = ranked[0]
+        assert.ok(selected, `${card.id} has a resolving choice`)
+        save = selected.next
+        actions.push(`choose:${card.id}:${selected.choice.id}`)
+      }
+      const offer = eligibleEnding(C, save)
+      if (offer === target) {
+        actions.push(`accept:${offer}`)
+        applyEffect(save, { ending: offer })
+        assert.equal(save.status, 'COMPLETE')
+        assert.equal(save.endingKey, target)
+        return { seed, actions, save }
+      }
+      if (offer) {
+        actions.push(`decline:${offer}`)
+        save.flags[dismissedFinaleFlag(offer)] = true
+      }
+      if (roundTrip) save = JSON.parse(JSON.stringify(save)) as RunSave
+    }
+    return null
+  }
+
+  assert.deepEqual(
+    Object.keys(policies).sort(),
+    C.endings.map((ending) => ending.outcomeKey).sort(),
+    'Every authored ending needs a policy and a real route witness',
+  )
+  for (const ending of C.endings) {
+    const target = ending.outcomeKey
+    let witness: ReturnType<typeof playEnding> = null
+    for (let i = 0; i < 96 && !witness; i++) {
+      witness = playEnding(target, `ending-${target}-${i}`)
+    }
+    assert.ok(witness, `No legal ending witness for ${target}`)
+    assert.deepEqual(
+      playEnding(target, witness.seed, true),
+      witness,
+      'Save serialization must preserve the entire route',
+    )
+    console.log(
+      `Ending witness ${target}: ${witness.seed}, ${witness.save.turnCount} casts`,
+    )
+    console.log(JSON.stringify(witness.actions))
+  }
 }
 
 console.log('ruler-hooked QUESTS self-test: ALL PASS')

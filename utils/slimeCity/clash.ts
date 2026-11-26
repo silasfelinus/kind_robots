@@ -385,6 +385,7 @@ export const CLASH_CREW_BUDGET: Partial<Record<TeamId, number>> = {
 type CrewLifeTuning = {
   base: Partial<Record<TeamId, [number, number, number]>>
   opening: Partial<Record<TeamId, [number, number]>>
+  cardLife?: Partial<Record<string, [number, number, number]>>
 }
 const CLASH_V2_CREW_ADJUSTMENT: CrewLifeTuning = {
   base: {
@@ -396,6 +397,9 @@ const CLASH_V2_CREW_ADJUSTMENT: CrewLifeTuning = {
     ironjaw: [0, 0.5],
     riot: [0, 0.5],
   },
+  // Two supporting fighters get an extra point of opening durability so
+  // they can establish a plated line before the ambush-heavy crews strike.
+  cardLife: { welder: [1, 0, 0], 's1-scrap-welder': [1, 0, 0] },
 }
 export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
   ambush: 'Ambush: attacks immediately; +1 first strike.',
@@ -477,7 +481,8 @@ export function clashBalance(
               : 0)) -
         attack * 2 -
         armor * CLASH_ARMOR_COST -
-        traits,
+        traits +
+        (tempo ? (CLASH_V2_CREW_ADJUSTMENT.cardLife?.[card.id]?.[tier] ?? 0) : 0),
     ),
     heavy ? 5 : 2,
     LIFE_CAP[plays][tier],

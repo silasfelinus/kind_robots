@@ -242,8 +242,11 @@ const x1 = (nurseryFrame: number) =>
   for (let i = 0; i < 1500 && !fronds; i++) {
     game.update(emptyInput(), [emptyInput()])
     if (game.snapshot.guardian?.kind !== 'kelpwarden') continue
-    fronds = painted(game).filter((src) =>
-      src.endsWith('/hazards/kelp-frond.webp'),
+    // The frond draws its reviewed idle atlas once that has loaded, its still before then.
+    fronds = painted(game).filter(
+      (src) =>
+        src.endsWith('/hazards/kelp-frond.webp') ||
+        src.endsWith('/anim/kelp-frond-idle.webp'),
     ).length
   }
   assert.ok(fronds > 0, 'kelp fronds mark the comb lanes while it warns')

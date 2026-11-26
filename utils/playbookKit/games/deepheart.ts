@@ -1,5 +1,8 @@
 import { DH_PALETTE, portraitArt, romanceArt } from '../../deepheart/art'
-import { deepheartArtSrc } from '../../deepheart/renderedArt'
+import {
+  DEEPHEART_ACHIEVEMENT_ART,
+  deepheartArtSrc,
+} from '../../deepheart/renderedArt'
 import {
   COURT_CHOICE_KEYS,
   COURT_DEITIES,
@@ -661,6 +664,7 @@ export const DEEPHEART: PlaybookKitSpec = {
   route: '/admin/deepheart',
   theme: 'deepheart',
   artPromptsComplete: true,
+  achievementArt: DEEPHEART_ACHIEVEMENT_ART,
   keyArt: {
     src: deepheartArtSrc('premise'),
     brief:

@@ -160,6 +160,18 @@ assert.ok(
   CHARACTERS.every((c) => deepheartArtSrc(`cast:${c.id}`)),
   'every preset has a mapped approved animal-folk portrait',
 )
+assert.deepEqual(
+  Object.keys(DEEPHEART.achievementArt ?? {}).sort(),
+  Object.values(DH_ACHIEVEMENT_CODES).sort(),
+)
+for (const code of Object.values(DH_ACHIEVEMENT_CODES)) {
+  assert.ok(deepheartArtSrc(`achievement:${code}`))
+  assert.equal(
+    DEEPHEART.achievementArt?.[code],
+    deepheartArtSrc(`achievement:${code}`),
+  )
+}
+assert.equal(new Set(Object.values(DEEPHEART.achievementArt ?? {})).size, 20)
 assert.ok(deepheartArtSrc('premise'), 'title art is mapped')
 assert.ok(deepheartArtSrc('room:fight'), 'fight art is mapped')
 assert.ok(deepheartArtSrc('ending:delver'), 'ending art is mapped')

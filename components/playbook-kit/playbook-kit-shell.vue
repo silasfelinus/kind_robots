@@ -189,6 +189,7 @@
             <GameAchievementStrip
               v-else-if="active.id === 'achievements'"
               :game="spec.conductorSlug"
+              :art-overrides="spec.achievementArt"
             />
             <template v-else>
               <PlaybookKitSettings :spec="spec" />

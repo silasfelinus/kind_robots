@@ -469,6 +469,185 @@ assert.ok(
   `only ${cleanWins}/${all.length} levels won without gifts: ${boosted.join(', ')}`,
 )
 
+// Signature board mechanics (t-003/t-009): conveyor rows, portals and buddy dispensers.
+{
+  type Featured = State & {
+    conveyors: Array<{ row: number; dir: number }>
+    portals: Array<{ from: number; to: number }>
+    dispensers: number[]
+  }
+  type FeaturePhase = Phase & {
+    conveyor?: number[]
+    board?: Tile[][]
+    falls?: Array<{
+      id: number
+      c: number
+      to: number
+      spawn?: boolean
+      portal?: boolean
+    }>
+  }
+  // Engine objects come from the test's vm realm; compare them as plain JSON.
+  const plainOf = (value: unknown) => JSON.parse(JSON.stringify(value))
+  const regionsOf = (
+    L as unknown as {
+      REGIONS: Record<
+        string,
+        { tier: number; mechanic: string | null; world: string }
+      >
+    }
+  ).REGIONS
+  const byMechanic: Record<string, number> = {
+    conveyor: 0,
+    portal: 0,
+    dispenser: 0,
+  }
+  const mechanicWorlds: Record<string, Set<string>> = {
+    conveyor: new Set(),
+    portal: new Set(),
+    dispenser: new Set(),
+  }
+  for (const id of all) {
+    const { region, n } = L.parseLevelId(id)
+    const def = L.buildLevel(region, n) as LevelDef & {
+      mechanic: string | null
+    }
+    const info = regionsOf[region]!
+    if (info.tier === 0)
+      assert.equal(def.mechanic, null, `${id}: first regions stay classic`)
+    if (!def.mechanic) continue
+    const state = E.createLevelState(def) as Featured
+    const live =
+      def.mechanic === 'conveyor'
+        ? state.conveyors.length
+        : def.mechanic === 'portal'
+          ? state.portals.length
+          : state.dispensers.length
+    assert.ok(live > 0, `${id}: the engine accepts its ${def.mechanic}`)
+    byMechanic[def.mechanic] = (byMechanic[def.mechanic] ?? 0) + 1
+    mechanicWorlds[def.mechanic]!.add(info.world)
+  }
+  for (const [mechanic, count] of Object.entries(byMechanic)) {
+    assert.ok(count >= 60, `${mechanic} appears on many levels (${count})`)
+    assert.ok(mechanicWorlds[mechanic]!.size >= 5, `${mechanic} spans worlds`)
+  }
+  for (const region of Object.values(regionsOf))
+    assert.equal(region.tier === 0, region.mechanic === null)
+
+  function plain(extra: Record<string, unknown>) {
+    return {
+      id: 'feature-test',
+      rows: 6,
+      cols: 6,
+      colors: 5,
+      moves: 30,
+      seed: 4242,
+      goals: [{ type: 'score', target: 999999 }],
+      ...extra,
+    }
+  }
+  // Conveyor: after a move the belt row slides one cell to the right, wrapping.
+  {
+    const state = E.createLevelState(
+      plain({ conveyors: [{ row: 5, dir: 1 }] }),
+    ) as Featured
+    assert.deepEqual(plainOf(state.conveyors), [{ row: 5, dir: 1 }])
+    let slid = false
+    for (let i = 0; i < 6 && !slid; i++) {
+      const move = E.bestMove(state)!
+      const result = E.trySwap(state, must(move[0]), must(move[1]))
+      slid = (result.phases as FeaturePhase[]).some((phase) =>
+        phase.conveyor?.includes(5),
+      )
+    }
+    assert.ok(slid, 'a conveyor row slides after a move')
+    // A leftward belt: the slide moves every tile on its row one cell left, wrapping.
+    const belt = E.createLevelState(
+      plain({ conveyors: [{ row: 0, dir: -1 }] }),
+    ) as Featured
+    const initial = belt.board[0]!.map((tile) => tile!.id)
+    const beltMove = E.bestMove(belt)!
+    const beltPhases = E.trySwap(belt, must(beltMove[0]), must(beltMove[1]))
+      .phases as FeaturePhase[]
+    const slideAt = beltPhases.findIndex((phase) => phase.conveyor)
+    assert.ok(slideAt >= 0, 'the belt slid')
+    // The row as it stood just before the slide (after the move's own cascade).
+    const prior = beltPhases
+      .slice(0, slideAt)
+      .reverse()
+      .find((phase) => phase.board)
+    const rowBefore = prior ? prior.board![0]!.map((tile) => tile!.id) : initial
+    const rowAfter = beltPhases[slideAt]!.board![0]!.map((tile) => tile!.id)
+    assert.deepEqual(
+      plainOf(rowAfter),
+      plainOf(rowBefore.map((_, c) => rowBefore[(c + 1) % rowBefore.length])),
+      'each tile on the belt moves one cell left',
+    )
+    assert.ok(belt.board.flat().every(Boolean), 'the board stays full')
+    const rejected = E.createLevelState(
+      plain({ conveyors: [{ row: 2, dir: 1 }], tangles: [[2, 3, 1]] }),
+    ) as Featured
+    assert.deepEqual(
+      plainOf(rejected.conveyors),
+      [],
+      'a row with a knot cannot be a conveyor',
+    )
+  }
+  // Portal: tiles leaving the bottom of column 0 drop in at the top of column 5.
+  {
+    const state = E.createLevelState(
+      plain({ portals: [{ from: 0, to: 5 }] }),
+    ) as Featured
+    assert.deepEqual(plainOf(state.portals), [{ from: 0, to: 5 }])
+    const fromColumn = new Set(state.board.map((row) => row[0]!.id))
+    let through = false
+    for (let i = 0; i < 25 && !through; i++) {
+      const move = E.bestMove(state)!
+      const result = E.trySwap(state, must(move[0]), must(move[1]))
+      for (const phase of result.phases as FeaturePhase[])
+        for (const fall of phase.falls ?? [])
+          if (fall.portal) {
+            through = true
+            assert.equal(fall.c, 5, 'portal drops land in the exit column')
+            assert.ok(
+              fromColumn.has(fall.id) || fall.id > 36,
+              'a portal drop came from column 0',
+            )
+          }
+    }
+    assert.ok(through, 'tiles pass through the portal')
+    const chained = E.createLevelState(
+      plain({
+        portals: [
+          { from: 0, to: 5 },
+          { from: 5, to: 3 },
+        ],
+      }),
+    ) as Featured
+    assert.equal(chained.portals.length, 1, 'portals never chain')
+  }
+  // Dispensers: buddies arrive only down the dispenser column.
+  {
+    const state = E.createLevelState(
+      plain({ dispensers: [2], goals: [{ type: 'buddy', target: 6 }] }),
+    ) as Featured
+    let spawned = 0
+    for (let i = 0; i < 30 && !state.over; i++) {
+      const move = E.bestMove(state)!
+      const result = E.trySwap(state, must(move[0]), must(move[1]))
+      for (const phase of result.phases as FeaturePhase[])
+        for (const fall of phase.falls ?? []) {
+          if (!fall.spawn || !phase.board) continue
+          if (phase.board[fall.to]?.[fall.c]?.id !== fall.id) continue
+          if (phase.board[fall.to]![fall.c]!.kind !== 'buddy') continue
+          spawned++
+          assert.equal(fall.c, 2, 'buddies come down the dispenser column')
+        }
+    }
+    assert.ok(spawned > 0, 'the dispenser delivers buddies')
+  }
+}
+
 // Saves, quests, progression, routes, endings and scrapbook.
 const slot = M.createSlot('kate', Date.UTC(2026, 10, 23))
 M.refreshQuests(slot, new Date(2026, 10, 23, 12))
@@ -679,6 +858,67 @@ for (const entry of artPack.front) {
     entry.committed,
   )
   assert.ok(entry.artJob > 0, `${entry.committed} traces to an ArtJob`)
+}
+
+// t-013 (Silas 2026-11-25 PT: painted must replace code-drawn art): every board tile of every world
+// layers its painted image (conductor queue hopeful-hues-tile-<world>-<slot>) over the drawn SVG,
+// falls back cleanly if the image is missing, and keeps the colorblind symbol on top.
+{
+  const Art = context.HopefulHuesArt as {
+    TILE_ROOT: string
+    gemSvg: (
+      color: number,
+      special: string | null,
+      symbols: boolean,
+      world: string,
+    ) => string
+    buddySvg: (world: string) => string
+    tangleSvg: (hp: number, world: string) => string
+    goalIconSvg: (goal: { type: string }, world: string) => string
+  }
+  assert.equal(Art.TILE_ROOT, '/images/hopeful-hues/tiles/')
+  const painted = (markup: string, world: string, slot: string) => {
+    assert.ok(
+      markup.includes(`src="/images/hopeful-hues/tiles/${world}/${slot}.webp"`),
+      `${world} ${slot} loads its painted tile`,
+    )
+    assert.ok(
+      markup.includes('onerror="this.remove()"'),
+      `${world} ${slot} falls back to SVG`,
+    )
+    assert.ok(
+      markup.indexOf('<svg') < markup.indexOf('<img'),
+      `${world} ${slot}: SVG under the paint`,
+    )
+  }
+  for (const world of WORLD_IDS) {
+    for (let color = 0; color < 6; color++) {
+      const tile = Art.gemSvg(color, 'bomb', true, world)
+      painted(tile, world, `jewel-${color}`)
+      const over = tile.slice(tile.indexOf('class="over"'))
+      assert.ok(
+        over.includes('<text'),
+        `${world} jewel ${color}: symbol above the paint`,
+      )
+      assert.ok(
+        over.includes('stroke-dasharray'),
+        `${world} jewel ${color}: special marking above the paint`,
+      )
+    }
+    painted(Art.gemSvg(0, 'rainbow', true, world), world, 'rainbow')
+    painted(Art.buddySvg(world), world, 'buddy')
+    const knot = Art.tangleSvg(3, world)
+    painted(knot, world, 'tangle')
+    assert.ok(
+      knot.slice(knot.indexOf('class="over"')).includes('>3<'),
+      `${world}: knot strength above the paint`,
+    )
+    painted(Art.goalIconSvg({ type: 'gloom' }, world), world, 'gloom')
+  }
+  assert.ok(
+    read('public/hopeful-hues/app.js').includes("gloom.webp')"),
+    'board Gloom uses the painted texture',
+  )
 }
 
 const app = read('public/hopeful-hues/app.js')

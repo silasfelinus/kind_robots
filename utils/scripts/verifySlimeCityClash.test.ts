@@ -1766,7 +1766,7 @@ assert.equal(
 )
 // One-play snares are an answer to armor, not a dead draw into Ironjaw.
 // Check real fighter entry, armor stripping, deterministic replay and trap cleanup.
-const armoredWire = createClash('ironjaw', 'bloodfairies', 1962)
+const armoredWire = createClash('ironjaw', 'bloodfairies', 1962, { balanceVersion: 1 })
 armoredWire.round = 2
 armoredWire.hands.player = ['scrapper']
 armoredWire.traps = [{ side: 'enemy', lane: 2, cardId: 'bloodwire', level: 1 }]
@@ -1819,7 +1819,7 @@ for (const name of [
   assert.equal(clashPlayCost(trap), 1, `${name} must cost one Clash play`)
   if (trap.team === 'mercenary')
     throw new Error(`${name} must belong to a playable faction`)
-  const state = createClash('ironjaw', trap.team, 1962)
+  const state = createClash('ironjaw', trap.team, 1962, { balanceVersion: 1 })
   state.round = 2
   state.hands.player = ['scrapper']
   state.traps = [{ side: 'enemy', lane: 2, cardId: trap.id, level: 1 }]
@@ -1851,7 +1851,7 @@ for (const name of [
 
 // One-play snares also defuse (slime-city/t-048): a VOLATILE fighter caught by
 // one loses its death burst, while a two-play snare leaves the fuse lit.
-const fuseWire = createClash('riot', 'bloodfairies', 1963)
+const fuseWire = createClash('riot', 'bloodfairies', 1963, { balanceVersion: 1 })
 fuseWire.round = 2
 fuseWire.hands.player = ['firebrand']
 fuseWire.traps = [{ side: 'enemy', lane: 1, cardId: 'bloodwire', level: 1 }]
@@ -1904,7 +1904,7 @@ assert.match(
 )
 // The CPU knows the payoff: with a cheap snare in hand it springs it on the
 // VOLATILE fighter rather than an identical-threat empty alley.
-const cpuWire = createClash('bloodfairies', 'riot', 1964)
+const cpuWire = createClash('bloodfairies', 'riot', 1964, { balanceVersion: 1 })
 cpuWire.round = 2
 cpuWire.hands.player = ['bloodwire']
 cpuWire.units = [
@@ -2800,4 +2800,18 @@ for (const version of [1, 2] as const) {
   const plated = playClash(state, 'player', 'plating', 2)
   assert.equal(plated.units[0]!.armor, version === 2 ? 2 : 1)
   assert.equal(plated.units[0]!.hp, version === 2 ? 6 : 4)
+}
+
+// The stronger live trap can kill outright. Legacy fixtures above still prove
+// the original survival, armor-shear and defuse rules without changing them.
+{
+  const state = createClash('ironjaw', 'bloodfairies', 1962, { balanceVersion: 2 })
+  state.round = 2
+  state.hands.player = ['scrapper']
+  state.traps = [{ side: 'enemy', lane: 2, cardId: 'bloodwire', level: 1 }]
+  const sprung = playClash(state, 'player', 'scrapper', 2)
+  const victim = sprung.units.find((u) => u.side === 'player' && u.lane === 2)
+  assert.equal(sprung.traps.length, 0)
+  assert.ok(!victim || victim.hp <= caughtFighter!.hp - 2)
+  assert.deepEqual(sprung, playClash(structuredClone(state), 'player', 'scrapper', 2))
 }

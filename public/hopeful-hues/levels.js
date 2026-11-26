@@ -12,7 +12,11 @@
   const STORY_BEATS = {}
   const CHARACTERS = []
 
+  // Each world's second and third regions have a signature board mechanic (t-003/t-009),
+  // rotated so every mechanic appears across the nine worlds.
+  const MECHANICS = ['conveyor', 'portal', 'dispenser']
   for (const world of WORLDS) {
+    const worldIndex = WORLDS.indexOf(world)
     LINES[world.id] = world.regions.map((region) => region.id)
     world.regions.forEach((region, tier) => {
       REGIONS[region.id] = {
@@ -26,6 +30,10 @@
         sky: region.sky,
         motif: region.motif,
         music: { ...world.music, tier },
+        mechanic:
+          tier === 0
+            ? null
+            : MECHANICS[(worldIndex + tier - 1) % MECHANICS.length],
         ending: tier === world.regions.length - 1 ? world.ending.id : undefined,
       }
       ROUTE_ORDER.push(region.id)
@@ -304,12 +312,20 @@
     const rows = finale ? 9 : g < 8 ? 7 : g < 20 ? 8 : 9
     const cols = rows
     const colors = g < 5 ? 4 : g < 40 ? 5 : g % 7 === 0 ? 6 : 5
+    // Generated (non-set-piece) levels from 2 on carry their region's mechanic.
+    const mechanic =
+      region.mechanic && n >= 2 && !finale && ![6, 12, 18].includes(n)
+        ? region.mechanic
+        : null
     const shapeNames = ['full', 'corners', 'diamond', 'hourglass', 'bridge']
     let shape = 'full'
     if (finale) shape = 'heart'
     else if (g >= 6 && n % 4 === 2)
       shape = shapeNames[1 + Math.floor(random() * (shapeNames.length - 1))]
     else if (g >= 10 && n % 5 === 0) shape = 'corners'
+    // A conveyor needs whole rows: keep its boards to shapes that have them.
+    if (mechanic === 'conveyor' && !['full', 'corners'].includes(shape))
+      shape = 'corners'
     const mask = MASKS[shape] ? MASKS[shape](rows, cols) : null
     const cellOn = (r, c) => !mask || mask[r][c] === 1
 
@@ -328,6 +344,8 @@
       }
       if (finale && !kinds.includes('buddy')) kinds.push('buddy')
     }
+    if (mechanic === 'dispenser' && !kinds.includes('buddy'))
+      kinds.push('buddy')
 
     const gloom = Array.from({ length: rows }, () => Array(cols).fill(0))
     const tangles = []
@@ -447,6 +465,29 @@
       moves = Math.min(50, moves + 8)
     }
 
+    const conveyors = []
+    const portals = []
+    const dispensers = []
+    if (mechanic === 'conveyor') {
+      // Whole rows nearest the middle (no gaps, no knots); two opposite belts from level 10.
+      const mid = Math.floor(rows / 2)
+      const whole = (row) =>
+        Array.from({ length: cols }, (_, c) => c).every((c) =>
+          cellOn(row, c),
+        ) && !freeTangles.some(([r]) => r === row)
+      const candidates = Array.from({ length: rows }, (_, r) => r)
+        .filter((r) => r > 0 && r < rows - 1 && whole(r))
+        .sort((a, b) => Math.abs(a - mid) - Math.abs(b - mid) || a - b)
+      const belts = candidates.slice(0, n >= 10 ? 2 : 1).sort((a, b) => a - b)
+      belts.forEach((row, i) => conveyors.push({ row, dir: i % 2 ? -1 : 1 }))
+    }
+    if (mechanic === 'portal') {
+      portals.push({ from: 1, to: cols - 2 })
+      if (n >= 10) portals.push({ from: cols - 3, to: 2 })
+    }
+    if (mechanic === 'dispenser') dispensers.push(1, cols - 2)
+    if (mechanic) moves = Math.min(50, moves + 2)
+
     const beat = (STORY_BEATS[regionId] || []).find((b) => b.at === n) || null
 
     return authoredLevel(
@@ -470,6 +511,10 @@
         finale,
         regionFinale,
         beat,
+        mechanic,
+        conveyors,
+        portals,
+        dispensers,
       },
       region,
     )

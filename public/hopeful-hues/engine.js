@@ -88,6 +88,13 @@
       rng: makeRng(def.seed || hashString(String(def.id))),
       nextId: 1,
       weather: clone(def.weather || null),
+      // t-009/t-003 board features: conveyor rows that slide after a move, portal columns
+      // (from: a column whose bottom drops into the top of column to), and buddy dispensers.
+      conveyors: [],
+      portals: [],
+      dispensers: (def.dispensers || []).filter(
+        (c) => Number.isInteger(c) && c >= 0 && c < cols,
+      ),
       score: 0,
       movesLeft: def.moves + (opts.bonusMoves || 0),
       movesUsed: 0,
@@ -171,6 +178,39 @@
     for (const [r, c] of def.ribbons || []) {
       const tile = tileAt(state, r, c)
       if (isGem(tile) && !tile.special) tile.ribbon = true
+    }
+    // A conveyor row must be whole: every cell open and no fixed knot on it.
+    for (const belt of def.conveyors || []) {
+      const r = belt && belt.row
+      if (!Number.isInteger(r) || r < 0 || r >= rows) continue
+      let whole = true
+      for (let c = 0; c < cols; c++) {
+        const tile = tileAt(state, r, c)
+        if (!isCell(state, r, c) || (tile && tile.kind === FIXED.TANGLE))
+          whole = false
+      }
+      if (whole) state.conveyors.push({ row: r, dir: belt.dir < 0 ? -1 : 1 })
+    }
+    // A portal joins two distinct full-height columns; no chains.
+    const portalUsed = new Set()
+    for (const portal of def.portals || []) {
+      const from = portal && portal.from
+      const to = portal && portal.to
+      if (
+        !Number.isInteger(from) ||
+        !Number.isInteger(to) ||
+        from === to ||
+        from < 0 ||
+        to < 0 ||
+        from >= cols ||
+        to >= cols ||
+        portalUsed.has(from) ||
+        portalUsed.has(to)
+      )
+        continue
+      portalUsed.add(from)
+      portalUsed.add(to)
+      state.portals.push({ from, to })
     }
     if (['bomb', 'rainbow'].includes(opts.startSpecial)) {
       const spot = randomGemCell(state)
@@ -489,54 +529,79 @@
     return count
   }
 
+  /**
+   * Columns tiles fall through, bottom first. A portal makes its exit column's lane continue
+   * up into its entry column, so tiles leaving the bottom of `from` drop in at the top of `to`.
+   */
+  function gravityLanes(state) {
+    const entries = new Set(state.portals.map((portal) => portal.from))
+    const lanes = []
+    for (let c = 0; c < state.cols; c++) {
+      if (entries.has(c)) continue
+      const columns = [c]
+      const portal = state.portals.find((each) => each.to === c)
+      if (portal) columns.push(portal.from)
+      lanes.push(columns)
+    }
+    return lanes
+  }
+
   function applyGravity(state, phase) {
     const falls = []
-    for (let c = 0; c < state.cols; c++) {
+    for (const columns of gravityLanes(state)) {
       const slots = []
       const movers = []
-      for (let r = state.rows - 1; r >= 0; r--) {
-        if (!isCell(state, r, c)) continue
-        const tile = state.board[r][c]
-        if (tile && (tile.kind === FIXED.TANGLE || tile.ribbon)) continue
-        slots.push(r)
-        if (tile) movers.push({ tile, from: r })
-        state.board[r][c] = null
-      }
+      for (const c of columns)
+        for (let r = state.rows - 1; r >= 0; r--) {
+          if (!isCell(state, r, c)) continue
+          const tile = state.board[r][c]
+          if (tile && (tile.kind === FIXED.TANGLE || tile.ribbon)) continue
+          slots.push([r, c])
+          if (tile) movers.push({ tile, from: r, fromC: c })
+          state.board[r][c] = null
+        }
+      const spawnColumn = columns[columns.length - 1]
+      const portalDrops = new Map()
       let i = 0
       for (; i < movers.length; i++) {
-        const slot = slots[i]
-        state.board[slot][c] = movers[i].tile
-        if (movers[i].from !== slot)
+        const [r, c] = slots[i]
+        const mover = movers[i]
+        state.board[r][c] = mover.tile
+        if (mover.fromC !== c) {
+          // Through the portal: it drops in from above its new column.
+          const offset = (portalDrops.get(c) || 0) + 1
+          portalDrops.set(c, offset)
           falls.push({
-            id: movers[i].tile.id,
-            from: movers[i].from,
-            to: slot,
+            id: mover.tile.id,
+            from: -offset,
+            to: r,
             c,
+            portal: true,
           })
+        } else if (mover.from !== r)
+          falls.push({ id: mover.tile.id, from: mover.from, to: r, c })
       }
-      let spawnOffset = 1
+      const spawnOffsets = new Map()
       for (; i < slots.length; i++) {
-        const slot = slots[i]
-        const tile = spawnTile(state)
-        state.board[slot][c] = tile
-        falls.push({
-          id: tile.id,
-          from: -spawnOffset,
-          to: slot,
-          c,
-          spawn: true,
-        })
-        spawnOffset++
+        const [r, c] = slots[i]
+        const tile = spawnTile(state, spawnColumn)
+        state.board[r][c] = tile
+        const offset = (spawnOffsets.get(c) || 0) + 1
+        spawnOffsets.set(c, offset)
+        falls.push({ id: tile.id, from: -offset, to: r, c, spawn: true })
       }
     }
     phase.falls = falls
   }
 
-  function spawnTile(state) {
+  function spawnTile(state, column) {
+    // With dispensers, buddies arrive only down their columns (and a little more often).
+    const dispensing = state.dispensers.length > 0
     if (
       state.buddiesToSpawn > 0 &&
       state.buddiesOnBoard < 2 &&
-      nextRandom(state.rng) < 0.14
+      (!dispensing || state.dispensers.includes(column)) &&
+      nextRandom(state.rng) < (dispensing ? 0.34 : 0.14)
     ) {
       state.buddiesToSpawn--
       state.buddiesOnBoard++
@@ -558,7 +623,9 @@
 
   function rescueBuddies(state, phase) {
     let rescued = 0
+    const entries = new Set(state.portals.map((portal) => portal.from))
     for (let c = 0; c < state.cols; c++) {
+      if (entries.has(c)) continue
       const lowest = lowestCellInColumn(state, c)
       if (lowest < 0) continue
       const rows = [lowest]
@@ -711,7 +778,10 @@
       for (const [r, c] of cells) initial.push([r, c, 'special'])
     }
     state.stats.combos++
-    if (sa && sb) bumpGoal(state, 'combo', null, 1)
+    if (sa && sb) {
+      bumpGoal(state, 'combo', null, 1)
+      phase.combo = true
+    }
     if (sa === 'rainbow' && sb === 'rainbow') {
       for (let r = 0; r < state.rows; r++)
         for (let c = 0; c < state.cols; c++)
@@ -859,6 +929,37 @@
     })
   }
 
+  /** Conveyor rows slide one cell (wrapping) after a move; any match they make resolves for free. */
+  function advanceConveyors(state, phases) {
+    if (!state.conveyors.length || goalsMet(state)) return
+    const moved = []
+    for (const belt of state.conveyors) {
+      const row = state.board[belt.row]
+      if (
+        row.some((tile) => !tile || tile.ribbon || tile.kind === FIXED.TANGLE)
+      )
+        continue
+      const shifted = row.map(
+        (_, c) => row[(c - belt.dir + state.cols) % state.cols],
+      )
+      state.board[belt.row] = shifted
+      moved.push(belt.row)
+    }
+    if (!moved.length) return
+    const slide = {
+      ...newPhase(0),
+      conveyor: moved,
+      board: snapshot(state),
+      falls: [],
+    }
+    phases.push(slide)
+    const runs = findRuns(state)
+    if (!runs.length) return
+    const phase = newPhase(1)
+    clearMatches(state, runs, phase, null)
+    phases.push(...cascade(state, phase, null))
+  }
+
   function trySwap(state, a, b) {
     if (!canSwap(state, a, b)) return { ok: false, phases: [] }
     const ta = tileAt(state, a[0], a[1])
@@ -877,6 +978,7 @@
       else first.buddyStep = true
     }
     const phases = cascade(state, first, [a, b])
+    advanceConveyors(state, phases)
     advanceWeather(state, phases)
     const shuffled = settle(state)
     if (shuffled)

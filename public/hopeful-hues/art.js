@@ -26,6 +26,17 @@
     })
     .join('')
 
+  // Painted tiles (t-013, Silas 2026-11-25 PT: painted must replace code-drawn art). Each tile
+  // stacks its code-drawn SVG, the painted image over it (removed if it has not been delivered),
+  // and the colorblind symbol and special markings on top.
+  const TILE_ROOT = '/images/hopeful-hues/tiles/'
+  function paint(worldId, slot) {
+    return `<img class="paint" src="${TILE_ROOT}${worldId}/${slot}.webp" alt="" draggable="false" decoding="async" onerror="this.remove()">`
+  }
+  function layered(base, worldId, slot, over) {
+    return `<span class="ptile">${base}${paint(worldId, slot)}${over ? `<svg class="over" viewBox="0 0 100 100" aria-hidden="true">${over}</svg>` : ''}</span>`
+  }
+
   function worldOf(worldId) {
     const registry = root.HopefulHuesWorlds
     if (!registry) return null
@@ -67,13 +78,21 @@
   function gemSvg(color, special, symbols, worldId) {
     const world = worldId ? worldOf(worldId) : null
     if (world && world.jewels && world.jewels[color]) {
-      if (special === 'rainbow') return rainbowSvg(world.id)
+      if (special === 'rainbow')
+        return layered(rainbowSvg(world.id), world.id, 'rainbow', '')
       const jewel = world.jewels[color]
       const gid = 'j-' + world.id + '-' + color
+      // The colorblind symbol sits in a corner badge so it reads over painted art too.
       const symbol = symbols
-        ? `<text x="50" y="62" text-anchor="middle" font-size="22" font-weight="900" fill="${jewel.dark}" opacity=".55">${jewel.glyph || ''}</text>`
+        ? `<circle cx="79" cy="79" r="15" fill="#fff" opacity=".92"/><text x="79" y="85.5" text-anchor="middle" font-size="18" font-weight="900" fill="${jewel.dark}">${jewel.glyph || ''}</text>`
         : ''
-      return `<svg viewBox="0 0 100 100" aria-hidden="true"><defs><radialGradient id="${gid}" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="${jewel.light}"/><stop offset=".55" stop-color="${jewel.main}"/><stop offset="1" stop-color="${jewel.dark}"/></radialGradient></defs>${fillArt(jewel.art, jewel, gid)}${symbol}<ellipse cx="38" cy="32" rx="9" ry="5" fill="#fff" opacity=".6" transform="rotate(-25 38 32)"/>${specialOverlay(special)}</svg>`
+      const base = `<svg viewBox="0 0 100 100" aria-hidden="true"><defs><radialGradient id="${gid}" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="${jewel.light}"/><stop offset=".55" stop-color="${jewel.main}"/><stop offset="1" stop-color="${jewel.dark}"/></radialGradient></defs>${fillArt(jewel.art, jewel, gid)}<ellipse cx="38" cy="32" rx="9" ry="5" fill="#fff" opacity=".6" transform="rotate(-25 38 32)"/></svg>`
+      return layered(
+        base,
+        world.id,
+        'jewel-' + color,
+        specialOverlay(special) + symbol,
+      )
     }
     const c = TILE_COLORS[color] || TILE_COLORS[0]
     if (special === 'rainbow') return rainbowSvg()
@@ -131,7 +150,12 @@
       world.blockers.buddy &&
       world.blockers.buddy.art
     )
-      return `<svg viewBox="0 0 100 100" aria-hidden="true">${world.blockers.buddy.art}</svg>`
+      return layered(
+        `<svg viewBox="0 0 100 100" aria-hidden="true">${world.blockers.buddy.art}</svg>`,
+        world.id,
+        'buddy',
+        '',
+      )
     return `<svg viewBox="0 0 100 100" aria-hidden="true"><line x1="50" y1="10" x2="50" y2="24" stroke="#7a86a8" stroke-width="4"/><circle cx="50" cy="10" r="6" fill="#ff5fa2"/><rect x="20" y="24" width="60" height="50" rx="18" fill="#dff3ff" stroke="#5a6b94" stroke-width="4"/><rect x="28" y="34" width="44" height="26" rx="12" fill="#2b3557"/><circle cx="40" cy="47" r="5" fill="#6ff7ff"/><circle cx="60" cy="47" r="5" fill="#6ff7ff"/><path d="M42 54 Q50 60 58 54" stroke="#6ff7ff" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="30" cy="64" r="4" fill="#ffb3d1"/><circle cx="70" cy="64" r="4" fill="#ffb3d1"/><rect x="32" y="74" width="12" height="12" rx="4" fill="#5a6b94"/><rect x="56" y="74" width="12" height="12" rx="4" fill="#5a6b94"/><path d="M50 66 l3 3 -3 3 -3 -3z" fill="#ff5fa2"/></svg>`
   }
 
@@ -147,7 +171,12 @@
         hp > 1
           ? `<circle cx="82" cy="18" r="12" fill="#2b2140" stroke="#fff" stroke-width="3"/><text x="82" y="23" text-anchor="middle" font-size="14" font-weight="900" fill="#fff">${hp}</text>`
           : ''
-      return `<svg viewBox="0 0 100 100" aria-hidden="true">${fillArt(world.blockers.tangle.art, { dark: '#3b2b5c', light: '#ffffff', main: '#9c97ad' }, 'tangle')}${badge}</svg>`
+      return layered(
+        `<svg viewBox="0 0 100 100" aria-hidden="true">${fillArt(world.blockers.tangle.art, { dark: '#3b2b5c', light: '#ffffff', main: '#9c97ad' }, 'tangle')}</svg>`,
+        world.id,
+        'tangle',
+        badge,
+      )
     }
     const strands = hp > 1 ? 7 : 4
     let paths = ''
@@ -177,7 +206,12 @@
       world.blockers &&
       world.blockers.gloom
     )
-      return `<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M26 70 a18 18 0 0 1 4 -35 a22 22 0 0 1 40 -4 a16 16 0 0 1 6 39 z" fill="${world.blockers.gloom.color2}" stroke="${world.blockers.gloom.color}" stroke-width="4"/><path d="M36 82 l-4 8 M52 82 l-4 8 M68 82 l-4 8" stroke="${world.blockers.gloom.color2}" stroke-width="4" stroke-linecap="round"/></svg>`
+      return layered(
+        `<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M26 70 a18 18 0 0 1 4 -35 a22 22 0 0 1 40 -4 a16 16 0 0 1 6 39 z" fill="${world.blockers.gloom.color2}" stroke="${world.blockers.gloom.color}" stroke-width="4"/><path d="M36 82 l-4 8 M52 82 l-4 8 M68 82 l-4 8" stroke="${world.blockers.gloom.color2}" stroke-width="4" stroke-linecap="round"/></svg>`,
+        world.id,
+        'gloom',
+        '',
+      )
     if (goal.type === 'gloom')
       return `<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M26 70 a18 18 0 0 1 4 -35 a22 22 0 0 1 40 -4 a16 16 0 0 1 6 39 z" fill="#9c97ad" stroke="#77718a" stroke-width="4"/><path d="M36 82 l-4 8 M52 82 l-4 8 M68 82 l-4 8" stroke="#77718a" stroke-width="4" stroke-linecap="round"/></svg>`
     return `<svg viewBox="0 0 100 100" aria-hidden="true"><path d="${SHAPES[1]}" fill="#ffd93b" stroke="#e0a000" stroke-width="4"/></svg>`
@@ -263,5 +297,6 @@
     motifSvg,
     logoSvg,
     starSvg,
+    TILE_ROOT,
   }
 })(typeof globalThis !== 'undefined' ? globalThis : this)

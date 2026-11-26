@@ -24,7 +24,9 @@
     <span class="ccf-head">
       <span class="ccf-top">
         <b class="ccf-cost">{{ plays }} PLAY{{ plays === 2 ? 'S' : '' }}</b>
-        <em class="ccf-badge">{{ clashCardBadge(card, level, balanceVersion) }}</em>
+        <em class="ccf-badge">{{
+          clashCardBadge(card, level, balanceVersion)
+        }}</em>
       </span>
       <strong class="ccf-name">{{ card.name }}</strong>
       <span class="ccf-level" :aria-label="'Level ' + level + ' of ' + maxLevel"
@@ -138,7 +140,9 @@ const card = computed(() => cardById(props.cardId))
 const stageTitle = computed(() =>
   clashStageTitle(props.cardId, props.level, props.pick),
 )
-const rules = computed(() => clashCardText(card.value, props.level, props.pick, props.balanceVersion))
+const rules = computed(() =>
+  clashCardText(card.value, props.level, props.pick, props.balanceVersion),
+)
 const flavorText = computed(() => clashCardFlavor(props.cardId))
 /**
  * The rules as one line per sentence, with a leading "Label:" (Armor, Regen,

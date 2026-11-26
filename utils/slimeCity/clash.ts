@@ -402,7 +402,9 @@ export function clashBalance(
   const tier = (lv - 1) as 0 | 1 | 2
   const ramp = POWER_RAMP[tier]
   const tempo = version === 2
-  const bonus = (heavy ? 2 : 1) + (lv - 1) +
+  const bonus =
+    (heavy ? 2 : 1) +
+    (lv - 1) +
     (tempo && card.kind !== 'creature' ? (heavy ? 2 : 1) : 0)
   if (card.kind !== 'creature')
     return {
@@ -421,8 +423,11 @@ export function clashBalance(
               (heavy ? 10 : 8) + (tempo ? 2 : 0),
             )
           : clamp(
-              Math.max(1, card.power ?? 2) + ramp +
-                (tempo && (card.effect === 'heal' || card.effect === 'boost') ? 2 : 0),
+              Math.max(1, card.power ?? 2) +
+                ramp +
+                (tempo && (card.effect === 'heal' || card.effect === 'boost')
+                  ? 2
+                  : 0),
               1,
               (heavy ? 9 : 7) + (tempo ? 2 : 0),
             ),
@@ -550,12 +555,21 @@ export function clashArmorGain(
   level: number,
   version: ClashBalanceVersion = CLASH_BALANCE_VERSION,
 ): number {
-  return Math.min(3, (level >= 3 ? 2 : 1) + (id === 'drysuit' ? 1 : 0) + (version === 2 ? 1 : 0))
+  return Math.min(
+    3,
+    (level >= 3 ? 2 : 1) + (id === 'drysuit' ? 1 : 0) + (version === 2 ? 1 : 0),
+  )
 }
-export function clashArmorHeal(level: number, version: ClashBalanceVersion): number {
+export function clashArmorHeal(
+  level: number,
+  version: ClashBalanceVersion,
+): number {
   return (level - 1) * 2 + (version === 2 ? 2 : 0)
 }
-export function clashGrantPower(level: number, version: ClashBalanceVersion): number {
+export function clashGrantPower(
+  level: number,
+  version: ClashBalanceVersion,
+): number {
   return level - 1 + (version === 2 ? 1 : 0)
 }
 /** Hand-card badge: the effect in a few characters. */
@@ -575,7 +589,9 @@ export function clashCardBadge(
         '+' +
         clashArmorGain(card.id, b.level, version) +
         ' ARMOR' +
-        (clashArmorHeal(b.level, version) ? ' +' + clashArmorHeal(b.level, version) + ' ♥' : '')
+        (clashArmorHeal(b.level, version)
+          ? ' +' + clashArmorHeal(b.level, version) + ' ♥'
+          : '')
       )
     case 'sharpen':
       return '+' + b.bonus + ' ⚔'
@@ -586,7 +602,9 @@ export function clashCardBadge(
     case 'grant':
       return (
         ((card.grants ?? []).join(' ').toUpperCase() || 'GEAR') +
-        (clashGrantPower(b.level, version) ? ' +' + clashGrantPower(b.level, version) : '')
+        (clashGrantPower(b.level, version)
+          ? ' +' + clashGrantPower(b.level, version)
+          : '')
       )
     case 'scan':
       return b.level > 1 ? 'DISARM +' + (b.level - 1) : 'DISARM'
@@ -637,7 +655,11 @@ export function clashCardText(
   return clashBaseText(card, level, version)
 }
 /** A spell, trap or gear card's base Clash rules at `level`. */
-function clashBaseText(card: Card, level: number, version: ClashBalanceVersion): string {
+function clashBaseText(
+  card: Card,
+  level: number,
+  version: ClashBalanceVersion,
+): string {
   const b = clashBalance(card, level, version)
   if (card.kind === 'trap')
     return (
@@ -655,7 +677,9 @@ function clashBaseText(card: Card, level: number, version: ClashBalanceVersion):
         'Your fighter gains +' +
         clashArmorGain(card.id, b.level, version) +
         ' armor' +
-        (clashArmorHeal(b.level, version) ? ' and heals ' + clashArmorHeal(b.level, version) + '.' : '.')
+        (clashArmorHeal(b.level, version)
+          ? ' and heals ' + clashArmorHeal(b.level, version) + '.'
+          : '.')
       )
     case 'sharpen':
       return 'Your fighter gains +' + b.bonus + ' power for good.'
@@ -666,7 +690,11 @@ function clashBaseText(card: Card, level: number, version: ClashBalanceVersion):
     case 'grant':
       return (
         (card.grants ?? []).map((k) => CLASH_TRAIT_TEXT[k] ?? k).join(' ') +
-        (clashGrantPower(b.level, version) ? ' Grants +' + clashGrantPower(b.level, version) + ' permanent power.' : '')
+        (clashGrantPower(b.level, version)
+          ? ' Grants +' +
+            clashGrantPower(b.level, version) +
+            ' permanent power.'
+          : '')
       )
     case 'scan':
       return (
@@ -1043,7 +1071,8 @@ export function createClash(
     s.bossMax = { player: cap('player'), enemy: cap('enemy') }
     s.boss = { ...s.bossMax }
   }
-  if ((options.balanceVersion ?? CLASH_BALANCE_VERSION) === 2) s.balanceVersion = 2
+  if ((options.balanceVersion ?? CLASH_BALANCE_VERSION) === 2)
+    s.balanceVersion = 2
   if (options.dealEarly) s.dealEarly = true
   s.decks.player = shuffle(
     s,
@@ -1174,7 +1203,8 @@ function springTrap(s: ClashState, trap: ClashTrap, victim: ClashUnit): number {
   const armored = victim.armor + (victim.guard ?? 0) > 0
   const dealt = damage(
     victim,
-    clashBalance(card, trap.level, s.balanceVersion ?? 1).power + (cutter && armored ? 1 : 0),
+    clashBalance(card, trap.level, s.balanceVersion ?? 1).power +
+      (cutter && armored ? 1 : 0),
     cutter ? 1 : 0,
   )
   if (cutter && victim.armor > 0) {
@@ -2342,10 +2372,17 @@ export function playClash(
           }
           break
         case 'armor':
-          target.armor = clamp(target.armor + clashArmorGain(id, level, s.balanceVersion ?? 1), 0, 3)
+          target.armor = clamp(
+            target.armor + clashArmorGain(id, level, s.balanceVersion ?? 1),
+            0,
+            3,
+          )
           if (id === 'contract' && level >= 2)
             (target.gearLevels ??= {}).contract = level
-          target.hp = Math.min(target.maxHp, target.hp + clashArmorHeal(level, s.balanceVersion ?? 1))
+          target.hp = Math.min(
+            target.maxHp,
+            target.hp + clashArmorHeal(level, s.balanceVersion ?? 1),
+          )
           if (id === 'drysuit' && level >= 2) {
             target.snareWard = true
             target.rooted = false
@@ -2444,7 +2481,11 @@ export function playClash(
           for (const keyword of card.grants ?? [])
             if (!target.keywords.includes(keyword))
               target.keywords.push(keyword)
-          target.attack = clamp(target.attack + clashGrantPower(level, s.balanceVersion ?? 1), 1, 10)
+          target.attack = clamp(
+            target.attack + clashGrantPower(level, s.balanceVersion ?? 1),
+            1,
+            10,
+          )
           if (id === 'fusevest' && level >= 2)
             (target.gearLevels ??= {})[id] = level
           if (id === 'visor' && level >= 2) {
@@ -3846,7 +3887,8 @@ export function chooseClashCpu(
               0,
             ) +
             clashGrantPower(b.level, s.balanceVersion ?? 1) * 1.25
-          if (!missing.length && b.level === 1 && s.balanceVersion !== 2) score -= 3
+          if (!missing.length && b.level === 1 && s.balanceVersion !== 2)
+            score -= 3
         }
         if (mine && card.kind === 'equipment') {
           // Gear survives turns; its price cannot be assessed as one small
@@ -3872,7 +3914,11 @@ export function chooseClashCpu(
         )
           score +=
             s.balanceVersion === 2
-              ? Math.min(clashArmorGain(id, b.level, 2), Math.max(0, 3 - mine.armor)) * 2 +
+              ? Math.min(
+                  clashArmorGain(id, b.level, 2),
+                  Math.max(0, 3 - mine.armor),
+                ) *
+                  2 +
                 Math.min(clashArmorHeal(b.level, 2), mine.maxHp - mine.hp)
               : Math.max(0, 3 - mine.armor) * 2
       } else

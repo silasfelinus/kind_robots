@@ -2768,21 +2768,32 @@ for (const card of CARDS) {
     const old = clashBalance(card, level, 1)
     const next = clashBalance(card, level, 2)
     if (card.kind === 'trap') assert.equal(next.power, old.power + 2, card.id)
-    if (card.kind === 'equipment' && (card.effect === 'boost' || card.effect === 'sharpen'))
+    if (
+      card.kind === 'equipment' &&
+      (card.effect === 'boost' || card.effect === 'sharpen')
+    )
       assert.ok(next.bonus > old.bonus, card.id)
     if (card.effect === 'armor') {
-      assert.ok(clashArmorGain(card.id, level, 2) >= clashArmorGain(card.id, level, 1))
+      assert.ok(
+        clashArmorGain(card.id, level, 2) >= clashArmorGain(card.id, level, 1),
+      )
       assert.equal(clashArmorHeal(level, 2), clashArmorHeal(level, 1) + 2)
     }
-    if (card.effect === 'grant') assert.equal(clashGrantPower(level, 2), clashGrantPower(level, 1) + 1)
+    if (card.effect === 'grant')
+      assert.equal(clashGrantPower(level, 2), clashGrantPower(level, 1) + 1)
   }
 }
 assert.equal(createClash().balanceVersion, 2)
-assert.equal(createClash('catgirls', 'ironjaw', 1, { balanceVersion: 1 }).balanceVersion, undefined)
+assert.equal(
+  createClash('catgirls', 'ironjaw', 1, { balanceVersion: 1 }).balanceVersion,
+  undefined,
+)
 
 // Actual gear plays (not only the printed formulas) use the stronger profile.
 for (const version of [1, 2] as const) {
-  const state = createClash('ironjaw', 'catgirls', 1108, { balanceVersion: version })
+  const state = createClash('ironjaw', 'catgirls', 1108, {
+    balanceVersion: version,
+  })
   state.round = 2
   state.hands.player = ['plating']
   state.units = [{ ...follower('player', 2, 9001, 8, 2), hp: 4 }]

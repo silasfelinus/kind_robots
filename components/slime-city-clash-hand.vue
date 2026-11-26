@@ -112,7 +112,7 @@
           }}
         </span>
         <SlimeCityClashCardFace
-            :balance-version="game.balanceVersion ?? 1"
+          :balance-version="game.balanceVersion ?? 1"
           :card-id="peekCard.id"
           :level="peekCard.level"
           :pick="peekCard.pick"
@@ -136,7 +136,7 @@
           }}
         </span>
         <SlimeCityClashCardFace
-            :balance-version="game.balanceVersion ?? 1"
+          :balance-version="game.balanceVersion ?? 1"
           :card-id="inspectCard.id"
           glossary-interactive
           :level="previewLevel ?? inspectCard.level"

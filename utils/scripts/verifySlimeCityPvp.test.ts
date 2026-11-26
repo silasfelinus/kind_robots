@@ -677,7 +677,13 @@ console.log('Slime City VS finish: result, rematch and record PASS')
     'early deals never mint or lose cards',
   )
   assert.deepEqual(
-    replayPvp(host, guest, seed, afterGuest.commands, pvpRules({ dealEarly: true })),
+    replayPvp(
+      host,
+      guest,
+      seed,
+      afterGuest.commands,
+      pvpRules({ dealEarly: true }),
+    ),
     afterGuest,
     'early-deal duels replay deterministically',
   )

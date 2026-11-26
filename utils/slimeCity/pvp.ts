@@ -316,7 +316,9 @@ export function parsePvpRecord(value: unknown): PvpRecord | null {
       data.invitedId !== null &&
       (!Number.isSafeInteger(data.invitedId) || Number(data.invitedId) <= 0)) ||
     (data.isPublic !== undefined && typeof data.isPublic !== 'boolean') ||
-    (data.balanceVersion !== undefined && data.balanceVersion !== 1 && data.balanceVersion !== 2) ||
+    (data.balanceVersion !== undefined &&
+      data.balanceVersion !== 1 &&
+      data.balanceVersion !== 2) ||
     (data.dealEarly !== undefined && typeof data.dealEarly !== 'boolean') ||
     (data.takebacks !== undefined &&
       !PVP_TAKEBACK_CHOICES.includes(data.takebacks as 0)) ||
@@ -398,7 +400,10 @@ export function pvpCommand(raw: unknown, side: Side): ClashCommand | null {
 export function pvpRules(
   record: Pick<PvpRecord, 'dealEarly' | 'balanceVersion'>,
 ): Pick<ClashOptions, 'dealEarly' | 'balanceVersion'> {
-  return { balanceVersion: record.balanceVersion ?? 1, ...(record.dealEarly ? { dealEarly: true } : {}) }
+  return {
+    balanceVersion: record.balanceVersion ?? 1,
+    ...(record.dealEarly ? { dealEarly: true } : {}),
+  }
 }
 
 export function replayPvp(

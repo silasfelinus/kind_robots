@@ -73,7 +73,9 @@ export function validTowerBout(raw: unknown): raw is TowerBoutSave {
     raw.account.length <= 64 &&
     uint(raw.runSeed) &&
     uint(raw.floor, 64) &&
-    (launch.balanceVersion === undefined || launch.balanceVersion === 1 || launch.balanceVersion === 2) &&
+    (launch.balanceVersion === undefined ||
+      launch.balanceVersion === 1 ||
+      launch.balanceVersion === 2) &&
     launch.kind === 'tower' &&
     launch.format === 'alliance' &&
     team(launch.player) &&

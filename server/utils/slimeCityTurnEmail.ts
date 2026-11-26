@@ -1,5 +1,4 @@
 import { createError } from 'h3'
-import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { sendSlimeCityTurnEmail } from '~/server/utils/email'
 import { newProgression } from '~/utils/slimeCity/progression'
@@ -60,7 +59,7 @@ export async function setSlimeCityTurnPreference(
     const result = await tx.slimeCityAccount.updateMany({
       where: { userId, version: row.version },
       data: {
-        data: data as Prisma.InputJsonValue,
+        data: JSON.parse(JSON.stringify(data)),
         version: { increment: 1 },
       },
     })

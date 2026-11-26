@@ -900,7 +900,7 @@ for (const person of IDENTITY_ARCS.filter(
     entry.signature.startsWith('accident-') ||
     entry.signature.startsWith('mutant-') ||
     entry.signature.startsWith('tech-') ||
-      entry.signature.startsWith('magic-'),
+    entry.signature.startsWith('magic-'),
 )) {
   for (const perspective of ['hero', 'villain'] as const) {
     const run = createStory()

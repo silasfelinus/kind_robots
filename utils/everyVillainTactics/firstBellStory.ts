@@ -556,9 +556,10 @@ export function storyMoment(
   const base = SCRIPT[role][beat]
   const personal =
     role === 'hero' || role === 'villain'
-      ? (ACCIDENT_ARCS[lead] ?? MUTANT_ARCS[lead] ?? TECH_ARCS[lead] ?? MAGIC_ARCS[lead])?.[role]?.[
-          beat
-        ]
+      ? (ACCIDENT_ARCS[lead] ??
+          MUTANT_ARCS[lead] ??
+          TECH_ARCS[lead] ??
+          MAGIC_ARCS[lead])?.[role]?.[beat]
       : undefined
   const person = IDENTITY_ARCS.find((identity) => identity.signature === lead)
   const support = state?.units.find(

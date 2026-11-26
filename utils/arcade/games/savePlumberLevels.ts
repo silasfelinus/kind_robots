@@ -1272,8 +1272,7 @@ export const RUSTBOLT_KEEP: StageDef = {
       for (let col = 75; col <= 82; col++) line[col] = '='
     }
     if (row === 16) {
-      for (const col of [13, 15, 17, 50, 52, 54, 76, 78, 80])
-        line[col] = 'o'
+      for (const col of [13, 15, 17, 50, 52, 54, 76, 78, 80]) line[col] = 'o'
     }
     if (row === 13) {
       for (let col = 19; col <= 24; col++) line[col] = '='

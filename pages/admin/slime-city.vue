@@ -427,6 +427,18 @@
               BOUNTIES &amp; REWARDS
             </button>
             <button
+              v-if="lab.unlockMode === 'trickle'"
+              type="button"
+              class="sc-pack-cta"
+              data-testid="slime-collection-pack-shop"
+              @click="openPackShop"
+            >
+              <b>★ PACK SHOP · {{ lab.packPrice }} MEAT</b>
+              <small>
+                {{ lab.progress.meat }} Meat available · 3 cards · 1 rare
+              </small>
+            </button>
+            <button
               v-if="lab.deckFormat === 'solo'"
               type="button"
               class="sc-solo-back"
@@ -473,11 +485,9 @@
                     />
                   </span>
                   <b>{{ deck.name }}</b>
-                  <small>{{
-                    lab.libraryDeckReady(deck.id)
-                      ? '20'
-                      : deck.cards.length + '/' + ALLIANCE_DECK_SIZE
-                  }}</small>
+                  <small>
+                    ALLIANCE · {{ deck.cards.length }}/{{ ALLIANCE_DECK_SIZE }}
+                  </small>
                 </button>
                 <button
                   v-for="team in lab.customSoloTeams"
@@ -497,8 +507,8 @@
                       compact
                     />
                   </span>
-                  <b>{{ teamName(team).split(' ')[0] }}</b>
-                  <small>SOLO</small>
+                  <b>{{ teamName(team) }}</b>
+                  <small>FACTION · CONSTRUCTED</small>
                 </button>
                 <button
                   v-if="lab.library.length < lab.libraryMax"
@@ -507,7 +517,9 @@
                   data-testid="slime-library-new"
                   @click="lab.newLibraryDeck()"
                 >
-                  ＋ NEW
+                  <strong aria-hidden="true">＋</strong>
+                  <b>NEW DECK</b>
+                  <small>BUILD AN ALLIANCE</small>
                 </button>
               </div>
               <div
@@ -522,7 +534,7 @@
                   data-testid="slime-starters-toggle"
                   @click="startersOpen = !startersOpen"
                 >
-                  STARTER DECKS
+                  STARTER DECKS · {{ lab.starterDecks.length }}
                 </button>
                 <button
                   v-for="deck in lab.starterDecks"
@@ -556,8 +568,8 @@
                       compact
                     />
                   </span>
-                  <b>{{ deck.name }}</b>
-                  <small>{{ deck.ally ? 'ALLY' : 'SOLO' }}</small>
+                  <b>{{ deck.ally ? deck.name : teamName(deck.general) }}</b>
+                  <small>{{ deck.ally ? 'ALLIANCE' : 'FACTION' }} · CLASSIC</small>
                 </button>
               </div>
             </section>
@@ -994,6 +1006,7 @@
               </div>
               <div
                 v-if="lab.unlockMode === 'trickle'"
+                ref="packShop"
                 class="sc-reward-panel sc-shop-panel"
                 data-testid="slime-pack-shop"
               >
@@ -1197,7 +1210,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
 import { factionPower } from '~/utils/slimeCity/factionPowers'
@@ -1255,6 +1268,12 @@ watch(
   () => lab.view,
   () => sound.cue('nav'),
 )
+const packShop = ref<HTMLElement | null>(null)
+async function openPackShop(): Promise<void> {
+  lab.showRewards()
+  await nextTick()
+  packShop.value?.scrollIntoView({ block: 'nearest' })
+}
 async function buyPack(): Promise<void> {
   const opened = lab.progress.opened
   await lab.purchasePack()
@@ -2059,95 +2078,121 @@ onUnmounted(() => {
   forward. But economical." One deck shelf, two picture rows, one slim bar.
 */
 .sc-shelf {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem 0.9rem;
+  display: grid;
+  gap: 0.45rem;
+  flex: none;
+  min-width: 0;
 }
 .sc-shelf-group {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.3rem;
+  align-items: stretch;
+  gap: 0.55rem;
   min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 0.25rem 0.25rem 0.45rem;
+  scroll-snap-type: x proximity;
 }
 .sc-shelf-label,
 .sc-builder-label {
   flex: none;
-  font-size: 0.55rem;
+  font-size: 0.65rem;
   font-weight: 900;
   letter-spacing: 0.12em;
   color: #a6c7bc;
 }
+.sc-shelf-label {
+  align-self: center;
+  max-width: 7rem;
+  white-space: normal;
+  text-align: left;
+}
 .sc-shelf-deck {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  max-width: 12rem;
-  padding: 0.2rem 0.45rem 0.2rem 0.2rem;
+  display: grid;
+  grid-template-rows: 4.5rem auto auto;
+  align-content: start;
+  flex: 0 0 clamp(9.5rem, 17cqw, 13rem);
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
   border: 1px solid #4d5567;
   border-radius: 0.6rem;
-  background: #0e1420d9;
+  background: #0e1420;
   color: #eef2f8;
   cursor: pointer;
+  scroll-snap-align: start;
+  text-align: left;
 }
 .sc-shelf-deck.chosen {
   border-color: #c5ff59;
-  box-shadow: 0 0 12px #c5ff5944;
+  box-shadow: 0 0 0 1px #c5ff59;
 }
 .sc-shelf-deck.is-new {
   border-style: dashed;
-  padding: 0.45rem 0.7rem;
   color: #c5ff59;
-  font-size: 0.66rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
+  background: #122428;
+}
+.sc-shelf-deck.is-new strong {
+  display: grid;
+  place-items: center;
+  font-size: 2.5rem;
+  background: #1b3436;
 }
 .sc-shelf-deck b {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.66rem;
+  padding: 0.3rem 0.55rem 0.1rem;
+  font-size: 0.78rem;
   font-weight: 900;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 .sc-shelf-deck small {
-  flex: none;
-  font-size: 0.52rem;
+  padding: 0.15rem 0.55rem 0.45rem;
+  font-size: 0.58rem;
   font-weight: 900;
   color: #c5ff59;
 }
 .sc-shelf-art {
-  position: relative;
-  flex: none;
-  width: 2.5rem;
-  height: 2rem;
-}
-.sc-shelf-art :deep(.slime-art) {
-  position: absolute;
-  width: 1.75rem;
-  height: 1.55rem;
-  margin: 0;
-  overflow: hidden;
-  border-radius: 0.35rem;
-  border: 2px solid #0e1420;
-}
-.sc-shelf-art :deep(.slime-art:first-child) {
-  top: 0;
-  left: 0;
-}
-.sc-shelf-art :deep(.slime-art:last-child:not(:first-child)) {
-  right: 0;
-  bottom: 0;
-}
-.sc-shelf-art.solo :deep(.slime-art:first-child) {
+  display: flex;
   width: 100%;
   height: 100%;
+  min-width: 0;
+  overflow: hidden;
+  background: #0e1420;
+}
+.sc-shelf-art :deep(.slime-art) {
+  position: relative;
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 0;
+}
+.sc-shelf-art :deep(.is-ally) {
+  border-left: 2px solid #c5ff59;
 }
 .sc-shelf-art :deep(img),
 .sc-face :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 35%;
+}
+.sc-collection-nav .sc-pack-cta {
+  display: grid;
+  gap: 0.1rem;
+  border-color: #e7bd75;
+  background: #342349;
+  color: #ffe1a0;
+  text-align: left;
+}
+.sc-pack-cta small {
+  font-size: 0.6rem;
+  color: #f1d5ff;
+}
+.sc-shop-panel {
+  order: -1;
 }
 .sc-builder {
   display: flex;
@@ -2282,31 +2327,24 @@ onUnmounted(() => {
   color: #12200c;
 }
 button.sc-shelf-label {
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: default;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid #4d5567;
+  border-radius: 0.5rem;
+  background: #0e1420;
+  cursor: pointer;
+}
+button.sc-shelf-label::after {
+  content: ' ▸';
+}
+.is-starters.open button.sc-shelf-label::after {
+  content: ' ▾';
+}
+.is-starters:not(.open) .sc-shelf-deck {
+  display: none;
 }
 @container (max-width: 600px) {
-  .sc-shelf-deck b,
-  .sc-shelf-deck:not(.is-new) small {
-    display: none;
-  }
-  button.sc-shelf-label {
-    padding: 0.35rem 0.55rem;
-    border: 1px solid #4d5567;
-    border-radius: 0.5rem;
-    background: #0e1420;
-    cursor: pointer;
-  }
-  button.sc-shelf-label::after {
-    content: ' ▸';
-  }
-  .is-starters.open button.sc-shelf-label::after {
-    content: ' ▾';
-  }
-  .is-starters:not(.open) .sc-shelf-deck {
-    display: none;
+  .sc-shelf-deck {
+    flex-basis: 9.5rem;
   }
   .sc-face {
     width: 2.5rem;

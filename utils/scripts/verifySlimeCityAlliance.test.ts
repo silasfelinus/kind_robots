@@ -743,3 +743,13 @@ assert.ok(store.includes('soloDecks: savedSolo.value'))
 assert.ok(store.includes('alliances: savedAlliances.value'))
 
 console.log('Slime City ALLIANCE: decks, powers, replay, balance and saves OK')
+
+// Collection has a direct pack shop entry and readable illustrated deck tiles.
+{
+  const collection = readFileSync('pages/admin/slime-city.vue', 'utf8')
+  assert.match(collection, /data-testid="slime-collection-pack-shop"/)
+  assert.match(collection, /@click="openPackShop"/)
+  assert.match(collection, /packShop\.value\?\.scrollIntoView/)
+  assert.match(collection, /\.sc-shelf-group \{[\s\S]*?overflow-x: auto;/)
+  assert.match(collection, /\.sc-shelf-deck b \{[\s\S]*?overflow-wrap: anywhere;/)
+}

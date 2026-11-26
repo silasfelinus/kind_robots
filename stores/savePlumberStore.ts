@@ -34,7 +34,12 @@ export const useSavePlumberStore = defineStore('savePlumber', () => {
   const album = computed(() => file.value.album)
   const progress = computed(() => readPlumberSave(arcade.saveFor(PLUMBER_SLUG)))
   const seed = computed(() => progress.value?.heroine ?? DEFAULT_HEROINE_SEED)
-  const heroine = computed(() => rosterHeroine(seed.value))
+  /** Her roster look, under the name typed at heroine select when there is one. */
+  const heroine = computed(() => {
+    const roster = rosterHeroine(seed.value)
+    const name = progress.value?.name
+    return name ? { ...roster, name } : roster
+  })
   const rosterSlot = computed(() => rosterIndex(seed.value))
   const chosen = computed(() => progress.value !== null)
   const nextStage = computed(() =>

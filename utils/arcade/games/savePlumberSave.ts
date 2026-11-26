@@ -47,6 +47,8 @@ export type PlumberSlot = {
   deaths?: number
   /** Seconds played on this slot. */
   time?: number
+  /** A name the player typed at heroine select; absent keeps her roster name. */
+  name?: string
 }
 
 /**
@@ -170,6 +172,71 @@ export type PlumberFile = {
 }
 
 export const PLUMBER_SLUG = 'save-the-plumber'
+
+/**
+ * Heroine name entry (conductor save-the-plumber t-028, main-game standard
+ * "customizable characters"): up to ten letters and hyphens, picked on the
+ * arcade letter wheel at heroine select.
+ */
+export const PLUMBER_NAME_MAX = 10
+export const PLUMBER_NAME_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ-'
+
+// A family-arcade filter on whole words, like the high-score initials: small on
+// purpose, not a moderation system.
+const BLOCKED_NAME_WORDS = new Set([
+  'ARSE',
+  'ASS',
+  'BITCH',
+  'BOOB',
+  'BOOBS',
+  'COCK',
+  'CUM',
+  'CUNT',
+  'DICK',
+  'DIK',
+  'FAG',
+  'FUCK',
+  'FUK',
+  'HOE',
+  'KKK',
+  'KYS',
+  'NAZI',
+  'NIGGA',
+  'NIGGER',
+  'PENIS',
+  'PISS',
+  'PORN',
+  'PUSSY',
+  'SEX',
+  'SHIT',
+  'SLUT',
+  'TIT',
+  'TITS',
+  'TWAT',
+  'VAGINA',
+  'WANK',
+  'WHORE',
+])
+
+/**
+ * A typed heroine name tidied for display ("JI-WOO" -> "Ji-Woo"), or undefined
+ * when it is empty, too long, uses other characters or trips the family filter.
+ */
+export function plumberName(raw: unknown): string | undefined {
+  if (typeof raw !== 'string') return undefined
+  const tidy = raw.trim().replace(/-+/g, '-').replace(/^-|-$/g, '')
+  if (!/^[A-Za-z][A-Za-z-]*$/.test(tidy)) return undefined
+  if (tidy.length > PLUMBER_NAME_MAX) return undefined
+  const words = tidy.toUpperCase().split('-')
+  if (words.some((w) => BLOCKED_NAME_WORDS.has(w))) return undefined
+  if (BLOCKED_NAME_WORDS.has(words.join(''))) return undefined
+  return tidy
+    .toLowerCase()
+    .replace(
+      /(^|-)([a-z])/g,
+      (_, sep: string, c: string) => sep + c.toUpperCase(),
+    )
+}
 export const SLOT_COUNT = 3
 
 const count = (v: unknown, max: number): v is number =>
@@ -241,6 +308,7 @@ export function readPlumberSlot(
     gears: codes(r.gears),
     deaths: count(r.deaths, 999_999) ? r.deaths : 0,
     time: count(r.time, 99_999_999) ? r.time : 0,
+    ...(plumberName(r.name) ? { name: plumberName(r.name) } : {}),
   }
 }
 

@@ -256,7 +256,7 @@ function clearStage(game: Game) {
   settle(game)
 }
 
-// A new adventure: file select, heroine, story, map, 1-1, and back to the map.
+// A new adventure: file select, heroine, name, story, map, 1-1, and back to the map.
 const game = createSavePlumberPreview(options())
 assert.equal(game.save, null, 'nothing is saved before a file exists')
 press(game, 'start')
@@ -264,6 +264,8 @@ assert.equal(game.mode, 'files')
 press(game, 'down')
 press(game, 'a')
 assert.equal(game.mode, 'select', 'file 2 starts a new adventure')
+press(game, 'a')
+assert.equal(game.mode, 'name', 'then she is named')
 press(game, 'a')
 press(game, 'start')
 assert.equal(game.mode, 'map')

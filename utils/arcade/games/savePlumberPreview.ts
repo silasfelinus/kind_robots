@@ -573,6 +573,10 @@ export class PlumberRun implements ArcadeGameInstance {
   /** Vertical scroll: 0 shows the top of the stage; the lowest view frames the ground. */
   cameraY = 0
   private pipeRooms: PipeRoom[] = []
+  private autoScroll: StageDef['autoScroll']
+  scrollRail: number | null = null
+  private scrollFinished = false
+  private scrollWarned = false
   locked = false
 
   platforms: Platform[] = []
@@ -1183,6 +1187,7 @@ export class PlumberRun implements ArcadeGameInstance {
     const stage = parseStage(def)
     this.stage = stage
     this.pipeRooms = enclosedPipeRooms(stage)
+    this.autoScroll = def.autoScroll
     this.solid = stage.solid.slice()
     this.inactiveSwitchBlocks.clear()
     if (!this.customLevel && !this.endless && !this.autopilot) {
@@ -1494,6 +1499,9 @@ export class PlumberRun implements ArcadeGameInstance {
     this.airDockActive = false
     this.immune = 60
     this.facing = 1
+    this.scrollRail = null
+    this.scrollFinished = false
+    this.scrollWarned = false
     this.cameraLead = 0
     this.camera = this.cameraTarget()
     this.cameraY = this.cameraTargetY()
@@ -2022,15 +2030,54 @@ export class PlumberRun implements ArcadeGameInstance {
         this.sound.play('extra')
       }
     }
+    if (this.mode !== 'play') return
+    this.updateAutoScroll()
+    if (this.mode !== 'play') return
     const desiredLead =
-      this.locked || this.stillCamera || this.activePipeRoom
+      this.locked ||
+      this.stillCamera ||
+      this.activePipeRoom ||
+      this.scrollRail !== null
         ? 0
         : Math.max(-42, Math.min(42, hero.vx * 10))
     this.cameraLead += (desiredLead - this.cameraLead) * 0.12
     if (Math.abs(this.cameraLead) < 0.05) this.cameraLead = 0
     const target = this.cameraTarget()
-    this.camera += (target - this.camera) * 0.2
+    if (this.scrollRail !== null) this.camera = this.scrollRail
+    else this.camera += (target - this.camera) * 0.2
     this.cameraY += (this.cameraTargetY() - this.cameraY) * 0.14
+  }
+
+  private updateAutoScroll() {
+    const rail = this.autoScroll
+    if (!rail || this.scrollFinished || this.locked || this.activePipeRoom)
+      return
+    if (this.scrollRail === null) {
+      if (this.hero.x >= rail.to * TILE) {
+        this.scrollFinished = true
+        return
+      }
+      if (this.hero.x < rail.from * TILE) return
+      this.scrollRail = Math.max(0, this.hero.x - W / 2)
+      this.cameraLead = 0
+      this.sound.play('warn')
+    }
+    const end = Math.max(
+      0,
+      Math.min(this.stage.cols * TILE - W, rail.to * TILE - W / 2),
+    )
+    this.scrollRail = Math.min(end, this.scrollRail + rail.speed)
+    const distance = this.hero.x - this.scrollRail
+    if (distance < 72 && !this.scrollWarned) {
+      this.scrollWarned = true
+      this.sound.play('warn')
+    } else if (distance > 96) this.scrollWarned = false
+    if (distance + HALF < 0) return this.die()
+    if (this.scrollRail >= end && this.hero.x >= rail.to * TILE) {
+      this.camera = this.scrollRail
+      this.scrollRail = null
+      this.scrollFinished = true
+    }
   }
 
   /** In an Endless run she runs on her own (the campaign moves freely). */
@@ -2087,6 +2134,13 @@ export class PlumberRun implements ArcadeGameInstance {
 
   /** Move the heroine with her current hitbox (shorter while ducking). */
   private heroMoveX(dx: number): boolean {
+    if (this.scrollRail !== null && this.autoScroll && dx > 0) {
+      const edge = Math.min(
+        this.scrollRail + W - HALF - 12,
+        this.autoScroll.to * TILE,
+      )
+      dx = Math.min(dx, Math.max(0, edge - this.hero.x))
+    }
     const followRamp = this.ground && !this.riding && !this.stage.space
     if (!this.ducking) return this.moveX(this.hero, HALF, TALL, dx, followRamp)
     const body: Body = { ...this.hero, y: this.hero.y + DUCK }
@@ -5370,6 +5424,7 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     if (this.stage.dark) this.renderDark(g)
     this.renderRoomMask(g)
+    this.renderScrollHazard(g)
     this.renderHud(g)
     if (this.stage.space) {
       g.fillStyle = 'rgba(7, 14, 33, 0.84)'
@@ -5421,6 +5476,19 @@ export class PlumberRun implements ArcadeGameInstance {
         9,
       )
     }
+  }
+
+  private renderScrollHazard(g: CanvasRenderingContext2D) {
+    if (this.scrollRail === null || this.mode !== 'play') return
+    g.fillStyle = this.scrollWarned
+      ? 'rgba(167, 38, 40, 0.92)'
+      : 'rgba(28, 63, 82, 0.82)'
+    g.fillRect(0, 24, 12, H - 24)
+    g.fillRect(8, H - 29, 126, 21)
+    g.fillStyle = '#fff4d5'
+    g.font = 'bold 11px system-ui'
+    g.textAlign = 'left'
+    g.fillText(this.scrollWarned ? '» MOVE RIGHT!' : '» KEEP PACE', 15, H - 15)
   }
 
   /** Hide the surrounding course while a sealed chamber has the camera. */

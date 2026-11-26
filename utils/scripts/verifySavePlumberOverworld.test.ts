@@ -327,7 +327,7 @@ for (let i = 0; i < 200 && game.modeTimer; i++) game.update(input)
 settle(game)
 assert.ok(game.secrets.has('1-h'))
 assert.ok(nodeReachable('1-b', game.progress))
-assert.ok(readPlumberFile(game.save).slots[1]!.secrets.includes('1-h'))
+assert.ok(readPlumberFile(game.save).slots[1]!.secrets?.includes('1-h'))
 walk(game, 'up')
 assert.equal(game.mapNodeId, '1-3', 'the cleared house opens the road')
 

@@ -925,13 +925,18 @@ for (const [id, rescueFlag, evidenceFlag] of missionChoices)
         drainScenes()
         battle.turn = 2
         drainScenes()
-        assert.ok(battle.flags?.includes(choice === 0 ? rescueFlag : evidenceFlag))
-        assert.ok(!battle.flags?.includes(choice === 0 ? evidenceFlag : rescueFlag))
+        assert.ok(
+          battle.flags?.includes(choice === 0 ? rescueFlag : evidenceFlag),
+        )
+        assert.ok(
+          !battle.flags?.includes(choice === 0 ? evidenceFlag : rescueFlag),
+        )
         battle.phase = outcome
         drainScenes()
         const closing = script.scenes.find(
           (scene) =>
-            scene.trigger.kind === 'closing' && scene.trigger.outcome === outcome,
+            scene.trigger.kind === 'closing' &&
+            scene.trigger.outcome === outcome,
         )
         assert.ok(closing)
         assert.ok(battle.fired?.includes('seen:scene:' + closing.id))

@@ -1302,7 +1302,7 @@
       for (let c = 0; c < st.cols; c++) {
         const layers = st.gloom[r][c]
         if (!layers || !E.isCell(st, r, c)) continue
-        html += `<div class="gloom ${layers > 1 ? 'l2' : ''}" style="left:${c * cell + 2}px;top:${r * cell + 2}px;width:${cell - 4}px;height:${cell - 4}px"></div>`
+        html += `<div class="gloom ${layers > 1 ? 'l2' : ''}" style="left:${c * cell + 2}px;top:${r * cell + 2}px;width:${cell - 4}px;height:${cell - 4}px;--gloom-art:url('${A.TILE_ROOT}${levelWorld(game.id).id}/gloom.webp')"></div>`
       }
     game.els.gloom.innerHTML = html
   }

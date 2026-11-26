@@ -860,6 +860,67 @@ for (const entry of artPack.front) {
   assert.ok(entry.artJob > 0, `${entry.committed} traces to an ArtJob`)
 }
 
+// t-013 (Silas 2026-11-25 PT: painted must replace code-drawn art): every board tile of every world
+// layers its painted image (conductor queue hopeful-hues-tile-<world>-<slot>) over the drawn SVG,
+// falls back cleanly if the image is missing, and keeps the colorblind symbol on top.
+{
+  const Art = context.HopefulHuesArt as {
+    TILE_ROOT: string
+    gemSvg: (
+      color: number,
+      special: string | null,
+      symbols: boolean,
+      world: string,
+    ) => string
+    buddySvg: (world: string) => string
+    tangleSvg: (hp: number, world: string) => string
+    goalIconSvg: (goal: { type: string }, world: string) => string
+  }
+  assert.equal(Art.TILE_ROOT, '/images/hopeful-hues/tiles/')
+  const painted = (markup: string, world: string, slot: string) => {
+    assert.ok(
+      markup.includes(`src="/images/hopeful-hues/tiles/${world}/${slot}.webp"`),
+      `${world} ${slot} loads its painted tile`,
+    )
+    assert.ok(
+      markup.includes('onerror="this.remove()"'),
+      `${world} ${slot} falls back to SVG`,
+    )
+    assert.ok(
+      markup.indexOf('<svg') < markup.indexOf('<img'),
+      `${world} ${slot}: SVG under the paint`,
+    )
+  }
+  for (const world of WORLD_IDS) {
+    for (let color = 0; color < 6; color++) {
+      const tile = Art.gemSvg(color, 'bomb', true, world)
+      painted(tile, world, `jewel-${color}`)
+      const over = tile.slice(tile.indexOf('class="over"'))
+      assert.ok(
+        over.includes('<text'),
+        `${world} jewel ${color}: symbol above the paint`,
+      )
+      assert.ok(
+        over.includes('stroke-dasharray'),
+        `${world} jewel ${color}: special marking above the paint`,
+      )
+    }
+    painted(Art.gemSvg(0, 'rainbow', true, world), world, 'rainbow')
+    painted(Art.buddySvg(world), world, 'buddy')
+    const knot = Art.tangleSvg(3, world)
+    painted(knot, world, 'tangle')
+    assert.ok(
+      knot.slice(knot.indexOf('class="over"')).includes('>3<'),
+      `${world}: knot strength above the paint`,
+    )
+    painted(Art.goalIconSvg({ type: 'gloom' }, world), world, 'gloom')
+  }
+  assert.ok(
+    read('public/hopeful-hues/app.js').includes("gloom.webp')"),
+    'board Gloom uses the painted texture',
+  )
+}
+
 const app = read('public/hopeful-hues/app.js')
 for (const needle of [
   'runTutorial',

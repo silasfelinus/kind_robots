@@ -684,14 +684,19 @@ textarea:focus-visible {
 .gloom {
   position: absolute;
   border-radius: 12px;
-  background: radial-gradient(circle at 35% 30%, #c9c4d8, #9c97ad);
+  /* The painted Gloom texture (t-013) over the drawn gradient; a missing image leaves the gradient. */
+  background:
+    var(--gloom-art, none) center / cover,
+    radial-gradient(circle at 35% 30%, #c9c4d8, #9c97ad);
   opacity: 0.78;
   transition: opacity calc(0.3s * var(--speed));
   pointer-events: none;
 }
 
 .gloom.l2 {
-  background: radial-gradient(circle at 35% 30%, #a9a3bd, #77718a);
+  background:
+    var(--gloom-art, none) center / cover,
+    radial-gradient(circle at 35% 30%, #a9a3bd, #77718a);
   opacity: 0.9;
 }
 
@@ -2105,4 +2110,54 @@ textarea.code {
 .reduced-motion .combo-flash {
   animation: none;
   opacity: 0.5;
+}
+
+/* t-013 painted tiles: the drawn SVG, the painted image over it, then symbols and specials. */
+.ptile {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  vertical-align: middle;
+}
+
+.ptile > svg,
+.ptile > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ptile > img.paint {
+  object-fit: cover;
+  border-radius: 24%;
+  pointer-events: none;
+  user-select: none;
+}
+
+.goal .ptile {
+  width: 30px;
+  height: 30px;
+}
+
+.tile .ptile {
+  display: block;
+  pointer-events: none;
+  transition: transform calc(0.15s * var(--speed));
+}
+
+.tile.selected .ptile {
+  transform: scale(1.14);
+}
+
+.tile.selected .ptile svg {
+  transform: none;
+}
+
+@media (max-width: 520px) {
+  .goal .ptile {
+    width: 24px;
+    height: 24px;
+  }
 }

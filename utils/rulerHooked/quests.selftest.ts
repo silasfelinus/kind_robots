@@ -1335,7 +1335,8 @@ for (const id of QUESTS)
       const narrative = makeRng(seed + ':' + save.turnCount)
       const landedTurn =
         fight.phase === 'LANDED' ? takeTurn(C, save, narrative) : null
-      const result = landedTurn ?? advanceAfterFishingAttempt(C, save, narrative)
+      const result =
+        landedTurn ?? advanceAfterFishingAttempt(C, save, narrative)
       save = result.save
       assert.equal(save.turnCount, before.turnCount + 1)
       if (landedTurn) {
@@ -1384,8 +1385,7 @@ for (const id of QUESTS)
           .sort((a, b) => b.score - a.score)
         const directive = directives[card.id]
         const chosen =
-          (directive &&
-          !choices.has(card.id + '/' + directive)
+          (directive && !choices.has(card.id + '/' + directive)
             ? ranked.find((option) => option.choice.id === directive)
             : undefined) ?? ranked[0]!
         const resolved = save.counters.cardsResolved ?? 0
@@ -1529,10 +1529,7 @@ for (const id of QUESTS)
       }
     }
     assert.ok(witness, 'No legal seeded witness for ' + target)
-    assert.deepEqual(
-      explore(policy, witnessSeed, true, directives),
-      witness,
-    )
+    assert.deepEqual(explore(policy, witnessSeed, true, directives), witness)
     for (const key of witness.choices) covered.add(key)
     targetedWitnesses++
     console.log(

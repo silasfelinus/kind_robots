@@ -5,7 +5,7 @@
      chartreuse oil-spectrum. Your own rod reaches in from the
      bottom-right. The ruler is never drawn in the scene (consolePOV contract). -->
 <template>
-  <section class="rh-screen rh-lake" aria-label="Castle Lake">
+  <section class="rh-screen rh-lake" :aria-label="store.fishingLocationName">
     <RulerHookedArt
       class="rh-backdrop"
       :candidates="backdrop"
@@ -215,6 +215,7 @@
           @click="store.startFishing(quiz.mode)"
         >
           <span class="rh-cast__label">Cast a line</span>
+          <span class="rh-cast__hint">{{ store.fishingLocationName }}</span>
           <span class="rh-cast__hint">{{ castHint }}</span>
         </button>
         <div
@@ -270,6 +271,7 @@ import { useRulerHookedQuizStore } from '~/stores/rulerHookedQuizStore'
 import {
   fishCandidates,
   lakeBackdropCandidates,
+  sceneVistaCandidates,
 } from '~/utils/rulerHooked/artLibrary'
 import type { ConsoleScreen } from '~/utils/rulerHooked/tutorial'
 import type { FishingQuizModule } from '~/utils/rulerHooked/quiz'
@@ -294,9 +296,15 @@ const subjectSummary = computed(() =>
 )
 
 const time = computed(() => store.timeOfDay)
-const backdrop = computed(() =>
-  lakeBackdropCandidates(store.save, time.value, store.scene),
-)
+const backdrop = computed(() => {
+  const fallback = lakeBackdropCandidates(store.save, time.value, store.scene)
+  return store.fishingRegion === 'lake'
+    ? fallback
+    : [
+        ...sceneVistaCandidates(store.fishingRegion, store.scene, time.value),
+        ...fallback,
+      ]
+})
 const fishing = computed(() => !!store.activeFishing)
 
 // The catch/escape reveal shows once per landing; dismissing it returns to the rod.

@@ -64,12 +64,16 @@
           <p v-if="current.fish.length" class="rh-region__fish">
             <strong>Key fish:</strong> {{ current.fish.join(', ') }}
           </p>
+          <p v-if="current.location && !current.access" class="rh-region__line">
+            {{ current.lockReason }}
+          </p>
           <button
-            v-if="current.key === 'lake'"
+            v-if="current.location && current.access"
             type="button"
             class="rh-btn rh-btn--gold rh-btn--small"
             data-testid="rh-map-fish"
-            @click="emit('navigate', 'lake')"
+            :disabled="!store.canFish"
+            @click="fishHere"
           >
             Fish here
           </button>
@@ -106,7 +110,12 @@ import {
   lakeBackdropCandidates,
   sceneVistaCandidates,
 } from '~/utils/rulerHooked/artLibrary'
-import { availableFish } from '~/utils/rulerHooked/fish'
+import { canFishAt, fishAtLocation } from '~/utils/rulerHooked/fish'
+import {
+  FISHING_LOCATIONS,
+  isFishingRegion,
+  locationUnlocked,
+} from '~/utils/rulerHooked/fishingLocations'
 import {
   AXIS_LABEL,
   REGION_NAME,
@@ -151,13 +160,22 @@ const current = computed(() => {
   )
   const [label, line] = regionCopy(region.key, state)
   const slider = def?.driver?.slider
-  const living = availableFish(save).filter((f) =>
-    f.habitats.includes(region.key),
-  )
+  const location = isFishingRegion(region.key) ? region.key : null
+  const living = location ? fishAtLocation(save, location) : []
+  const access = location ? canFishAt(save, location) : false
+  const lockReason = location
+    ? locationUnlocked(save, location)
+      ? 'No fish currently inhabit this water. Revisit after a decree.'
+      : FISHING_LOCATIONS[location].locked
+    : ''
   const known = living.filter((f) => save.fishopedia[f.slug])
   const unknown = living.length - known.length
   return {
     ...region,
+    name: location ? FISHING_LOCATIONS[location].name : region.name,
+    location,
+    access,
+    lockReason,
     label,
     line,
     pinned,
@@ -200,9 +218,13 @@ function step(n: number) {
   selected.value = keys[(at + n + keys.length) % keys.length] ?? 'lake'
 }
 
+function fishHere() {
+  const region = current.value?.location
+  if (region && store.selectFishingRegion(region)) emit('navigate', 'lake')
+}
+
 function confirm() {
-  if (selected.value === 'lake') emit('navigate', 'lake')
-  else selected.value = 'lake'
+  fishHere()
 }
 
 defineExpose({ step, confirm })

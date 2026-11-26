@@ -2,6 +2,7 @@ import { AXIS_KEYS, type RunSave } from '~/types/ruler-hooked'
 import type { RoyalScrapbook } from './scrapbook'
 import { validClassicCheckpoint } from './fishingCheckpoint'
 import { validQuizCheckpoint } from './quizCheckpoint'
+import { isFishingRegion } from './fishingLocations'
 
 export const ROYAL_BACKUP_KIND = 'kind-robots-ruler-hooked'
 const MAX_BYTES = 2 * 1024 * 1024
@@ -78,6 +79,7 @@ function validReign(v: unknown): v is RunSave {
     (v.endingKey === null || text(v.endingKey)) &&
     (v.pendingCardId === undefined || text(v.pendingCardId)) &&
     (v.pendingFinaleKey === undefined || text(v.pendingFinaleKey)) &&
+    (v.fishingRegion === undefined || isFishingRegion(v.fishingRegion)) &&
     (v.pendingClassicFishing === undefined ||
       validClassicCheckpoint(v.pendingClassicFishing)) &&
     (v.pendingQuizFishing === undefined ||

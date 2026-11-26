@@ -152,7 +152,10 @@ const run = computed(() => dh.run)
 const combat = computed(() => run.value?.combat ?? null)
 const portraits = computed(() =>
   Object.fromEntries(
-    (combat.value?.enemies ?? []).map((enemy) => [enemy.id, enemyArt(enemy.id)]),
+    (combat.value?.enemies ?? []).map((enemy) => [
+      enemy.id,
+      enemyArt(enemy.id),
+    ]),
   ),
 )
 const actor = computed(() =>

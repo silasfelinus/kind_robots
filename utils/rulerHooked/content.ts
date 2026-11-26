@@ -1168,7 +1168,10 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               effects: {
                 sliders: { nature: -10, order: +4 },
                 regionOverride: { treeline: 'tended' },
-                flags: { set: ['mossyRefused'], clear: ['bogBloomed', 'mossyHexAccepted'] },
+                flags: {
+                  set: ['mossyRefused'],
+                  clear: ['bogBloomed', 'mossyHexAccepted'],
+                },
                 revoke: ['mossy-hex'],
               },
               result:

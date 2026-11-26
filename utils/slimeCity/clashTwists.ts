@@ -5,11 +5,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'REGEN. At the end of every round, heal adjacent allies for 1 life.',
     'REGEN. Never attacks. At the end of every round, heal adjacent allies for 2 life.',
   ],
-  chimera: [
-    '',
-    '',
-    'Apex: +2 ATK, +3 LIFE; REGEN to weakest neighbor.',
-  ],
+  chimera: ['', '', 'Apex: +2 ATK, +3 LIFE; REGEN to weakest neighbor.'],
   sprite: [
     '',
     'On arrival, summon a weak dancer into one empty adjacent alley.',
@@ -25,11 +21,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Mends adjacent friends for 1 life after each full round.',
     'Mends adjacent friends for 2 life after each full round.',
   ],
-  juggernaut: [
-    '',
-    '',
-    'Arrive: adjacent allies gain +1 armor.',
-  ],
+  juggernaut: ['', '', 'Arrive: adjacent allies gain +1 armor.'],
   rat: [
     'Every knockout adds +1 attack to later copies, up to +3.',
     'Each prior Riot Rat death adds +1 attack (max +3). Explodes on defeat.',

@@ -1178,7 +1178,8 @@ for (const id of evoIds) {
   const stages = [1, 2, 3].map((level) => clashCardText(card, level))
   assert.ok(
     stages.every(
-      (line, index) => (index === 0 && card.kind === 'creature') || line.length > 12,
+      (line, index) =>
+        (index === 0 && card.kind === 'creature') || line.length > 12,
     ),
     id + ' has useful instructions',
   )
@@ -2782,4 +2783,7 @@ assert.match(clashCardText(cardById('merc-fungal-bouncer'), 2), /shield/)
 for (const card of CARDS)
   if (card.kind === 'creature')
     for (const level of [1, 2, 3])
-      assert.doesNotMatch(clashCardText(card, level), /^Armor: blocks 1 per hit\./)
+      assert.doesNotMatch(
+        clashCardText(card, level),
+        /^Armor: blocks 1 per hit\./,
+      )

@@ -312,7 +312,12 @@ const tideLevel = validateMakerLevel({
 assert.deepEqual(decodeMakerLevel(encodeMakerLevel(tideLevel)), tideLevel)
 const tideRun = () =>
   createSavePlumberPreview(
-    { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+    {
+      rng: () => 0.5,
+      sound: { play: () => undefined },
+      demo: false,
+      hiScore: 0,
+    },
     { customLevel: toMakerStage(tideLevel) },
   )
 const swimmer = tideRun()

@@ -1944,9 +1944,11 @@ export class PlumberRun implements ArcadeGameInstance {
     const up = keys.held.a || keys.held.up
     const down = keys.held.down
     const surface = !this.waterAt(hero.y + 2)
-    const target = up && !down ? (surface ? -6.5 : -2.8) : down && !up ? 2 : -0.55
+    const target =
+      up && !down ? (surface ? -6.5 : -2.8) : down && !up ? 2 : -0.55
     hero.vx += (move * 2.8 - hero.vx) * 0.25
-    hero.vy = surface && up && !down ? target : hero.vy + (target - hero.vy) * 0.3
+    hero.vy =
+      surface && up && !down ? target : hero.vy + (target - hero.vy) * 0.3
     if (move) this.facing = move > 0 ? 1 : -1
     this.ground = false
     this.riding = null

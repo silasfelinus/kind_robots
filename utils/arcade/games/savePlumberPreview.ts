@@ -369,10 +369,7 @@ type Checkpoint = { x: number; y: number; reached: boolean }
 type Wave = { x: number; y: number; dir: number }
 type Soot = { x: number; y: number; vx: number; vy: number }
 export type PlumberPower =
-  | 'springstep'
-  | 'bottled-storm'
-  | 'pocket-lift'
-  | 'sailwing'
+  'springstep' | 'bottled-storm' | 'pocket-lift' | 'sailwing'
 type Pickup = {
   x: number
   y: number

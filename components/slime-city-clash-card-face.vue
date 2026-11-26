@@ -72,9 +72,6 @@
         </span>
       </span>
       <span v-if="note" class="ccf-text ccf-note">{{ note }}</span>
-      <span v-if="flavor && flavorText" class="ccf-flavor">{{
-        flavorText
-      }}</span>
     </span>
     <span
       v-if="glossaryInteractive && activeTerm"
@@ -112,7 +109,6 @@ import {
 } from '~/utils/slimeCity/clash'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import {
-  clashCardFlavor,
   clashStageTitle,
   type EvoPick,
 } from '~/utils/slimeCity/clashEvolutions'
@@ -149,12 +145,7 @@ const stageTitle = computed(() =>
   clashStageTitle(props.cardId, props.level, props.pick),
 )
 const balance = computed(() => clashBalance(card.value, props.level))
-const rules = computed(() =>
-  clashCardText(card.value, props.level, props.pick)
-    .replace(/^Armor: blocks 1 per hit\.\s*/, '')
-    .trim(),
-)
-const flavorText = computed(() => clashCardFlavor(props.cardId))
+const rules = computed(() => clashCardText(card.value, props.level, props.pick))
 /**
  * The rules as one line per sentence, with a leading "Label:" (Armor, Regen,
  * Arrive, Tap (skip strike), Cast...) split out so it can be picked out.

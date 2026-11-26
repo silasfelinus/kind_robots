@@ -575,7 +575,6 @@ export function clashCardBadge(card: Card, level = 1): string {
  * levels are previewed on demand.
  */
 export function clashCardText(card: Card, level = 1, pick?: EvoPick): string {
-  const b = clashBalance(card, level)
   // Named spells, traps and gear now evolve their RULES as well as their stats.
   // The active level's promise must match its actual Clash handler.
   const evolvedText = clashTwistText(card.id, level)
@@ -585,7 +584,6 @@ export function clashCardText(card: Card, level = 1, pick?: EvoPick): string {
       : evolvedText
   if (card.kind === 'creature')
     return [
-      ...(b.armor ? ['Armor: blocks 1 per hit.'] : []),
       ...(card.keywords ?? []).map((k) => CLASH_TRAIT_TEXT[k]),
       clashTwistText(card.id, level),
       clashEvolutionText(card, level, pick),

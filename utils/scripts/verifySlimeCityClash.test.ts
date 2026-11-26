@@ -1177,7 +1177,7 @@ for (const id of evoIds) {
   assert.ok(CLASH_TWISTS[id], id + ' has authored stage text')
   const stages = [1, 2, 3].map((level) => clashCardText(card, level))
   assert.ok(
-    stages.every((line) => line.length > 12),
+    stages.every((line, index) => (index === 0 && card.kind === 'creature') || line.length > 12),
     id + ' has useful instructions',
   )
   assert.equal(new Set(stages).size, 3, id + ' tells three different stories')
@@ -1630,7 +1630,7 @@ for (const id of waveThreeIds) {
   const card = cardById(id)
   assert.ok(CLASH_TWISTS[id], id + ' has explicit authored evolution rules')
   const texts = [1, 2, 3].map((lv) => clashCardText(card, lv))
-  assert.ok(texts.every((line) => line.length >= 16 && line.length <= 160))
+  assert.ok(texts.every((line, index) => ((index === 0 && card.kind === 'creature') || line.length >= 16) && line.length <= 160))
   assert.equal(
     new Set(texts).size,
     3,
@@ -2767,3 +2767,11 @@ for (const path of [
     'both battle surfaces show the same summoning sickness effect',
   )
 }
+
+// Printed armor is a stat, not a passive rule; no flavor-only bouncer line.
+assert.equal(clashCardText(cardById('merc-fungal-bouncer'), 1), '')
+assert.match(clashCardText(cardById('merc-fungal-bouncer'), 2), /shield/)
+for (const card of CARDS)
+  if (card.kind === 'creature')
+    for (const level of [1, 2, 3])
+      assert.doesNotMatch(clashCardText(card, level), /^Armor: blocks 1 per hit\./)

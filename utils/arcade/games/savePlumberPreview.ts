@@ -385,7 +385,12 @@ type Checkpoint = { x: number; y: number; reached: boolean }
 type Wave = { x: number; y: number; dir: number }
 type Soot = { x: number; y: number; vx: number; vy: number }
 export type PlumberPower =
-  'springstep' | 'bottled-storm' | 'pocket-lift' | 'sailwing' | 'ballast'
+  | 'springstep'
+  | 'bottled-storm'
+  | 'pocket-lift'
+  | 'sailwing'
+  | 'ballast'
+  | 'tidecoat'
 type Pickup = {
   x: number
   y: number
@@ -1464,6 +1469,7 @@ export class PlumberRun implements ArcadeGameInstance {
         case 'power-lift':
         case 'power-sailwing':
         case 'power-ballast':
+        case 'power-tidecoat':
         case 'heart':
           this.pickups.push({
             x: cx,
@@ -1479,7 +1485,9 @@ export class PlumberRun implements ArcadeGameInstance {
                       ? 'pocket-lift'
                       : spawn.kind === 'power-sailwing'
                         ? 'sailwing'
-                        : 'ballast',
+                        : spawn.kind === 'power-ballast'
+                          ? 'ballast'
+                          : 'tidecoat',
             taken: false,
           })
           break
@@ -1916,6 +1924,50 @@ export class PlumberRun implements ArcadeGameInstance {
     else this.sound.play('blip')
   }
 
+  private waterAt(y: number): boolean {
+    return (
+      this.solidAt(Math.floor(this.hero.x / TILE), Math.floor(y / TILE)) ===
+      SOLID_WATER
+    )
+  }
+
+  private get swimming(): boolean {
+    return (
+      !this.stage.space &&
+      this.power === 'tidecoat' &&
+      this.waterAt(this.hero.y + TALL - 6)
+    )
+  }
+
+  private swim(keys: InputFrame, move: number) {
+    const hero = this.hero
+    const up = keys.held.a || keys.held.up
+    const down = keys.held.down
+    const surface = !this.waterAt(hero.y + 2)
+    const target =
+      up && !down ? (surface ? -6.5 : -2.8) : down && !up ? 2 : -0.55
+    hero.vx += (move * 2.8 - hero.vx) * 0.25
+    hero.vy =
+      surface && up && !down ? target : hero.vy + (target - hero.vy) * 0.3
+    if (move) this.facing = move > 0 ? 1 : -1
+    this.ground = false
+    this.riding = null
+    this.climbing = false
+    this.grace = 0
+    this.jumpBuffer = 0
+    this.jumpHeld = !!up
+    this.running = false
+    this.specialTimer = 0
+    this.floating = false
+    this.airSpecial = false
+    if (this.heroMoveX(hero.vx)) hero.vx = 0
+    const hit = this.heroMoveY(hero.vy)
+    if (hit) {
+      hero.vy = 0
+      this.ground = hit === 'land'
+    }
+  }
+
   private updatePlay(keys: InputFrame) {
     this.updatePlatforms()
     if (this.immune) this.immune--
@@ -1933,8 +1985,9 @@ export class PlumberRun implements ArcadeGameInstance {
       : runner
         ? 1
         : Number(keys.held.right) - Number(keys.held.left)
-    const climbed = this.updateClimb(keys, move)
-    if (this.stage.space || climbed) {
+    const swimming = this.swimming
+    const climbed = !swimming && this.updateClimb(keys, move)
+    if (this.stage.space || climbed || swimming) {
       this.duckHeld = false
       this.ducking = false
     } else this.updateDuck(keys, move)
@@ -1943,7 +1996,10 @@ export class PlumberRun implements ArcadeGameInstance {
     const top = runner ? this.runSpeed : this.running ? RUN_FAST : RUN
     // Her feet before this frame's fall (or climb); foes use it for stomps.
     let prevBottom = this.climbPrevBottom
-    if (!climbed) {
+    if (swimming) {
+      prevBottom = hero.y + TALL
+      this.swim(keys, move)
+    } else if (!climbed) {
       // Ballast Boots grip ice like ordinary ground.
       const onIce =
         this.power !== 'ballast' &&
@@ -2112,11 +2168,7 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.boss) this.updateBoss(prevBottom)
     this.updateCheckpoints()
     if (hero.y > this.stage.rows * TILE + 40) return this.die()
-    const wet = this.solidAt(
-      Math.floor(hero.x / TILE),
-      Math.floor((hero.y + TALL - 6) / TILE),
-    )
-    if (wet === SOLID_WATER) {
+    if (this.waterAt(hero.y + TALL - 6) && this.power !== 'tidecoat') {
       this.sound.play('pop')
       return this.die()
     }
@@ -6538,6 +6590,8 @@ export class PlumberRun implements ArcadeGameInstance {
           this.text(g, 'SAIL', pickup.x, pickup.y + bob, 9, '#8ff5e5')
         else if (pickup.kind === 'ballast')
           this.text(g, 'IRON', pickup.x, pickup.y + bob, 9, '#c9b8ff')
+        else if (pickup.kind === 'tidecoat')
+          this.text(g, 'TIDE', pickup.x, pickup.y + bob, 9, '#8bdfff')
         else {
           g.fillStyle = pickup.kind === 'heart' ? '#5ec8ef' : '#ffd98a'
           g.fillRect(pickup.x - 6, pickup.y - 10 + bob, 12, 12)
@@ -7167,6 +7221,8 @@ export class PlumberRun implements ArcadeGameInstance {
           this.text(g, 'SAIL', 392, 16, 9, '#8ff5e5')
         else if (this.power === 'ballast')
           this.text(g, 'IRON', 392, 16, 9, '#c9b8ff')
+        else if (this.power === 'tidecoat')
+          this.text(g, 'TIDE', 392, 16, 9, '#8bdfff')
       }
     }
     if (this.reserve) {
@@ -7179,6 +7235,8 @@ export class PlumberRun implements ArcadeGameInstance {
           this.text(g, 'S', 392, 36, 9, '#8ff5e5')
         else if (this.reserve === 'ballast')
           this.text(g, 'I', 392, 36, 9, '#c9b8ff')
+        else if (this.reserve === 'tidecoat')
+          this.text(g, 'T', 392, 36, 9, '#8bdfff')
       }
     }
     this.text(

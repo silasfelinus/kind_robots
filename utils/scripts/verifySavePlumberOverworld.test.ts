@@ -11,11 +11,13 @@ import {
   CAMPAIGN,
   CHAPEL_COURSES,
   DRIP_PARLOUR,
+  RUSTBOLT_KEEP,
   HUSH_DOOR_OFFSETS,
   HUSH_FLOOR_ROW,
   hushDestination,
   parseStage,
   SOLID_BLOCK,
+  SOLID_LOCK,
   TILE,
   VERDIGRIS_CHAPEL,
 } from '../arcade/games/savePlumberLevels'
@@ -129,7 +131,7 @@ assert.ok(
 const w1 = worldCompletion(1, { done: ['1-1', '1-2'], gears: ['1-1'] })
 assert.deepEqual(
   [w1.stages, w1.stagesDone, w1.gears, w1.gearsFound, w1.secrets],
-  [6, 2, 4, 1, 2],
+  [7, 2, 4, 1, 2],
 )
 assert.equal(completionPercent(fresh), 0)
 const everything = CAMPAIGN.map((s) => s.code)
@@ -139,6 +141,7 @@ assert.equal(
       ...everything.map((c) => stageNode(c)!.id),
       ...CHAPEL_COURSES.map((c) => c.code),
       DRIP_PARLOUR.code,
+      RUSTBOLT_KEEP.code,
     ],
     gears: everything,
     secrets: [...SECRET_EXITS_READY],
@@ -541,6 +544,54 @@ for (const course of CHAPEL_COURSES.slice(1)) {
   fresh.loadStage(index)
   assert.equal(fresh.solidAt(block.from, block.row), 0)
 }
+
+// Rustbolt's main road is gated by two real keys, not a map bypass.
+const keep = createSavePlumberPreview(
+  options({
+    v: 3,
+    active: 0,
+    slots: [
+      {
+        heroine: 3,
+        stage: 2,
+        node: '1-f',
+        done: ['1-1', '1-2', '1-h', '1-3'],
+        score: 0,
+        lives: 3,
+        tokens: 0,
+      },
+      null,
+      null,
+    ],
+  }),
+)
+assert.ok(nodeBuilt(mapNode('1-f')))
+assert.ok(!nodeReachable('1-4', keep.progress))
+press(keep, 'start')
+press(keep, 'a')
+assert.equal(keep.mapNodeId, '1-f')
+press(keep, 'a')
+press(keep, 'a')
+assert.equal(keep.stage.code, RUSTBOLT_KEEP.code)
+assert.equal(keep.mode, 'play')
+assert.equal(keep.keys.length, 2)
+assert.equal(keep.solidAt(28, 20), SOLID_LOCK)
+assert.equal(keep.solidAt(64, 20), SOLID_LOCK)
+const keepInput = emptyInput()
+keepInput.held.right = true
+for (let i = 0; i < 2000 && keep.mode === 'play'; i++)
+  keep.update(keepInput)
+assert.equal(keep.mode, 'clear', 'both key chambers are walkable')
+assert.equal(keep.boltsOpened, 2)
+assert.ok(keep.checkpoints[0]!.reached)
+assert.ok(keep.keys.every((key) => key.state === 'used'))
+for (let i = 0; i < 200 && keep.modeTimer; i++) keep.update(input)
+assert.equal(keep.mode, 'map')
+assert.ok(keep.done.has('1-f'))
+assert.ok(nodeReachable('1-4', keep.progress))
+const keepReload = createSavePlumberPreview(options(keep.save))
+assert.ok(keepReload.done.has('1-f'))
+assert.ok(nodeReachable('1-4', keepReload.progress))
 
 // Deaths are remembered on the slot.
 press(next, 'a')

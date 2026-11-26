@@ -245,8 +245,6 @@ export function validateMakerLevel(input: unknown): MakerLevel {
     throw new Error('Place exactly one heroine start')
   if ((symbols.match(/G/g) ?? []).length !== 1)
     throw new Error('Place exactly one finish valve')
-  if ((symbols.match(/D/g) ?? []).length !== (symbols.match(/E/g) ?? []).length)
-    throw new Error('Pair every pipe entrance with a return')
   if ((symbols.match(/M/g) ?? []).length > 1)
     throw new Error('Only one boss can appear in a course')
   if (
@@ -265,7 +263,13 @@ export function validateMakerLevel(input: unknown): MakerLevel {
     ...(value.space === true ? { space: true as const } : {}),
     rows: rows.slice(),
   }
-  parseStage(toMakerStage(result))
+  try {
+    parseStage(toMakerStage(result))
+  } catch (error) {
+    if (error instanceof Error && error.message.endsWith(': unpaired pipe doors'))
+      throw new Error('Pair every pipe entrance with a return')
+    throw error
+  }
   return result
 }
 

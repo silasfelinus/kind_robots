@@ -1071,14 +1071,25 @@ function scrollRun() {
   usePipe()
   assert.deepEqual(run.activePipeRoom, room)
   const ladderX = 183 * TILE + TILE / 2
-  for (let frame = 0; frame < 180; frame++) {
-    if (Math.abs(run.hero.x - ladderX) < 3 && run.ground) break
-    replay(run, 1, (_, input) => {
-      input.held.right = run.hero.x < ladderX - 2
-      input.held.left = run.hero.x > ladderX + 2
-    })
+  const steerTo = (target: number, input: InputFrame) => {
+    const projected = run.hero.x + run.hero.vx * 3
+    input.held.right = projected < target - 1
+    input.held.left = projected > target + 1
   }
-  assert.ok(Math.abs(run.hero.x - ladderX) < 6)
+  const walkTo = (target: number) => {
+    for (let frame = 0; frame < 180; frame++) {
+      if (
+        Math.abs(run.hero.x - target) < 3 &&
+        Math.abs(run.hero.vx) < 0.3 &&
+        run.ground
+      )
+        break
+      replay(run, 1, (_, input) => steerTo(target, input))
+    }
+    assert.ok(Math.abs(run.hero.x - target) < 4)
+    assert.equal(run.ground, true)
+  }
+  walkTo(ladderX)
   assert.equal(run.hero.y + HERO_TALL, 6 * TILE)
   replay(run, 1, (_, input) => {
     input.held.down = true
@@ -1093,13 +1104,7 @@ function scrollRun() {
   const before = run.tokens
   replay(run, 24, runRight)
   assert.ok(run.tokens > before, 'the lower shaft has collectible rewards')
-  for (let frame = 0; frame < 180; frame++) {
-    if (Math.abs(run.hero.x - ladderX) < 3) break
-    replay(run, 1, (_, input) => {
-      input.held.right = run.hero.x < ladderX - 2
-      input.held.left = run.hero.x > ladderX + 2
-    })
-  }
+  walkTo(ladderX)
   replay(run, 100, (_, input) => {
     input.held.up = true
   })
@@ -1108,16 +1113,12 @@ function scrollRun() {
   assert.equal(embedded(run), null)
   // The pipe mouth is two tiles above the shelf, reachable with a jump.
   const returnX = exit.col * TILE + TILE / 2
-  for (let frame = 0; frame < 180; frame++) {
-    if (Math.abs(run.hero.x - returnX) < 3) break
-    replay(run, 1, (_, input) => {
-      input.held.left = run.hero.x > returnX + 2
-      input.held.right = run.hero.x < returnX - 2
-      input.pressed.a = frame === 0
-      input.held.a = frame < 12
-    })
-  }
-  replay(run, 45, () => {})
+  walkTo(returnX + 25)
+  replay(run, 55, (frame, input) => {
+    steerTo(returnX, input)
+    input.pressed.a = frame === 0
+    input.held.a = frame < 12
+  })
   assert.equal(run.hero.y + HERO_TALL, exit.row * TILE)
   const earned = run.tokens
   usePipe()

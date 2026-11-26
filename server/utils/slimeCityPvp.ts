@@ -12,6 +12,7 @@ import {
   PVP_INVITE_EXPIRY_MS,
   parsePvpRecord,
   pvpBoard,
+  pvpMeatRewards,
   pvpGameSummary,
   pvpSnapshotRival,
   sortPvpGames,
@@ -29,6 +30,12 @@ import {
   type PvpRecord,
   type PvpSnapshot,
 } from '~/utils/slimeCity/pvp'
+import { accountWithStory } from '~/utils/slimeCity/storySave'
+import {
+  newProgression,
+  restoreProgression,
+} from '~/utils/slimeCity/progression'
+import type { ClashState } from '~/utils/slimeCity/clash'
 import type { Side, TeamId } from '~/utils/slimeCity/prototypes'
 
 function fail(statusCode: number, message: string): never {
@@ -137,6 +144,7 @@ function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
       ? (row.result as PvpSnapshot['outcome'])
       : (state?.victor ?? null),
     forfeitedBy: record.forfeitedBy ?? null,
+    meatReward: record.meatRewards?.[seat] ?? 0,
     rivalId: pvpSnapshotRival(row.userId, record, userId),
   }
 }
@@ -419,6 +427,7 @@ export async function joinSlimeCityDuel(
     const next: PvpRecord = {
       ...record,
       guestId: userId,
+      joinedAt: new Date().toISOString(),
       lastActionAt: new Date().toISOString(),
     }
     const updated = await tx.slimeCityMatch.update({
@@ -427,6 +436,50 @@ export async function joinSlimeCityDuel(
     })
     return snapshot(updated, next, userId)
   })
+}
+
+type DuelTransaction = Parameters<Parameters<typeof prisma.$transaction>[0]>[0]
+
+async function settleDuelMeat(
+  tx: DuelTransaction,
+  row: Row,
+  record: PvpRecord,
+  state: ClashState,
+  outcome: NonNullable<ClashState['victor']>,
+) {
+  const rewards = pvpMeatRewards(state, outcome, record.joinedAt, Date.now())
+  if (record.guestId === null) return rewards
+  const seats = [
+    { userId: row.userId, amount: rewards.player },
+    { userId: record.guestId, amount: rewards.enemy },
+  ].sort((a, b) => a.userId - b.userId)
+  for (const { userId, amount } of seats) {
+    if (!amount) continue
+    const wallet = await tx.slimeCityAccount.upsert({
+      where: { userId },
+      update: {},
+      create: { userId, data: asJson(newProgression()) },
+    })
+    const before = restoreProgression(wallet.data)
+    const receipt = 'pvp:' + row.id
+    if (before.receipts.includes(receipt)) continue
+    const after = {
+      ...before,
+      meat: before.meat + amount,
+      receipts: [...before.receipts.slice(-255), receipt],
+      lastReward: 'VS duel · +' + amount + ' Meat',
+    }
+    const updated = await tx.slimeCityAccount.updateMany({
+      where: { userId, version: wallet.version },
+      data: {
+        data: asJson(accountWithStory(wallet.data, after)),
+        version: { increment: 1 },
+      },
+    })
+    if (updated.count !== 1)
+      return fail(409, 'Wallet changed. Retry your duel action.')
+  }
+  return rewards
 }
 
 export async function commandSlimeCityDuel(
@@ -494,6 +547,14 @@ export async function commandSlimeCityDuel(
       commands: [...record.commands, command],
       lastActionAt: new Date().toISOString(),
     }
+    if (after.victor)
+      next.meatRewards = await settleDuelMeat(
+        tx,
+        row,
+        next,
+        after,
+        after.victor,
+      )
     const updated = await tx.slimeCityMatch.update({
       where: { id },
       data: {
@@ -541,6 +602,7 @@ export async function forfeitSlimeCityDuel(id: string, userId: number) {
       forfeitedBy: seat,
       lastActionAt: new Date().toISOString(),
     }
+    next.meatRewards = await settleDuelMeat(tx, row, next, state, winner)
     const updated = await tx.slimeCityMatch.update({
       where: { id },
       data: {

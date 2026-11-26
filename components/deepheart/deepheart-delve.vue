@@ -265,6 +265,10 @@ const roomArt = computed(() => {
   const current = run.value
   if (!current || current.phase === 'map' || current.phase === 'ended')
     return null
+  if (current.phase === 'choice' && ev.value?.id.startsWith('fairy-')) {
+    const ruler = DEEPHEART.cast.find((member) => member.id === ev.value?.id)
+    if (ruler?.portrait.src) return ruler.portrait
+  }
   return campMomentArt.value ?? ROOM_ART[current.room?.kind ?? 'boss']
 })
 

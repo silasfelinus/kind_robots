@@ -13,6 +13,7 @@ import {
   evtCrossfireKey,
   newCrossfireJournal,
   readCrossfireJournal,
+  retryCrossfire,
   snapshotCrossfire,
 } from '../everyVillainTactics/crossfireCampaign'
 import { IDENTITY_ARCS, identityFor } from '../cometAcademy/identityArcs'
@@ -141,6 +142,14 @@ for (let chapter = 0; chapter < CROSSFIRE_CHAPTERS.length; chapter++) {
   const recovered = crossfireScrapbookSaves(JSON.stringify(checkpoint))
   assert.equal(recovered.length, chapter + 1)
   assert.equal(recovered.at(-1)?.checksum, victory.checksum)
+  const retried = retryCrossfire(checkpoint)!
+  assert.ok(retried)
+  assert.deepEqual(retried.completed, journal.completed)
+  assert.deepEqual(retried.active.state, journal.active.state)
+  assert.deepEqual(retried.active.story, journal.active.story)
+  assert.equal(retried.active.state.phase, 'active')
+  assert.equal(crossfireCampaignScore(retried)?.cleared, chapter)
+  assert.ok(readCrossfireJournal(JSON.stringify(retried)))
   const next = advanceCrossfire(checkpoint)!
   assert.ok(next, 'the earned victory advances to next chapter')
   const beforeAdvance = crossfireCampaignScore(checkpoint)!
@@ -175,6 +184,8 @@ for (let chapter = 0; chapter < CROSSFIRE_CHAPTERS.length; chapter++) {
   journal = next
 }
 assert.ok(journal.finished)
+assert.equal(retryCrossfire(journal), null)
+assert.equal(retryCrossfire('invalid'), null)
 assert.equal(journal.completed.length, 6)
 assert.equal(advanceCrossfire(journal), null, 'finale never repeats')
 const forgedPrefix = structuredClone(journal)
@@ -864,6 +875,8 @@ assert.ok(page.includes('data-testid="tactics-crossfire-score"'))
 assert.ok(store.includes('const crossfireScore = computed('))
 assert.ok(store.includes('const crossfireAftermath = computed('))
 assert.ok(store.includes('const crossfireEnding = computed('))
+assert.ok(store.includes('function replayBattle()'))
+assert.ok(page.includes('@click="store.replayBattle()"'))
 console.log(
   'Crossfire: six ordered chapters, independent save key, First Bell story bridge, verified victory/defeat transitions, checkpoint restoration, anti-forgery and UI wiring checked.',
 )

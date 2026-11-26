@@ -125,6 +125,7 @@ const others: KitCastMember[] = [
     role: 'figure',
     tagline: `${deity.epithet}. ${deity.impact}`,
     portrait: {
+      src: deepheartArtSrc(`court:${deity.id}`),
       brief: `Portrait of ${deity.name}, an unnervingly human-faced fairy ruler`,
       prompt: `${deity.look} The visibly human-faced fairy ruler poses alone in an ancient underground palace, amid stained-glass lift machinery and candlelit paperwork. Hand-inked mature Western fantasy animation, bold cartoon shapes, saturated jewel tones, flat cel shadows and a painted stone background.`,
     },

@@ -4,6 +4,7 @@ import { ANTHRO_LOOK } from '../deepheart/anthro'
 import { COURT_DEITIES } from '../deepheart/court'
 import { CHARACTERS } from '../deepheart/roster'
 import { DEEPHEART_ART_IDS, deepheartArtSrc } from '../deepheart/renderedArt'
+import { DEEPHEART } from '../playbookKit/games/deepheart'
 
 // Deepheart Bible is not a wall of private character prose: every god has
 // actual artwork, every delver opens an inspector, and new art goes through
@@ -21,6 +22,12 @@ for (const [index, deity] of COURT_DEITIES.entries()) {
     `${deity.name} must use the completed Krea 2 court encounter`,
   )
   assert.ok(deepheartArtSrc(`court:${deity.id}`))
+  assert.equal(
+    DEEPHEART.cast.find((member) => member.id === `fairy-${deity.id}`)?.portrait
+      .src,
+    deepheartArtSrc(`court:${deity.id}`),
+    'the playable cast uses the same approved art as the bible',
+  )
   assert.ok(deity.look.includes('human'), 'immortals keep human faces')
 }
 assert.equal(CHARACTERS.length, 50)

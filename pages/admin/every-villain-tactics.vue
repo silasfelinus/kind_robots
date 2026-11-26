@@ -556,10 +556,11 @@
                     CHOOSE NEXT BATTLE <span aria-hidden="true">→</span>
                   </button>
                   <button
+                    v-if="!store.crossfireActive || !store.crossfire?.finished"
                     type="button"
                     class="evt-retry-battle"
                     data-testid="tactics-retry-battle"
-                    @click="store.reset()"
+                    @click="store.replayBattle()"
                   >
                     REPLAY <span aria-hidden="true">↻</span>
                   </button>

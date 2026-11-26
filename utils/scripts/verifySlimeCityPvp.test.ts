@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { pvpMeatRewards } from '../slimeCity/pvp'
 import { existsSync, readFileSync } from 'node:fs'
 import {
   newPvpGame,
@@ -932,10 +933,16 @@ console.log('Slime City Chromebook duel layout contract PASS')
     /\.cxh:not\(\.open\) \.cxh-card:not\(\.big\)\) \{\s*opacity: 0;\s*visibility: hidden;/,
   )
   assert.match(duel, /--pvp-preview-width: min\(18rem, 42cqw, 38cqh\)/)
-  assert.match(duel, /--x: 22cqw;/)
+  assert.match(duel, /--x: var\(--preview-offset\);/)
   assert.match(duel, /--y: calc\(var\(--pvp-preview-width\) \* 0\.75 - 50cqh\)/)
-  assert.match(duel, /\.cxh-card\.cxh-inspect\) \{\s*left: 72%;/)
-  assert.match(duel, /\.cxh-levels\.docked\) \{\s*left: 72%;/)
+  assert.match(
+    duel,
+    /\.cxh-card\.cxh-inspect\) \{\s*left: var\(--preview-center\);/,
+  )
+  assert.match(
+    duel,
+    /\.cxh-levels\.docked\) \{\s*left: var\(--preview-center\);/,
+  )
   assert.doesNotMatch(
     duel,
     /SlimeCityTakebackChoice/,
@@ -999,9 +1006,26 @@ for (const file of [
   )
   assert.match(duel, /'arena arena'\s*'rail console'/)
   assert.match(duel, /'arena'\s*'rail'\s*'console'/)
-  assert.match(duel, /--W: min\(20rem, 36cqw, 46cqh\)/)
+  assert.match(duel, /--W: min\(20rem, 36cqw, 20cqh\)/)
   assert.match(duel, /--rest: 1;/)
-  assert.match(duel, /--y: calc\(var\(--W\) \* 1\.5 - 2\.5rem\)/)
+  assert.match(duel, /--y: calc\(-0\.4rem \+ var\(--drop\) \* 0\.2\)/)
+  assert.match(duel, /--r: calc\(var\(--rot\) \* 0\.35\)/)
+  assert.match(
+    duel,
+    /--hand-width: min\([\s\S]*?\(100cqw - 1rem - var\(--n1\) \* var\(--hand-gap\)\) \/ \(var\(--n1\) \+ 1\)/,
+    'resting cards reserve separate full-width slots',
+  )
+  assert.match(
+    duel,
+    /--x: calc\(var\(--o\) \* \(var\(--hand-width\) \+ var\(--hand-gap\)\)\);/,
+    'adjacent faces do not overlap',
+  )
+  assert.match(duel, /--rules-open: 1;/, 'resting cards expose ability text')
+  assert.match(
+    duel,
+    /\.ccf-badge\) \{\s*white-space: normal;\s*overflow: visible;/,
+    'combat stats cannot be ellipsized',
+  )
   assert.match(
     duel,
     /\.scpvp-unit-label \{\s*position: absolute;\s*inset: calc\(0\.8rem/,
@@ -1011,6 +1035,47 @@ for (const file of [
 const armorView = readFileSync('components/slime-city-pvp-game.vue', 'utf8')
 assert.match(armorView, /<SlimeCityArmorStat/)
 assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
+
+// Rewards need a real exchange of plays, rounds and time after joining.
+{
+  const commands = (['player', 'enemy'] as const).flatMap((side) =>
+    Array.from({ length: 3 }, () => ({
+      t: 'play' as const,
+      side,
+      card: 'test',
+      lane: 0,
+    })),
+  )
+  const joined = '2026-11-25T00:00:00Z'
+  const now = Date.parse(joined) + 300_000
+  const state = { round: 4, commands }
+  assert.deepEqual(pvpMeatRewards(state, 'player', joined, now), {
+    player: 30,
+    enemy: 10,
+  })
+  assert.deepEqual(pvpMeatRewards(state, 'draw', joined, now), {
+    player: 15,
+    enemy: 15,
+  })
+  assert.deepEqual(
+    pvpMeatRewards({ ...state, round: 1 }, 'player', joined, now),
+    {
+      player: 0,
+      enemy: 0,
+    },
+  )
+  assert.deepEqual(pvpMeatRewards(state, 'enemy', joined, now - 1), {
+    player: 0,
+    enemy: 0,
+  })
+  assert.deepEqual(
+    pvpMeatRewards({ ...state, commands: [] }, 'enemy', joined, now),
+    {
+      player: 0,
+      enemy: 0,
+    },
+  )
+}
 
 // Turn email is explicit opt-in, authenticated, verified and sent after commit.
 {

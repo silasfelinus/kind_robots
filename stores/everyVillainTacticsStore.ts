@@ -47,6 +47,7 @@ import {
   evtCrossfireKey,
   newCrossfireJournal,
   readCrossfireJournal,
+  retryCrossfire as retryCrossfireJournal,
   snapshotCrossfire,
   type CrossfireJournal,
 } from '~/utils/everyVillainTactics/crossfireCampaign'
@@ -605,6 +606,26 @@ export const useEveryVillainTacticsStore = defineStore(
       openScreen(null)
       saveMessage.value =
         'Chapter ' + (next.chapter + 1) + ': ' + crossfireChapterTitle(next)
+      return true
+    }
+    function replayBattle() {
+      if (!crossfireActive.value) {
+        reset()
+        return true
+      }
+      const next = retryCrossfireJournal(crossfire.value)
+      if (!next) return false
+      try {
+        const storage = browserStorage()
+        if (!storage) throw new Error('Storage unavailable')
+        storage.setItem(evtCrossfireKey, JSON.stringify(next))
+      } catch {
+        saveMessage.value = 'This browser blocked Crossfire saving.'
+        return false
+      }
+      crossfire.value = next
+      applySave(next.active)
+      saveMessage.value = 'Retrying: ' + crossfireChapterTitle(next)
       return true
     }
     /** One-Shot: a replayable studio preset with its own scenes, if any. */
@@ -1427,6 +1448,7 @@ export const useEveryVillainTacticsStore = defineStore(
       startCrossfire,
       continueCrossfire,
       advanceCrossfire,
+      replayBattle,
       moment,
       chooseStory,
       scene,

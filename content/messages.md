@@ -2,7 +2,7 @@
 title: 'Messages'
 room: 'Direct Messages'
 subtitle: 'Your conversations'
-description: Private threaded conversations with other members, with read receipts and consent-aware messaging.
+description: Send private messages to other members, see when they've been read, and choose whether anyone, only friends or no one can message you. Sign in free to use it.
 image: splash/dashboard.png
 icon: kind-icon:message
 tooltip: Your direct messages.

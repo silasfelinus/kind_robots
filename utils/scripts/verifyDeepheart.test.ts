@@ -1348,7 +1348,9 @@ assert.match(
     assert.ok(parsed.notes.length > 0)
   }
   assert.equal(
-    new Set(Object.values(DEEPHEART_THEMES).map((theme) => JSON.stringify(theme))).size,
+    new Set(
+      Object.values(DEEPHEART_THEMES).map((theme) => JSON.stringify(theme)),
+    ).size,
     7,
   )
   for (const cue of Object.values(DEEPHEART_CUES))
@@ -1363,10 +1365,16 @@ assert.match(
   assert.equal(deepheartMood({ ...frame, phase: 'fight' }), 'combat')
   assert.equal(deepheartMood({ ...frame, active: false }), 'title')
   assert.deepEqual(deepheartCues(frame, { ...frame, layer: 1 }), ['descent'])
-  assert.deepEqual(deepheartCues(frame, { ...frame, phase: 'fight' }), ['danger'])
+  assert.deepEqual(deepheartCues(frame, { ...frame, phase: 'fight' }), [
+    'danger',
+  ])
   assert.deepEqual(deepheartCues(frame, { ...frame, phase: 'camp' }), ['rest'])
-  assert.deepEqual(deepheartCues(frame, { ...frame, hp: frame.hp - 1 }), ['wound'])
-  assert.deepEqual(deepheartCues(frame, { ...frame, ending: 'fallen' }), ['fallen'])
+  assert.deepEqual(deepheartCues(frame, { ...frame, hp: frame.hp - 1 }), [
+    'wound',
+  ])
+  assert.deepEqual(deepheartCues(frame, { ...frame, ending: 'fallen' }), [
+    'fallen',
+  ])
   assert.deepEqual(deepheartCues(frame, frame), [])
 
   const calls: string[] = []

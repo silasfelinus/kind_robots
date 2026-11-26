@@ -59,10 +59,7 @@ function unlockSound(event: Event) {
   sound.unlock()
 }
 
-watch(
-  () => [kit.settings.sound, kit.settings.motion],
-  configureSound,
-)
+watch(() => [kit.settings.sound, kit.settings.motion], configureSound)
 watch(
   frame,
   (next, previous) => {

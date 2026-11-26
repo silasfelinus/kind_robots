@@ -7,13 +7,7 @@ import {
 import type { RunState } from './types'
 
 export type DeepheartMood =
-  | 'title'
-  | 'ossuary'
-  | 'drowned'
-  | 'ember'
-  | 'combat'
-  | 'campfire'
-  | 'ending'
+  'title' | 'ossuary' | 'drowned' | 'ember' | 'combat' | 'campfire' | 'ending'
 
 export type DeepheartCue =
   | 'descent'
@@ -30,35 +24,58 @@ export const DEEPHEART_THEMES: Record<DeepheartMood, MusicLoop> = {
     bpm: 68,
     tracks: [
       { steps: 'D3 - - - A2 - - - Bb2 - - - G2 - - -', type: 'sine' },
-      { steps: 'F4 . A4 . E4 . D4 . C4 . F4 . E4 . A3 .', type: 'triangle', vol: 0.035 },
+      {
+        steps: 'F4 . A4 . E4 . D4 . C4 . F4 . E4 . A3 .',
+        type: 'triangle',
+        vol: 0.035,
+      },
     ],
   },
   ossuary: {
     bpm: 62,
     tracks: [
       { steps: 'D2 - - - D2 - - - C2 - - - G2 - - -', type: 'sine' },
-      { steps: 'A3 . . F4 . . E4 . D4 . . C4 . . G3 .', type: 'triangle', vol: 0.03 },
+      {
+        steps: 'A3 . . F4 . . E4 . D4 . . C4 . . G3 .',
+        type: 'triangle',
+        vol: 0.03,
+      },
     ],
   },
   drowned: {
     bpm: 54,
     tracks: [
       { steps: 'F2 - - - C3 - - - Db3 - - - Ab2 - - -', type: 'sine' },
-      { steps: 'C5 . Ab4 . . G4 . . F4 . Db5 . . C5 . .', type: 'sine', vol: 0.04 },
+      {
+        steps: 'C5 . Ab4 . . G4 . . F4 . Db5 . . C5 . .',
+        type: 'sine',
+        vol: 0.04,
+      },
     ],
   },
   ember: {
     bpm: 78,
     tracks: [
-      { steps: 'E2 - E2 . F2 - E2 . C2 - C2 . B1 - B1 .', type: 'triangle', vol: 0.045 },
+      {
+        steps: 'E2 - E2 . F2 - E2 . C2 - C2 . B1 - B1 .',
+        type: 'triangle',
+        vol: 0.045,
+      },
       { steps: 'B3 . C4 . E4 . F4 . E4 . C4 . B3 . G3 .', type: 'sine' },
     ],
   },
   combat: {
     bpm: 116,
     tracks: [
-      { steps: 'D2 . D2 A2 D2 . Eb2 . C2 . C2 G2 Bb1 . A1 .', type: 'triangle' },
-      { steps: 'D4 F4 . A4 Eb4 . D4 . C4 G4 . F4 E4 . C4 .', type: 'triangle', vol: 0.035 },
+      {
+        steps: 'D2 . D2 A2 D2 . Eb2 . C2 . C2 G2 Bb1 . A1 .',
+        type: 'triangle',
+      },
+      {
+        steps: 'D4 F4 . A4 Eb4 . D4 . C4 G4 . F4 E4 . C4 .',
+        type: 'triangle',
+        vol: 0.035,
+      },
       { steps: 'x . . x . . x . x . . x . . x .', noise: true, vol: 0.015 },
     ],
   },
@@ -66,14 +83,22 @@ export const DEEPHEART_THEMES: Record<DeepheartMood, MusicLoop> = {
     bpm: 72,
     tracks: [
       { steps: 'G2 - - - C3 - - - E3 - - - D3 - - -', type: 'sine' },
-      { steps: 'B3 D4 G4 . E4 G4 C5 . B4 G4 E4 . A4 F#4 D4 .', type: 'triangle', vol: 0.04 },
+      {
+        steps: 'B3 D4 G4 . E4 G4 C5 . B4 G4 E4 . A4 F#4 D4 .',
+        type: 'triangle',
+        vol: 0.04,
+      },
     ],
   },
   ending: {
     bpm: 60,
     tracks: [
       { steps: 'D3 - - - Bb2 - - - F2 - - - C3 - - -', type: 'sine' },
-      { steps: 'A4 . F4 . D4 . . . F4 . C5 . A4 . D4 .', type: 'triangle', vol: 0.035 },
+      {
+        steps: 'A4 . F4 . D4 . . . F4 . C5 . A4 . D4 .',
+        type: 'triangle',
+        vol: 0.035,
+      },
     ],
   },
 }

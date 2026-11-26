@@ -73,6 +73,7 @@ import {
   mergePlumberAlbum,
   readPlumberSave,
   type PlumberFile,
+  type PlumberPower,
   type PlumberSave,
   type PlumberSlot,
 } from './savePlumberSave'
@@ -384,13 +385,7 @@ type Token = { x: number; y: number; taken: boolean }
 type Checkpoint = { x: number; y: number; reached: boolean }
 type Wave = { x: number; y: number; dir: number }
 type Soot = { x: number; y: number; vx: number; vy: number }
-export type PlumberPower =
-  | 'springstep'
-  | 'bottled-storm'
-  | 'pocket-lift'
-  | 'sailwing'
-  | 'ballast'
-  | 'tidecoat'
+export type { PlumberPower } from './savePlumberSave'
 type Pickup = {
   x: number
   y: number
@@ -780,6 +775,10 @@ export class PlumberRun implements ArcadeGameInstance {
   /** Load a slot's memory into the run (or clear it for a new slot). */
   private loadSlotMemory(slot: PlumberSlot | null) {
     this.heroName = slot?.name
+    this.power =
+      this.customLevel || this.autopilot ? null : (slot?.power ?? null)
+    this.reserve =
+      this.customLevel || this.autopilot ? null : (slot?.reserve ?? null)
     this.gears = new Set(slot?.gears ?? [])
     this.done = new Set(slot?.done ?? [])
     this.secrets = new Set(slot?.secrets ?? [])
@@ -829,6 +828,8 @@ export class PlumberRun implements ArcadeGameInstance {
       deaths: this.deaths,
       time: this.timeBase + Math.floor(this.playFrames / 60),
       ...(this.heroName ? { name: this.heroName } : {}),
+      ...(this.power ? { power: this.power } : {}),
+      ...(this.reserve ? { reserve: this.reserve } : {}),
       ...extra,
     }
     this.file = {
@@ -1003,7 +1004,6 @@ export class PlumberRun implements ArcadeGameInstance {
     this.score = chosen.score
     this.lives = chosen.lives
     this.tokens = chosen.tokens
-    this.reserve = null
     this.enterMap()
   }
 
@@ -1048,6 +1048,18 @@ export class PlumberRun implements ArcadeGameInstance {
         this.hero.vx = 0
         this.enterMap()
       }
+      return
+    }
+    if (keys.pressed.y) {
+      if (!this.reserve) {
+        this.sound.play('warn')
+        return
+      }
+      const previous = this.power
+      this.power = this.reserve
+      this.reserve = previous
+      this.remember()
+      playPlumberCue(this.sound, 'power')
       return
     }
     const dirs: MapDirection[] = ['up', 'down', 'left', 'right']
@@ -1206,6 +1218,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.score = 0
     this.lives = 1
     this.tokens = 0
+    this.power = null
     this.reserve = null
     this.loadDef(buildEndlessZone(this.zoneSeed, 0))
     this.setMode('intro', 90)
@@ -5237,6 +5250,19 @@ export class PlumberRun implements ArcadeGameInstance {
       '#ffd98a',
       'right',
     )
+    const powerLabel = (power: PlumberPower | null) =>
+      power ? power.replaceAll('-', ' ').toUpperCase() : 'EMPTY'
+    this.text(
+      g,
+      `POWER ${powerLabel(this.power)}  ·  RESERVE ${powerLabel(this.reserve)}`,
+      10,
+      H - 24,
+      9,
+      '#ffd98a',
+      'left',
+    )
+    if (this.reserve)
+      this.text(g, 'Y  EQUIP RESERVE', W - 10, H - 24, 9, '#ffd98a', 'right')
     const c = worldCompletion(world, progress)
     const soon = !nodeBuilt(here) && here.kind !== 'start'
     this.text(

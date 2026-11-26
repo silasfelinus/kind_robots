@@ -24,6 +24,21 @@ import {
 } from './savePlumberOverworld'
 import { PLUMBER_ROSTER, rosterIndex } from './savePlumberRoster'
 
+export const PLUMBER_POWERS = [
+  'springstep',
+  'bottled-storm',
+  'pocket-lift',
+  'sailwing',
+  'ballast',
+  'tidecoat',
+] as const
+
+export type PlumberPower = (typeof PLUMBER_POWERS)[number]
+
+function readPower(raw: unknown): PlumberPower | undefined {
+  return PLUMBER_POWERS.find((power) => power === raw)
+}
+
 /** One save slot: a heroine's whole adventure. */
 export type PlumberSlot = {
   /** The roster seed picked on the cabinet's heroine select. */
@@ -49,6 +64,8 @@ export type PlumberSlot = {
   time?: number
   /** A name the player typed at heroine select; absent keeps her roster name. */
   name?: string
+  power?: PlumberPower
+  reserve?: PlumberPower
 }
 
 /**
@@ -309,6 +326,8 @@ export function readPlumberSlot(
     deaths: count(r.deaths, 999_999) ? r.deaths : 0,
     time: count(r.time, 99_999_999) ? r.time : 0,
     ...(plumberName(r.name) ? { name: plumberName(r.name) } : {}),
+    ...(readPower(r.power) ? { power: readPower(r.power) } : {}),
+    ...(readPower(r.reserve) ? { reserve: readPower(r.reserve) } : {}),
   }
 }
 

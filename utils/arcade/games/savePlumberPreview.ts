@@ -185,6 +185,10 @@ const STORY: { art: string; lines: [string, string] }[] = [
   },
 ]
 const STORY_PANEL = 330
+/** Reading options (Settings): large text scales story and speech text; slow reading holds it longer. */
+export const PLUMBER_LARGE_TEXT = 1.25
+export const PLUMBER_SLOW_READING = 1.6
+const BOSS_LINE_TICKS = 150
 /** Ticks to walk one world-map path, and to draw a newly opened one. */
 const MAP_WALK = 26
 const MAP_REVEAL = 50
@@ -578,6 +582,8 @@ export class PlumberRun implements ArcadeGameInstance {
   cameraLead = 0
   private stillCamera = false
   private highContrast = false
+  readonly largeText: boolean
+  readonly slowReading: boolean
   /** Vertical scroll: 0 shows the top of the stage; the lowest view frames the ground. */
   cameraY = 0
   private pipeRooms: PipeRoom[] = []
@@ -661,6 +667,8 @@ export class PlumberRun implements ArcadeGameInstance {
     this.sound = options.sound
     this.stillCamera = options.stillCamera === true
     this.highContrast = options.highContrast === true
+    this.largeText = options.largeText === true
+    this.slowReading = options.slowReading === true
     this.rng = options.rng
     this.file = readPlumberFile(this.demo ? null : options.resume)
     this.resume = readPlumberSave(this.file)
@@ -1082,7 +1090,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.loadStage(0)
     this.remember()
     this.storyPanel = 0
-    this.setMode('story', STORY_PANEL)
+    this.setMode('story', this.storyPanelTicks)
   }
 
   private updateStory(keys: InputFrame) {
@@ -1091,7 +1099,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.storyPanel++
     this.sound.play('blip')
     if (this.storyPanel >= STORY.length) this.enterMap()
-    else this.modeTimer = STORY_PANEL
+    else this.modeTimer = this.storyPanelTicks
   }
 
   /** An Endless run: one life, the first zone, the pace of World 1. */
@@ -3714,7 +3722,7 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   private taunt(words: string) {
-    this.bossLine = { words, timer: 150 }
+    this.bossLine = { words, timer: this.bossLineTicks }
   }
 
   private updateBoss(prevBottom: number) {
@@ -4667,6 +4675,46 @@ export class PlumberRun implements ArcadeGameInstance {
     g.textAlign = 'left'
   }
 
+  /** How long a story panel stays up before it moves on by itself. */
+  get storyPanelTicks() {
+    return Math.round(
+      STORY_PANEL * (this.slowReading ? PLUMBER_SLOW_READING : 1),
+    )
+  }
+
+  /** How long a boss's speech plate stays up. */
+  get bossLineTicks() {
+    return Math.round(
+      BOSS_LINE_TICKS * (this.slowReading ? PLUMBER_SLOW_READING : 1),
+    )
+  }
+
+  /** The size reading text draws at: scaled by large text, shrunk to fit its width. */
+  readSize(
+    g: CanvasRenderingContext2D,
+    words: string,
+    size: number,
+    width = W - 16,
+  ) {
+    const wanted = this.largeText ? Math.round(size * PLUMBER_LARGE_TEXT) : size
+    g.font = `900 ${wanted}px "Lilita One", system-ui, sans-serif`
+    const wide = g.measureText(words).width
+    return wide > width ? Math.max(size, (wanted * width) / wide) : wanted
+  }
+
+  /** Story, banner and speech lines: drawn through the reading options. */
+  private read(
+    g: CanvasRenderingContext2D,
+    words: string,
+    x: number,
+    y: number,
+    size: number,
+    color = '#fff4dc',
+    width = W - 16,
+  ) {
+    this.text(g, words, x, y, this.readSize(g, words, size, width), color)
+  }
+
   private renderTitle(g: CanvasRenderingContext2D) {
     this.plate(g, '1-1', (Math.sin(this.tick / 400) + 1) / 2)
     g.fillStyle = 'rgba(12, 40, 52, 0.35)'
@@ -5147,7 +5195,7 @@ export class PlumberRun implements ArcadeGameInstance {
   private renderStory(g: CanvasRenderingContext2D) {
     const panel = STORY[Math.min(this.storyPanel, STORY.length - 1)]!
     const art = stagePlate(PLUMBER_ART.cutscene(panel.art))
-    const t = 1 - this.modeTimer / STORY_PANEL
+    const t = 1 - this.modeTimer / this.storyPanelTicks
     if (art) {
       const zoom = 1.04 + t * 0.06
       const w = W * zoom
@@ -5162,7 +5210,7 @@ export class PlumberRun implements ArcadeGameInstance {
     g.fillRect(0, H - 62, W, 62)
     const name = this.member.name
     panel.lines.forEach((line, i) =>
-      this.text(
+      this.read(
         g,
         line.replace('{name}', name),
         W / 2,
@@ -5219,7 +5267,7 @@ export class PlumberRun implements ArcadeGameInstance {
     g.fillStyle = 'rgba(12, 40, 52, 0.66)'
     g.fillRect(0, 96, W, 78)
     this.text(g, title, W / 2, 136, 30, '#ffd98a')
-    this.text(g, line, W / 2, 160, 12, '#d6f2ee')
+    this.read(g, line, W / 2, 160, 12, '#d6f2ee')
   }
 
   private renderVictory(g: CanvasRenderingContext2D) {
@@ -5233,7 +5281,7 @@ export class PlumberRun implements ArcadeGameInstance {
     const teo = drawSprite(g, PLUMBER_ART.cast('teo-helping'), 150, 230, 150)
     if (!teo) drawSprite(g, PLUMBER_ART.cast('teo-caged'), 150, 230, 150)
     this.drawHeroSprite(g, 320, 230, 'cheer', 2.2)
-    this.text(
+    this.read(
       g,
       `${world.boss.name} lets the river go.`,
       W / 2,
@@ -5241,7 +5289,7 @@ export class PlumberRun implements ArcadeGameInstance {
       13,
       '#fff4dc',
     )
-    this.text(
+    this.read(
       g,
       this.stageIndex + 1 < CAMPAIGN.length && next
         ? `Teo’s trail leads on to ${next.name}.`
@@ -5282,10 +5330,10 @@ export class PlumberRun implements ArcadeGameInstance {
     const line = (i: 0 | 1) =>
       ending.lines[i].replace('{name}', this.member.name)
     this.text(g, ending.title, W / 2, 40, 28, '#ffd98a')
-    this.text(g, line(0), W / 2, 66, 12, '#fff4dc')
-    this.text(g, line(1), W / 2, 84, 12, '#d6f2ee')
+    this.read(g, line(0), W / 2, 66, 12, '#fff4dc')
+    this.read(g, line(1), W / 2, 84, 12, '#d6f2ee')
     // Her own epilogue: the finale adapts to the heroine who played it.
-    this.text(g, this.member.epilogue, W / 2, 104, 10, '#f2c6a0')
+    this.read(g, this.member.epilogue, W / 2, 104, 10, '#f2c6a0')
     const teo = drawSprite(g, PLUMBER_ART.cast('teo-helping'), 160, 236, 120)
     if (!teo) drawSprite(g, PLUMBER_ART.cast('teo-caged'), 160, 236, 120)
     this.drawHeroSprite(g, 320, 236, 'cheer', 1.95)
@@ -6905,9 +6953,19 @@ export class PlumberRun implements ArcadeGameInstance {
       // The boss's line: a dark speech plate below the bar, under any gear flash.
       const top = this.gearFlash ? 56 : 30
       g.fillStyle = 'rgba(28, 63, 82, 0.78)'
-      g.fillRect(W / 2 - 170, top, 340, 34)
+      // Large text gets a taller plate so the line clears the name.
+      const tall = this.largeText ? 4 : 0
+      g.fillRect(W / 2 - 170, top, 340, 34 + tall)
       this.text(g, this.boss.name.toUpperCase(), W / 2, top + 12, 9, '#ffb59e')
-      this.text(g, `“${this.bossLine.words}”`, W / 2, top + 28, 13, '#fff1ce')
+      this.read(
+        g,
+        `“${this.bossLine.words}”`,
+        W / 2,
+        top + 28 + tall,
+        13,
+        '#fff1ce',
+        332,
+      )
     }
     if (this.power) {
       g.fillStyle = 'rgba(255, 244, 220, 0.25)'

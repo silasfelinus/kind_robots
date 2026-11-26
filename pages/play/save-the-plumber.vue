@@ -477,6 +477,34 @@
                     {{ arcade.highContrast ? 'ON' : 'OFF' }}
                   </button>
                 </div>
+                <div class="plumber-guide-action justify-between">
+                  <span class="plumber-guide-description">
+                    <strong>Large text</strong>
+                    <small>Bigger story, banner and boss lines</small>
+                  </span>
+                  <button
+                    type="button"
+                    class="plumber-control"
+                    :aria-pressed="arcade.largeText"
+                    @click="arcade.setLargeText(!arcade.largeText)"
+                  >
+                    {{ arcade.largeText ? 'ON' : 'OFF' }}
+                  </button>
+                </div>
+                <div class="plumber-guide-action justify-between">
+                  <span class="plumber-guide-description">
+                    <strong>Slow reading</strong>
+                    <small>Story panels and boss lines stay up longer</small>
+                  </span>
+                  <button
+                    type="button"
+                    class="plumber-control"
+                    :aria-pressed="arcade.slowReading"
+                    @click="arcade.setSlowReading(!arcade.slowReading)"
+                  >
+                    {{ arcade.slowReading ? 'ON' : 'OFF' }}
+                  </button>
+                </div>
               </div>
               <div class="plumber-guide-bottom">
                 <p>Settings take effect when you enter the game.</p>

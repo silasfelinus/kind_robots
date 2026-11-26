@@ -1710,6 +1710,8 @@ function enterPhase(next: ArcadePhase) {
         hiScore: hiScore(),
         stillCamera: store.stillCamera,
         highContrast: store.highContrast,
+        largeText: store.largeText,
+        slowReading: store.slowReading,
         comms: store.comms,
       }),
     )
@@ -1772,6 +1774,8 @@ function startGame() {
       selectScreen: true,
       stillCamera: store.stillCamera,
       highContrast: store.highContrast,
+      largeText: store.largeText,
+      slowReading: store.slowReading,
       comms: store.comms,
       difficulty: meta.value?.difficulty ? difficulty.value : undefined,
     }),

@@ -215,6 +215,10 @@ export type ArcadeGameOptions = {
   stillCamera?: boolean
   /** Draw hostile shots on an opaque dark disc with a bright ring, for a game whose meta sets highContrast. */
   highContrast?: boolean
+  /** Draw story, banner and speech text larger (Save the Plumber reading options). */
+  largeText?: boolean
+  /** Hold story panels and speech plates longer before they move on (Save the Plumber reading options). */
+  slowReading?: boolean
   /** How much crew chatter to show, for a game whose meta sets comms (default full). */
   comms?: ArcadeComms
   /** Isolated Rainbow Act replay snapshot, never promoted to the campaign save. */

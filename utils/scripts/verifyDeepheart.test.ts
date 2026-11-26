@@ -1,4 +1,13 @@
 import assert from 'node:assert/strict'
+import {
+  DeepheartSound,
+  DEEPHEART_THEMES,
+  DEEPHEART_CUES,
+  deepheartAudioFrame,
+  deepheartCues,
+  deepheartMood,
+} from '../deepheart/sound'
+import { noteFreq, parseLoop, type ArcadeSound } from '../arcade/sound'
 import { parseDeepheartBackup } from '../deepheart/accountBackup'
 import { readFileSync, readdirSync } from 'node:fs'
 import { parse as parseYaml } from 'yaml'
@@ -1331,3 +1340,67 @@ assert.match(
   readFileSync('server/api/deepheart/account-save.put.ts', 'utf8'),
   /revision: prior/,
 )
+
+{
+  for (const theme of Object.values(DEEPHEART_THEMES)) {
+    const parsed = parseLoop(theme)
+    assert.equal(parsed.length, 16)
+    assert.ok(parsed.notes.length > 0)
+  }
+  assert.equal(
+    new Set(Object.values(DEEPHEART_THEMES).map((theme) => JSON.stringify(theme))).size,
+    7,
+  )
+  for (const cue of Object.values(DEEPHEART_CUES))
+    assert.ok(cue.every((pitch) => noteFreq(pitch) !== null))
+
+  const run = createRun(hero('idris'), ['brannoc'], 42)
+  const frame = deepheartAudioFrame(run, 'delve')
+  assert.equal(deepheartMood(frame), 'ossuary')
+  assert.equal(deepheartMood({ ...frame, layer: 1 }), 'drowned')
+  assert.equal(deepheartMood({ ...frame, layer: 2 }), 'ember')
+  assert.equal(deepheartMood({ ...frame, phase: 'camp' }), 'campfire')
+  assert.equal(deepheartMood({ ...frame, phase: 'fight' }), 'combat')
+  assert.equal(deepheartMood({ ...frame, active: false }), 'title')
+  assert.deepEqual(deepheartCues(frame, { ...frame, layer: 1 }), ['descent'])
+  assert.deepEqual(deepheartCues(frame, { ...frame, phase: 'fight' }), ['danger'])
+  assert.deepEqual(deepheartCues(frame, { ...frame, phase: 'camp' }), ['rest'])
+  assert.deepEqual(deepheartCues(frame, { ...frame, hp: frame.hp - 1 }), ['wound'])
+  assert.deepEqual(deepheartCues(frame, { ...frame, ending: 'fallen' }), ['fallen'])
+  assert.deepEqual(deepheartCues(frame, frame), [])
+
+  const calls: string[] = []
+  const player: ArcadeSound = {
+    play: () => {},
+    playNotes: () => calls.push('cue'),
+    startMusic: () => calls.push('music'),
+    stopMusic: () => calls.push('stop'),
+    unlock: () => calls.push('unlock'),
+    muted: false,
+    setMuted: (muted) => calls.push(muted ? 'mute' : 'unmute'),
+    setVolume: (volume) => calls.push(String(volume)),
+    context: () => null,
+    routeMusic: () => {},
+    dispose: () => calls.push('dispose'),
+  }
+  const sound = new DeepheartSound(() => player)
+  sound.setMood('campfire')
+  sound.configure(false, false, false)
+  sound.unlock()
+  assert.deepEqual(calls, [], 'no context before an enabled gesture')
+  sound.configure(true, false, false)
+  assert.deepEqual(calls, [])
+  sound.unlock()
+  assert.ok(calls.includes('music'))
+  sound.play(['rest'])
+  assert.equal(calls.filter((call) => call === 'cue').length, 1)
+  sound.configure(true, true, false)
+  sound.play(['danger'])
+  assert.equal(calls.filter((call) => call === 'cue').length, 1)
+  sound.configure(true, false, true)
+  assert.ok(calls.includes('stop'))
+  sound.configure(true, false, false)
+  assert.equal(calls.filter((call) => call === 'music').length, 2)
+  sound.dispose()
+  assert.equal(calls.at(-1), 'dispose')
+}

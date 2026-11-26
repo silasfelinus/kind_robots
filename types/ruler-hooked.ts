@@ -340,6 +340,15 @@ export interface ClassicFishingCheckpoint {
   stops: number[]
 }
 
+export interface QuizFishingCheckpoint {
+  encounterId: string
+  question?: import('~/utils/rulerHooked/quiz').FishingQuizQuestion
+  scope?: string
+  introduction?: boolean
+  feedback?: string
+  answerSheet?: boolean
+}
+
 export interface RunSave {
   schemaVersion: number
   saveId: string
@@ -369,6 +378,7 @@ export interface RunSave {
   pendingCardId?: string
   pendingFinaleKey?: string
   pendingClassicFishing?: ClassicFishingCheckpoint
+  pendingQuizFishing?: QuizFishingCheckpoint
   /** Has this reign's once-per-reign opening (ruler-hooked/t-028) been
    *  dismissed? Old saves migrate to `false` (save.ts's migrateSave), so a
    *  pre-existing reign gets the introduction once too, same as a new one. */

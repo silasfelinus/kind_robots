@@ -8,6 +8,7 @@ import { defineStore } from 'pinia'
 import { RULER_HOOKED_CONTENT as BUNDLE } from '~/utils/rulerHooked/content'
 import { createRun } from '~/utils/rulerHooked/newGame'
 import { readCourtCheckpoint } from '~/utils/rulerHooked/courtCheckpoint'
+import { readQuizCheckpoint, validQuizCheckpoint } from '~/utils/rulerHooked/quizCheckpoint'
 import {
   classicCheckpoint,
   readClassicCheckpoint,
@@ -87,6 +88,7 @@ import type {
   CharacterRef,
   RunSave,
   SaveSlotMeta,
+  QuizFishingCheckpoint,
 } from '~/types/ruler-hooked'
 
 import type { RoyalScrapbook } from '~/utils/rulerHooked/scrapbook'
@@ -178,6 +180,8 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
       if (encounter) {
         activeFishing.value = startSimpleFishing(save.value)
         activeClassicFishing.value = encounter
+      } else if (readQuizCheckpoint(save.value)) {
+        activeFishing.value = startSimpleFishing(save.value)
       }
     }
   }
@@ -296,7 +300,31 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     activeFishing.value = startSimpleFishing(save.value)
     activeClassicFishing.value =
       mode === 'classic' ? startFishingEncounter(save.value) : null
-    if (activeClassicFishing.value) persist()
+    save.value.pendingQuizFishing =
+      mode === 'quiz'
+        ? { encounterId: startFishingEncounter(save.value).id }
+        : undefined
+    persist()
+  }
+
+  function saveQuizCheckpoint(checkpoint: QuizFishingCheckpoint): boolean {
+    if (
+      !save.value ||
+      !activeFishing.value ||
+      activeClassicFishing.value ||
+      !validQuizCheckpoint(checkpoint) ||
+      checkpoint.encounterId !== save.value.pendingQuizFishing?.encounterId
+    ) return false
+    save.value.pendingQuizFishing = checkpoint
+    persist()
+    return true
+  }
+
+  function switchQuizToClassic() {
+    if (!save.value || !activeFishing.value || activeClassicFishing.value)
+      return
+    activeClassicFishing.value = startFishingEncounter(save.value)
+    persist()
   }
 
   /** One input on every beat: the visual stop bar resolves reel/slack/wait.
@@ -474,6 +502,8 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
       save.value.pendingClassicFishing = activeClassicFishing.value
         ? classicCheckpoint(activeClassicFishing.value)
         : undefined
+      if (!activeFishing.value || activeClassicFishing.value)
+        save.value.pendingQuizFishing = undefined
       writeSave(save.value, nowStamp())
     }
     refreshSlots()
@@ -568,6 +598,8 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     updateCosmetics,
     loadSlot,
     startFishing,
+    saveQuizCheckpoint,
+    switchQuizToClassic,
     classicStop,
     fishingStop,
     reelFishing,

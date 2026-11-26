@@ -58,6 +58,7 @@ import {
   worstClashPairings,
 } from './slimeCityClashBalanceReport'
 import { clashSpectacle } from '../slimeCity/clashSpectacle'
+import { reportCalibrationCandidates } from './slimeCityCalibrationDiagnostic'
 
 // Canonical editorial contract: every currently playable card renders complete
 // level-specific text. Choice A and B are separately inspectable; no branch
@@ -2538,6 +2539,15 @@ console.log(
     ]),
   ),
 )
+// On a failed sweep, collect measured alternatives in CI before asserting the
+// original acceptance limits. The diagnostic never changes the tested engine.
+const rates = Object.values(sweep.crews).map((r) => r.wins / r.games)
+if (
+  rates.some((rate) => rate <= 0.42 || rate >= 0.58) ||
+  Math.max(...rates) - Math.min(...rates) > 0.12 ||
+  worstClashPairings(sweep)[0]!.rate <= 0.3
+)
+  reportCalibrationCandidates()
 assert.ok(
   sweep.firstSeatWins / sweep.games > 0.4 &&
     sweep.firstSeatWins / sweep.games < 0.62,

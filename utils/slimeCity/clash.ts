@@ -382,10 +382,12 @@ export const CLASH_CREW_BUDGET: Partial<Record<TeamId, number>> = {
 }
 // V2 support and trap tempo shifts the starter matchups; correct the crew
 // life budgets only for new matches. V1 transcripts remain deterministic.
-const CLASH_V2_CREW_ADJUSTMENT: Partial<Record<TeamId, number>> = {
-  ironjaw: -0.5,
-  riot: 0.5,
-  exchange: -0.5,
+const CLASH_V2_CREW_ADJUSTMENT: Partial<
+  Record<TeamId, [number, number, number]>
+> = {
+  ironjaw: [0, -0.5, -0.5],
+  riot: [0, 0.5, 0],
+  exchange: [-0.5, -0.5, -0.5],
 }
 export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
   ambush: 'Ambush: attacks immediately; +1 first strike.',
@@ -458,7 +460,7 @@ export function clashBalance(
         (card.team === 'mercenary'
           ? 0
           : (CLASH_CREW_BUDGET[card.team] ?? 0) +
-            (tempo ? (CLASH_V2_CREW_ADJUSTMENT[card.team] ?? 0) : 0)) -
+            (tempo ? (CLASH_V2_CREW_ADJUSTMENT[card.team]?.[tier] ?? 0) : 0)) -
         attack * 2 -
         armor * CLASH_ARMOR_COST -
         traits,

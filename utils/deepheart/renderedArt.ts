@@ -3,6 +3,26 @@
 // Older landscape and ending plates remain provisional pending repaint.
 // Separate private mature Furrytoon portraits are intentionally excluded.
 export const DEEPHEART_ART_IDS: Readonly<Record<string, number>> = {
+  'achievement:deepheart-first-delve': 274139,
+  'achievement:deepheart-warden': 274140,
+  'achievement:deepheart-brine': 274141,
+  'achievement:deepheart-hollow-king': 274165,
+  'achievement:deepheart-first-ending': 274166,
+  'achievement:deepheart-every-ending': 274167,
+  'achievement:deepheart-lanterns-out': 274168,
+  'achievement:deepheart-heartfelt': 274169,
+  'achievement:deepheart-hearth': 274170,
+  'achievement:deepheart-sworn': 274171,
+  'achievement:deepheart-kindred': 274172,
+  'achievement:deepheart-duo': 274173,
+  'achievement:deepheart-perfect-party': 274174,
+  'achievement:deepheart-riddler': 274175,
+  'achievement:deepheart-mimic': 274176,
+  'achievement:deepheart-hoard': 274177,
+  'achievement:deepheart-dawn': 274178,
+  'achievement:deepheart-redeemer': 274179,
+  'achievement:deepheart-met-all': 274180,
+  'achievement:deepheart-untouched': 274181,
   'cast:aldous': 275172,
   'cast:ambrose': 275173,
   'cast:ash': 275147,
@@ -150,3 +170,10 @@ export function deepheartArtSrc(key: string): string | undefined {
   const id = DEEPHEART_ART_IDS[key]
   return id ? `/api/deepheart/art/${id}` : undefined
 }
+
+export const DEEPHEART_ACHIEVEMENT_ART: Readonly<Record<string, string>> =
+  Object.fromEntries(
+    Object.entries(DEEPHEART_ART_IDS)
+      .filter(([key]) => key.startsWith('achievement:'))
+      .map(([key, id]) => [key.slice(12), `/api/deepheart/art/${id}`]),
+  )

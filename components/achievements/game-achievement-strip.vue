@@ -46,6 +46,7 @@
             class="kr-img-cover"
             :class="entry.earned ? '' : 'game-achievement-locked'"
             loading="lazy"
+            @error="markImageFailed(entry.imagePath)"
           />
           <Icon
             v-else
@@ -101,6 +102,7 @@
             class="kr-img-cover"
             :class="entry.earned ? '' : 'game-achievement-locked'"
             loading="lazy"
+            @error="markImageFailed(entry.imagePath)"
           />
           <Icon
             v-else
@@ -154,14 +156,20 @@ import {
 const props = withDefaults(
   defineProps<{
     game: string
+    artOverrides?: Readonly<Record<string, string>>
     layout?: 'list' | 'row' | 'icons'
   }>(),
-  { layout: 'list' },
+  { layout: 'list', artOverrides: () => ({}) },
 )
 
 const achievementStore = useAchievementStore()
 const userStore = useUserStore()
 const openBadge = ref('')
+const failedImages = ref(new Set<string>())
+
+function markImageFailed(src: string | null) {
+  if (src) failedImages.value.add(src)
+}
 
 const title = computed(
   () => ACHIEVEMENT_GAMES.find((game) => game.key === props.game)?.title ?? '',
@@ -174,9 +182,12 @@ const layoutClass = computed(() =>
 const entries = computed(() =>
   achievementsForGame(props.game).map((entry) => {
     const row = achievementStore.achievementByCode(entry.code)
+    const imagePath = [props.artOverrides?.[entry.code], row?.imagePath].find(
+      (src) => src && !failedImages.value.has(src),
+    )
     return {
       ...entry,
-      imagePath: row?.imagePath || null,
+      imagePath: imagePath || null,
       earned: achievementStore.hasEarnedCode(entry.code),
     }
   }),

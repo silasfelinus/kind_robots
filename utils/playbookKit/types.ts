@@ -144,6 +144,7 @@ export type PlaybookKitSpec = {
   /** Scoped daisyUI theme the console frame wears (default `forge`). */
   theme?: string
   keyArt: KitArt
+  achievementArt?: Readonly<Record<string, string>>
   acts: KitAct[]
   meters: KitMeter[]
   factions: KitFaction[]

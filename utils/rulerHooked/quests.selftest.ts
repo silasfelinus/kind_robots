@@ -17,7 +17,10 @@ import {
   eligibleEnding,
   takeTurn,
 } from '~/utils/rulerHooked/loop'
-import { hearProclamation, pendingProclamation } from '~/utils/rulerHooked/dailyEvents'
+import {
+  hearProclamation,
+  pendingProclamation,
+} from '~/utils/rulerHooked/dailyEvents'
 import { availableFish, RULER_HOOKED_FISH } from '~/utils/rulerHooked/fish'
 import { makeRng } from '~/utils/rulerHooked/seed'
 import { CARD_PROMPTS, FISH_PROMPTS } from '~/utils/rulerHooked/artPrompts'

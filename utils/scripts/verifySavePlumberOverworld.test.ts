@@ -12,12 +12,16 @@ import {
   CHAPEL_COURSES,
   DRIP_PARLOUR,
   RUSTBOLT_KEEP,
+  SLUICEGATE_STEPS,
+  optionalCourse,
+  optionalCourseAtNode,
   HUSH_DOOR_OFFSETS,
   HUSH_FLOOR_ROW,
   hushDestination,
   parseStage,
   SOLID_BLOCK,
   SOLID_LOCK,
+  SOLID_LADDER,
   TILE,
   VERDIGRIS_CHAPEL,
 } from '../arcade/games/savePlumberLevels'
@@ -131,7 +135,7 @@ assert.ok(
 const w1 = worldCompletion(1, { done: ['1-1', '1-2'], gears: ['1-1'] })
 assert.deepEqual(
   [w1.stages, w1.stagesDone, w1.gears, w1.gearsFound, w1.secrets],
-  [7, 2, 4, 1, 2],
+  [8, 2, 4, 1, 2],
 )
 assert.equal(completionPercent(fresh), 0)
 const everything = CAMPAIGN.map((s) => s.code)
@@ -142,6 +146,7 @@ assert.equal(
       ...CHAPEL_COURSES.map((c) => c.code),
       DRIP_PARLOUR.code,
       RUSTBOLT_KEEP.code,
+      '1-4',
     ],
     gears: everything,
     secrets: [...SECRET_EXITS_READY],
@@ -591,6 +596,79 @@ assert.ok(nodeReachable('1-4', keep.progress))
 const keepReload = createSavePlumberPreview(options(keep.save))
 assert.ok(keepReload.done.has('1-f'))
 assert.ok(nodeReachable('1-4', keepReload.progress))
+
+// The dam has a separate runtime identity from the legacy castle stage.
+assert.equal(stageNode('1-4')?.id, '1-castle')
+assert.equal(stageNode(SLUICEGATE_STEPS.code)?.id, '1-4')
+assert.equal(optionalCourse('1-4'), undefined)
+assert.equal(optionalCourseAtNode('1-4'), SLUICEGATE_STEPS)
+assert.equal(optionalCourseAtNode('1-castle'), undefined)
+assert.ok(!nodeReachable('1-castle', keep.progress))
+const sluice = createSavePlumberPreview(
+  options({
+    v: 3,
+    active: 0,
+    slots: [
+      {
+        heroine: 3,
+        stage: 2,
+        node: '1-4',
+        done: ['1-1', '1-2', '1-h', '1-3', '1-f'],
+        score: 0,
+        lives: 3,
+        tokens: 0,
+      },
+      null,
+      null,
+    ],
+  }),
+)
+press(sluice, 'start')
+press(sluice, 'a')
+press(sluice, 'a')
+press(sluice, 'a')
+assert.equal(sluice.stage.code, SLUICEGATE_STEPS.code)
+assert.equal(sluice.mode, 'play')
+assert.equal(sluice.boss, null)
+for (let row = 13; row <= 20; row++)
+  assert.equal(sluice.solidAt(29, row), SOLID_LADDER)
+const damInput = emptyInput()
+damInput.held.right = true
+for (let i = 0; i < 260; i++) sluice.update(damInput)
+assert.equal(Math.floor(sluice.hero.x / TILE), 29)
+const lowerCamera = sluice.cameraY
+damInput.held.right = false
+damInput.held.up = true
+sluice.update(damInput)
+assert.ok(sluice.climbing)
+for (let i = 0; i < 100 && sluice.climbing; i++)
+  sluice.update(damInput)
+assert.ok(sluice.hero.y + 20 <= 13 * TILE + 1)
+assert.ok(sluice.cameraY < lowerCamera)
+damInput.held.up = false
+damInput.held.right = true
+for (let i = 0; i < 200 && !sluice.checkpoints[0]!.reached; i++)
+  sluice.update(damInput)
+assert.ok(sluice.checkpoints[0]!.reached)
+const damLives = sluice.lives
+sluice.hero.y = sluice.stage.rows * TILE + 60
+for (let i = 0; i < 600 && sluice.lives === damLives; i++)
+  sluice.update(input)
+assert.equal(sluice.stage.code, SLUICEGATE_STEPS.code)
+assert.equal(sluice.mode, 'play')
+assert.equal(sluice.hero.x, sluice.checkpoint.x)
+assert.ok(sluice.checkpoints[0]!.reached)
+for (let i = 0; i < 1000 && sluice.mode === 'play'; i++)
+  sluice.update(damInput)
+assert.equal(sluice.mode, 'clear')
+for (let i = 0; i < 200 && sluice.modeTimer; i++) sluice.update(input)
+assert.equal(sluice.mode, 'map')
+assert.ok(sluice.done.has('1-4'))
+assert.ok(!sluice.done.has('1-castle'))
+assert.ok(nodeReachable('1-castle', sluice.progress))
+const damReload = createSavePlumberPreview(options(sluice.save))
+assert.ok(damReload.done.has('1-4'))
+assert.ok(!damReload.done.has('1-castle'))
 
 // Deaths are remembered on the slot.
 press(next, 'a')

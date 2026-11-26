@@ -1293,10 +1293,56 @@ export const RUSTBOLT_KEEP: StageDef = {
   }),
 }
 
+// The map's 1-4 node is distinct from the original castle stage code 1-4.
+export const SLUICEGATE_NODE_ID = '1-4'
+export const SLUICEGATE_STEPS: StageDef = {
+  code: '1-sluice',
+  name: 'Sluicegate Steps',
+  rows: Array.from({ length: 24 }, (_, row) => {
+    const line = Array.from({ length: 76 }, () => '.')
+    if (row >= 21) line.fill('#')
+    if (row >= 13 && row < 21) {
+      for (let col = 30; col < line.length; col++) line[col] = '#'
+      line[29] = '|'
+    }
+    if (row === 20) {
+      line[2] = '@'
+      for (const col of [8, 12, 16, 20, 24]) line[col] = 'o'
+    }
+    if (row === 12) {
+      line[44] = 'K'
+      line[50] = 's'
+      line[71] = 'G'
+    }
+    if (row === 9) {
+      for (let col = 34; col <= 40; col++) line[col] = '='
+      for (let col = 54; col <= 61; col++) line[col] = '='
+    }
+    if (row === 8) {
+      for (const col of [35, 37, 39, 55, 57, 59]) line[col] = 'o'
+    }
+    if (row === 6) {
+      for (let col = 62; col <= 67; col++) line[col] = '='
+    }
+    if (row === 5) {
+      line[63] = 'o'
+      line[65] = 'o'
+      line[67] = 'o'
+    }
+    return line.join('')
+  }),
+}
+
 export function optionalCourse(code: string | undefined): StageDef | undefined {
   if (code === DRIP_PARLOUR.code) return DRIP_PARLOUR
   if (code === RUSTBOLT_KEEP.code) return RUSTBOLT_KEEP
+  if (code === SLUICEGATE_STEPS.code) return SLUICEGATE_STEPS
   return chapelCourse(code)
+}
+
+export function optionalCourseAtNode(id: string | undefined): StageDef | undefined {
+  if (id === SLUICEGATE_NODE_ID) return SLUICEGATE_STEPS
+  return optionalCourse(id)
 }
 
 /** Every playable stage, in campaign order. */

@@ -88,6 +88,15 @@
   )
 
   const embedded = new URLSearchParams(location.search).get('embedded') === '1'
+  // ?qa=1: a read-only view of the level in progress for the browser playthrough contract
+  // (utils/scripts/verifyHopefulHuesBrowser.browser.test.mjs). It changes nothing in play.
+  if (new URLSearchParams(location.search).get('qa') === '1')
+    window.__hhQA = {
+      state: () => (game ? game.state : null),
+      busy: () => !game || !!game.busy || !!game.coachOpen,
+      level: () => (game ? game.id : null),
+      slot: () => slot(),
+    }
   const storage = (() => {
     try {
       localStorage.setItem('hh-probe', '1')
@@ -685,8 +694,8 @@
         <span class="chip" title="Stars">⭐ ${stars}</span>
         <span class="chip" title="Sparkles">✨ ${s.sparkles}</span>
         <span class="spacer"></span>
-        <button class="btn small" data-action="quests">🌈<span class="label-text"> Quests</span>${claimable ? `<span class="badge">${claimable}</span>` : ''}</button>
-        <button class="btn small" data-action="hero">🗺️<span class="label-text"> Worlds</span></button>
+        <button class="btn small" data-action="quests" aria-label="${claimable ? `Quests, ${claimable} ready to claim` : 'Quests'}">🌈<span class="label-text"> Quests</span>${claimable ? `<span class="badge">${claimable}</span>` : ''}</button>
+        <button class="btn small" data-action="hero" aria-label="Worlds">🗺️<span class="label-text"> Worlds</span></button>
         <button class="btn small icon" data-action="scrapbook" aria-label="Scrapbook">📔</button>
         <button class="btn small icon" data-action="trophies" aria-label="Achievements">🏆</button>
         <button class="btn small icon" data-action="settings" aria-label="Settings">⚙️</button>

@@ -341,7 +341,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 counters: { druidFavors: +1 },
                 grant: [{ reward: 'druid-charm' }],
               },
-              result: 'Sela plants a grove with the village children. Vex packs up his survey pegs and sends the unemployed millwrights home. The water stays clear, but Quill keeps their petition for work on his desk.',
+              result:
+                'Sela plants a grove with the village children. Vex packs up his survey pegs and sends the unemployed millwrights home. The water stays clear, but Quill keeps their petition for work on his desk.',
             },
             {
               id: 'defer',
@@ -369,13 +370,15 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { joy: +8, treasury: -6 },
                 counters: { festivals: +1 },
               },
-              result: 'The square fills with lanterns and music. The baker sends the leftover bread to households that missed the feast. Gristle files the bill under Necessary Extravagance, with a question mark.',
+              result:
+                'The square fills with lanterns and music. The baker sends the leftover bread to households that missed the feast. Gristle files the bill under Necessary Extravagance, with a question mark.',
             },
             {
               id: 'modest',
               text: 'Keep it modest.',
               effects: { sliders: { joy: +2 } },
-              result: 'The villagers bring their own dishes, and Fen plays for a bowl of stew. It is a smaller celebration, but nobody goes home hungry.',
+              result:
+                'The villagers bring their own dishes, and Fen plays for a bowl of stew. It is a smaller celebration, but nobody goes home hungry.',
             },
             {
               id: 'skip',
@@ -406,7 +409,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               id: 'decline',
               text: 'Rulers don’t compete. (You’re nervous.)',
               effects: { sliders: { order: +2 } },
-              result: 'The noble pockets his trophy, disappointed that he cannot boast of beating the crown. Quill records a diplomatic success. You record a missed opportunity.',
+              result:
+                'The noble pockets his trophy, disappointed that he cannot boast of beating the crown. Quill records a diplomatic success. You record a missed opportunity.',
             },
           ],
         },
@@ -435,7 +439,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 flags: { set: ['farShoreFleetSettled'] },
                 counters: { warlockFavors: +1 },
               },
-              result: 'The new barges bring wages, cargo and enough smoke to hide the sunset. Vex buys a yacht from the first dividend. Sela asks whether the village can afford to buy its clean water back.',
+              result:
+                'The new barges bring wages, cargo and enough smoke to hide the sunset. Vex buys a yacht from the first dividend. Sela asks whether the village can afford to buy its clean water back.',
             },
             {
               id: 'cap-it',
@@ -444,7 +449,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { nature: -4, prosperity: +6, treasury: +3 },
                 flags: { set: ['farShoreFleetSettled'] },
               },
-              result: 'Vex signs a smaller contract and crosses out three of his proposed chimneys. The millworkers keep their shifts without a full fleet. “A pilot project,” he says. “A very profitable pilot project.”',
+              result:
+                'Vex signs a smaller contract and crosses out three of his proposed chimneys. The millworkers keep their shifts without a full fleet. “A pilot project,” he says. “A very profitable pilot project.”',
             },
             {
               id: 'defer-vex',
@@ -490,7 +496,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { nature: +8, prosperity: -2 },
                 flags: { set: ['treelineSanctuarySettled'] },
               },
-              result: 'Sela marks the protected half with willow stakes and asks the builders to keep their wheels outside them. Vex gets room for a few cottages. Neither calls it a victory; both sign.',
+              result:
+                'Sela marks the protected half with willow stakes and asks the builders to keep their wheels outside them. Vex gets room for a few cottages. Neither calls it a victory; both sign.',
             },
             {
               id: 'defer-sela',
@@ -520,7 +527,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { treasury: +12, joy: -8 },
                 counters: { taxHikes: +1 },
               },
-              result: 'Gristle pays the overdue bridge repairs from the levy. In the market, a mother puts back a second loaf. The accounts balance; the queue outside the bakery grows quieter.',
+              result:
+                'Gristle pays the overdue bridge repairs from the levy. In the market, a mother puts back a second loaf. The accounts balance; the queue outside the bakery grows quieter.',
             },
             {
               id: 'cut-taxes',
@@ -559,7 +567,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 regionOverride: { village_edge: 'township' },
                 counters: { cordeliaFavors: +1 },
               },
-              result: 'The masons get work, and the village gains a stout gate. Farmers must now walk around the wall to reach their fields. Cordelia posts a guard beside the complaint box.',
+              result:
+                'The masons get work, and the village gains a stout gate. Farmers must now walk around the wall to reach their fields. Cordelia posts a guard beside the complaint box.',
             },
             {
               id: 'open-borders',
@@ -604,7 +613,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { joy: +4, order: -3 },
                 counters: { balladsSung: +1 },
               },
-              result: 'Fen writes about the fish, the late petitions and the people who keep the realm running while you cast. The chorus is not flattering, but people sing it without being asked.',
+              result:
+                'Fen writes about the fish, the late petitions and the people who keep the realm running while you cast. The chorus is not flattering, but people sing it without being asked.',
             },
             {
               id: 'shoo-bard',
@@ -645,7 +655,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { order: +8, treasury: -2 },
                 flags: { set: ['smugglerReported'] },
               },
-              result: 'Cordelia finds the unmarked cargo and returns it to the merchants. Brack escapes in a borrowed dinghy. She promises to bring you the man himself next time.',
+              result:
+                'Cordelia finds the unmarked cargo and returns it to the merchants. Brack escapes in a borrowed dinghy. She promises to bring you the man himself next time.',
             },
             {
               id: 'defer-brack',
@@ -722,7 +733,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               id: 'taunt',
               text: 'Taunt them instead.',
               effects: { sliders: { joy: +10, order: -5 } },
-              result: 'The noble turns crimson while the village fishers applaud your imitation of his casting technique. Quill quietly removes the word dignified from the official account.',
+              result:
+                'The noble turns crimson while the village fishers applaud your imitation of his casting technique. Quill quietly removes the word dignified from the official account.',
             },
           ],
         },
@@ -752,7 +764,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               id: 'modest-plot',
               text: 'A modest plot will do.',
               effects: { sliders: { joy: +4 } },
-              result: 'Ash builds a little greenhouse from salvaged windows. Robin learns to carry water without a footman. They send you the first crooked cucumber, tied with the ribbon from their wedding.',
+              result:
+                'Ash builds a little greenhouse from salvaged windows. Robin learns to carry water without a footman. They send you the first crooked cucumber, tied with the ribbon from their wedding.',
             },
           ],
         },
@@ -1966,7 +1979,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               id: 'leave-it',
               text: 'Let the lake keep its secrets.',
               effects: { sliders: { nature: +4, joy: +3 } },
-              result: 'Brack marks the chest with a little drawing of a sleeping fish. The chart becomes a souvenir, and the lakebed remains undisturbed. You have refused a fortune, not a future appointment.',
+              result:
+                'Brack marks the chest with a little drawing of a sleeping fish. The chart becomes a souvenir, and the lakebed remains undisturbed. You have refused a fortune, not a future appointment.',
             },
           ],
         },
@@ -2186,7 +2200,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 flags: { set: ['blessedMatch'] },
                 sliders: { joy: +6 },
               },
-              result: 'You ask Robin whether Ash has been asked what they want. “Every morning,” Robin says. They leave to tell Ash the wedding will not have to be a secret.',
+              result:
+                'You ask Robin whether Ash has been asked what they want. “Every morning,” Robin says. They leave to tell Ash the wedding will not have to be a secret.',
             },
             {
               id: 'forbid',
@@ -2217,7 +2232,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { joy: +10 },
                 counters: { fishCaught: +1 },
               },
-              result: 'You hand Ash the spare rod, not a title. Robin laughs when Ash catches the first fish. Quill signs the marriage register on the tackle box. The court can wait.',
+              result:
+                'You hand Ash the spare rod, not a title. Robin laughs when Ash catches the first fish. Quill signs the marriage register on the tackle box. The court can wait.',
             },
             {
               id: 'protect-their-independence',
@@ -2307,7 +2323,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 arc: { advance: 'envoy-tough' },
                 sliders: { order: +3 },
               },
-              result: 'Gristle adds a fee to every crossing, including the return trip. Thistle closes the inkpot. “My merchants can afford this. Their families cannot.” She promises a final counteroffer.',
+              result:
+                'Gristle adds a fee to every crossing, including the return trip. Thistle closes the inkpot. “My merchants can afford this. Their families cannot.” She promises a final counteroffer.',
             },
           ],
         },

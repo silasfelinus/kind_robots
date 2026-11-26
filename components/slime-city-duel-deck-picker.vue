@@ -95,6 +95,7 @@ const hint = computed(() => {
         ? 'Your selected named Alliance deck.'
         : 'Choose a legal saved Alliance deck.'
   }
+  return ''
 })
 watch(setup, (value) => emit('update:modelValue', value), { immediate: true })
 </script>

@@ -615,7 +615,7 @@ console.log(
   )
   assert.match(
     client,
-    /start\(next\.team, \{\s*friendId: next\.friendId\s*\}/,
+    /start\(next\.team, \{\s*friendId: next\.friendId,\s*deck\s*\}/,
     'REMATCH is a private friend challenge through the normal start path',
   )
   assert.match(client, /pvpTally\(games\.value\)/)
@@ -623,7 +623,7 @@ console.log(
   assert.match(board, /data-testid="slime-pvp-result"/)
   assert.match(board, /data-testid="slime-pvp-rematch"/)
   assert.match(board, /@click="chooseRematch"/)
-  assert.match(board, /pvp\.rematch\(selectedTeam\.value\)/)
+  assert.match(board, /pvp\.rematch\(selectedTeam\.value, duelDeck\.value\)/)
   assert.match(board, /data-testid="slime-pvp-rematch-back"/)
   assert.match(board, /<details[^>]*data-testid="slime-pvp-share-menu"/)
   const bulletin = readFileSync('components/slime-city-vs.vue', 'utf8')

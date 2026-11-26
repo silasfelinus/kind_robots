@@ -119,6 +119,8 @@ const JUMP = -8.6
 /** Springstep power: a higher jump, and a float while A is held on the way down. */
 const SPRING_JUMP = -10.2
 const FLOAT = 0.6
+const SAIL_FALL = 1.8
+const SAIL_DRAG = 0.99
 const SPRING = -12.2
 const RUN = 2.85
 /** Campaign top speed while B is held with a direction. */
@@ -364,7 +366,8 @@ type Token = { x: number; y: number; taken: boolean }
 type Checkpoint = { x: number; y: number; reached: boolean }
 type Wave = { x: number; y: number; dir: number }
 type Soot = { x: number; y: number; vx: number; vy: number }
-export type PlumberPower = 'springstep' | 'bottled-storm' | 'pocket-lift'
+export type PlumberPower =
+  'springstep' | 'bottled-storm' | 'pocket-lift' | 'sailwing'
 type Pickup = {
   x: number
   y: number
@@ -1332,6 +1335,7 @@ export class PlumberRun implements ArcadeGameInstance {
         case 'power-springstep':
         case 'power-storm':
         case 'power-lift':
+        case 'power-sailwing':
         case 'heart':
           this.pickups.push({
             x: cx,
@@ -1343,7 +1347,9 @@ export class PlumberRun implements ArcadeGameInstance {
                   ? 'springstep'
                   : spawn.kind === 'power-storm'
                     ? 'bottled-storm'
-                    : 'pocket-lift',
+                    : spawn.kind === 'power-lift'
+                      ? 'pocket-lift'
+                      : 'sailwing',
             taken: false,
           })
           break
@@ -1839,11 +1845,14 @@ export class PlumberRun implements ArcadeGameInstance {
         hero.vx = next
       } else {
         const gliding =
-          this.power === 'springstep' &&
-          !this.ground &&
-          hero.vy > 0 &&
-          (keys.held.a || keys.held.up)
-        hero.vx *= onIce ? 0.965 : this.ground ? 0.77 : gliding ? 0.985 : 0.96
+          !this.ground && hero.vy > 0 && (keys.held.a || keys.held.up)
+        const drag =
+          gliding && this.power === 'sailwing'
+            ? SAIL_DRAG
+            : gliding && this.power === 'springstep'
+              ? 0.985
+              : 0.96
+        hero.vx *= onIce ? 0.965 : this.ground ? 0.77 : drag
       }
       if (Math.abs(hero.vx) < 0.05) hero.vx = 0
       if (move && !this.specialTimer) this.facing = move > 0 ? 1 : -1
@@ -1873,10 +1882,15 @@ export class PlumberRun implements ArcadeGameInstance {
         hero.vy = -3.4
       const floating =
         this.power === 'springstep' && this.jumpHeld && hero.vy > 0
+      const sailing =
+        this.power === 'sailwing' &&
+        this.jumpHeld &&
+        hero.vy > 0 &&
+        !(this.specialKind === 'pound' && this.specialTimer)
       if (!this.stage.space)
         hero.vy = Math.min(
-          floating ? 4 : 9,
-          hero.vy + GRAVITY * (floating ? FLOAT : 1),
+          sailing ? SAIL_FALL : floating ? 4 : 9,
+          hero.vy + GRAVITY * (floating || sailing ? FLOAT : 1),
         )
       prevBottom = hero.y + TALL
       const wasGround = this.ground
@@ -4232,6 +4246,7 @@ export class PlumberRun implements ArcadeGameInstance {
     let scorched = false
     let vx = right ? body.vx : body.vx * 0.5
     const spring = this.power === 'springstep'
+    const sail = this.power === 'sailwing'
     let vy = spring ? SPRING_JUMP : JUMP
     for (let k = 1; k <= 120; k++) {
       this.clock = this.tick + k
@@ -4239,13 +4254,17 @@ export class PlumberRun implements ArcadeGameInstance {
         ? this.runSpeed
         : right
           ? Math.min(RUN, vx + 0.44)
-          : vx * 0.77
+          : vx * (sail && k <= hold && vy > 0 ? SAIL_DRAG : 0.77)
       if (this.moveX(body, HALF, TALL, vx)) vx = 0
       const gust = this.windAt(body.x, this.tick + k)
       if (gust) this.moveX(body, HALF, TALL, gust)
       if (k > hold && vy < -3.4) vy = -3.4
       const floating = spring && k <= hold && vy > 0
-      vy = Math.min(floating ? 4 : 9, vy + GRAVITY * (floating ? FLOAT : 1))
+      const sailing = sail && k <= hold && vy > 0
+      vy = Math.min(
+        sailing ? SAIL_FALL : floating ? 4 : 9,
+        vy + GRAVITY * (floating || sailing ? FLOAT : 1),
+      )
       const prevBottom = body.y + TALL
       const hit = this.moveY(body, HALF, TALL, vy)
       for (const vent of this.vents)
@@ -6017,8 +6036,12 @@ export class PlumberRun implements ArcadeGameInstance {
       if (
         !drawSprite(g, PLUMBER_ART.prop(key), pickup.x, pickup.y + 6 + bob, 20)
       ) {
-        g.fillStyle = pickup.kind === 'heart' ? '#5ec8ef' : '#ffd98a'
-        g.fillRect(pickup.x - 6, pickup.y - 10 + bob, 12, 12)
+        if (pickup.kind === 'sailwing')
+          this.text(g, 'SAIL', pickup.x, pickup.y + bob, 9, '#8ff5e5')
+        else {
+          g.fillStyle = pickup.kind === 'heart' ? '#5ec8ef' : '#ffd98a'
+          g.fillRect(pickup.x - 6, pickup.y - 10 + bob, 12, 12)
+        }
       }
     }
     for (const gust of this.gusts) {
@@ -6621,14 +6644,22 @@ export class PlumberRun implements ArcadeGameInstance {
       g.beginPath()
       g.arc(392, 12, 10, 0, Math.PI * 2)
       g.fill()
-      drawSprite(g, PLUMBER_ART.prop(this.power), 392, 21, 18)
+      if (
+        !drawSprite(g, PLUMBER_ART.prop(this.power), 392, 21, 18) &&
+        this.power === 'sailwing'
+      )
+        this.text(g, 'SAIL', 392, 16, 9, '#8ff5e5')
     }
     if (this.reserve) {
       // The reserve box: a small framed spare under the power badge.
       g.strokeStyle = 'rgba(255, 241, 206, 0.8)'
       g.lineWidth = 1
       g.strokeRect(385, 25, 14, 14)
-      drawSprite(g, PLUMBER_ART.prop(this.reserve), 392, 38, 12)
+      if (
+        !drawSprite(g, PLUMBER_ART.prop(this.reserve), 392, 38, 12) &&
+        this.reserve === 'sailwing'
+      )
+        this.text(g, 'S', 392, 36, 9, '#8ff5e5')
     }
     this.text(
       g,

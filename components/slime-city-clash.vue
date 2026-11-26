@@ -1222,7 +1222,7 @@ function slotLabel(side: Side, lane: number): string {
       ? ', your armed trap: ' + cardById(trapAt(side, lane)!.cardId).name
       : '') +
     (u && !game.value.victor && clashSummoningSick(u)
-      ? ', summoning sickness: cannot attack this turn'
+      ? ', does not attack on its first turn'
       : '') +
     (targetable(side, lane) ? ', playable target' : '')
   )

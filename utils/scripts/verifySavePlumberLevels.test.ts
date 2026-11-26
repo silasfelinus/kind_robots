@@ -883,6 +883,7 @@ for (const kind of [
   'power-springstep',
   'power-storm',
   'power-lift',
+  'power-sailwing',
   'heart',
 ] as const)
   assert.ok(allKinds.has(kind), `the campaign places ${kind}`)
@@ -897,6 +898,8 @@ const powerLab = (code: string, kind: string) => {
   assert.ok(pickup.taken, `${kind} is picked up`)
   return g
 }
+const sailwing = powerLab('5-1', 'sailwing')
+assert.equal(sailwing.power, 'sailwing', 'campaign Sailwing is collectible')
 const jumper = powerLab('5-1', 'springstep')
 assert.equal(jumper.power, 'springstep')
 for (let i = 0; i < 20; i++) jumper.update(emptyInput())

@@ -427,6 +427,18 @@
               BOUNTIES &amp; REWARDS
             </button>
             <button
+              v-if="lab.unlockMode === 'trickle'"
+              type="button"
+              class="sc-pack-cta"
+              data-testid="slime-collection-pack-shop"
+              @click="openPackShop"
+            >
+              <b>★ PACK SHOP · {{ lab.packPrice }} MEAT</b>
+              <small>
+                {{ lab.progress.meat }} Meat available · 3 cards · 1 rare
+              </small>
+            </button>
+            <button
               v-if="lab.deckFormat === 'solo'"
               type="button"
               class="sc-solo-back"
@@ -446,120 +458,182 @@
               aria-label="Decks"
               data-testid="slime-deck-library"
             >
-              <div class="sc-shelf-group" aria-label="Your decks">
-                <span class="sc-shelf-label">YOUR DECKS</span>
-                <button
-                  v-for="deck in lab.library"
-                  :key="deck.id"
-                  type="button"
-                  class="sc-shelf-deck"
-                  :class="{ chosen: lab.libraryId === deck.id }"
-                  :aria-pressed="lab.libraryId === deck.id"
-                  :title="deck.name"
-                  :data-testid="'slime-library-' + deck.id"
-                  @click="lab.selectLibraryDeck(deck.id)"
-                >
-                  <span class="sc-shelf-art" aria-hidden="true">
-                    <SlimeCityArtwork
-                      :image-id="slimeArtId('crews', deck.general)"
-                      :alt="teamName(deck.general)"
-                      compact
-                    />
-                    <SlimeCityArtwork
-                      class="is-ally"
-                      :image-id="slimeArtId('crews', deck.ally)"
-                      :alt="teamName(deck.ally)"
-                      compact
-                    />
-                  </span>
-                  <b>{{ deck.name }}</b>
-                  <small>{{
-                    lab.libraryDeckReady(deck.id)
-                      ? '20'
-                      : deck.cards.length + '/' + ALLIANCE_DECK_SIZE
-                  }}</small>
-                </button>
-                <button
-                  v-for="team in lab.customSoloTeams"
-                  :key="'solo-' + team"
-                  type="button"
-                  class="sc-shelf-deck"
-                  :class="{ chosen: lab.activeSoloDeck === team }"
-                  :aria-pressed="lab.activeSoloDeck === team"
-                  :title="'Your ' + teamName(team) + ' Solo deck'"
-                  :data-testid="'slime-solo-deck-' + team"
-                  @click="lab.selectSoloDeck(team)"
-                >
-                  <span class="sc-shelf-art solo" aria-hidden="true">
-                    <SlimeCityArtwork
-                      :image-id="slimeArtId('crews', team)"
-                      :alt="teamName(team)"
-                      compact
-                    />
-                  </span>
-                  <b>{{ teamName(team).split(' ')[0] }}</b>
-                  <small>SOLO</small>
-                </button>
-                <button
-                  v-if="lab.library.length < lab.libraryMax"
-                  type="button"
-                  class="sc-shelf-deck is-new"
-                  data-testid="slime-library-new"
-                  @click="lab.newLibraryDeck()"
-                >
-                  ＋ NEW
-                </button>
-              </div>
-              <div
-                class="sc-shelf-group is-starters"
-                :class="{ open: startersOpen }"
-                aria-label="Starter decks"
+              <details
+                v-for="group in classicDeckGroups"
+                :key="group.id"
+                class="sc-shelf-section"
+                :open="classicOpen[group.id]"
+                @toggle="setClassicOpen(group.id, $event)"
               >
-                <button
-                  type="button"
+                <summary
                   class="sc-shelf-label"
-                  :aria-expanded="startersOpen"
-                  data-testid="slime-starters-toggle"
-                  @click="startersOpen = !startersOpen"
+                  :data-testid="'slime-' + group.id + '-toggle'"
                 >
-                  STARTER DECKS
-                </button>
-                <button
-                  v-for="deck in lab.starterDecks"
-                  :key="deck.id"
-                  type="button"
-                  class="sc-shelf-deck"
-                  :class="{ chosen: lab.activeStarterId === deck.id }"
-                  :aria-pressed="lab.activeStarterId === deck.id"
-                  :title="
-                    deck.name +
-                    (deck.ally ? ' Alliance starter' : ' Solo starter')
-                  "
-                  :data-testid="'slime-starter-' + deck.id"
-                  @click="lab.dealStarterDeck(deck.general, deck.ally)"
-                >
-                  <span
-                    class="sc-shelf-art"
-                    :class="{ solo: !deck.ally }"
-                    aria-hidden="true"
-                  >
-                    <SlimeCityArtwork
-                      :image-id="slimeArtId('crews', deck.general)"
-                      :alt="teamName(deck.general)"
-                      compact
-                    />
-                    <SlimeCityArtwork
-                      v-if="deck.ally"
-                      class="is-ally"
-                      :image-id="slimeArtId('crews', deck.ally)"
-                      :alt="teamName(deck.ally)"
-                      compact
-                    />
+                  <span class="sc-shelf-banner-art" aria-hidden="true">
+                    <span
+                      v-for="deck in group.decks.slice(
+                        0,
+                        group.id === 'faction-classic' ? 6 : 3,
+                      )"
+                      :key="deck.id"
+                      class="sc-shelf-banner-pair"
+                    >
+                      <SlimeCityArtwork
+                        :image-id="slimeArtId('crews', deck.general)"
+                        alt=""
+                        compact
+                      />
+                      <SlimeCityArtwork
+                        v-if="deck.ally"
+                        :image-id="slimeArtId('crews', deck.ally)"
+                        alt=""
+                        compact
+                      />
+                    </span>
                   </span>
-                  <b>{{ deck.name }}</b>
-                  <small>{{ deck.ally ? 'ALLY' : 'SOLO' }}</small>
-                </button>
-              </div>
+                  <span class="sc-shelf-banner-title">
+                    <b>{{ group.title }}</b>
+                    <small>{{ group.decks.length }} STARTER DECKS</small>
+                  </span>
+                </summary>
+                <div class="sc-shelf-group" :aria-label="group.title">
+                  <button
+                    v-for="deck in group.decks"
+                    :key="deck.id"
+                    type="button"
+                    class="sc-shelf-deck"
+                    :class="{ chosen: lab.activeStarterId === deck.id }"
+                    :aria-pressed="lab.activeStarterId === deck.id"
+                    :title="
+                      deck.name +
+                      (deck.ally ? ' Alliance starter' : ' Solo starter')
+                    "
+                    :data-testid="'slime-starter-' + deck.id"
+                    @click="lab.dealStarterDeck(deck.general, deck.ally)"
+                  >
+                    <span
+                      class="sc-shelf-art"
+                      :class="{ solo: !deck.ally }"
+                      aria-hidden="true"
+                    >
+                      <SlimeCityArtwork
+                        :image-id="slimeArtId('crews', deck.general)"
+                        :alt="teamName(deck.general)"
+                        compact
+                      />
+                      <SlimeCityArtwork
+                        v-if="deck.ally"
+                        class="is-ally"
+                        :image-id="slimeArtId('crews', deck.ally)"
+                        :alt="teamName(deck.ally)"
+                        compact
+                      />
+                    </span>
+                    <b>{{ deck.ally ? deck.name : teamName(deck.general) }}</b>
+                    <small
+                      >{{ deck.ally ? 'ALLIANCE' : 'FACTION' }} · CLASSIC</small
+                    >
+                  </button>
+                </div>
+              </details>
+              <details class="sc-shelf-section" open>
+                <summary
+                  class="sc-shelf-label"
+                  data-testid="slime-saved-decks-toggle"
+                >
+                  <span class="sc-shelf-banner-art" aria-hidden="true">
+                    <span
+                      v-for="(deck, index) in savedDeckBanner"
+                      :key="index"
+                      class="sc-shelf-banner-pair"
+                    >
+                      <SlimeCityArtwork
+                        :image-id="slimeArtId('crews', deck.general)"
+                        alt=""
+                        compact
+                      />
+                      <SlimeCityArtwork
+                        v-if="deck.ally"
+                        :image-id="slimeArtId('crews', deck.ally)"
+                        alt=""
+                        compact
+                      />
+                    </span>
+                  </span>
+                  <span class="sc-shelf-banner-title">
+                    <b>SAVED DECKS</b>
+                    <small>
+                      {{ lab.library.length + lab.customSoloTeams.length }}
+                      CUSTOM DECKS
+                    </small>
+                  </span>
+                </summary>
+                <div class="sc-shelf-group" aria-label="Saved decks">
+                  <button
+                    v-for="deck in lab.library"
+                    :key="deck.id"
+                    type="button"
+                    class="sc-shelf-deck"
+                    :class="{ chosen: lab.libraryId === deck.id }"
+                    :aria-pressed="lab.libraryId === deck.id"
+                    :title="deck.name"
+                    :data-testid="'slime-library-' + deck.id"
+                    @click="lab.selectLibraryDeck(deck.id)"
+                  >
+                    <span class="sc-shelf-art" aria-hidden="true">
+                      <SlimeCityArtwork
+                        :image-id="slimeArtId('crews', deck.general)"
+                        :alt="teamName(deck.general)"
+                        compact
+                      />
+                      <SlimeCityArtwork
+                        class="is-ally"
+                        :image-id="slimeArtId('crews', deck.ally)"
+                        :alt="teamName(deck.ally)"
+                        compact
+                      />
+                    </span>
+                    <b>{{ deck.name }}</b>
+                    <small>
+                      ALLIANCE · {{ deck.cards.length }}/{{
+                        ALLIANCE_DECK_SIZE
+                      }}
+                    </small>
+                  </button>
+                  <button
+                    v-for="team in lab.customSoloTeams"
+                    :key="'solo-' + team"
+                    type="button"
+                    class="sc-shelf-deck"
+                    :class="{ chosen: lab.activeSoloDeck === team }"
+                    :aria-pressed="lab.activeSoloDeck === team"
+                    :title="'Your ' + teamName(team) + ' Solo deck'"
+                    :data-testid="'slime-solo-deck-' + team"
+                    @click="lab.selectSoloDeck(team)"
+                  >
+                    <span class="sc-shelf-art solo" aria-hidden="true">
+                      <SlimeCityArtwork
+                        :image-id="slimeArtId('crews', team)"
+                        :alt="teamName(team)"
+                        compact
+                      />
+                    </span>
+                    <b>{{ teamName(team) }}</b>
+                    <small>FACTION · CONSTRUCTED</small>
+                  </button>
+                  <button
+                    v-if="lab.library.length < lab.libraryMax"
+                    type="button"
+                    class="sc-shelf-deck is-new"
+                    data-testid="slime-library-new"
+                    @click="lab.newLibraryDeck()"
+                  >
+                    <strong aria-hidden="true">＋</strong>
+                    <b>NEW DECK</b>
+                    <small>BUILD AN ALLIANCE</small>
+                  </button>
+                </div>
+              </details>
             </section>
 
             <section
@@ -994,6 +1068,7 @@
               </div>
               <div
                 v-if="lab.unlockMode === 'trickle'"
+                ref="packShop"
                 class="sc-reward-panel sc-shop-panel"
                 data-testid="slime-pack-shop"
               >
@@ -1197,7 +1272,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
 import { factionPower } from '~/utils/slimeCity/factionPowers'
@@ -1255,6 +1330,12 @@ watch(
   () => lab.view,
   () => sound.cue('nav'),
 )
+const packShop = ref<HTMLElement | null>(null)
+async function openPackShop(): Promise<void> {
+  lab.showRewards()
+  await nextTick()
+  packShop.value?.scrollIntoView({ block: 'nearest' })
+}
 async function buyPack(): Promise<void> {
   const opened = lab.progress.opened
   await lab.purchasePack()
@@ -1331,7 +1412,31 @@ async function confirmReset(): Promise<void> {
   if (await lab.resetGuestJourney(resetTyped.value)) resetTyped.value = ''
 }
 /** Phones fold the starter decks behind their label. */
-const startersOpen = ref(false)
+const classicOpen = ref({ 'faction-classic': false, 'alliance-classic': false })
+const classicDeckGroups = computed(() => [
+  {
+    id: 'faction-classic' as const,
+    title: 'FACTION CLASSIC',
+    decks: lab.starterDecks.filter((deck) => !deck.ally),
+  },
+  {
+    id: 'alliance-classic' as const,
+    title: 'ALLIANCE CLASSIC',
+    decks: lab.starterDecks.filter((deck) => !!deck.ally),
+  },
+])
+const savedDeckBanner = computed(() => {
+  const decks = [
+    ...lab.library.map((deck) => ({ general: deck.general, ally: deck.ally })),
+    ...lab.customSoloTeams.map((team) => ({ general: team, ally: null })),
+  ]
+  return decks.length
+    ? decks.slice(0, 4)
+    : [{ general: lab.activeTeam, ally: null }]
+})
+function setClassicOpen(id: keyof typeof classicOpen.value, event: Event) {
+  classicOpen.value[id] = (event.currentTarget as HTMLDetailsElement).open
+}
 /** The library deck in the builder, if one is chosen. */
 const libraryEntry = computed(
   () => lab.library.find((deck) => deck.id === lab.libraryId) ?? null,
@@ -2059,95 +2164,121 @@ onUnmounted(() => {
   forward. But economical." One deck shelf, two picture rows, one slim bar.
 */
 .sc-shelf {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem 0.9rem;
+  display: grid;
+  gap: 0.45rem;
+  flex: none;
+  min-width: 0;
 }
 .sc-shelf-group {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.3rem;
+  align-items: stretch;
+  gap: 0.55rem;
   min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 0.25rem 0.25rem 0.45rem;
+  scroll-snap-type: x proximity;
 }
 .sc-shelf-label,
 .sc-builder-label {
   flex: none;
-  font-size: 0.55rem;
+  font-size: 0.65rem;
   font-weight: 900;
   letter-spacing: 0.12em;
   color: #a6c7bc;
 }
+.sc-shelf-label {
+  align-self: center;
+  max-width: 7rem;
+  white-space: normal;
+  text-align: left;
+}
 .sc-shelf-deck {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  max-width: 12rem;
-  padding: 0.2rem 0.45rem 0.2rem 0.2rem;
+  display: grid;
+  grid-template-rows: 4.5rem auto auto;
+  align-content: start;
+  flex: 0 0 clamp(9.5rem, 17cqw, 13rem);
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
   border: 1px solid #4d5567;
   border-radius: 0.6rem;
-  background: #0e1420d9;
+  background: #0e1420;
   color: #eef2f8;
   cursor: pointer;
+  scroll-snap-align: start;
+  text-align: left;
 }
 .sc-shelf-deck.chosen {
   border-color: #c5ff59;
-  box-shadow: 0 0 12px #c5ff5944;
+  box-shadow: 0 0 0 1px #c5ff59;
 }
 .sc-shelf-deck.is-new {
   border-style: dashed;
-  padding: 0.45rem 0.7rem;
   color: #c5ff59;
-  font-size: 0.66rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
+  background: #122428;
+}
+.sc-shelf-deck.is-new strong {
+  display: grid;
+  place-items: center;
+  font-size: 2.5rem;
+  background: #1b3436;
 }
 .sc-shelf-deck b {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.66rem;
+  padding: 0.3rem 0.55rem 0.1rem;
+  font-size: 0.78rem;
   font-weight: 900;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 .sc-shelf-deck small {
-  flex: none;
-  font-size: 0.52rem;
+  padding: 0.15rem 0.55rem 0.45rem;
+  font-size: 0.58rem;
   font-weight: 900;
   color: #c5ff59;
 }
 .sc-shelf-art {
-  position: relative;
-  flex: none;
-  width: 2.5rem;
-  height: 2rem;
-}
-.sc-shelf-art :deep(.slime-art) {
-  position: absolute;
-  width: 1.75rem;
-  height: 1.55rem;
-  margin: 0;
-  overflow: hidden;
-  border-radius: 0.35rem;
-  border: 2px solid #0e1420;
-}
-.sc-shelf-art :deep(.slime-art:first-child) {
-  top: 0;
-  left: 0;
-}
-.sc-shelf-art :deep(.slime-art:last-child:not(:first-child)) {
-  right: 0;
-  bottom: 0;
-}
-.sc-shelf-art.solo :deep(.slime-art:first-child) {
+  display: flex;
   width: 100%;
   height: 100%;
+  min-width: 0;
+  overflow: hidden;
+  background: #0e1420;
+}
+.sc-shelf-art :deep(.slime-art) {
+  position: relative;
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 0;
+}
+.sc-shelf-art :deep(.is-ally) {
+  border-left: 2px solid #c5ff59;
 }
 .sc-shelf-art :deep(img),
 .sc-face :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 35%;
+}
+.sc-collection-nav .sc-pack-cta {
+  display: grid;
+  gap: 0.1rem;
+  border-color: #e7bd75;
+  background: #342349;
+  color: #ffe1a0;
+  text-align: left;
+}
+.sc-pack-cta small {
+  font-size: 0.6rem;
+  color: #f1d5ff;
+}
+.sc-shop-panel {
+  order: -1;
 }
 .sc-builder {
   display: flex;
@@ -2281,32 +2412,95 @@ onUnmounted(() => {
   background: #c5ff59;
   color: #12200c;
 }
-button.sc-shelf-label {
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: default;
+.sc-shelf-section {
+  min-width: 0;
+  border: 1px solid #4d5567;
+  border-radius: 0.5rem;
+  background: #0e1420;
+}
+.sc-shelf-section > summary.sc-shelf-label {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: clamp(3.8rem, 7cqw, 5.25rem);
+  max-width: none;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.45rem;
+  cursor: pointer;
+  list-style: none;
+}
+.sc-shelf-banner-art {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  display: flex;
+}
+.sc-shelf-banner-pair {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+}
+.sc-shelf-banner-pair + .sc-shelf-banner-pair {
+  border-left: 2px solid #0e1420;
+}
+.sc-shelf-banner-pair :deep(.slime-art) {
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+}
+.sc-shelf-banner-pair :deep(img) {
+  object-position: center 35%;
+}
+.sc-shelf-section > summary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(0deg, #050b14e8, #050b1430 62%, transparent);
+}
+.sc-shelf-banner-title {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+  color: #fff;
+  text-shadow: 0 1px 4px #000;
+}
+.sc-shelf-banner-title b {
+  font-size: 0.9rem;
+  line-height: 1.1;
+}
+.sc-shelf-banner-title small {
+  color: #d7ff89;
+  font-size: 0.6rem;
+}
+.sc-shelf-section > summary::-webkit-details-marker {
+  display: none;
+}
+.sc-shelf-section > summary::after {
+  content: '▸';
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 0.35rem;
+  background: #0b1719e6;
+  color: #c5ff59;
+  font-size: 1.1rem;
+}
+.sc-shelf-section[open] > summary::after {
+  content: '▾';
+}
+.sc-shelf-section > summary:focus-visible {
+  outline: 2px solid #c5ff59;
+  outline-offset: -2px;
 }
 @container (max-width: 600px) {
-  .sc-shelf-deck b,
-  .sc-shelf-deck:not(.is-new) small {
-    display: none;
-  }
-  button.sc-shelf-label {
-    padding: 0.35rem 0.55rem;
-    border: 1px solid #4d5567;
-    border-radius: 0.5rem;
-    background: #0e1420;
-    cursor: pointer;
-  }
-  button.sc-shelf-label::after {
-    content: ' ▸';
-  }
-  .is-starters.open button.sc-shelf-label::after {
-    content: ' ▾';
-  }
-  .is-starters:not(.open) .sc-shelf-deck {
-    display: none;
+  .sc-shelf-deck {
+    flex-basis: 9.5rem;
   }
   .sc-face {
     width: 2.5rem;
@@ -2340,7 +2534,7 @@ button.sc-shelf-label {
 .sc-collection-tools {
   position: sticky;
   top: 0;
-  z-index: 3;
+  z-index: 5;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -2358,6 +2552,7 @@ button.sc-shelf-label {
   margin: 0;
 }
 .sc-collection-grid {
+  isolation: isolate;
   flex: none;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 10.5rem), 1fr));
@@ -2450,23 +2645,60 @@ button.sc-shelf-label {
   color: #c9e3dc;
 }
 .sc-clash-tile {
+  --rules-open: 1;
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
   width: 100%;
-  aspect-ratio: 2 / 3;
   border-radius: 0.9rem;
   container-type: inline-size;
 }
+.sc-clash-tile :deep(.ccf) {
+  position: relative;
+  inset: auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  min-height: min-content;
+  border-radius: inherit;
+}
+.sc-clash-tile :deep(.ccf-head) {
+  position: relative;
+  inset: auto;
+  flex: none;
+  margin: 3.5cqw;
+}
+.sc-clash-tile :deep(.ccf-top) {
+  flex-wrap: wrap;
+}
+.sc-clash-tile :deep(.ccf-badge) {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+.sc-clash-tile :deep(.ccf-rules) {
+  position: relative;
+  inset: auto;
+  flex: none;
+  margin-top: auto;
+  font-size: 0.9rem;
+}
+.sc-clash-tile :deep(.ccf-text) {
+  font-size: max(0.75rem, 6.4cqw);
+  overflow-wrap: anywhere;
+}
 .sc-clash-tile .sc-collect-ribbon {
-  position: absolute;
-  top: 0.4rem;
-  right: 0.4rem;
+  position: relative;
+  text-align: center;
+  white-space: normal;
   z-index: 2;
 }
 /*
-  The ribbon is a one-tap add / take-out above the inspect button. The tile is
-  a size container (its own stacking context), so the whole tile rises above
-  the inspect button and lets every tap but the ribbon's fall through to it.
+  The ribbon is a one-tap add / take-out below the card face, never over its
+  combat stats. The tile sits above the inspect button and lets every tap
+  but the ribbon's fall through to it.
 */
 .sc-collect .sc-clash-tile {
   z-index: 4;

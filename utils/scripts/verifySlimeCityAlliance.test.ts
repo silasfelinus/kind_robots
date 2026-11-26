@@ -743,3 +743,57 @@ assert.ok(store.includes('soloDecks: savedSolo.value'))
 assert.ok(store.includes('alliances: savedAlliances.value'))
 
 console.log('Slime City ALLIANCE: decks, powers, replay, balance and saves OK')
+
+// Collection has a direct pack shop entry and readable illustrated deck tiles.
+{
+  const collection = readFileSync('pages/admin/slime-city.vue', 'utf8')
+  assert.match(collection, /data-testid="slime-collection-pack-shop"/)
+  assert.match(collection, /@click="openPackShop"/)
+  assert.match(collection, /packShop\.value\?\.scrollIntoView/)
+  assert.match(collection, /\.sc-shelf-group \{[\s\S]*?overflow-x: auto;/)
+  assert.match(
+    collection,
+    /\.sc-shelf-deck b \{[\s\S]*?overflow-wrap: anywhere;/,
+  )
+}
+
+// The two classic families and saved decks expand independently.
+{
+  const collection = readFileSync('pages/admin/slime-city.vue', 'utf8')
+  assert.match(collection, /id: 'faction-classic' as const/)
+  assert.match(collection, /id: 'alliance-classic' as const/)
+  assert.match(
+    collection,
+    /lab\.starterDecks\.filter\(\(deck\) => !deck\.ally\)/,
+  )
+  assert.match(
+    collection,
+    /lab\.starterDecks\.filter\(\(deck\) => !!deck\.ally\)/,
+  )
+  assert.match(collection, /data-testid="slime-saved-decks-toggle"/)
+  assert.match(collection, /:open="classicOpen\[group\.id\]"/)
+}
+
+// Collapsed deck sections remain art-forward, including an empty saved shelf.
+{
+  const collection = readFileSync('pages/admin/slime-city.vue', 'utf8')
+  assert.match(collection, /class="sc-shelf-banner-art"/)
+  assert.match(collection, /v-for="\(deck, index\) in savedDeckBanner"/)
+  assert.match(collection, /\.sc-shelf-banner-pair :deep\(img\)/)
+  assert.match(collection, /\[\{ general: lab\.activeTeam, ally: null \}\]/)
+}
+
+// Collection and pack faces always reveal rules; deck actions cannot cover stats.
+{
+  const collection = readFileSync('pages/admin/slime-city.vue', 'utf8')
+  assert.match(collection, /\.sc-clash-tile \{\s*--rules-open: 1;/)
+  assert.match(
+    collection,
+    /\.sc-clash-tile :deep\(\.ccf-rules\) \{\s*position: relative;/,
+  )
+  assert.match(
+    collection,
+    /\.sc-clash-tile \.sc-collect-ribbon \{\s*position: relative;/,
+  )
+  assert.match(collection, /\.sc-collection-grid \{\s*isolation: isolate;/)
+}

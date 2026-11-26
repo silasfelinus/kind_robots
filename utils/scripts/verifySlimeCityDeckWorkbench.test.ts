@@ -196,7 +196,7 @@ assert.match(ui, /data-testid="slime-pack-open"/)
 // ALL CARDS hides the pack shop and the last-pack reveal; TRICKLE shows them.
 assert.match(
   ui,
-  /v-if="lab\.unlockMode === 'trickle'"\s+class="sc-reward-panel sc-shop-panel"/,
+  /v-if="lab\.unlockMode === 'trickle'"\s+(?:ref="packShop"\s+)?class="sc-reward-panel sc-shop-panel"/,
 )
 assert.match(
   ui,

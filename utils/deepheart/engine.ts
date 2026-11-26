@@ -1550,11 +1550,18 @@ export function finaleOptions(run: RunState): FinaleOption[] {
       label: 'Pull the keystone',
       hint: 'Bury it all',
     })
-  if (run.gold >= GILDED_GOLD)
+  const choseGreed = EVENTS.some((event) =>
+    event.options.some(
+      (option) =>
+        option.tag === 'greedy' &&
+        run.choices.includes(`${event.id}:${option.id}`),
+    ),
+  )
+  if (run.gold >= GILDED_GOLD && choseGreed)
     options.push({
       ending: 'gilded',
       label: 'Sell it to the Undermerchant',
-      hint: `You have ${run.gold} gold and good instincts`,
+      hint: `You have ${run.gold} gold and chose profit over principle`,
     })
   const partner = run.partners.find(
     (id) => !run.party.find((m) => m.id === id)?.down,

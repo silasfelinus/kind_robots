@@ -270,7 +270,7 @@ export const ACCIDENT_CAMPAIGNS: Record<string, PersonalCampaign> = {
       ],
       [
         'A room full of exceptions',
-        "Students use Eurekas's shared instructions to adapt the ballroom rescue to different needs.",
+        "Students use Eureka's shared instructions to adapt the ballroom rescue to different needs.",
         'The original trial results appear alongside the corrected calculations.',
         'The ballroom is evacuated under a mandatory optimization plan.',
       ],

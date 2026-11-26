@@ -17,6 +17,7 @@ import {
   snapshotCrossfire,
 } from '../everyVillainTactics/crossfireCampaign'
 import { IDENTITY_ARCS, identityFor } from '../cometAcademy/identityArcs'
+import { ACCIDENT_CAMPAIGNS } from '../everyVillainTactics/personalAccidentCampaigns'
 import {
   crossfireChapterBeat,
   crossfireCurrentChapter,
@@ -941,6 +942,36 @@ for (const person of IDENTITY_ARCS.filter((entry) =>
   }
 }
 assert.equal(campaignPassages.size, 272)
+const personalFinales = new Set<string>()
+for (const person of IDENTITY_ARCS.filter((entry) =>
+  entry.signature.startsWith('accident-'),
+)) {
+  for (const [index, [rescues, evidence, shelter, path]] of [
+    [[0, 1, 2], [], true, 'open-doors'],
+    [[], [0, 1], true, 'black-box'],
+    [[], [], true, 'unfinished'],
+    [[0, 1, 2], [], false, 'signed-order'],
+  ].entries()) {
+    const completed = chapterHistory(rescues as number[], evidence as number[])
+    const current = {
+      ...journal.active,
+      state: {
+        ...journal.active.state,
+        flags: [shelter ? 'prom-shelter' : 'prom-command'],
+      },
+    }
+    const ending = crossfireFinale(
+      { ...journal, lead: person.signature, completed },
+      current,
+    )
+    assert.equal(ending?.path, path)
+    const authored = ACCIDENT_CAMPAIGNS[person.signature]!.endings[index]!
+    assert.ok(ending?.text.endsWith(authored))
+    assert.ok(!personalFinales.has(authored))
+    personalFinales.add(authored)
+  }
+}
+assert.equal(personalFinales.size, 32)
 
 const personalScenes = new Set<string>()
 for (const person of IDENTITY_ARCS) {

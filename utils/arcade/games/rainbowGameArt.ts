@@ -144,6 +144,7 @@ export const RAINBOW_IDLE_ATLASES: Readonly<Record<string, number>> = {
   'enemies/guardian-pearl-warden': 8,
   'enemies/guardian-shoal-koi': 8,
   'enemies/hammerhead': 8,
+  'pickups/comet-cadet-pod': 8,
 }
 /** Idle atlases play at four frames a second, like the enemy cycles. */
 export const RAINBOW_IDLE_FPS = 4

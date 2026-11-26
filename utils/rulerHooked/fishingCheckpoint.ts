@@ -19,8 +19,11 @@ export function validClassicCheckpoint(
     Array.isArray(checkpoint.stops) &&
     checkpoint.stops.length <= MAX_STOPS &&
     checkpoint.stops.every(
-      (stop) => typeof stop === 'number' && Number.isFinite(stop) &&
-        stop >= 0 && stop <= 100,
+      (stop) =>
+        typeof stop === 'number' &&
+        Number.isFinite(stop) &&
+        stop >= 0 &&
+        stop <= 100,
     )
   )
 }
@@ -36,16 +39,15 @@ export function classicCheckpoint(
   return validClassicCheckpoint(checkpoint) ? checkpoint : undefined
 }
 
-export function readClassicCheckpoint(
-  save: RunSave,
-): FishingEncounter | null {
+export function readClassicCheckpoint(save: RunSave): FishingEncounter | null {
   const checkpoint = save.pendingClassicFishing
   if (
     save.status !== 'ACTIVE' ||
     save.pendingCardId ||
     save.pendingFinaleKey ||
     !validClassicCheckpoint(checkpoint)
-  ) return null
+  )
+    return null
 
   let encounter = startFishingEncounter(save)
   if (encounter.id !== checkpoint.encounterId) return null

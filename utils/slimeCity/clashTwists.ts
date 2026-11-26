@@ -248,7 +248,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Grant VOLATILE; on defeat, deal 1 to all rivals and neighboring allies.',
   ],
   drink: [
-    'Temporarily boost a friendly fighter's power.',
+    'Temporarily boost the power of a friendly fighter.',
     'Seeded 50% chance to gain +2 extra surge; otherwise 1 recoil.',
     'Seeded 75% chance to gain +6 extra surge; otherwise 2 recoil.',
   ],

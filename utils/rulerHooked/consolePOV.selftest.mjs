@@ -137,8 +137,21 @@ assert.doesNotMatch(hud, /\.rh-hud__left/)
 // which already varies with fish family, rarity, gear and beat.
 assert.equal((classic.match(/<button\b/g) || []).length, 1)
 assert.match(classic, /rh-fishing__playfield/)
-assert.match(classic, /event\.key !== ' '/)
-assert.match(classic, /event\.key !== 'Enter'/)
+assert.match(classic, /event\.key === ' '/)
+assert.match(classic, /event\.key === 'Enter'/)
+assert.match(classic, /@keydown="playfieldKeydown"/)
+assert.match(classic, /@keyup="playfieldKeyup"/)
+assert.match(classic, /event\.preventDefault\(\)/)
+assert.match(classic, /!event\.repeat/)
+assert.match(classic, /displayedBeat !== beatKey\.value/)
+assert.match(classic, /acceptedBeat === beatKey\.value/)
+assert.match(classic, /acceptedBeat = beatKey\.value/)
+assert.doesNotMatch(classic, /transition: left 35ms/)
+assert.doesNotMatch(
+  classic,
+  /left 1[78]0ms/,
+  'the visible scoring bands must not interpolate behind the real target',
+)
 assert.match(classic, /timingProfileFor\(props\.encounter\)/)
 assert.match(classic, /suddenShift/)
 assert.doesNotMatch(classic, /Tap to reel|Give slack|@release|@tap/)

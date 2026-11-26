@@ -29,6 +29,8 @@
       :class="{ 'is-surge': suddenShift, 'is-reversed': encounter.reversed }"
       :aria-label="playfieldLabel"
       @click="stop"
+      @keydown="playfieldKeydown"
+      @keyup="playfieldKeyup"
     >
       <span class="rh-fishing__surface" aria-hidden="true">
         <svg
@@ -170,7 +172,13 @@ const playfieldLabel = computed(
 
 let startedAt = 0
 let frame: number | null = null
-let lastStop = 0
+let lastStop = -Infinity
+let displayedBeat: string | null = null
+let acceptedBeat: string | null = null
+const beatKey = computed(
+  () =>
+    `${props.encounter.id}:${props.encounter.beat}:${props.encounter.phase}`,
+)
 function tick(time: number) {
   if (!startedAt) startedAt = time
   const fraction =
@@ -179,17 +187,46 @@ function tick(time: number) {
     0,
     Math.min(100, (fraction <= 1 ? fraction : 2 - fraction) * 100),
   )
+  displayedBeat = beatKey.value
   frame = requestAnimationFrame(tick)
 }
 function stop() {
   const now = performance.now()
-  if (now - lastStop < 160) return
+  if (
+    displayedBeat !== beatKey.value ||
+    acceptedBeat === beatKey.value ||
+    now - lastStop < 160
+  )
+    return
+  acceptedBeat = beatKey.value
   lastStop = now
   emit('stop', Math.round(marker.value * 10) / 10)
 }
 defineExpose({ stop })
+function isStopKey(event: KeyboardEvent) {
+  return event.key === ' ' || event.key === 'Enter'
+}
+function playfieldKeydown(event: KeyboardEvent) {
+  if (!isStopKey(event)) return
+  event.preventDefault()
+  event.stopPropagation()
+  if (!event.repeat && !event.altKey && !event.ctrlKey && !event.metaKey) stop()
+}
+function playfieldKeyup(event: KeyboardEvent) {
+  if (!isStopKey(event)) return
+  event.preventDefault()
+  event.stopPropagation()
+}
 function keydown(event: KeyboardEvent) {
-  if (event.repeat || (event.key !== ' ' && event.key !== 'Enter')) return
+  if (
+    event.defaultPrevented ||
+    event.repeat ||
+    event.altKey ||
+    event.ctrlKey ||
+    event.metaKey ||
+    !isStopKey(event)
+  )
+    return
   const target = event.target
   if (
     target instanceof HTMLElement &&
@@ -200,11 +237,13 @@ function keydown(event: KeyboardEvent) {
   stop()
 }
 watch(
-  () => [props.encounter.beat, props.encounter.phase],
+  beatKey,
   () => {
+    displayedBeat = null
     startedAt = 0
     marker.value = 0
   },
+  { flush: 'sync' },
 )
 onMounted(() => {
   window.addEventListener('keydown', keydown)
@@ -327,7 +366,6 @@ onBeforeUnmount(() => {
   border: 2px solid rgb(230 250 223 / 0.65);
   border-radius: 50%;
   transform: translateX(-50%);
-  transition: left 35ms linear;
   box-shadow: 0 0 18px rgb(226 250 220 / 0.25);
 }
 .rh-fishing__bobber {
@@ -342,7 +380,6 @@ onBeforeUnmount(() => {
   box-shadow:
     0 2px 12px #071526,
     0 0 0 3px rgb(255 255 255 / 0.2);
-  transition: left 35ms linear;
 }
 .rh-fishing__surge-tag {
   position: absolute;
@@ -381,9 +418,6 @@ onBeforeUnmount(() => {
 .rh-fishing__zone--reel {
   background: linear-gradient(180deg, #79aa58, #366f43);
   border-inline: 1px solid #c2ef96;
-  transition:
-    left 170ms ease-out,
-    width 170ms ease-out;
 }
 .rh-fishing__zone--wait {
   background: linear-gradient(180deg, #52728b, #283d66);
@@ -399,9 +433,6 @@ onBeforeUnmount(() => {
   box-shadow:
     0 0 18px rgb(255 231 121 / 0.7),
     inset 0 0 16px rgb(255 230 150 / 0.3);
-  transition:
-    left 180ms cubic-bezier(0.15, 1.5, 0.55, 1),
-    width 180ms ease-out;
 }
 .rh-fishing__needle {
   position: absolute;

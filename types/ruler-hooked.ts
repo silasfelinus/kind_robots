@@ -349,6 +349,8 @@ export interface QuizFishingCheckpoint {
   answerSheet?: boolean
 }
 
+export type FishingRegion = 'lake' | 'near_bank' | 'far_shore' | 'village_edge' | 'castle_grounds'
+
 export interface RunSave {
   schemaVersion: number
   saveId: string
@@ -377,6 +379,7 @@ export interface RunSave {
   endingKey: string | null
   pendingCardId?: string
   pendingFinaleKey?: string
+  fishingRegion?: FishingRegion
   pendingClassicFishing?: ClassicFishingCheckpoint
   pendingQuizFishing?: QuizFishingCheckpoint
   /** Has this reign's once-per-reign opening (ruler-hooked/t-028) been

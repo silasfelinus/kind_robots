@@ -21,7 +21,10 @@ import {
   hearProclamation,
   pendingProclamation,
 } from '~/utils/rulerHooked/dailyEvents'
-import { availableFish, RULER_HOOKED_FISH } from '~/utils/rulerHooked/fish'
+import { availableFish, RULER_HOOKED_FISH, canFishAt, fishAtLocation, currentFishingRegion } from '~/utils/rulerHooked/fish'
+import { FISHING_LOCATIONS, locationUnlocked } from '~/utils/rulerHooked/fishingLocations'
+import { startFishingEncounter } from '~/utils/rulerHooked/encounter'
+import type { FishingRegion } from '~/types/ruler-hooked'
 import { makeRng } from '~/utils/rulerHooked/seed'
 import { CARD_PROMPTS, FISH_PROMPTS } from '~/utils/rulerHooked/artPrompts'
 import type { AxisKey, RunSave } from '~/types/ruler-hooked'
@@ -940,6 +943,51 @@ for (const id of QUESTS)
     )
     console.log(JSON.stringify(witness.actions))
   }
+}
+
+// Actual cast selection follows the selected destination, not the global roster.
+{
+  const initial = createRun(C, {
+    saveId: 'sv_locations',
+    name: 'Atlas',
+    seed: 'atlas',
+    rulerName: 'Mo',
+    stamp: 'T0',
+  })
+  const regions = Object.keys(FISHING_LOCATIONS) as FishingRegion[]
+  assert.deepEqual(regions.filter((region) => canFishAt(initial, region)), ['lake'])
+  const river = runQuest('millrace-weir', ['build-weir', 'open-sluice'])
+  river.kingdomHealth.nature = 85
+  river.kingdomHealth.order = 60
+  river.flags.heededNix = true
+  assert.ok(canFishAt(river, 'far_shore'))
+  river.fishingRegion = 'far_shore'
+  for (let i = 0; i < 64; i++) {
+    const save = { ...river, seed: 'atlas-' + i }
+    const pool = fishAtLocation(save, 'far_shore')
+    const preview = startFishingEncounter(save)
+    assert.ok(pool.some((fish) => fish.slug === preview.fishSlug))
+    const turn = takeTurn(C, save, makeRng(save.seed))
+    assert.equal(turn.catch.fishSlug, preview.fishSlug)
+  }
+  river.flags.runBlocked = true
+  assert.ok(!canFishAt(river, 'far_shore'))
+  assert.equal(currentFishingRegion(river), 'lake')
+  assert.ok(fishAtLocation(river, 'lake').some(
+    (fish) => fish.slug === startFishingEncounter(river).fishSlug,
+  ))
+  const publicLadder = runQuest('millrace-weir', ['ladder-weir', 'open-ladder-pools'])
+  assert.ok(locationUnlocked(publicLadder, 'village_edge'))
+  const protectedLadder = runQuest('millrace-weir', ['ladder-weir', 'guard-ladder'])
+  assert.ok(!locationUnlocked(protectedLadder, 'village_edge'))
+  const reed = runQuest('reed-shallows', ['declare-nursery', 'catch-and-release'])
+  assert.ok(canFishAt(reed, 'near_bank'))
+  const closed = runQuest('reed-shallows', ['declare-nursery', 'close-cove'])
+  assert.ok(!canFishAt(closed, 'near_bank'))
+  const moat = runQuest('castle-moat', ['keep-moat-common', 'honour-rules'])
+  assert.ok(locationUnlocked(moat, 'castle_grounds'))
+  moat.flags.waterMonopoly = true
+  assert.ok(!canFishAt(moat, 'castle_grounds'))
 }
 
 console.log('ruler-hooked QUESTS self-test: ALL PASS')

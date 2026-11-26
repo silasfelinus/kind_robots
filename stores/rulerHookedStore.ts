@@ -7,6 +7,8 @@
 import { defineStore } from 'pinia'
 import { RULER_HOOKED_CONTENT as BUNDLE } from '~/utils/rulerHooked/content'
 import { createRun } from '~/utils/rulerHooked/newGame'
+import { canFishAt, currentFishingRegion } from '~/utils/rulerHooked/fish'
+import { FISHING_LOCATIONS } from '~/utils/rulerHooked/fishingLocations'
 import { readCourtCheckpoint } from '~/utils/rulerHooked/courtCheckpoint'
 import {
   readQuizCheckpoint,
@@ -89,6 +91,7 @@ import type {
   Card,
   CatchResult,
   CharacterRef,
+  FishingRegion,
   RunSave,
   SaveSlotMeta,
   QuizFishingCheckpoint,
@@ -296,8 +299,26 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   }
 
   /** Select a deterministic fish and enter its beat-based encounter. */
+  const fishingRegion = computed(() =>
+    save.value ? currentFishingRegion(save.value) : 'lake',
+  )
+  const fishingLocationName = computed(
+    () => FISHING_LOCATIONS[fishingRegion.value].name,
+  )
+
+  function selectFishingRegion(region: FishingRegion): boolean {
+    if (!save.value || !canFish.value || !canFishAt(save.value, region))
+      return false
+    save.value.fishingRegion = region
+    lastCatch.value = null
+    lastEscape.value = null
+    persist()
+    return true
+  }
+
   function startFishing(mode: 'classic' | 'quiz' = 'classic') {
     if (!save.value || !canFish.value) return
+    save.value.fishingRegion = currentFishingRegion(save.value)
     lastCatch.value = null
     lastEscape.value = null
     activeFishing.value = startSimpleFishing(save.value)
@@ -592,6 +613,9 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     scrapbook,
     scene,
     canFish,
+    fishingRegion,
+    fishingLocationName,
+    selectFishingRegion,
     canShop,
     coins,
     advisorCharacter,

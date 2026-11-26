@@ -159,7 +159,7 @@ const props = withDefaults(
     artOverrides?: Readonly<Record<string, string>>
     layout?: 'list' | 'row' | 'icons'
   }>(),
-  { layout: 'list' },
+  { layout: 'list', artOverrides: () => ({}) },
 )
 
 const achievementStore = useAchievementStore()

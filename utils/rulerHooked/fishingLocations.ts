@@ -42,6 +42,7 @@ export function locationUnlocked(
         !f.coveClosed &&
         !f.exclusivePier &&
         !!(
+          f.publicDock ||
           f.villageBerths ||
           f.catchRelease ||
           f.newlywedsGarden ||

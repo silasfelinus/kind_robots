@@ -1012,4 +1012,108 @@ for (const id of QUESTS)
   assert.ok(!canFishAt(moat, 'castle_grounds'))
 }
 
+// Editorial acceptance: every authored narrative node has a distinct,
+ // resolving choice, art binding, and readable consequence. Walk every arc
+ // edge, assert terminal paths, and emit complete edited route transcripts.
+{
+  const freeCards = allDeckCards(C)
+  const cards = [...freeCards, ...C.arcs.flatMap((a) => a.steps)]
+  const ids = new Set(cards.map((card) => card.id))
+  assert.equal(ids.size, cards.length, 'unique narrative card ids')
+  const cast = new Set(C.characters.map((character) => character.slug))
+  const rewards = new Set(C.rewards.map((reward) => reward.slug))
+  for (const card of cards) {
+    assert.ok(card.title.trim() && card.body.trim(), card.id)
+    assert.ok(CARD_PROMPTS[card.id], card.id + ' has a scene prompt')
+    const resolving = card.choices.filter((choice) => !choice.requeue)
+    assert.ok(resolving.length >= 2, card.id + ' offers two real choices')
+    assert.equal(new Set(card.choices.map((choice) => choice.id)).size, card.choices.length)
+    for (const character of card.characters ?? [])
+      assert.ok(cast.has(character), card.id + ': unknown character ' + character)
+    for (const choice of card.choices) {
+      assert.ok(choice.text.trim() && choice.result?.trim(), card.id + '/' + choice.id)
+      for (const grant of choice.effects.grant ?? [])
+        assert.ok(rewards.has(grant.reward), card.id + ': unknown reward')
+      for (const revoke of choice.effects.revoke ?? [])
+        assert.ok(rewards.has(revoke), card.id + ': unknown revoked reward')
+    }
+    for (const prerequisite of card.trigger?.requires?.cardsSeen ?? [])
+      assert.ok(ids.has(prerequisite), card.id + ': unknown prerequisite ' + prerequisite)
+  }
+  for (const a of C.arcs) {
+    const reached = new Set<string>()
+    const paths: string[][] = []
+    function walk(stepId: string, history: string[], choices: string[]) {
+      assert.ok(!history.includes(stepId), 'arc cycle: ' + stepId)
+      const step = a.steps.find((card) => card.id === stepId)
+      assert.ok(step, a.id + ': missing step ' + stepId)
+      reached.add(stepId)
+      for (const choice of step.choices) {
+        const next = choice.effects.arc
+        const path = [...choices, choice.id]
+        if (next?.advance) walk(next.advance, [...history, stepId], path)
+        else {
+          assert.equal(next?.complete, a.id, stepId + ': unclosed arc')
+          paths.push(path)
+        }
+      }
+    }
+    walk(a.steps[0]!.id, [], [])
+    assert.equal(reached.size, a.steps.length, a.id + ': unreachable card')
+    for (const path of paths) {
+      const result = runQuest(a.id, path)
+      const transcript = result.choiceLog.map((entry) => ({
+        turn: entry.turn,
+        petition: entry.prompt,
+        scene: a.steps.find((step) => step.id === entry.cardId)?.body,
+        decree: entry.choiceText,
+        consequence: entry.resultText,
+      }))
+      assert.equal(transcript.length, path.length)
+      console.log('Editorial arc witness ' + a.id + ' / ' + path.join(' / '))
+      console.log(JSON.stringify(transcript))
+    }
+  }
+  console.log('Editorial catalog: ' + cards.length + ' cards, ' + C.arcs.length + ' arcs, ' + C.endings.length + ' finales')
+}
+
+// One-time decisions and ecological bargain consequences must match the text.
+{
+  const cards = allDeckCards(C)
+  const base = createRun(C, {
+    saveId: 'sv_editorial',
+    name: 'Editorial',
+    seed: 'editorial',
+    rulerName: 'Mo',
+    stamp: 'T0',
+  })
+  base.turnCount = 50
+  const choose = (save: RunSave, cardId: string, choiceId: string) => {
+    const card = cards.find((candidate) => candidate.id === cardId)!
+    return resolveChoice(save, card, card.choices.find((choice) => choice.id === choiceId)!)
+  }
+  const bargain = runQuest('bog-witch-bargain', ['accept-hex', 'complete-accept'])
+  const refused = choose(bargain, 'mossy-price', 'refuse-price')
+  assert.equal(refused.flags.bogBloomed, false)
+  assert.ok(!refused.inventory.items.some((reward) => reward.slug === 'mossy-hex'))
+  refused.kingdomHealth.nature = 100
+  refused.kingdomHealth.joy = 100
+  refused.flags.treelineSanctuarySettled = true
+  assert.ok(!has(refused, 'crown-of-reeds-pike'))
+  const introduced = choose(base, 'smuggler-dock', 'allow-smuggling')
+  const reported = choose(introduced, 'brack-lures', 'tip-cordelia')
+  const exiled = choose(reported, 'brack-trial', 'exile-brack')
+  assert.ok(!eligiblePool(exiled, cards).some((card) => card.id === 'brack-lures'))
+  const pardoned = choose(reported, 'brack-trial', 'pardon-brack')
+  assert.ok(!eligiblePool(pardoned, cards).some((card) => card.id === 'brack-lures'))
+  for (const [cardId, choiceId] of [
+    ['sunken-cache', 'dive-for-it'],
+    ['robin-ash-garden', 'grant-garden'],
+  ] as const) {
+    const save = { ...introduced, flags: { ...introduced.flags, weddingCompleted: true } }
+    assert.ok(eligiblePool(save, cards).some((card) => card.id === cardId))
+    assert.ok(!eligiblePool(choose(save, cardId, choiceId), cards).some((card) => card.id === cardId))
+  }
+}
+
 console.log('ruler-hooked QUESTS self-test: ALL PASS')

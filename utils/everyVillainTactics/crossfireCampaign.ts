@@ -340,6 +340,44 @@ export function snapshotCrossfire(
   return { ...journal, active: save }
 }
 
+/** Reconstruct the exact opening, including earned support and wounds. */
+function openingCrossfireSave(
+  journal: CrossfireJournal,
+  chapter: number,
+  completed: readonly EvtSave[],
+): EvtSave {
+  const stage = chapter === 0 ? null : clonePreset(CROSSFIRE_CHAPTERS[chapter]!.id)
+  const story = createStory()
+  if (stage) story.current = null
+  const state = trainingState(0x53a1b7 + chapter * 997, stage ?? undefined, {
+    lead: journal.lead,
+    foil: journal.foil ?? undefined,
+  })
+  const previous = completed[chapter - 1]
+  if (previous) applyCrossfireCarryover(state, previous, chapter - 1)
+  if (chapter === CROSSFIRE_CHAPTERS.length - 1)
+    applyCrossfireFinaleNetwork(state, completed)
+  return createSave({
+    slot: 'auto',
+    perspective: journal.perspective,
+    leadSignature: journal.lead,
+    foilSignature: journal.foil,
+    stage,
+    state,
+    story,
+  })
+}
+
+/** Retry only the current chapter; completed chapters are immutable. */
+export function retryCrossfire(raw: unknown): CrossfireJournal | null {
+  const journal = readCrossfireJournal(raw)
+  if (!journal || journal.finished) return null
+  return readCrossfireJournal({
+    ...journal,
+    active: openingCrossfireSave(journal, journal.chapter, journal.completed),
+  })
+}
+
 /** Victory plus First Bell's closing decision are required before advancing.
  * Losses remain replayable without silently granting progress. */
 export function advanceCrossfire(
@@ -356,25 +394,7 @@ export function advanceCrossfire(
   const chapter = verified.chapter + 1
   if (chapter === CROSSFIRE_CHAPTERS.length)
     return { ...verified, completed, finished: true }
-  const stage = clonePreset(CROSSFIRE_CHAPTERS[chapter]!.id)
-  const story = createStory()
-  story.current = null
-  const nextState = trainingState(0x53a1b7 + chapter * 997, stage, {
-    lead: verified.lead,
-    foil: verified.foil ?? undefined,
-  })
-  applyCrossfireCarryover(nextState, verified.active, verified.chapter)
-  if (chapter === CROSSFIRE_CHAPTERS.length - 1)
-    applyCrossfireFinaleNetwork(nextState, completed)
-  const active = createSave({
-    slot: 'auto',
-    perspective: verified.perspective,
-    leadSignature: verified.lead,
-    foilSignature: verified.foil,
-    stage,
-    state: nextState,
-    story,
-  })
+  const active = openingCrossfireSave(verified, chapter, completed)
   const next = {
     ...verified,
     chapter,

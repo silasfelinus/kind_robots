@@ -158,7 +158,11 @@ export function drawRainbowInterlude(
  * each reviewed plate (conductor ANIM-BACKLOG-2026-11-24), keyed by the plate's name (`restore`, `loyal-sever`).
  * Listed only once reviewed; an ending without a clip shows its still plate.
  */
-export const RAINBOW_ENDING_MOTION: readonly string[] = []
+export const RAINBOW_ENDING_MOTION: readonly string[] = [
+  'restore',
+  'evacuate',
+  'sever-open',
+]
 
 /** The plate an ending shows: the loyal road has its own; sever's plate is the crew-free lantern scene. */
 export function rainbowEndingPlateName(

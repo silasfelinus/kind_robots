@@ -27,7 +27,7 @@
         >
           Retry
         </button>
-        <button class="rh-btn" type="button" @click="quiz.setMode('classic')">
+        <button class="rh-btn" type="button" @click="quiz.fishInClassic()">
           Fish in Classic mode
         </button>
       </div>
@@ -139,10 +139,12 @@
 import { MANDARIN_QUIZ_TOPICS } from '~/utils/rulerHooked/quiz'
 import { useMandarinTutorStore } from '~/stores/mandarinTutorStore'
 import { useRulerHookedQuizStore } from '~/stores/rulerHookedQuizStore'
+import { useRulerHookedStore } from '~/stores/rulerHookedStore'
 import type { SimpleFishingEncounter } from '~/utils/rulerHooked/simpleFishing'
 
-const props = defineProps<{ encounter: SimpleFishingEncounter }>()
+defineProps<{ encounter: SimpleFishingEncounter }>()
 const quiz = useRulerHookedQuizStore()
+const fishing = useRulerHookedStore()
 const tutor = useMandarinTutorStore()
 const mandarinLesson = computed(() =>
   quiz.currentMandarinCard
@@ -180,10 +182,12 @@ function pick(choice: { id: string }) {
 function speak() {
   if (quiz.currentMandarinCard) void tutor.speak(quiz.currentMandarinCard)
 }
-onMounted(() => void quiz.nextQuestion())
+onMounted(() => void quiz.resumeQuestion())
 watch(
-  () => props.encounter.fishSlug,
-  () => void quiz.nextQuestion(),
+  () => fishing.save?.pendingQuizFishing?.encounterId,
+  (id) => {
+    if (id) void quiz.resumeQuestion()
+  },
 )
 </script>
 

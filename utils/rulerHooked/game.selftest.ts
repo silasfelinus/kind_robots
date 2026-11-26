@@ -17,6 +17,8 @@ import { readCourtCheckpoint } from '~/utils/rulerHooked/courtCheckpoint'
 import { classicCheckpoint, readClassicCheckpoint } from '~/utils/rulerHooked/fishingCheckpoint'
 import { applyFishingStop, fishingEncounterFinished, startFishingEncounter } from '~/utils/rulerHooked/encounter'
 import { royalBackup } from '~/utils/rulerHooked/accountBackup'
+import { readQuizCheckpoint, validQuizCheckpoint } from '~/utils/rulerHooked/quizCheckpoint'
+import { geographyQuestion } from '~/utils/rulerHooked/quiz'
 import {
   loadIndex, loadSave, writeSave, renameSlot, deleteSlot, makeSaveId,
   SAVE_SCHEMA_VERSION,
@@ -336,6 +338,54 @@ const fresh = (id = 'sv_a'): RunSave =>
     stops: terminal.history.map((beat) => beat.stopPosition!),
   }
   assert.equal(readClassicCheckpoint(s), null)
+}
+
+// A quiz catch keeps the same question and review state across saves.
+{
+  const s = fresh('sv_quiz')
+  s.createdAt = '2026-11-26T00:00:00Z'
+  const encounterId = startFishingEncounter(s).id
+  const question = geographyQuestion('flags', 0, null, () => 0.4)
+  s.pendingQuizFishing = { encounterId }
+  assert.deepEqual(readQuizCheckpoint(s), { encounterId })
+  s.pendingQuizFishing = {
+    encounterId,
+    question,
+    scope: 'all',
+    introduction: false,
+    answerSheet: true,
+    feedback: 'Not quite. ' + question.explanation,
+  }
+  writeSave(s, '2026-11-26T00:01:00Z')
+  const loaded = loadSave(s.saveId)!
+  const checkpoint = readQuizCheckpoint(loaded)!
+  assert.deepEqual(checkpoint, s.pendingQuizFishing)
+  assert.deepEqual(
+    readQuizCheckpoint(royalBackup([loaded], {}).reigns[0]!),
+    checkpoint,
+  )
+  assert.equal(loaded.turnCount, 0)
+  assert.deepEqual(loaded.fishopedia, {})
+  assert.equal(validQuizCheckpoint({
+    ...checkpoint,
+    question: { ...question, correctId: 'not-an-option' },
+  }), false)
+  assert.equal(validQuizCheckpoint({
+    ...checkpoint,
+    question: { ...question, heroImage: 'https://invalid.example/flag.svg' },
+  }), false)
+  assert.equal(validQuizCheckpoint({
+    ...checkpoint,
+    introduction: true,
+  }), false)
+  loaded.turnCount++
+  assert.equal(readQuizCheckpoint(loaded), null)
+  loaded.turnCount--
+  loaded.pendingFinaleKey = 'fishers-peace'
+  assert.equal(readQuizCheckpoint(loaded), null)
+  delete loaded.pendingFinaleKey
+  loaded.status = 'COMPLETE'
+  assert.equal(readQuizCheckpoint(loaded), null)
 }
 
 console.log('ruler-hooked GAME self-test: ALL PASS')

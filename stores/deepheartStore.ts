@@ -544,7 +544,10 @@ export const useDeepheartStore = defineStore('deepheart', () => {
   function accountSnapshot(): DeepheartBackup | null {
     load()
     if (heldSaves.value || heldChronicle.value) return null
+    const kitSave = kit().accountSnapshot('deepheart')
+    if (!kitSave) return null
     return clone({
+      kit: kitSave,
       kind: 'deepheart',
       version: 1,
       chronicle: chronicle.value,
@@ -555,6 +558,8 @@ export const useDeepheartStore = defineStore('deepheart', () => {
   function restoreAccount(backup: DeepheartBackup): boolean {
     load()
     if (run.value || heldSaves.value || heldChronicle.value) return false
+    if (backup.kit && !kit().restoreAccount('deepheart', backup.kit))
+      return false
     chronicle.value = clone(backup.chronicle)
     saves.value = clone(backup.saves)
     if (chronicle.value.lastHero) {

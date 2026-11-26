@@ -2881,3 +2881,38 @@ for (const version of [1, 2] as const) {
     playClash(structuredClone(state), 'player', 'scrapper', 2),
   )
 }
+
+// Constructed heavy removal competes with two separate plays. V1 keeps its
+// original power; actual V2 damage and the printed rules must agree.
+for (const [id, extra] of [
+  ['s2-exchange-compound-interest-notice', 3],
+  ['s3-exchange-compound-notice', 3],
+  ['s2-bloodfairies-glitterglass-flood', 3],
+  ['s3-bloodfairies-cathedral-noise', 2],
+  ['s2-riot-friendly-fire-rehearsal', 2],
+] as const) {
+  const card = cardById(id)
+  assert.equal(card.kind, 'spell')
+  assert.equal(clashPlayCost(card), 2)
+  for (const level of [1, 2, 3])
+    assert.equal(
+      clashBalance(card, level, 2).power,
+      clashBalance(card, level, 1).power + extra,
+      id,
+    )
+  for (const version of [1, 2] as const) {
+    assert.ok(card.team !== 'mercenary')
+    const state = createClash(card.team, 'ironjaw', 1108, {
+      balanceVersion: version,
+    })
+    state.round = 2
+    state.hands.player = [id]
+    state.units = [follower('enemy', 2, 9001, 12)]
+    const cast = playClash(state, 'player', id, 2)
+    const target = cast.units.find((u) => u.uid === 9001)!
+    const power = clashBalance(card, 1, version).power
+    assert.equal(target.hp, 12 - power, id)
+    assert.ok(clashCardText(card, 1, undefined, version).includes(String(power)))
+    if (card.effect === 'debt') assert.ok(target.rooted)
+  }
+}

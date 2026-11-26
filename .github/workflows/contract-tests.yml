@@ -142,6 +142,9 @@ jobs:
       - name: Oracle reading engine contract
         run: npm run test:oracle-engine
 
+      - name: Tarot Studio catalog and canonical Kind Oracle id contract
+        run: npm run test:tarot-studio
+
       - name: Art-request YAML indentation contract
         run: npm run test:art-request-yaml
 
@@ -537,6 +540,8 @@ jobs:
             utils/slimeCity/
             utils/scripts/slimeCityClashBalanceReport.ts
             utils/scripts/slimeCityCalibrationDiagnostic.ts
+            utils/scripts/verifySlimeCityClashConstructed.test.ts
+            utils/scripts/lib/slimeCityCpuReach.ts
 
       - name: Monstress Convention first case and two-investigator logic
         run: npx tsx utils/scripts/verifyMonstressPrologue.test.ts

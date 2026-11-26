@@ -2,7 +2,7 @@
 title: 'Characters'
 room: 'Character Gallery'
 subtitle: 'Not just pretty code'
-description: 'Browse character profiles, each with their own quirks and quests.'
+description: 'Meet the Kind Robots characters, each with a personality and portrait, then pick one to chat with or cast in a story.'
 image: splash/characters.png
 icon: fa-solid:mask
 tooltip: 'Meet the characters behind the chaos.'

@@ -195,4 +195,18 @@ assert.doesNotMatch(
   /AI storytelling worlds/i,
 )
 
+// 9. Member and creator pages say what they do (2026-11-26 PT): /wallet
+//    listed "karma" and "mana" with no meaning, /characters promised only
+//    "quirks and quests", /dreams spoke of "users" instead of the visitor,
+//    /friends said "control blocks" and /messages "consent-aware messaging".
+const wallet = pageDescription('content/wallet.md')
+assert.match(wallet, /budget you spend to make AI art/)
+assert.match(wallet, /Sign in free/)
+assert.match(pageDescription('content/characters.md'), /chat with/)
+assert.doesNotMatch(pageDescription('content/dreams.md'), /\busers\b/i)
+assert.doesNotMatch(pageDescription('content/friends.md'), /control blocks/i)
+const messages = pageDescription('content/messages.md')
+assert.doesNotMatch(messages, /consent-aware/i)
+assert.match(messages, /only friends/)
+
 console.log(`front door polish checks passed (${gatedCards} gated share cards)`)

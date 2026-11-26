@@ -9,6 +9,7 @@ import type {
   CatchResult,
   FishDefinition,
   FishQuality,
+  FishingRegion,
   Rarity,
   RunSave,
 } from '~/types/ruler-hooked'
@@ -16,6 +17,7 @@ import type { RngStream } from './seed'
 import { clauseHolds } from './triggers'
 import { rollTreasure } from './economy'
 import { fishWeightForProclamation } from './dailyEvents'
+import { isFishingRegion, locationUnlocked } from './fishingLocations'
 
 /**
  * Species art key convention from docs/fish-ecology.md: creature slug plus
@@ -1083,6 +1085,23 @@ export function availableFish(save: RunSave): FishDefinition[] {
   return RULER_HOOKED_FISH.filter((fish) => fishUnlocked(save, fish))
 }
 
+export function fishAtLocation(
+  save: RunSave,
+  region: FishingRegion,
+): FishDefinition[] {
+  if (!locationUnlocked(save, region)) return []
+  return availableFish(save).filter((fish) => fish.habitats.includes(region))
+}
+
+export function canFishAt(save: RunSave, region: FishingRegion): boolean {
+  return fishAtLocation(save, region).length > 0
+}
+
+export function currentFishingRegion(save: RunSave): FishingRegion {
+  const region = save.fishingRegion
+  return isFishingRegion(region) && canFishAt(save, region) ? region : 'lake'
+}
+
 function quality(score: number): FishQuality {
   if (score >= 92) return 'TROPHY'
   if (score >= 78) return 'EXCEPTIONAL'
@@ -1091,7 +1110,10 @@ function quality(score: number): FishQuality {
 }
 
 function pickFish(save: RunSave, rng: RngStream): FishDefinition {
-  const pool = availableFish(save)
+  const pool =
+    save.fishingRegion === undefined
+      ? availableFish(save)
+      : fishAtLocation(save, currentFishingRegion(save))
   // Parlour Rustfish is intentionally unconditional, so this is defensive only.
   if (!pool.length)
     return RULER_HOOKED_FISH.find((f) => f.slug === 'parlour-rustfish')!

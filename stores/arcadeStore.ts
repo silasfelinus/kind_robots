@@ -130,6 +130,10 @@ type ArcadePrefs = {
   stillCamera?: boolean
   /** Hostile shots on an opaque dark disc with a bright ring, in every cabinet that offers it. */
   highContrast?: boolean
+  /** Story, banner and speech text drawn larger, for cabinets that offer it. */
+  largeText?: boolean
+  /** Story panels and speech plates stay up longer, for cabinets that offer it. */
+  slowReading?: boolean
   /** How much crew chatter cabinets with comms show. */
   comms?: ArcadeComms
   /** Each cabinet's player-chosen face-button keys, by game slug. */
@@ -257,6 +261,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   const crt = ref(true)
   const stillCamera = ref(false)
   const highContrast = ref(false)
+  const largeText = ref(false)
+  const slowReading = ref(false)
   const comms = ref<ArcadeComms>('full')
   const keyRemaps = ref<Record<string, ArcadeKeyRemap>>({})
   const renderStyle = ref<RenderStyle>(DEFAULT_RENDER_STYLE)
@@ -725,6 +731,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     crt.value = prefs.crt ?? !prefersReducedMotion
     stillCamera.value = prefs.stillCamera ?? prefersReducedMotion
     highContrast.value = prefs.highContrast === true
+    largeText.value = prefs.largeText === true
+    slowReading.value = prefs.slowReading === true
     comms.value = ARCADE_COMMS.includes(prefs.comms as ArcadeComms)
       ? (prefs.comms as ArcadeComms)
       : 'full'
@@ -764,6 +772,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       crt: crt.value,
       stillCamera: stillCamera.value,
       highContrast: highContrast.value,
+      largeText: largeText.value,
+      slowReading: slowReading.value,
       comms: comms.value,
       keyRemaps: keyRemaps.value,
       renderStyle: renderStyle.value,
@@ -830,6 +840,32 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
 
   function setHighContrast(value: boolean) {
     highContrast.value = value
+    savePreferences()
+  }
+
+  function setLargeText(value: boolean) {
+    largeText.value = value
+    savePreferences()
+  }
+
+  function setSlowReading(value: boolean) {
+    slowReading.value = value
+    savePreferences()
+  }
+
+  /**
+   * Put the shared sound and accessibility options back to a fresh device's defaults:
+   * sound on at full volume, high contrast, large text and slow reading off, and the
+   * still camera following the viewer's reduced-motion preference. Keys, styles, saves
+   * and initials are untouched.
+   */
+  function resetCabinetSettings(prefersReducedMotion: boolean) {
+    muted.value = false
+    volume.value = 1
+    stillCamera.value = prefersReducedMotion
+    highContrast.value = false
+    largeText.value = false
+    slowReading.value = false
     savePreferences()
   }
 
@@ -969,6 +1005,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     crt,
     stillCamera,
     highContrast,
+    largeText,
+    slowReading,
     comms,
     keyRemapFor,
     renderStyle,
@@ -1009,6 +1047,9 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     setCrt,
     setStillCamera,
     setHighContrast,
+    setLargeText,
+    setSlowReading,
+    resetCabinetSettings,
     setComms,
     setKeyRemap,
     difficultyFor,

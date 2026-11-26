@@ -312,7 +312,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           once: true,
           characters: ['warlock-vex', 'druid-sela'],
           title: 'The North Woods Question',
-          body: 'Vex unrolls blueprints across your tackle box. Across the clearing, Sela just waits, watering can in hand.',
+          body: 'Vex unrolls blueprints across your tackle box. His mills would employ the families who leave every winter. Across the clearing, Sela holds up a jar of clear spring water. “Ask him where the waste goes.” Vex taps a blank corner of the plan. “That part is flexible.”',
           art: 'card-warlock-druid-north',
           trigger: { minTurn: 2, forbids: { flags: ['northWoodsSettled'] } },
           choices: [
@@ -328,7 +328,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 grant: [{ reward: 'buildpermit-scroll' }],
               },
               result:
-                'Vex cackles and breaks ground before you finish your sentence.',
+                'Vex has hired forty workers by the following morning. Their first task is to cut a road through the woods. Sela carries the seedlings she can save to the lake and asks you to remember the price of the jobs.',
             },
             {
               id: 'preserve',
@@ -341,7 +341,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 counters: { druidFavors: +1 },
                 grant: [{ reward: 'druid-charm' }],
               },
-              result: 'Sela plants a grove in your honor. The frogs approve.',
+              result:
+                'Sela plants a grove with the village children. Vex packs up his survey pegs and sends the unemployed millwrights home. The water stays clear, but Quill keeps their petition for work on his desk.',
             },
             {
               id: 'defer',
@@ -359,7 +360,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           kind: 'ambient',
           weight: 2,
           title: 'The Harvest Festival',
-          body: 'The village wants to throw a festival at your expense.',
+          body: 'The baker wants a harvest festival; the miller wants to be paid for the flour. Quill has priced a feast and a smaller communal supper. “People can celebrate on either budget,” he says. “They will remember which one.”',
           art: 'card-harvest-festival',
           choices: [
             {
@@ -369,13 +370,15 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { joy: +8, treasury: -6 },
                 counters: { festivals: +1 },
               },
-              result: 'Bunting everywhere. Someone gifts you a lure.',
+              result:
+                'The square fills with lanterns and music. The baker sends the leftover bread to households that missed the feast. Gristle files the bill under Necessary Extravagance, with a question mark.',
             },
             {
               id: 'modest',
               text: 'Keep it modest.',
               effects: { sliders: { joy: +2 } },
-              result: 'A pleasant, forgettable afternoon.',
+              result:
+                'The villagers bring their own dishes, and Fen plays for a bowl of stew. It is a smaller celebration, but nobody goes home hungry.',
             },
             {
               id: 'skip',
@@ -392,7 +395,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           kind: 'ambient',
           weight: 2,
           title: 'A Rival Angler',
-          body: 'A boastful noble challenges you to a catch-off.',
+          body: 'A noble arrives with a silver rod, a servant carrying bait and a trophy engraved with his own name. “The best angler in the realm,” he announces. Quill looks at your battered tackle box. “Shall I fetch a second inscription?”',
           art: 'card-rival-angler',
           choices: [
             {
@@ -406,7 +409,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               id: 'decline',
               text: 'Rulers don’t compete. (You’re nervous.)',
               effects: { sliders: { order: +2 } },
-              result: 'Dignity intact, ego bruised.',
+              result:
+                'The noble pockets his trophy, disappointed that he cannot boast of beating the crown. Quill records a diplomatic success. You record a missed opportunity.',
             },
           ],
         },
@@ -435,7 +439,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 flags: { set: ['farShoreFleetSettled'] },
                 counters: { warlockFavors: +1 },
               },
-              result: 'The lake gains a skyline. Vex gains a yacht.',
+              result:
+                'The new barges bring wages, cargo and enough smoke to hide the sunset. Vex buys a yacht from the first dividend. Sela asks whether the village can afford to buy its clean water back.',
             },
             {
               id: 'cap-it',
@@ -444,7 +449,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { nature: -4, prosperity: +6, treasury: +3 },
                 flags: { set: ['farShoreFleetSettled'] },
               },
-              result: 'Vex grumbles, then shrugs. “Fine. One barge. For now.”',
+              result:
+                'Vex signs a smaller contract and crosses out three of his proposed chimneys. The millworkers keep their shifts without a full fleet. “A pilot project,” he says. “A very profitable pilot project.”',
             },
             {
               id: 'defer-vex',
@@ -490,7 +496,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { nature: +8, prosperity: -2 },
                 flags: { set: ['treelineSanctuarySettled'] },
               },
-              result: '“Half is not none,” Sela admits, grudgingly satisfied.',
+              result:
+                'Sela marks the protected half with willow stakes and asks the builders to keep their wheels outside them. Vex gets room for a few cottages. Neither calls it a victory; both sign.',
             },
             {
               id: 'defer-sela',
@@ -520,7 +527,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { treasury: +12, joy: -8 },
                 counters: { taxHikes: +1 },
               },
-              result: 'Gristle almost smiles. The village does not.',
+              result:
+                'Gristle pays the overdue bridge repairs from the levy. In the market, a mother puts back a second loaf. The accounts balance; the queue outside the bakery grows quieter.',
             },
             {
               id: 'cut-taxes',
@@ -559,7 +567,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 regionOverride: { village_edge: 'township' },
                 counters: { cordeliaFavors: +1 },
               },
-              result: 'Stone goes up fast under a captain who means it.',
+              result:
+                'The masons get work, and the village gains a stout gate. Farmers must now walk around the wall to reach their fields. Cordelia posts a guard beside the complaint box.',
             },
             {
               id: 'open-borders',
@@ -604,14 +613,15 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { joy: +4, order: -3 },
                 counters: { balladsSung: +1 },
               },
-              result: 'The true story is mostly about fish. It slaps.',
+              result:
+                'Fen writes about the fish, the late petitions and the people who keep the realm running while you cast. The chorus is not flattering, but people sing it without being asked.',
             },
             {
               id: 'shoo-bard',
               text: 'Not today, Fen.',
               effects: { sliders: { joy: -2, order: +2 } },
               result:
-                'Fen writes a sad little verse about being shooed. It also slaps.',
+                'Fen writes a short lament about the price of royal attention. The fishers memorize it before you finish your next cast.',
             },
           ],
         },
@@ -645,7 +655,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { order: +8, treasury: -2 },
                 flags: { set: ['smugglerReported'] },
               },
-              result: 'Cordelia is delighted to have someone to arrest.',
+              result:
+                'Cordelia finds the unmarked cargo and returns it to the merchants. Brack escapes in a borrowed dinghy. She promises to bring you the man himself next time.',
             },
             {
               id: 'defer-brack',
@@ -698,14 +709,19 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           title: 'The Rival Returns',
           body: 'The boastful noble is back, and this time brought a bigger rod and a smaller sense of dignity.',
           art: 'card-rival-angler-2',
-          trigger: { requires: { counters: { fishCaught: { gte: 3 } } } },
+          trigger: {
+            requires: {
+              counters: { fishCaught: { gte: 3 } },
+              cardsSeen: ['rival-angler'],
+            },
+          },
           choices: [
             {
               id: 'accept-again',
               text: 'Accept. Again. Obviously.',
               effects: { counters: { fishCaught: +3 }, sliders: { joy: +8 } },
               result:
-                'A landslide victory. The noble demands a rematch, again.',
+                'The noble loses so badly that he presents his trophy without waiting for the weighing. He asks for a lesson instead of a rematch, then insists that the lesson is a rematch.',
             },
             {
               id: 'decline-again',
@@ -717,7 +733,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               id: 'taunt',
               text: 'Taunt them instead.',
               effects: { sliders: { joy: +10, order: -5 } },
-              result: 'Undignified. Extremely fun.',
+              result:
+                'The noble turns crimson while the village fishers applaud your imitation of his casting technique. Quill quietly removes the word dignified from the official account.',
             },
           ],
         },
@@ -726,6 +743,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           deck: 'kingdom-core',
           kind: 'ambient',
           weight: 2,
+          once: true,
           characters: ['heir-robin', 'sweetheart-ash'],
           title: 'The Newlyweds’ Garden',
           body: 'Robin and Ash ask for a plot near the lake to grow their own vegetables. “We don’t need much,” Robin says. “Just enough for us. And the fish, maybe.”',
@@ -746,7 +764,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               id: 'modest-plot',
               text: 'A modest plot will do.',
               effects: { sliders: { joy: +4 } },
-              result: 'It is small. It is enough.',
+              result:
+                'Ash builds a little greenhouse from salvaged windows. Robin learns to carry water without a footman. They send you the first crooked cucumber, tied with the ribbon from their wedding.',
             },
           ],
         },
@@ -911,7 +930,11 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           title: 'Fell Off a Barge',
           body: 'Brack opens a crate of foreign lures, each gleaming and individually wrapped. “Fell off a barge,” he says. “Several barges. In a very orderly line.”',
           art: 'card-brack-lures',
-          trigger: { minTurn: 9, requires: { flags: ['metSmuggler'] } },
+          trigger: {
+            minTurn: 9,
+            requires: { flags: ['metSmuggler'] },
+            forbids: { flags: ['brackExiled', 'brackPardoned'] },
+          },
           choices: [
             {
               id: 'buy-gold-lure',
@@ -977,7 +1000,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 flags: { set: ['brackExiled'] },
               },
               result:
-                'Brack rows away singing. The coves fall very quiet, and so do the night markets.',
+                'Brack rows across the border singing. His residence is revoked, though he may return under safe conduct for public hearings. The night markets fall quiet.',
             },
             {
               id: 'pardon-brack',
@@ -1012,7 +1035,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 flags: { set: ['fishExports'] },
               },
               result:
-                'Foreign nets stretch across the far shore by morning. The fish you catch get smaller, and the coins get larger.',
+                'Foreign nets stretch across the far shore by morning. The great shoals grow scarce, and the coins get larger.',
             },
             {
               id: 'rustfish-only',
@@ -1127,7 +1150,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           once: true,
           characters: ['witch-mossy'],
           title: 'Mossy Names Her Price',
-          body: 'Mossy turns up with an empty basket and a grin. Her price, it turns out, is the first fish you catch every new moon, forever, plus one story about it, told well.',
+          body: 'Mossy turns up with an empty basket and a grin. She demands a fish and a good story as the price of keeping the spell alive. “A proper story,” she says. “Not one of those decrees with a fish in the title.”',
           art: 'card-mossy-price',
           trigger: { requires: { flags: ['bogBloomed'] } },
           choices: [
@@ -1136,7 +1159,6 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               text: 'Pay it. A deal is a deal.',
               effects: {
                 sliders: { nature: +6, joy: +2 },
-                counters: { fishCaught: -1 },
                 flags: { set: ['mossyPaid'] },
               },
               result:
@@ -1155,14 +1177,18 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
             },
             {
               id: 'refuse-price',
-              text: 'Refuse. You never agreed to forever.',
+              text: 'Refuse. You never agreed to a price.',
               effects: {
                 sliders: { nature: -10, order: +4 },
                 regionOverride: { treeline: 'tended' },
-                flags: { set: ['mossyRefused'] },
+                flags: {
+                  set: ['mossyRefused'],
+                  clear: ['bogBloomed', 'mossyHexAccepted'],
+                },
+                revoke: ['mossy-hex'],
               },
               result:
-                'Mossy shrugs and leaves. Overnight, half the vines wither back to ordinary green. She never mentioned that part either.',
+                'Mossy takes back her charm and leaves. Overnight the enchanted vines wither into ordinary green. The bog will have to recover without magic. Cordelia asks whether the next bargain can have a price written on it.',
             },
           ],
         },
@@ -1612,7 +1638,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           weight: 5,
           characters: ['captain-cordelia', 'smuggler-brack', 'lake-spirit-nix'],
           title: 'The Lake Has Been Sold Twice',
-          body: 'The fish run is still blocked and Brack is selling the moat roach by the cartload. Two companies now claim the same water. Cordelia brings the deeds; Nix brings a bowl of mud where the spawning ground used to be. Brack offers to sell the bowl as a collectible.',
+          body: 'The fish run is still blocked and Brack is selling the moat roach by the cartload. Two companies now claim the same water. Brack has safe conduct to speak for the net makers. Cordelia brings the deeds; Nix brings a bowl of mud where the spawning ground used to be. Brack offers to sell the bowl as a collectible.',
           art: 'card-water-rights-hearing',
           trigger: {
             minTurn: 30,
@@ -1778,7 +1804,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           weight: 6,
           characters: ['captain-cordelia', 'smuggler-brack', 'lake-spirit-nix'],
           title: 'Nobody Wants to Mind the Water',
-          body: 'The people who watch the moat have stopped working. Brack brings an empty bait bucket and a petition signed by the net makers. Cordelia has been paying the patrol from her own purse. Nix lays three empty shells beside the accounts: one for the fish, one for the workers, and one for the crown. Who gets paid first?',
+          body: 'The people who watch the moat have stopped working. Brack, admitted under safe conduct, brings an empty bait bucket and a petition signed by the net makers. Cordelia has been paying the patrol from her own purse. Nix lays three empty shells beside the accounts: one for the fish, one for the workers, and one for the crown. Who gets paid first?',
           art: 'card-water-stewards-strike',
           trigger: {
             minTurn: 48,
@@ -1906,7 +1932,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 flags: { set: ['nixAnswered'] },
               },
               result:
-                'Nix considers this a very good answer and does not say why.',
+                '“Then whose permission do you still need?” asks Nix. It leaves a ring of ripples around your float. For once, no one is asking you to sign anything.',
             },
             {
               id: 'answer-dodge',
@@ -1932,6 +1958,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           deck: 'lake-mysteries',
           kind: 'ambient',
           weight: 2,
+          once: true,
           characters: ['smuggler-brack'],
           title: 'Brack’s Sunken Cache',
           body: 'The smuggler’s chart marks a spot in the lake with an X. Of course it does.',
@@ -1952,7 +1979,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               id: 'leave-it',
               text: 'Let the lake keep its secrets.',
               effects: { sliders: { nature: +4, joy: +3 } },
-              result: 'Some things are nicer as rumors.',
+              result:
+                'Brack marks the chest with a little drawing of a sleeping fish. The chart becomes a souvenir, and the lakebed remains undisturbed. You have refused a fortune, not a future appointment.',
             },
           ],
         },
@@ -2039,7 +2067,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           choices: [
             {
               id: 'restore-old-name',
-              text: 'Call it by its old name.',
+              text: 'Call it by its old name: Lumenmere.',
               effects: {
                 sliders: { nature: +6, joy: +4, order: -2 },
                 flags: { set: ['lakeNameRestored'] },
@@ -2062,7 +2090,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 flags: { set: ['nixQuestioned'] },
               },
               result:
-                'Nix considers this for a long time, then answers with a question you will be turning over for weeks.',
+                'Nix considers this for a long time. “What name would the people give you if they were not required to use yours?” The question stays with you longer than the ripples.',
             },
           ],
         },
@@ -2085,7 +2113,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               text: 'Pay to clean the water.',
               effects: { sliders: { nature: +12, treasury: -8 } },
               result:
-                'Barrels of sludge are hauled out by the dozen. The carp that floated up stay floated. The rest stop doing it.',
+                'The cleanup crews pull barrels of sludge from the water. The carp stop surfacing belly-up. Vex offers to sell the sludge as a building material; Quill declines on your behalf.',
             },
             {
               id: 'blame-vex',
@@ -2172,7 +2200,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 flags: { set: ['blessedMatch'] },
                 sliders: { joy: +6 },
               },
-              result: 'You wink. Robin beams.',
+              result:
+                'You ask Robin whether Ash has been asked what they want. “Every morning,” Robin says. They leave to tell Ash the wedding will not have to be a secret.',
             },
             {
               id: 'forbid',
@@ -2182,7 +2211,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { joy: -8, order: +5 },
               },
               result:
-                'Robin’s door slams. The realm is very orderly and very sad.',
+                'Robin folds the note into a tiny boat and sets it on the water. “Then you have chosen the throne for me.” Quill hears the bedroom door close before the palace is ready for supper.',
             },
           ],
         },
@@ -2191,7 +2220,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           kind: 'arc-step',
           characters: ['heir-robin', 'sweetheart-ash'],
           title: 'A Lakeside Wedding',
-          body: 'Ash asks, trembling, to fish beside you as family.',
+          body: 'Ash stands on the dock with a borrowed wedding coat and a rod repaired with twine. Robin has refused the ceremonial boat: they want a marriage, not a procession. The court is waiting to hear what place Ash will have in the family.',
           art: 'card-elope-blessing',
           choices: [
             {
@@ -2203,7 +2232,19 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { joy: +10 },
                 counters: { fishCaught: +1 },
               },
-              result: 'Three lines in the water. The best kind of court.',
+              result:
+                'You hand Ash the spare rod, not a title. Robin laughs when Ash catches the first fish. Quill signs the marriage register on the tackle box. The court can wait.',
+            },
+            {
+              id: 'protect-their-independence',
+              text: 'Recognize the marriage, but let them establish their own household.',
+              effects: {
+                arc: { complete: 'child-elopes' },
+                flags: { set: ['weddingCompleted', 'heirIndependent'] },
+                sliders: { joy: 7, order: -3, treasury: -3 },
+              },
+              result:
+                'Ash declines a palace apartment with a nervous smile. Robin asks for a key to the old boathouse instead. The court loses a ceremonial heir and gains two neighbors who visit because they want to.',
             },
           ],
         },
@@ -2212,7 +2253,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           kind: 'arc-step',
           characters: ['heir-robin'],
           title: 'The Empty Chair',
-          body: 'Robin left anyway, at dawn, with the tide.',
+          body: 'Robin has left anyway, taking a spare rod and the small portrait from their bedside. At breakfast Quill sets the empty chair back from the table. The court asks whether to announce an elopement, a disappearance or a state visit.',
           art: 'card-elope-defiance',
           choices: [
             {
@@ -2273,7 +2314,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { joy: +3 },
               },
               result:
-                'Thistle’s smile finally reaches her eyes. Gristle’s does not.',
+                'Thistle circles the clause allowing both villages to use the crossing. Gristle circles the lost duties. They agree to return with the final text, and neither will let you forget the first promise.',
             },
             {
               id: 'negotiate-tough',
@@ -2282,7 +2323,8 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 arc: { advance: 'envoy-tough' },
                 sliders: { order: +3 },
               },
-              result: 'Gristle, for once, looks proud of you.',
+              result:
+                'Gristle adds a fee to every crossing, including the return trip. Thistle closes the inkpot. “My merchants can afford this. Their families cannot.” She promises a final counteroffer.',
             },
           ],
         },
@@ -2291,12 +2333,12 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           kind: 'arc-step',
           characters: ['envoy-thistle'],
           title: 'A Generous Accord',
-          body: 'Thistle lays out the final terms — favorable to both sides, weighted a hair toward hers. She’s counting under her breath again.',
+          body: 'Thistle lays out the final terms: open crossings, mutual trade, and a duty exemption for her largest merchants. Gristle has calculated what the exemption would cost the smaller traders at home. This is the last opportunity to change the agreement.',
           art: 'card-envoy-generous',
           choices: [
             {
               id: 'sign-generous',
-              text: 'Sign it.',
+              text: 'Sign the generous accord as written.',
               effects: {
                 arc: { complete: 'envoy-treaty' },
                 sliders: { prosperity: +16, treasury: +8, joy: +5 },
@@ -2305,7 +2347,20 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 grant: [{ reward: 'treaty-seal' }],
               },
               result:
-                'The ink is barely dry before the first trade caravan arrives.',
+                'The first caravan arrives before the ink dries. Local merchants complain about the exemptions, while families cross the bridge without a toll. Thistle sends a gift of foreign bait and a promise to return.',
+            },
+            {
+              id: 'equalize-the-duties',
+              text: 'Keep the crossing open, but remove the special merchant exemptions.',
+              effects: {
+                arc: { complete: 'envoy-treaty' },
+                sliders: { prosperity: 10, treasury: 11, joy: 3, order: -2 },
+                regionOverride: { village_edge: 'township' },
+                flags: { set: ['envoyTreatySigned'] },
+                grant: [{ reward: 'treaty-seal' }],
+              },
+              result:
+                'Thistle sends the large merchants home with a shorter contract. Small traders on both banks celebrate. Gristle has more duties to count, but fewer distinguished visitors to impress.',
             },
           ],
         },
@@ -2314,7 +2369,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           kind: 'arc-step',
           characters: ['envoy-thistle', 'taxman-gristle'],
           title: 'A Hard Bargain',
-          body: 'Thistle’s smile has thinned considerably. Gristle, astonishingly, is smiling instead.',
+          body: 'Thistle’s smile has thinned. The final contract will fill the treasury, but relatives will pay each time they cross the bridge. She lays a smaller counteroffer beside it. Gristle has already prepared the receipts for the expensive version.',
           art: 'card-envoy-tough',
           choices: [
             {
@@ -2327,7 +2382,20 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 grant: [{ reward: 'treaty-seal' }],
               },
               result:
-                'Thistle signs anyway. “Next time,” she says, “bring less Gristle.”',
+                'Thistle signs. The customs house fills with coins and the bridge fills with waiting families. “Next time,” she says, “bring less Gristle.”',
+            },
+            {
+              id: 'take-the-counteroffer',
+              text: 'Accept the smaller toll. Exempt family crossings and keep a common market.',
+              effects: {
+                arc: { complete: 'envoy-treaty' },
+                sliders: { treasury: 8, prosperity: 9, joy: 4, order: -3 },
+                regionOverride: { village_edge: 'township' },
+                flags: { set: ['envoyTreatySigned', 'borderReopened'] },
+                grant: [{ reward: 'treaty-seal' }],
+              },
+              result:
+                'Thistle folds the expensive contract into a paper boat. The ferry keeps a modest fee for merchants, and families cross freely. Gristle tells you the treasury will recover. He says it twice, for himself.',
             },
           ],
         },
@@ -2372,7 +2440,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 sliders: { order: +4, nature: -2 },
               },
               result:
-                'Mossy shrugs, entirely unoffended, and starts humming instead.',
+                'Mossy gathers her basket and starts humming. Cordelia is relieved; the reed cutters are disappointed. The witch leaves a handful of unenchanted seeds on the dock, without saying whether they are a gift.',
             },
           ],
         },
@@ -2397,6 +2465,18 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               result:
                 'The far shore has never been greener. Mossy hasn’t asked for her price yet. That’s the part that worries everyone.',
             },
+            {
+              id: 'limit-the-hex',
+              text: 'Keep a small enchanted garden. Pay Mossy to teach the village ordinary planting.',
+              effects: {
+                arc: { complete: 'bog-witch-bargain' },
+                sliders: { nature: 5, joy: 5, treasury: -5, order: 2 },
+                regionOverride: { treeline: 'tended' },
+                flags: { clear: ['mossyHexAccepted'], set: ['mossyGarden'] },
+              },
+              result:
+                'Mossy reins the vines back to the garden wall and teaches the children which seeds need shade. She pockets the fee, delighted that someone finally asked for a receipt. The rest of the bog stays unenchanted.',
+            },
           ],
         },
         {
@@ -2416,7 +2496,18 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 grant: [{ reward: 'captains-pin' }],
               },
               result:
-                'Cordelia, who does not often get thanked, does not quite know what to do with that.',
+                'Cordelia puts the pin in your palm, embarrassed by your thanks. Her patrol takes over the reed bank. Nothing strange grows there, and nothing strange threatens the village either.',
+            },
+            {
+              id: 'plant-with-the-watch',
+              text: 'Keep the watch, but hire the reed cutters to restore the bank without magic.',
+              effects: {
+                arc: { complete: 'bog-witch-bargain' },
+                sliders: { nature: 8, order: 3, joy: 4, treasury: -7 },
+                regionOverride: { treeline: 'tended' },
+              },
+              result:
+                'Cordelia trades a row of spears for spades. The reed cutters plant Mossy’s ordinary seeds under guard. The bank greens slowly, and the captain reports that the operation has suffered only one casualty: her polished boots.',
             },
           ],
         },
@@ -2607,19 +2698,19 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           kind: 'arc-step',
           characters: ['druid-sela'],
           title: 'The Shallows Boil',
-          body: 'In spring the nursery fills with fry, so many that the shallows shimmer. Sela asks for one more thing: no lines in the cove until autumn. “Not even yours,” she says, looking at your rod.',
+          body: 'The nursery fills with fry, so many that the shallows shimmer. Sela asks for one more thing: keep the inner cove as a permanent refuge, or allow catch and release on its edge. “Not even a royal rod gets to ignore the rules,” she says.',
           art: 'card-reed-nursery',
           choices: [
             {
               id: 'close-cove',
-              text: 'Close the cove until autumn, royal line included.',
+              text: 'Protect the inner cove permanently, royal line included.',
               effects: {
                 arc: { complete: 'reed-shallows' },
                 sliders: { nature: +8, joy: -2, order: +2 },
                 flags: { set: ['coveClosed'] },
               },
               result:
-                'You fish the far side of the lake all summer. In autumn the koi come back into the bright shallows, in colours you have never seen.',
+                'The atlas marks the cove as a refuge. You can still watch koi return to the bright shallows, but the royal rod stays elsewhere. Sela brings the first fry count to the dock.',
             },
             {
               id: 'catch-and-release',

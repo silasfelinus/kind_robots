@@ -36,6 +36,11 @@ import {
   TILE,
   CAMPAIGN,
   chapelCourse,
+  optionalCourse,
+  HUSH_ROOM_WIDTH,
+  HUSH_FLOOR_ROW,
+  HUSH_DOOR_OFFSETS,
+  hushDestination,
   enclosedPipeRooms,
   parseStage,
   isSlope,
@@ -123,6 +128,8 @@ const SPRING_JUMP = -10.2
 const FLOAT = 0.6
 const SAIL_FALL = 1.8
 const SAIL_DRAG = 0.99
+/** Ballast Boots: a fall at least this fast with Down held lands hard. */
+const BALLAST_SLAM = 5
 const SPRING = -12.2
 const RUN = 2.85
 /** Campaign top speed while B is held with a direction. */
@@ -178,6 +185,10 @@ const STORY: { art: string; lines: [string, string] }[] = [
   },
 ]
 const STORY_PANEL = 330
+/** Reading options (Settings): large text scales story and speech text; slow reading holds it longer. */
+export const PLUMBER_LARGE_TEXT = 1.25
+export const PLUMBER_SLOW_READING = 1.6
+const BOSS_LINE_TICKS = 150
 /** Ticks to walk one world-map path, and to draw a newly opened one. */
 const MAP_WALK = 26
 const MAP_REVEAL = 50
@@ -369,7 +380,7 @@ type Checkpoint = { x: number; y: number; reached: boolean }
 type Wave = { x: number; y: number; dir: number }
 type Soot = { x: number; y: number; vx: number; vy: number }
 export type PlumberPower =
-  'springstep' | 'bottled-storm' | 'pocket-lift' | 'sailwing'
+  'springstep' | 'bottled-storm' | 'pocket-lift' | 'sailwing' | 'ballast'
 type Pickup = {
   x: number
   y: number
@@ -408,6 +419,7 @@ type Cargo = {
 type Boss = {
   kind: BossKind
   name: string
+  taunts: PlumberWorld['boss']['taunts']
   x: number
   y: number
   vy: number
@@ -570,9 +582,12 @@ export class PlumberRun implements ArcadeGameInstance {
   cameraLead = 0
   private stillCamera = false
   private highContrast = false
+  readonly largeText: boolean
+  readonly slowReading: boolean
   /** Vertical scroll: 0 shows the top of the stage; the lowest view frames the ground. */
   cameraY = 0
   private pipeRooms: PipeRoom[] = []
+  private mazeRooms: StageDef['mazeRooms']
   private autoScroll: StageDef['autoScroll']
   scrollRail: number | null = null
   private scrollFinished = false
@@ -609,6 +624,8 @@ export class PlumberRun implements ArcadeGameInstance {
   gear: { x: number; y: number; taken: boolean } | null = null
   gears = new Set<string>()
   gearFlash = 0
+  /** The boss's latest line, shown under the HUD bar until its timer runs out. */
+  bossLine: { words: string; timer: number } | null = null
   /** The power the heroine carries; a hit costs it instead of a heart. */
   power: PlumberPower | null = null
   /**
@@ -650,6 +667,8 @@ export class PlumberRun implements ArcadeGameInstance {
     this.sound = options.sound
     this.stillCamera = options.stillCamera === true
     this.highContrast = options.highContrast === true
+    this.largeText = options.largeText === true
+    this.slowReading = options.slowReading === true
     this.rng = options.rng
     this.file = readPlumberFile(this.demo ? null : options.resume)
     this.resume = readPlumberSave(this.file)
@@ -1030,10 +1049,10 @@ export class PlumberRun implements ArcadeGameInstance {
     if (!(keys.pressed.a || keys.pressed.start)) return
     const node = mapNode(this.mapNodeId)
     if (!node || node.kind === 'start') return
-    const chapel = chapelCourse(node.id)
-    if (chapel) {
+    const optional = optionalCourse(node.id)
+    if (optional) {
       this.sound.play('level')
-      this.loadDef(chapel)
+      this.loadDef(optional)
       this.watchStage()
       this.setMode('intro', 150)
       return
@@ -1071,7 +1090,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.loadStage(0)
     this.remember()
     this.storyPanel = 0
-    this.setMode('story', STORY_PANEL)
+    this.setMode('story', this.storyPanelTicks)
   }
 
   private updateStory(keys: InputFrame) {
@@ -1080,7 +1099,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.storyPanel++
     this.sound.play('blip')
     if (this.storyPanel >= STORY.length) this.enterMap()
-    else this.modeTimer = STORY_PANEL
+    else this.modeTimer = this.storyPanelTicks
   }
 
   /** An Endless run: one life, the first zone, the pace of World 1. */
@@ -1187,6 +1206,15 @@ export class PlumberRun implements ArcadeGameInstance {
     const stage = parseStage(def)
     this.stage = stage
     this.pipeRooms = enclosedPipeRooms(stage)
+    this.mazeRooms = def.mazeRooms
+    for (const room of this.mazeRooms ?? []) {
+      this.pipeRooms.push({
+        left: room.col * TILE,
+        right: (room.col + HUSH_ROOM_WIDTH) * TILE,
+        top: 7 * TILE,
+        bottom: (HUSH_FLOOR_ROW + 1) * TILE,
+      })
+    }
     this.autoScroll = def.autoScroll
     this.solid = stage.solid.slice()
     this.inactiveSwitchBlocks.clear()
@@ -1244,6 +1272,7 @@ export class PlumberRun implements ArcadeGameInstance {
       : null
     this.clearExit = 'normal'
     this.boss = null
+    this.bossLine = null
     this.locked = false
     let lift = 0
     for (const spawn of stage.spawns) {
@@ -1345,6 +1374,7 @@ export class PlumberRun implements ArcadeGameInstance {
         case 'power-storm':
         case 'power-lift':
         case 'power-sailwing':
+        case 'power-ballast':
         case 'heart':
           this.pickups.push({
             x: cx,
@@ -1358,7 +1388,9 @@ export class PlumberRun implements ArcadeGameInstance {
                     ? 'bottled-storm'
                     : spawn.kind === 'power-lift'
                       ? 'pocket-lift'
-                      : 'sailwing',
+                      : spawn.kind === 'power-sailwing'
+                        ? 'sailwing'
+                        : 'ballast',
             taken: false,
           })
           break
@@ -1464,6 +1496,7 @@ export class PlumberRun implements ArcadeGameInstance {
           this.boss = {
             kind: BOSS_KINDS[world - 1] ?? 'pressure',
             name: PLUMBER_WORLDS[world - 1]!.boss.name,
+            taunts: PLUMBER_WORLDS[world - 1]!.boss.taunts,
             x: cx,
             y: bottom,
             vy: 0,
@@ -1822,17 +1855,19 @@ export class PlumberRun implements ArcadeGameInstance {
     // Her feet before this frame's fall (or climb); foes use it for stomps.
     let prevBottom = this.climbPrevBottom
     if (!climbed) {
+      // Ballast Boots grip ice like ordinary ground.
       const onIce =
-        (this.ground &&
+        this.power !== 'ballast' &&
+        ((this.ground &&
           this.solidAt(
             Math.floor(hero.x / TILE),
             Math.floor((hero.y + TALL + 2) / TILE),
           ) === SOLID_ICE) ||
-        (this.ground &&
-          this.solidAt(
-            Math.floor(hero.x / TILE),
-            Math.floor((hero.y + TALL + 2) / TILE),
-          ) === SOLID_FRAGILE_ICE)
+          (this.ground &&
+            this.solidAt(
+              Math.floor(hero.x / TILE),
+              Math.floor((hero.y + TALL + 2) / TILE),
+            ) === SOLID_FRAGILE_ICE))
       if (this.stage.space) this.updateAirPropulsion(keys)
       else if (runner) hero.vx += (top - hero.vx) * 0.25
       // A crouch keeps a run's momentum as a slide, then crawls.
@@ -1873,7 +1908,7 @@ export class PlumberRun implements ArcadeGameInstance {
       if (this.ground) this.stride += Math.abs(hero.vx) * 0.17
       const blocked = this.heroMoveX(hero.vx)
       if (blocked) hero.vx = 0
-      const push = this.windAt(hero.x, this.tick) + this.beltUnder(hero)
+      const push = this.heroWindAt(hero.x, this.tick) + this.beltUnder(hero)
       if (push) this.heroMoveX(push)
       if (runner && blocked && !this.specialTimer) {
         if (++this.pinned > PINNED) {
@@ -1939,6 +1974,12 @@ export class PlumberRun implements ArcadeGameInstance {
         if (this.duckHeld) this.ducking = true
         this.airSpecial = false
         if (this.specialKind === 'pound' && this.specialTimer) this.poundLands()
+        else if (
+          this.power === 'ballast' &&
+          this.duckHeld &&
+          landingSpeed >= BALLAST_SLAM
+        )
+          this.ballastLands()
       } else if (this.landed) this.landed--
       this.updateSprings(prevBottom)
       if (this.ground && !wasGround && this.jumpBuffer) this.startBufferedJump()
@@ -1961,7 +2002,10 @@ export class PlumberRun implements ArcadeGameInstance {
       }
     }
     this.crackIce()
-    if (keys.pressed.down && this.ground && !climbed) this.tryDoor()
+    if (keys.pressed.down && this.ground && !climbed) {
+      this.tryDoor()
+      if (this.mode !== 'play') return
+    }
     if (!this.stage.space && keys.pressed.x && !this.cooldown)
       this.useTool(keys.held.down)
     this.collectTokens()
@@ -2026,7 +2070,10 @@ export class PlumberRun implements ArcadeGameInstance {
             this.release(foe)
             foe.state = 'gone'
           }
-        if (this.boss) this.boss.state = 'walk'
+        if (this.boss) {
+          this.boss.state = 'walk'
+          this.taunt(this.boss.taunts.enter)
+        }
         this.sound.play('extra')
       }
     }
@@ -2384,6 +2431,22 @@ export class PlumberRun implements ArcadeGameInstance {
     this.sound.play('boom')
   }
 
+  /** A hard Ballast Boots landing: breaks the crates underfoot and jolts foes. */
+  private ballastLands() {
+    const hero = this.hero
+    this.shock(hero.x, hero.y + TALL, 36)
+    const row = Math.floor((hero.y + TALL + 2) / TILE)
+    for (let dx = -1; dx <= 1; dx++) {
+      const col = Math.floor(hero.x / TILE) + dx
+      if (this.solidAt(col, row) === SOLID_CRATE) {
+        this.setSolid(col, row, 0)
+        this.score += 70
+        this.gainTokens(1)
+      }
+    }
+    this.sound.play('boom')
+  }
+
   /** A charge breaks the crate in front of the heroine. */
   private smashAhead() {
     const hero = this.hero
@@ -2420,6 +2483,11 @@ export class PlumberRun implements ArcadeGameInstance {
     const boss = this.boss
     if (boss && boss.state === 'recover' && Math.abs(boss.x - x) < radius)
       this.hitBoss()
+  }
+
+  /** The headwind that moves the heroine: none while she wears Ballast Boots. */
+  heroWindAt(x: number, t: number): number {
+    return this.power === 'ballast' ? 0 : this.windAt(x, t)
   }
 
   /** The headwind push at `x` on tick `t`: gusts blow for half of every cycle. */
@@ -2590,6 +2658,7 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   private tryDoor() {
+    if (this.tryHushDoor()) return
     const hero = this.hero
     const feet = Math.round(hero.y + TALL)
     const doors = this.stage.doors
@@ -2609,6 +2678,41 @@ export class PlumberRun implements ArcadeGameInstance {
       playPlumberCue(this.sound, 'portal')
       return
     }
+  }
+
+  private tryHushDoor(): boolean {
+    const rooms = this.mazeRooms
+    if (!rooms || Math.round(this.hero.y + TALL) !== HUSH_FLOOR_ROW * TILE)
+      return false
+    const index = rooms.findIndex(
+      (room) =>
+        this.hero.x >= room.col * TILE &&
+        this.hero.x < (room.col + HUSH_ROOM_WIDTH) * TILE,
+    )
+    if (index < 0) return false
+    const room = rooms[index]!
+    for (const side of ['left', 'right'] as const) {
+      const x = (room.col + HUSH_DOOR_OFFSETS[side]) * TILE + TILE / 2
+      if (Math.abs(this.hero.x - x) > 10) continue
+      const destination = hushDestination(rooms, index, side)
+      if (destination === 'normal') {
+        this.stageClear()
+        return true
+      }
+      const target = rooms[destination]!
+      this.hero.x = (target.col + 12) * TILE + TILE / 2
+      this.hero.y = HUSH_FLOOR_ROW * TILE - TALL
+      this.hero.vx = this.hero.vy = 0
+      this.jumpBuffer = 0
+      this.grace = 0
+      this.riding = null
+      this.cameraLead = 0
+      this.camera = this.cameraTarget()
+      this.cameraY = this.cameraTargetY()
+      playPlumberCue(this.sound, 'portal')
+      return true
+    }
+    return false
   }
 
   private toolBox() {
@@ -3617,8 +3721,13 @@ export class PlumberRun implements ArcadeGameInstance {
     }
   }
 
+  private taunt(words: string) {
+    this.bossLine = { words, timer: this.bossLineTicks }
+  }
+
   private updateBoss(prevBottom: number) {
     const boss = this.boss!
+    if (this.bossLine && --this.bossLine.timer <= 0) this.bossLine = null
     const hero = this.hero
     boss.timer--
     const left = ((this.stage.gate ?? 0) + 3) * TILE
@@ -3729,7 +3838,11 @@ export class PlumberRun implements ArcadeGameInstance {
       if (reach > 4 && reach < JET + HALF && hero.y + TALL > boss.y - 72)
         this.hurt(boss.dir)
     }
-    if (boss.state === 'burst' && boss.kind === 'gale')
+    if (
+      boss.state === 'burst' &&
+      boss.kind === 'gale' &&
+      this.power !== 'ballast'
+    )
       this.moveX(hero, HALF, TALL, hero.x < boss.x ? -1.5 : 1.5)
     if (boss.kind === 'burrow' && boss.state === 'tell') return
     const top =
@@ -3805,6 +3918,13 @@ export class PlumberRun implements ArcadeGameInstance {
   private hitBoss() {
     const boss = this.boss!
     boss.hp--
+    this.taunt(
+      boss.hp > 1
+        ? boss.taunts.hit[0]
+        : boss.hp > 0
+          ? boss.taunts.hit[1]
+          : boss.taunts.defeat,
+    )
     boss.state = 'hurt'
     boss.timer = 50
     boss.speed *= 1.25
@@ -3862,9 +3982,9 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     const flags = this.checkpoints.map((f) => f.reached)
     const stageCheckpoint = this.checkpoint
-    const chapel = chapelCourse(this.stage.code)
+    const optional = optionalCourse(this.stage.code)
     if (this.customLevel) this.loadDef(this.customLevel)
-    else if (chapel) this.loadDef(chapel)
+    else if (optional) this.loadDef(optional)
     else this.loadStage(this.stageIndex)
     this.checkpoints.forEach((f, i) => {
       f.reached = flags[i] ?? false
@@ -4350,7 +4470,7 @@ export class PlumberRun implements ArcadeGameInstance {
           ? Math.min(RUN, vx + 0.44)
           : vx * (sail && k <= hold && vy > 0 ? SAIL_DRAG : 0.77)
       if (this.moveX(body, HALF, TALL, vx)) vx = 0
-      const gust = this.windAt(body.x, this.tick + k)
+      const gust = this.heroWindAt(body.x, this.tick + k)
       if (gust) this.moveX(body, HALF, TALL, gust)
       if (k > hold && vy < -3.4) vy = -3.4
       const floating = spring && k <= hold && vy > 0
@@ -4553,6 +4673,46 @@ export class PlumberRun implements ArcadeGameInstance {
     g.fillStyle = color
     g.fillText(words, x, y)
     g.textAlign = 'left'
+  }
+
+  /** How long a story panel stays up before it moves on by itself. */
+  get storyPanelTicks() {
+    return Math.round(
+      STORY_PANEL * (this.slowReading ? PLUMBER_SLOW_READING : 1),
+    )
+  }
+
+  /** How long a boss's speech plate stays up. */
+  get bossLineTicks() {
+    return Math.round(
+      BOSS_LINE_TICKS * (this.slowReading ? PLUMBER_SLOW_READING : 1),
+    )
+  }
+
+  /** The size reading text draws at: scaled by large text, shrunk to fit its width. */
+  readSize(
+    g: CanvasRenderingContext2D,
+    words: string,
+    size: number,
+    width = W - 16,
+  ) {
+    const wanted = this.largeText ? Math.round(size * PLUMBER_LARGE_TEXT) : size
+    g.font = `900 ${wanted}px "Lilita One", system-ui, sans-serif`
+    const wide = g.measureText(words).width
+    return wide > width ? Math.max(size, (wanted * width) / wide) : wanted
+  }
+
+  /** Story, banner and speech lines: drawn through the reading options. */
+  private read(
+    g: CanvasRenderingContext2D,
+    words: string,
+    x: number,
+    y: number,
+    size: number,
+    color = '#fff4dc',
+    width = W - 16,
+  ) {
+    this.text(g, words, x, y, this.readSize(g, words, size, width), color)
   }
 
   private renderTitle(g: CanvasRenderingContext2D) {
@@ -5035,7 +5195,7 @@ export class PlumberRun implements ArcadeGameInstance {
   private renderStory(g: CanvasRenderingContext2D) {
     const panel = STORY[Math.min(this.storyPanel, STORY.length - 1)]!
     const art = stagePlate(PLUMBER_ART.cutscene(panel.art))
-    const t = 1 - this.modeTimer / STORY_PANEL
+    const t = 1 - this.modeTimer / this.storyPanelTicks
     if (art) {
       const zoom = 1.04 + t * 0.06
       const w = W * zoom
@@ -5050,7 +5210,7 @@ export class PlumberRun implements ArcadeGameInstance {
     g.fillRect(0, H - 62, W, 62)
     const name = this.member.name
     panel.lines.forEach((line, i) =>
-      this.text(
+      this.read(
         g,
         line.replace('{name}', name),
         W / 2,
@@ -5087,9 +5247,11 @@ export class PlumberRun implements ArcadeGameInstance {
       g,
       this.endless
         ? `${this.member.name}  ·  ONE LIFE  ·  HOW FAR CAN YOU RUN?`
-        : chapelCourse(this.stage.code)
-          ? 'REACH THE VALVE TO SOLIDIFY SWITCH BLOCKS'
-          : `${this.member.name}  ×${this.lives}`,
+        : this.mazeRooms
+          ? 'FOLLOW THE RISING DRIPS · DOWN AT A DOOR'
+          : chapelCourse(this.stage.code)
+            ? 'REACH THE VALVE TO SOLIDIFY SWITCH BLOCKS'
+            : `${this.member.name}  ×${this.lives}`,
       W / 2,
       172,
       12,
@@ -5105,7 +5267,7 @@ export class PlumberRun implements ArcadeGameInstance {
     g.fillStyle = 'rgba(12, 40, 52, 0.66)'
     g.fillRect(0, 96, W, 78)
     this.text(g, title, W / 2, 136, 30, '#ffd98a')
-    this.text(g, line, W / 2, 160, 12, '#d6f2ee')
+    this.read(g, line, W / 2, 160, 12, '#d6f2ee')
   }
 
   private renderVictory(g: CanvasRenderingContext2D) {
@@ -5119,7 +5281,7 @@ export class PlumberRun implements ArcadeGameInstance {
     const teo = drawSprite(g, PLUMBER_ART.cast('teo-helping'), 150, 230, 150)
     if (!teo) drawSprite(g, PLUMBER_ART.cast('teo-caged'), 150, 230, 150)
     this.drawHeroSprite(g, 320, 230, 'cheer', 2.2)
-    this.text(
+    this.read(
       g,
       `${world.boss.name} lets the river go.`,
       W / 2,
@@ -5127,7 +5289,7 @@ export class PlumberRun implements ArcadeGameInstance {
       13,
       '#fff4dc',
     )
-    this.text(
+    this.read(
       g,
       this.stageIndex + 1 < CAMPAIGN.length && next
         ? `Teo’s trail leads on to ${next.name}.`
@@ -5168,10 +5330,10 @@ export class PlumberRun implements ArcadeGameInstance {
     const line = (i: 0 | 1) =>
       ending.lines[i].replace('{name}', this.member.name)
     this.text(g, ending.title, W / 2, 40, 28, '#ffd98a')
-    this.text(g, line(0), W / 2, 66, 12, '#fff4dc')
-    this.text(g, line(1), W / 2, 84, 12, '#d6f2ee')
+    this.read(g, line(0), W / 2, 66, 12, '#fff4dc')
+    this.read(g, line(1), W / 2, 84, 12, '#d6f2ee')
     // Her own epilogue: the finale adapts to the heroine who played it.
-    this.text(g, this.member.epilogue, W / 2, 104, 10, '#f2c6a0')
+    this.read(g, this.member.epilogue, W / 2, 104, 10, '#f2c6a0')
     const teo = drawSprite(g, PLUMBER_ART.cast('teo-helping'), 160, 236, 120)
     if (!teo) drawSprite(g, PLUMBER_ART.cast('teo-caged'), 160, 236, 120)
     this.drawHeroSprite(g, 320, 236, 'cheer', 1.95)
@@ -5365,7 +5527,7 @@ export class PlumberRun implements ArcadeGameInstance {
     const max = Math.max(1, this.stage.cols * TILE - W)
     this.plate(
       g,
-      chapelCourse(this.stage.code) ? `${this.world}-1` : this.stage.code,
+      optionalCourse(this.stage.code) ? `${this.world}-1` : this.stage.code,
       this.camera / max,
     )
     if (this.stage.space) this.renderSpaceBackdrop(g)
@@ -5384,6 +5546,7 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.highContrast) this.renderContrastEdges(g)
     if (this.stage.space) this.renderSpaceFeatures(g)
     this.renderThings(g)
+    this.renderHushDoors(g)
     this.renderWinterHazards(g)
     this.renderFoes(g)
     if (this.boss) this.renderBoss(g)
@@ -5489,6 +5652,27 @@ export class PlumberRun implements ArcadeGameInstance {
     g.font = 'bold 11px system-ui'
     g.textAlign = 'left'
     g.fillText(this.scrollWarned ? '» MOVE RIGHT!' : '» KEEP PACE', 15, H - 15)
+  }
+
+  private renderHushDoors(g: CanvasRenderingContext2D) {
+    for (const room of this.mazeRooms ?? []) {
+      const center = (room.col + HUSH_ROOM_WIDTH / 2) * TILE
+      this.text(g, room.name.toUpperCase(), center, 9 * TILE, 13)
+      this.text(
+        g,
+        room.drip === 'left' ? '← RISING DRIPS' : 'RISING DRIPS →',
+        center,
+        11 * TILE,
+        12,
+        '#b6f1ff',
+      )
+      for (const side of ['left', 'right'] as const) {
+        const x = (room.col + HUSH_DOOR_OFFSETS[side]) * TILE + TILE / 2
+        const y = HUSH_FLOOR_ROW * TILE
+        drawSprite(g, PLUMBER_ART.prop('goal-valve'), x, y, 48)
+        this.text(g, '↓ DOOR', x, y - 52, 11)
+      }
+    }
   }
 
   /** Hide the surrounding course while a sealed chamber has the camera. */
@@ -6162,6 +6346,8 @@ export class PlumberRun implements ArcadeGameInstance {
       ) {
         if (pickup.kind === 'sailwing')
           this.text(g, 'SAIL', pickup.x, pickup.y + bob, 9, '#8ff5e5')
+        else if (pickup.kind === 'ballast')
+          this.text(g, 'IRON', pickup.x, pickup.y + bob, 9, '#c9b8ff')
         else {
           g.fillStyle = pickup.kind === 'heart' ? '#5ec8ef' : '#ffd98a'
           g.fillRect(pickup.x - 6, pickup.y - 10 + bob, 12, 12)
@@ -6763,27 +6949,47 @@ export class PlumberRun implements ArcadeGameInstance {
     // Endless zones hide no Golden Gear.
     if (!this.endless) this.drawCog(g, 244, 12, 6, 0, !this.gear?.taken)
     if (this.gearFlash) this.text(g, 'GOLDEN GEAR!', W / 2, 46, 18, '#ffd98a')
+    if (this.bossLine && this.boss) {
+      // The boss's line: a dark speech plate below the bar, under any gear flash.
+      const top = this.gearFlash ? 56 : 30
+      g.fillStyle = 'rgba(28, 63, 82, 0.78)'
+      // Large text gets a taller plate so the line clears the name.
+      const tall = this.largeText ? 4 : 0
+      g.fillRect(W / 2 - 170, top, 340, 34 + tall)
+      this.text(g, this.boss.name.toUpperCase(), W / 2, top + 12, 9, '#ffb59e')
+      this.read(
+        g,
+        `“${this.bossLine.words}”`,
+        W / 2,
+        top + 28 + tall,
+        13,
+        '#fff1ce',
+        332,
+      )
+    }
     if (this.power) {
       g.fillStyle = 'rgba(255, 244, 220, 0.25)'
       g.beginPath()
       g.arc(392, 12, 10, 0, Math.PI * 2)
       g.fill()
-      if (
-        !drawSprite(g, PLUMBER_ART.prop(this.power), 392, 21, 18) &&
-        this.power === 'sailwing'
-      )
-        this.text(g, 'SAIL', 392, 16, 9, '#8ff5e5')
+      if (!drawSprite(g, PLUMBER_ART.prop(this.power), 392, 21, 18)) {
+        if (this.power === 'sailwing')
+          this.text(g, 'SAIL', 392, 16, 9, '#8ff5e5')
+        else if (this.power === 'ballast')
+          this.text(g, 'IRON', 392, 16, 9, '#c9b8ff')
+      }
     }
     if (this.reserve) {
       // The reserve box: a small framed spare under the power badge.
       g.strokeStyle = 'rgba(255, 241, 206, 0.8)'
       g.lineWidth = 1
       g.strokeRect(385, 25, 14, 14)
-      if (
-        !drawSprite(g, PLUMBER_ART.prop(this.reserve), 392, 38, 12) &&
-        this.reserve === 'sailwing'
-      )
-        this.text(g, 'S', 392, 36, 9, '#8ff5e5')
+      if (!drawSprite(g, PLUMBER_ART.prop(this.reserve), 392, 38, 12)) {
+        if (this.reserve === 'sailwing')
+          this.text(g, 'S', 392, 36, 9, '#8ff5e5')
+        else if (this.reserve === 'ballast')
+          this.text(g, 'I', 392, 36, 9, '#c9b8ff')
+      }
     }
     this.text(
       g,

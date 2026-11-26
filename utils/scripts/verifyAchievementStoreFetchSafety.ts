@@ -4,6 +4,7 @@ import { mergeRecordsById } from '../../stores/helpers/recordMerge'
 import {
   parsePendingAchievementCodes,
   resolvePendingAchievementCodes,
+  settlePendingAchievementCodes,
   withPendingAchievementCode,
   withoutAchievementCodes,
 } from '../../stores/helpers/pendingAchievementCodes'
@@ -121,6 +122,41 @@ assert.deepEqual(
   resolvePendingAchievementCodes(['a', 'b'], (code) => catalogRows.get(code)),
   [{ code: 'b', achievement: { id: 2 } }],
   'Only codes whose catalog row has arrived are awarded; the rest stay queued.',
+)
+
+const errors: unknown[] = []
+const settled = await settlePendingAchievementCodes(
+  [
+    { code: 'saved', achievement: 1 },
+    { code: 'offline', achievement: 2 },
+    { code: 'rejected', achievement: 3 },
+    { code: 'later', achievement: 4 },
+  ],
+  async (id) => {
+    if (id === 3) throw new Error('network')
+    return id !== 2
+  },
+  (error) => errors.push(error),
+)
+assert.deepEqual(settled, ['saved', 'later'])
+assert.equal(errors.length, 1)
+assert.deepEqual(
+  withoutAchievementCodes(
+    ['saved', 'offline', 'rejected', 'later', 'new-deed'],
+    settled,
+  ),
+  ['offline', 'rejected', 'new-deed'],
+  'Only confirmed awards leave the queue; failed and newly queued deeds survive.',
+)
+assert.match(
+  source,
+  /await rewardWithReceipt\(achievement\.id\)\) && known\)\s*queuePendingAchievementCode\(target, false\)/,
+  'A known code with an unsuccessful record write stays queued.',
+)
+assert.match(
+  source,
+  /if \(await rewardWithReceipt\(id\)\) settled\.add\(id\)/,
+  'Failed guest migrations must keep their pending IDs.',
 )
 
 const rewardByCode = source.slice(

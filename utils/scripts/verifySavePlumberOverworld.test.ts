@@ -10,8 +10,14 @@ import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
 import {
   CAMPAIGN,
   CHAPEL_COURSES,
+  DRIP_PARLOUR,
+  RUSTBOLT_KEEP,
+  HUSH_DOOR_OFFSETS,
+  HUSH_FLOOR_ROW,
+  hushDestination,
   parseStage,
   SOLID_BLOCK,
+  SOLID_LOCK,
   TILE,
   VERDIGRIS_CHAPEL,
 } from '../arcade/games/savePlumberLevels'
@@ -108,24 +114,24 @@ assert.deepEqual(
   ['1-2'],
   'clearing 1-1 opens exactly the path to 1-2',
 )
-// 1-h (the Drip Parlour) is designed but not built: clearing 1-2 reaches it,
-// and its normal path on opens at once, so the road never blocks.
+// The Drip Parlour is now playable. Its ordinary exit opens the main road,
+// and its alternate exit opens the bonus cottage.
 const h = mapNode('1-h')!
 assert.equal(h.kind, 'house')
-assert.equal(nodeBuilt(h), false)
+assert.equal(nodeBuilt(h), true)
 const afterTwo = { done: ['1-1', '1-2'] }
 assert.ok(nodeReachable('1-h', afterTwo))
-assert.ok(nodeReachable('1-3', afterTwo), 'walk through an unbuilt node')
+assert.ok(!nodeReachable('1-3', afterTwo), 'the playable house must be cleared')
 assert.ok(
   !nodeReachable('1-b', afterTwo),
-  'but its secret exit (the cottage) waits until the house is built',
+  'the cottage waits for the house secret exit',
 )
 
 // Completion counts only what can be played today.
 const w1 = worldCompletion(1, { done: ['1-1', '1-2'], gears: ['1-1'] })
 assert.deepEqual(
   [w1.stages, w1.stagesDone, w1.gears, w1.gearsFound, w1.secrets],
-  [5, 2, 4, 1, 1],
+  [7, 2, 4, 1, 2],
 )
 assert.equal(completionPercent(fresh), 0)
 const everything = CAMPAIGN.map((s) => s.code)
@@ -134,6 +140,8 @@ assert.equal(
     done: [
       ...everything.map((c) => stageNode(c)!.id),
       ...CHAPEL_COURSES.map((c) => c.code),
+      DRIP_PARLOUR.code,
+      RUSTBOLT_KEEP.code,
     ],
     gears: everything,
     secrets: [...SECRET_EXITS_READY],
@@ -272,17 +280,66 @@ clearStage(game)
 walk(game, 'right')
 assert.equal(game.mapNodeId, '1-h', 'on to the Drip Parlour')
 press(game, 'a')
-assert.equal(game.mode, 'map', 'an unbuilt node says coming soon')
-assert.ok(game.mapToast > 0)
+press(game, 'a')
+assert.equal(game.stage.code, DRIP_PARLOUR.code)
+assert.equal(game.mode, 'play')
+const rooms = DRIP_PARLOUR.mazeRooms!
+const useHouseDoor = (run: Game, room: number, side: 'left' | 'right') => {
+  run.hero = {
+    x: (rooms[room]!.col + HUSH_DOOR_OFFSETS[side]) * TILE + TILE / 2,
+    y: HUSH_FLOOR_ROW * TILE - 20,
+    vx: 0,
+    vy: 0,
+  }
+  run.ground = true
+  press(run, 'down')
+}
+assert.equal(hushDestination(rooms, 0, 'left'), 0)
+useHouseDoor(game, 0, 'left')
+assert.equal(game.hero.x, 12 * TILE + TILE / 2)
+useHouseDoor(game, 0, 'right')
+assert.equal(game.hero.x, 36 * TILE + TILE / 2)
+assert.ok(game.checkpoints[0]!.reached)
+const musicCamera = game.camera
+useHouseDoor(game, 1, 'right')
+assert.equal(game.hero.x, 12 * TILE + TILE / 2)
+assert.ok(game.camera < musicCamera, 'false door loops back')
+useHouseDoor(game, 0, 'right')
+useHouseDoor(game, 1, 'left')
+assert.equal(game.hero.x, 60 * TILE + TILE / 2)
+useHouseDoor(game, 2, 'right')
+assert.equal(game.mode, 'clear')
+for (let i = 0; i < 200 && game.modeTimer; i++) game.update(input)
+assert.equal(game.mode, 'map')
+settle(game)
+assert.ok(game.done.has('1-h'))
+assert.ok(!game.secrets.has('1-h'))
+assert.ok(nodeReachable('1-3', game.progress))
+assert.ok(!nodeReachable('1-b', game.progress))
+// Re-enter and find the higher hidden door, without changing normal progress.
+press(game, 'a')
+press(game, 'a')
+useHouseDoor(game, 0, 'right')
+useHouseDoor(game, 1, 'left')
+const houseSecret = game.secretGoal!
+game.hero = { x: houseSecret.x, y: houseSecret.y - 20, vx: 0, vy: 0 }
+game.ground = true
+press(game, 'down')
+assert.equal(game.mode, 'clear')
+for (let i = 0; i < 200 && game.modeTimer; i++) game.update(input)
+settle(game)
+assert.ok(game.secrets.has('1-h'))
+assert.ok(nodeReachable('1-b', game.progress))
+assert.ok(readPlumberFile(game.save).slots[1]!.secrets?.includes('1-h'))
 walk(game, 'up')
-assert.equal(game.mapNodeId, '1-3', 'and she walks on through it')
+assert.equal(game.mapNodeId, '1-3', 'the cleared house opens the road')
 
 // The file remembers the map, the clears and the slot.
 const saved = readPlumberFile(game.save)
 assert.equal(saved.v, 3)
 assert.equal(saved.active, 1)
 assert.equal(saved.slots[0], null, 'file 1 untouched')
-assert.deepEqual(saved.slots[1]!.done, ['1-1', '1-2'])
+assert.deepEqual(saved.slots[1]!.done, ['1-1', '1-2', '1-h'])
 assert.equal(saved.slots[1]!.node, '1-3')
 
 // A new session continues file 2 on the map, where she stood.
@@ -328,7 +385,7 @@ assert.ok(!nodeReachable('1-f', hidden.progress), 'normal path stays locked')
 const resumedSecret = createSavePlumberPreview(options(hidden.save))
 assert.ok(resumedSecret.secrets.has('1-3'), 'secret exit survives reload')
 assert.ok(nodeReachable('1-c', resumedSecret.progress))
-assert.equal(worldCompletion(1, hidden.progress).secretsFound, 1)
+assert.equal(worldCompletion(1, hidden.progress).secretsFound, 2)
 assert.equal(exit.y, 7 * TILE)
 
 // The secret branch leads to a real course, not a map-only reward.
@@ -487,6 +544,53 @@ for (const course of CHAPEL_COURSES.slice(1)) {
   fresh.loadStage(index)
   assert.equal(fresh.solidAt(block.from, block.row), 0)
 }
+
+// Rustbolt's main road is gated by two real keys, not a map bypass.
+const keep = createSavePlumberPreview(
+  options({
+    v: 3,
+    active: 0,
+    slots: [
+      {
+        heroine: 3,
+        stage: 2,
+        node: '1-f',
+        done: ['1-1', '1-2', '1-h', '1-3'],
+        score: 0,
+        lives: 3,
+        tokens: 0,
+      },
+      null,
+      null,
+    ],
+  }),
+)
+assert.ok(nodeBuilt(mapNode('1-f')))
+assert.ok(!nodeReachable('1-4', keep.progress))
+press(keep, 'start')
+press(keep, 'a')
+assert.equal(keep.mapNodeId, '1-f')
+press(keep, 'a')
+press(keep, 'a')
+assert.equal(keep.stage.code, RUSTBOLT_KEEP.code)
+assert.equal(keep.mode, 'play')
+assert.equal(keep.keys.length, 2)
+assert.equal(keep.solidAt(28, 20), SOLID_LOCK)
+assert.equal(keep.solidAt(64, 20), SOLID_LOCK)
+const keepInput = emptyInput()
+keepInput.held.right = true
+for (let i = 0; i < 2000 && keep.mode === 'play'; i++) keep.update(keepInput)
+assert.equal(keep.mode, 'clear', 'both key chambers are walkable')
+assert.equal(keep.boltsOpened, 2)
+assert.ok(keep.checkpoints[0]!.reached)
+assert.ok(keep.keys.every((key) => key.state === 'used'))
+for (let i = 0; i < 200 && keep.modeTimer; i++) keep.update(input)
+assert.equal(keep.mode, 'map')
+assert.ok(keep.done.has('1-f'))
+assert.ok(nodeReachable('1-4', keep.progress))
+const keepReload = createSavePlumberPreview(options(keep.save))
+assert.ok(keepReload.done.has('1-f'))
+assert.ok(nodeReachable('1-4', keepReload.progress))
 
 // Deaths are remembered on the slot.
 press(next, 'a')

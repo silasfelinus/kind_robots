@@ -2,7 +2,7 @@
 title: 'Friends'
 room: 'Friends & People'
 subtitle: 'Find your people'
-description: Connect with other members, manage friend requests, search the directory, and control blocks.
+description: Find other Kind Robots members, send and accept friend requests, and block anyone you'd rather not hear from. Sign in free to use it.
 image: splash/dashboard.png
 icon: kind-icon:users
 tooltip: Manage friends, requests, and blocks.

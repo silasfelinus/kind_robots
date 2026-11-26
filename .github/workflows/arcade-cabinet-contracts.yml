@@ -14,6 +14,10 @@ on:
       - 'utils/scripts/arcadeCabinetFixture.mjs'
       - 'utils/scripts/*Cabinet.browser.test.mjs'
       - 'utils/scripts/verifySavePlumberAudio.test.ts'
+      - 'utils/scripts/verifySavePlumberFrontPage.test.ts'
+      - 'utils/scripts/verifySavePlumberBossTaunts.test.ts'
+      - 'utils/scripts/verifySavePlumberReading.test.ts'
+      - 'pages/play/save-the-plumber.vue'
       - 'utils/scripts/verifySuperkateSpectrum.test.ts'
       - 'utils/scripts/verifySpectrumCampaign.test.ts'
       - 'utils/scripts/verifyArcadeSoundtrackMixer.test.ts'
@@ -47,6 +51,11 @@ jobs:
           CYPRESS_INSTALL_BINARY: '0'
       - name: Save the Plumber — original gameplay cue and mixer contract
         run: npx tsx utils/scripts/verifySavePlumberAudio.test.ts
+      - name: Save the Plumber — console page contract, boss taunts and reading options
+        run: |
+          npx tsx utils/scripts/verifySavePlumberFrontPage.test.ts
+          npx tsx utils/scripts/verifySavePlumberBossTaunts.test.ts
+          npx tsx utils/scripts/verifySavePlumberReading.test.ts
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Rescue Rally — 1-4 seats by keyboard, gamepad and touch

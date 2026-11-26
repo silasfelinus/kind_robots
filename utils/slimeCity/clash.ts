@@ -401,6 +401,15 @@ const CLASH_V2_CREW_ADJUSTMENT: CrewLifeTuning = {
   // they can establish a plated line before the ambush-heavy crews strike.
   cardLife: { welder: [1, 0, 0], 's1-scrap-welder': [1, 0, 0] },
 }
+// Two-slot damage specials need a substantial immediate payoff to compete
+// with the two one-slot plays available in the same turn.
+const CLASH_V2_HEAVY_DAMAGE: Partial<Record<string, number>> = {
+  's2-exchange-compound-interest-notice': 3,
+  's3-exchange-compound-notice': 3,
+  's2-bloodfairies-glitterglass-flood': 3,
+  's3-bloodfairies-cathedral-noise': 2,
+  's2-riot-friendly-fire-rehearsal': 2,
+}
 export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
   ambush: 'Ambush: attacks immediately; +1 first strike.',
   regen: 'Regen: heals 1 after each round.',
@@ -449,7 +458,8 @@ export function clashBalance(
                 ramp +
                 (tempo && (card.effect === 'heal' || card.effect === 'boost')
                   ? 2
-                  : 0),
+                  : 0) +
+                (tempo ? (CLASH_V2_HEAVY_DAMAGE[card.id] ?? 0) : 0),
               1,
               (heavy ? 9 : 7) + (tempo ? 2 : 0),
             ),

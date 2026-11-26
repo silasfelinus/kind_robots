@@ -1,3 +1,10 @@
+import { identityFor, IDENTITY_ARCS } from '../cometAcademy/identityArcs'
+import { ACCIDENT_ARCS } from './accidentArcs'
+import { MUTANT_ARCS } from './mutantArcs'
+import { TECH_ARCS } from './techArcs'
+import { MAGIC_ARCS } from './magicArcs'
+import { ALIEN_ARCS } from './alienArcs'
+import { PSYCHIC_ARCS } from './psychicArcs'
 import { recordTrigger, type TrainingState } from './training'
 
 export type Perspective = 'hero' | 'villain' | 'henchman' | 'sidekick'
@@ -546,11 +553,63 @@ export function storyMoment(
   beat: Beat,
   lead: string,
   run: StoryRun,
+  state?: TrainingState,
 ): StoryMoment {
-  const scene = SCRIPT[role][beat]
+  const base = SCRIPT[role][beat]
+  const personal =
+    role === 'hero' || role === 'villain'
+      ? (ACCIDENT_ARCS[lead] ??
+          MUTANT_ARCS[lead] ??
+          TECH_ARCS[lead] ??
+          MAGIC_ARCS[lead] ??
+          ALIEN_ARCS[lead] ??
+          PSYCHIC_ARCS[lead])?.[role]?.[beat]
+      : undefined
+  const person = IDENTITY_ARCS.find((identity) => identity.signature === lead)
+  const support = state?.units.find(
+    (unit) => unit.team === 'squad' && unit.identity !== lead,
+  )
+  const supporter =
+    IDENTITY_ARCS.find(
+      (identity) => identity.signature === support?.identity,
+    ) ?? identityFor('tech-genius')
+  const scene =
+    personal && person
+      ? {
+          ...base,
+          title: personal[0],
+          lines: [
+            a(person.hero.alias, personal[1]),
+            a(supporter.hero.alias, personal[2]),
+          ],
+        }
+      : base
   const lines = [...scene.lines]
-  if (beat === 'arrival' && lead === 'accident-fire')
-    lines.splice(1, 0, PERSONAL_ROUTE[role])
+  if (personal && person && beat === 'arrival' && lead !== 'accident-fire') {
+    lines.push(
+      a(
+        supporter.hero.alias,
+        role === 'hero'
+          ? 'The catwalk gives us a view of the trapped students; the service corridor offers cover. Choose how we approach.'
+          : 'The rigging gives us a view of the vault; the service corridor conceals our approach. Which route are we securing?',
+      ),
+    )
+  }
+  if (beat === 'arrival' && lead === 'accident-fire') {
+    if (personal && person) {
+      lines.push(
+        PERSONAL_ROUTE[role],
+        a(
+          supporter.hero.alias,
+          role === 'hero'
+            ? 'I can cover the catwalk or the service corridor. We need a route that keeps the rescue team together.'
+            : 'Choose the rigging or the service hall. I will not sign off on a plan that seals our own exit.',
+        ),
+      )
+    } else {
+      lines.splice(1, 0, PERSONAL_ROUTE[role])
+    }
+  }
   if (beat === 'victory' || beat === 'defeat') {
     const outcome =
       run.civilians > 0

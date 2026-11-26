@@ -1,4 +1,15 @@
 import assert from 'node:assert/strict'
+import {
+  DeepheartSound,
+  DEEPHEART_THEMES,
+  DEEPHEART_CUES,
+  deepheartAudioFrame,
+  deepheartCues,
+  deepheartMood,
+} from '../deepheart/sound'
+import { noteFreq, parseLoop, type ArcadeSound } from '../arcade/sound'
+import { parseDeepheartBackup } from '../deepheart/accountBackup'
+import { DEFAULT_KIT_SETTINGS } from '../playbookKit/settings'
 import { readFileSync, readdirSync } from 'node:fs'
 import { parse as parseYaml } from 'yaml'
 import {
@@ -152,6 +163,17 @@ assert.ok(
 assert.ok(deepheartArtSrc('premise'), 'title art is mapped')
 assert.ok(deepheartArtSrc('room:fight'), 'fight art is mapped')
 assert.ok(deepheartArtSrc('ending:delver'), 'ending art is mapped')
+for (const id of ['hollow-king', 'bone-warden', 'mother-brine', 'vesper']) {
+  const member = DEEPHEART.cast.find((entry) => entry.id === id)
+  assert.ok(member?.portrait.src, `boss portrait ${id} is wired`)
+  assert.equal(member.portrait.src, deepheartArtSrc(`cast:${id}`))
+}
+for (const id of ['drowned-crown', 'lantern-seed', 'keystone']) {
+  const moment = DEEPHEART.moments.find((entry) => entry.id === id)
+  assert.ok(moment?.art.src, `scrapbook plate ${id} is wired`)
+  assert.equal(moment.art.src, deepheartArtSrc(`moment:${id}`))
+}
+
 assert.ok(
   Object.keys(DEEPHEART_ART_IDS).filter((key) =>
     key.startsWith('moment:romance-'),
@@ -1263,3 +1285,169 @@ console.log(
     .map(([e, s]) => `${e}@${s}`)
     .join(' ')}), ${catalog.length} achievements.`,
 )
+
+const archiveRun = createRun(hero('idris'), ['brannoc'], 481)
+const archiveSlot = {
+  slot: 'auto',
+  savedAt: '2026-11-25T00:00:00.000Z',
+  label: 'Idris',
+  run: archiveRun,
+}
+const archive = {
+  kind: 'deepheart',
+  version: 1,
+  chronicle: recordStart(emptyChronicle(), archiveRun),
+  saves: { version: 1, slots: [archiveSlot] },
+}
+assert.deepEqual(parseDeepheartBackup(JSON.stringify(archive)), archive)
+const kitArchive = {
+  ...archive,
+  kit: {
+    version: 1,
+    settings: { ...DEFAULT_KIT_SETTINGS, sound: 'off', textSize: 'large' },
+    progress: {
+      moments: { campfire: '2026-11-25T00:00:00.000Z' },
+      reveals: { gate: '2026-11-25T00:00:00.000Z' },
+      endings: { fallen: '2026-11-25T00:00:00.000Z' },
+      trailerSeen: true,
+    },
+  },
+}
+assert.deepEqual(parseDeepheartBackup(JSON.stringify(kitArchive)), kitArchive)
+assert.throws(() =>
+  parseDeepheartBackup(
+    JSON.stringify({ ...kitArchive, kit: { ...kitArchive.kit, version: 99 } }),
+  ),
+)
+assert.throws(() =>
+  parseDeepheartBackup(
+    JSON.stringify({
+      ...kitArchive,
+      kit: {
+        ...kitArchive.kit,
+        progress: { ...kitArchive.kit.progress, moments: { campfire: 42 } },
+      },
+    }),
+  ),
+)
+assert.match(
+  readFileSync('stores/deepheartStore.ts', 'utf8'),
+  /kit\(\)\.accountSnapshot\('deepheart'\)/,
+)
+assert.match(
+  readFileSync('stores/deepheartStore.ts', 'utf8'),
+  /kit\(\)\.restoreAccount\('deepheart', backup\.kit\)/,
+)
+assert.throws(() =>
+  parseDeepheartBackup(JSON.stringify({ ...archive, version: 99 })),
+)
+assert.throws(() =>
+  parseDeepheartBackup(
+    JSON.stringify({
+      ...archive,
+      saves: { version: 1, slots: [archiveSlot, archiveSlot] },
+    }),
+  ),
+)
+assert.throws(() =>
+  parseDeepheartBackup(
+    JSON.stringify({
+      ...archive,
+      saves: {
+        version: 1,
+        slots: [{ ...archiveSlot, run: { version: 1 } }],
+      },
+    }),
+  ),
+)
+assert.throws(() =>
+  parseDeepheartBackup(
+    JSON.stringify({ ...archive, chronicle: { version: 1 } }),
+  ),
+)
+for (const method of ['get', 'put']) {
+  const route = readFileSync(
+    `server/api/deepheart/account-save.${method}.ts`,
+    'utf8',
+  )
+  assert.match(route, /requireHumanApiUser\(event\)/)
+  assert.match(route, /user\.id/)
+  assert.match(route, /parseDeepheartBackup/)
+  assert.match(route, /private, no-store/)
+}
+assert.match(
+  readFileSync('server/api/deepheart/account-save.put.ts', 'utf8'),
+  /revision: prior/,
+)
+
+{
+  for (const theme of Object.values(DEEPHEART_THEMES)) {
+    const parsed = parseLoop(theme)
+    assert.equal(parsed.length, 16)
+    assert.ok(parsed.notes.length > 0)
+  }
+  assert.equal(
+    new Set(
+      Object.values(DEEPHEART_THEMES).map((theme) => JSON.stringify(theme)),
+    ).size,
+    7,
+  )
+  for (const cue of Object.values(DEEPHEART_CUES))
+    assert.ok(cue.every((pitch) => noteFreq(pitch) !== null))
+
+  const run = createRun(hero('idris'), ['brannoc'], 42)
+  const frame = deepheartAudioFrame(run, 'delve')
+  assert.equal(deepheartMood(frame), 'ossuary')
+  assert.equal(deepheartMood({ ...frame, layer: 1 }), 'drowned')
+  assert.equal(deepheartMood({ ...frame, layer: 2 }), 'ember')
+  assert.equal(deepheartMood({ ...frame, phase: 'camp' }), 'campfire')
+  assert.equal(deepheartMood({ ...frame, phase: 'fight' }), 'combat')
+  assert.equal(deepheartMood({ ...frame, active: false }), 'title')
+  assert.deepEqual(deepheartCues(frame, { ...frame, layer: 1 }), ['descent'])
+  assert.deepEqual(deepheartCues(frame, { ...frame, phase: 'fight' }), [
+    'danger',
+  ])
+  assert.deepEqual(deepheartCues(frame, { ...frame, phase: 'camp' }), ['rest'])
+  assert.deepEqual(deepheartCues(frame, { ...frame, hp: frame.hp - 1 }), [
+    'wound',
+  ])
+  assert.deepEqual(deepheartCues(frame, { ...frame, ending: 'fallen' }), [
+    'fallen',
+  ])
+  assert.deepEqual(deepheartCues(frame, frame), [])
+
+  const calls: string[] = []
+  const player: ArcadeSound = {
+    play: () => {},
+    playNotes: () => calls.push('cue'),
+    startMusic: () => calls.push('music'),
+    stopMusic: () => calls.push('stop'),
+    unlock: () => calls.push('unlock'),
+    muted: false,
+    setMuted: (muted) => calls.push(muted ? 'mute' : 'unmute'),
+    setVolume: (volume) => calls.push(String(volume)),
+    context: () => null,
+    routeMusic: () => {},
+    dispose: () => calls.push('dispose'),
+  }
+  const sound = new DeepheartSound(() => player)
+  sound.setMood('campfire')
+  sound.configure(false, false, false)
+  sound.unlock()
+  assert.equal(calls.length, 0, 'no context before an enabled gesture')
+  sound.configure(true, false, false)
+  assert.equal(calls.length, 0)
+  sound.unlock()
+  assert.ok(calls.includes('music'))
+  sound.play(['rest'])
+  assert.equal(calls.filter((call) => call === 'cue').length, 1)
+  sound.configure(true, true, false)
+  sound.play(['danger'])
+  assert.equal(calls.filter((call) => call === 'cue').length, 1)
+  sound.configure(true, false, true)
+  assert.ok(calls.includes('stop'))
+  sound.configure(true, false, false)
+  assert.equal(calls.filter((call) => call === 'music').length, 2)
+  sound.dispose()
+  assert.equal(calls.at(-1), 'dispose')
+}

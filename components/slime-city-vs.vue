@@ -181,6 +181,7 @@
           >
         </h3>
         <SlimeCityDuelDeckPicker v-model="duelDeck" :team="lab.activeTeam" />
+        <SlimeCityTurnEmailPreference />
         <section
           class="vs-friends"
           aria-label="Challenge a friend"

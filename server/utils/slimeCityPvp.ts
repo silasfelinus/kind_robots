@@ -3,6 +3,7 @@ import { createError } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { createNotification } from '~/server/utils/notify'
+import { notifySlimeCityTurn } from '~/server/utils/slimeCityTurnEmail'
 import {
   PVP_MAX_COMMANDS,
   PVP_MODE,
@@ -531,6 +532,7 @@ export async function commandSlimeCityDuel(
 ) {
   if (!Number.isSafeInteger(revision) || Number(revision) < 0)
     return fail(400, 'Invalid match revision.')
+  let nextTurnUserId: number | null = null
   const duel = await prisma.$transaction(async (tx) => {
     if (!validId(id)) return fail(404, 'Duel not found.')
     await tx.$queryRaw`SELECT id FROM SlimeCityMatch WHERE id = ${id} FOR UPDATE`
@@ -604,8 +606,11 @@ export async function commandSlimeCityDuel(
           : {}),
       },
     })
+    if (!after.victor && before.active !== after.active)
+      nextTurnUserId = after.active === 'player' ? row.userId : record.guestId
     return snapshot(updated, next, userId)
   })
+  if (nextTurnUserId !== null) await notifySlimeCityTurn(nextTurnUserId, id)
   return duel.stage === 'finished' ? withRivalName(duel) : duel
 }
 

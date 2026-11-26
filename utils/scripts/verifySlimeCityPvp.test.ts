@@ -932,10 +932,16 @@ console.log('Slime City Chromebook duel layout contract PASS')
     /\.cxh:not\(\.open\) \.cxh-card:not\(\.big\)\) \{\s*opacity: 0;\s*visibility: hidden;/,
   )
   assert.match(duel, /--pvp-preview-width: min\(18rem, 42cqw, 38cqh\)/)
-  assert.match(duel, /--x: 22cqw;/)
+  assert.match(duel, /--x: var\(--preview-offset\);/)
   assert.match(duel, /--y: calc\(var\(--pvp-preview-width\) \* 0\.75 - 50cqh\)/)
-  assert.match(duel, /\.cxh-card\.cxh-inspect\) \{\s*left: 72%;/)
-  assert.match(duel, /\.cxh-levels\.docked\) \{\s*left: 72%;/)
+  assert.match(
+    duel,
+    /\.cxh-card\.cxh-inspect\) \{\s*left: var\(--preview-center\);/,
+  )
+  assert.match(
+    duel,
+    /\.cxh-levels\.docked\) \{\s*left: var\(--preview-center\);/,
+  )
   assert.doesNotMatch(
     duel,
     /SlimeCityTakebackChoice/,
@@ -999,9 +1005,26 @@ for (const file of [
   )
   assert.match(duel, /'arena arena'\s*'rail console'/)
   assert.match(duel, /'arena'\s*'rail'\s*'console'/)
-  assert.match(duel, /--W: min\(20rem, 36cqw, 46cqh\)/)
+  assert.match(duel, /--W: min\(20rem, 36cqw, 20cqh\)/)
   assert.match(duel, /--rest: 1;/)
-  assert.match(duel, /--y: calc\(var\(--W\) \* 1\.5 - 2\.5rem\)/)
+  assert.match(duel, /--y: calc\(-0\.4rem \+ var\(--drop\) \* 0\.2\)/)
+  assert.match(duel, /--r: calc\(var\(--rot\) \* 0\.35\)/)
+  assert.match(
+    duel,
+    /--hand-width: min\([\s\S]*?\(100cqw - 1rem - var\(--n1\) \* var\(--hand-gap\)\) \/ \(var\(--n1\) \+ 1\)/,
+    'resting cards reserve separate full-width slots',
+  )
+  assert.match(
+    duel,
+    /--x: calc\(var\(--o\) \* \(var\(--hand-width\) \+ var\(--hand-gap\)\)\);/,
+    'adjacent faces do not overlap',
+  )
+  assert.match(duel, /--rules-open: 1;/, 'resting cards expose ability text')
+  assert.match(
+    duel,
+    /\.ccf-badge\) \{\s*white-space: normal;\s*overflow: visible;/,
+    'combat stats cannot be ellipsized',
+  )
   assert.match(
     duel,
     /\.scpvp-unit-label \{\s*position: absolute;\s*inset: calc\(0\.8rem/,

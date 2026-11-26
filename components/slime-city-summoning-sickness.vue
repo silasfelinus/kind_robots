@@ -2,7 +2,7 @@
   <span class="sc-sick" aria-hidden="true" data-testid="slime-summoning-sick">
     <span class="sc-sick-banner">
       <strong>NO ATTACK</strong>
-      <small>SUMMONING SICKNESS</small>
+      <small>FIRST TURN</small>
     </span>
   </span>
 </template>

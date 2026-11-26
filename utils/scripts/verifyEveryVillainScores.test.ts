@@ -92,6 +92,47 @@ assert.equal(
   civilians.length * 75,
 )
 
+// Each authored campaign evidence choice is worth one evidence record.
+// A wrong-stage flag or repeated flag cannot inflate the award.
+const evidenceCases = [
+  ['science-lab', 'lab-evidence'],
+  ['crosswalk-crisis', 'crosswalk-jammed'],
+  ['rooftop-broadcast', 'roof-jammed'],
+  ['under-comet-breach', 'breach-evidence'],
+] as const
+for (const [id, flag] of evidenceCases) {
+  const arena = clonePreset(id)
+  const battle = trainingState(123, arena, { lead: 'accident-fire' })
+  battle.phase = 'victory'
+  const makeResult = () =>
+    scoreFromSave(
+      createSave({
+        slot: 'auto',
+        perspective: 'hero',
+        leadSignature: 'accident-fire',
+        stage: arena,
+        state: battle,
+        story,
+      }),
+    )!
+  const baseline = makeResult()
+  assert.equal(baseline.lines.find((line) => line.id === 'evidence')?.points, 0)
+  const foreignFlag = evidenceCases.find(([other]) => other !== id)![1]
+  battle.flags = [foreignFlag]
+  assert.equal(makeResult().total, baseline.total)
+  battle.flags = [flag]
+  const earned = makeResult()
+  assert.equal(earned.total, baseline.total + 25)
+  assert.ok(earned.medals.includes('evidence-recovered'))
+  assert.equal(mergeBattleResults([], [earned, earned]).length, 1)
+  battle.flags = [flag, flag]
+  assert.equal(makeResult().total, earned.total)
+  battle.phase = 'defeat'
+  assert.ok(!makeResult().medals.includes('evidence-recovered'))
+  battle.phase = 'active'
+  assert.equal(makeResult(), null)
+}
+
 const secretStage = clonePreset('crosswalk-crisis')
 const hiddenScene = secretStage.script?.scenes.find(
   (scene) => scene.trigger.kind === 'secret',

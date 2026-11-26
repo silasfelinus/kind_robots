@@ -70,7 +70,7 @@
           </div>
         </article>
         <article class="vs-card vs-cpu" data-testid="slime-vs-cpu">
-          <h3><span aria-hidden="true">🤖</span> VS CPU</h3>
+          <h3>VS CPU</h3>
           <div class="vs-format" role="group" aria-label="Deck format">
             <button
               type="button"
@@ -96,7 +96,7 @@
               data-testid="slime-vs-deck"
               @change="pickDeck"
             >
-              <option value="">{{ lab.team.name }} starter alliance</option>
+              <option value="">{{ lab.team.name }} saved alliance</option>
               <option
                 v-for="deck in readyDecks"
                 :key="deck.id"
@@ -108,9 +108,9 @@
           </label>
           <p class="vs-note">
             {{
-              lab.progressLoaded
-                ? 'Signed in: wins pay XP and Meat and count toward bounties.'
-                : 'Sign in to earn XP and Meat from CPU wins.'
+              lab.cpuRewardsAvailable && lab.progressLoaded
+                ? 'CPU wins pay XP and Meat and count toward bounties.'
+                : 'CPU practice is free. Fair player duels pay Meat.'
             }}
           </p>
           <div
@@ -180,6 +180,7 @@
             {{ pvp.tally.draw }}D</small
           >
         </h3>
+        <SlimeCityDuelDeckPicker v-model="duelDeck" :team="lab.activeTeam" />
         <section
           class="vs-friends"
           aria-label="Challenge a friend"
@@ -191,7 +192,7 @@
               <button
                 type="button"
                 class="vs-friend"
-                :disabled="pvp.sending"
+                :disabled="pvp.sending || !duelDeck"
                 :title="'Challenge ' + friend.username"
                 :data-testid="'slime-vs-friend-' + friend.id"
                 @click="challengeFriend(friend.id)"
@@ -382,7 +383,7 @@
               class="vs-go"
               title="Listed here for any player to join"
               data-testid="slime-vs-open-challenge"
-              :disabled="pvp.sending"
+              :disabled="pvp.sending || !duelDeck"
               @click="challenge(true)"
             >
               OPEN CHALLENGE ›
@@ -392,7 +393,7 @@
               class="vs-go is-quiet"
               title="Only someone with your link can join"
               data-testid="slime-vs-challenge"
-              :disabled="pvp.sending"
+              :disabled="pvp.sending || !duelDeck"
               @click="challenge(false)"
             >
               PRIVATE LINK ›
@@ -427,6 +428,7 @@ import { useSlimeCityStore } from '~/stores/slimeCity'
 import { useSlimeCityPvpStore } from '~/stores/slimeCityPvp'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { factionPower, OVERCHARGE_RULE } from '~/utils/slimeCity/factionPowers'
+import type { ClashRewardSetup } from '~/utils/slimeCity/clashRewards'
 import type { PvpGameSummary } from '~/utils/slimeCity/pvp'
 import type { PvpPlayer } from '~/stores/slimeCityPvp'
 import { TEAMS, type TeamId } from '~/utils/slimeCity/prototypes'
@@ -488,8 +490,13 @@ function open(id: string): void {
 function joinInvite(): void {
   if (inviteId.value) open(inviteId.value)
 }
+const duelDeck = ref<ClashRewardSetup | null>(null)
 async function challenge(isPublic: boolean): Promise<void> {
-  const duel = await pvp.start(lab.activeTeam, { isPublic })
+  if (!duelDeck.value) return
+  const duel = await pvp.start(lab.activeTeam, {
+    isPublic,
+    deck: duelDeck.value,
+  })
   if (duel) await Promise.all([pvp.loadGames(), pvp.loadOpen()])
 }
 /** Cancelling a duel or declining a challenge takes two taps. */
@@ -504,8 +511,12 @@ async function cancelGame(id: string): Promise<void> {
 }
 /** Challenge a friend: they get a notification that opens the duel. */
 async function challengeFriend(friendId: number): Promise<void> {
+  if (!duelDeck.value) return
   challenging.value = friendId
-  const duel = await pvp.start(lab.activeTeam, { friendId })
+  const duel = await pvp.start(lab.activeTeam, {
+    friendId,
+    deck: duelDeck.value,
+  })
   challenging.value = null
   if (duel) await pvp.loadGames()
 }

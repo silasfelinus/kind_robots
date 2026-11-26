@@ -1,3 +1,4 @@
+import type { ClashRewardSetup } from '~/utils/slimeCity/clashRewards'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from './utils'
@@ -151,7 +152,11 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
 
   async function start(
     team: TeamId,
-    options: { friendId?: number; isPublic?: boolean } = {},
+    options: {
+      friendId?: number
+      isPublic?: boolean
+      deck?: ClashRewardSetup
+    } = {},
   ): Promise<PvpSnapshot | null> {
     sending.value = true
     error.value = ''
@@ -160,6 +165,7 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
         method: 'POST',
         body: JSON.stringify({
           team,
+          ...(options.deck ? { deck: options.deck } : {}),
           ...(options.friendId ? { friendId: options.friendId } : {}),
           ...(options.isPublic ? { isPublic: true } : {}),
         }),
@@ -176,21 +182,28 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   }
 
   /** Challenge the same rival privately with the selected crew. */
-  async function rematch(team?: TeamId): Promise<PvpSnapshot | null> {
+  async function rematch(
+    team?: TeamId,
+    deck?: ClashRewardSetup,
+  ): Promise<PvpSnapshot | null> {
     const next = duel.value ? pvpRematch(duel.value, team) : null
     if (!next || sending.value) return null
-    const data = await start(next.team, { friendId: next.friendId })
+    const data = await start(next.team, { friendId: next.friendId, deck })
     if (data) stopWatching()
     return data
   }
 
-  async function join(id: string, team: TeamId): Promise<PvpSnapshot | null> {
+  async function join(
+    id: string,
+    team: TeamId,
+    deck?: ClashRewardSetup,
+  ): Promise<PvpSnapshot | null> {
     sending.value = true
     error.value = ''
     try {
       const data = await request(
         '/api/slime-city/pvp/' + encodeURIComponent(id) + '/join',
-        { method: 'POST', body: JSON.stringify({ team }) },
+        { method: 'POST', body: JSON.stringify({ team, deck }) },
       )
       duel.value = data
       return data

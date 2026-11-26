@@ -83,6 +83,7 @@
             :team-id="selectedTeam"
             @picked="selectedTeam = $event"
           />
+          <SlimeCityDuelDeckPicker v-model="duelDeck" :team="selectedTeam" />
           <div class="scpvp-lobby-power">
             <b>{{ factionPower(selectedTeam).name }}</b>
             <p>{{ factionPower(selectedTeam).text }}</p>
@@ -113,7 +114,7 @@
           <button
             class="scpvp-primary"
             type="button"
-            :disabled="pvp.sending || pvp.loading"
+            :disabled="pvp.sending || pvp.loading || !duelDeck"
             @click="
               choosingRematch ? sendRematch() : invitedId ? join() : start()
             "
@@ -732,6 +733,7 @@ import {
   visibleClashTrapAt,
   type PvpBoard,
 } from '~/utils/slimeCity/pvp'
+import type { ClashRewardSetup } from '~/utils/slimeCity/clashRewards'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { CLASH_SPEED_PACE } from '~/stores/helpers/slimeCityClashPreference'
 import { OVERCHARGE_RULE, factionPower } from '~/utils/slimeCity/factionPowers'
@@ -816,8 +818,8 @@ function chooseRematch() {
 }
 
 async function sendRematch() {
-  if (!choosingRematch.value || pvp.sending) return
-  const data = await pvp.rematch(selectedTeam.value)
+  if (!choosingRematch.value || pvp.sending || !duelDeck.value) return
+  const data = await pvp.rematch(selectedTeam.value, duelDeck.value)
   if (!data) return
   choosingRematch.value = false
   reviewBoard.value = false
@@ -1326,6 +1328,7 @@ const bossFlash = ref<Record<Side, string>>({ player: '', enemy: '' })
 const animationTimers = new Set<ReturnType<typeof setTimeout>>()
 let floatKey = 0
 const lab = useSlimeCityStore()
+const duelDeck = ref<ClashRewardSetup | null>(null)
 const pace = computed(() => {
   const chosen = CLASH_SPEED_PACE[lab.clashSpeed] ?? 1
   return lab.reducedMotion ? Math.min(chosen, CLASH_SPEED_PACE.quick) : chosen
@@ -1506,12 +1509,20 @@ async function cancelDuel() {
   else pvp.watchDuel(id)
 }
 async function start() {
-  const data = await pvp.start(selectedTeam.value, { isPublic: openDuel.value })
+  if (!duelDeck.value) return
+  const data = await pvp.start(selectedTeam.value, {
+    isPublic: openDuel.value,
+    deck: duelDeck.value,
+  })
   if (data) await navigateTo('/play/slime-city?vs=1')
 }
 async function join() {
-  if (!invitedId.value) return
-  const data = await pvp.join(invitedId.value, selectedTeam.value)
+  if (!invitedId.value || !duelDeck.value) return
+  const data = await pvp.join(
+    invitedId.value,
+    selectedTeam.value,
+    duelDeck.value,
+  )
   if (data) pvp.watchDuel(data.id)
 }
 async function copyInvite() {
@@ -1524,6 +1535,8 @@ async function copyInvite() {
   }
 }
 onMounted(async () => {
+  await lab.hydrateProgression()
+  await lab.hydrateStory()
   if (invitedId.value) {
     await pvp.load(invitedId.value)
     pvp.watchDuel(invitedId.value)

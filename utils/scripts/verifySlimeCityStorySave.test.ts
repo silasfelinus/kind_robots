@@ -216,7 +216,7 @@ const service = readFileSync('server/utils/slimeCityProgress.ts', 'utf8')
 const store = readFileSync('stores/slimeCity.ts', 'utf8')
 for (const route of ['story.get.ts', 'story.post.ts']) {
   const source = readFileSync('server/api/slime-city/' + route, 'utf8')
-  assert.match(source, /requireSlimeCityPreviewUser\(event\)/)
+  assert.match(source, /requireSlimeCityPlayer\(event\)/)
   assert.doesNotMatch(source, /body\??\.userId/)
 }
 assert.match(service, /accountWithStory\(row\.data, after\)/)

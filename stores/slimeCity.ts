@@ -1,3 +1,4 @@
+import type { ClashRewardSetup } from '~/utils/slimeCity/clashRewards'
 import {
   CLASH_SPEEDS,
   type ClashSpeed,
@@ -465,9 +466,19 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       progressBusy.value = false
     }
   }
+  const cpuRewardsAvailable = computed(() => net.value?.user.isAdmin ?? false)
   async function startCpuBattle(
     format: DeckFormat = clashFormat.value,
   ): Promise<void> {
+    if (!cpuRewardsAvailable.value) {
+      launchClash({
+        kind: 'practice',
+        format,
+        enemy: rivalFor(activeTeam.value),
+        seed: rollSeed(),
+      })
+      return
+    }
     if (!correctAccount() || !progressLoaded.value) {
       await hydrateProgression()
       if (!correctAccount() || !progressLoaded.value) return
@@ -1791,6 +1802,48 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const playSolo = computed<string[]>(
     () => savedSolo.value[activeTeam.value] ?? soloStarter(activeTeam.value),
   )
+  function duelDeck(
+    team: TeamId,
+    mode:
+      | 'faction-classic'
+      | 'faction-constructed'
+      | 'alliance-classic'
+      | 'alliance-constructed',
+    ally?: TeamId,
+    deckId?: string,
+  ): ClashRewardSetup | null {
+    if (mode === 'faction-classic')
+      return { format: 'solo', cards: soloStarter(team) }
+    if (mode === 'faction-constructed') {
+      const cards = savedSolo.value[team]
+      return cards &&
+        !soloProblems(team, cards).length &&
+        cards.every(isCardUnlocked)
+        ? { format: 'solo', cards: [...cards] }
+        : null
+    }
+    if (mode === 'alliance-classic')
+      return ally && ally !== team
+        ? { format: 'alliance', deck: allianceStarter(team, ally) }
+        : null
+    const entry = library.value.find(
+      (item) =>
+        item.id === deckId &&
+        item.general === team &&
+        libraryDeckReady(item.id) &&
+        item.cards.every(isCardUnlocked),
+    )
+    return entry
+      ? {
+          format: 'alliance',
+          deck: {
+            general: entry.general,
+            ally: entry.ally,
+            cards: [...entry.cards],
+          },
+        }
+      : null
+  }
   const soloCards = computed(() => soloCardPool(activeTeam.value))
   function commitSolo(cards: string[], done: string): void {
     const team = activeTeam.value
@@ -2027,7 +2080,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
    */
   async function launchBout(next: Omit<ClashLaunch, 'id'>): Promise<void> {
     boutUnrewarded.value = ''
-    const signedIn = progressLoaded.value && correctAccount()
+    const signedIn =
+      cpuRewardsAvailable.value && progressLoaded.value && correctAccount()
     const alliance =
       next.format === 'alliance' ? (next.alliance ?? playAlliance.value) : null
     const cards = alliance ? alliance.cards : (next.cards ?? playSolo.value)
@@ -3046,6 +3100,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     city,
     progress,
     progressLoaded,
+    cpuRewardsAvailable,
     progressBusy,
     progressError,
     progressNotice,
@@ -3159,6 +3214,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     currentSolo,
     currentSoloProblems,
     playSolo,
+    duelDeck,
     soloCards,
     toggleSoloCard,
     restoreSoloStarter,

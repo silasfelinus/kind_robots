@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
     friendId?: unknown
     isPublic?: unknown
     takebacks?: unknown
+    deck?: unknown
   }>(event)
   return {
     success: true,
@@ -18,6 +19,7 @@ export default defineEventHandler(async (event) => {
       body?.friendId,
       body?.isPublic,
       body?.takebacks,
+      body?.deck,
     ),
   }
 })

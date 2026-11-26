@@ -36,6 +36,11 @@ import {
   TILE,
   CAMPAIGN,
   chapelCourse,
+  optionalCourse,
+  HUSH_ROOM_WIDTH,
+  HUSH_FLOOR_ROW,
+  HUSH_DOOR_OFFSETS,
+  hushDestination,
   enclosedPipeRooms,
   parseStage,
   isSlope,
@@ -576,6 +581,7 @@ export class PlumberRun implements ArcadeGameInstance {
   /** Vertical scroll: 0 shows the top of the stage; the lowest view frames the ground. */
   cameraY = 0
   private pipeRooms: PipeRoom[] = []
+  private mazeRooms: StageDef['mazeRooms']
   private autoScroll: StageDef['autoScroll']
   scrollRail: number | null = null
   private scrollFinished = false
@@ -1035,10 +1041,10 @@ export class PlumberRun implements ArcadeGameInstance {
     if (!(keys.pressed.a || keys.pressed.start)) return
     const node = mapNode(this.mapNodeId)
     if (!node || node.kind === 'start') return
-    const chapel = chapelCourse(node.id)
-    if (chapel) {
+    const optional = optionalCourse(node.id)
+    if (optional) {
       this.sound.play('level')
-      this.loadDef(chapel)
+      this.loadDef(optional)
       this.watchStage()
       this.setMode('intro', 150)
       return
@@ -1192,6 +1198,15 @@ export class PlumberRun implements ArcadeGameInstance {
     const stage = parseStage(def)
     this.stage = stage
     this.pipeRooms = enclosedPipeRooms(stage)
+    this.mazeRooms = def.mazeRooms
+    for (const room of this.mazeRooms ?? []) {
+      this.pipeRooms.push({
+        left: room.col * TILE,
+        right: (room.col + HUSH_ROOM_WIDTH) * TILE,
+        top: 7 * TILE,
+        bottom: (HUSH_FLOOR_ROW + 1) * TILE,
+      })
+    }
     this.autoScroll = def.autoScroll
     this.solid = stage.solid.slice()
     this.inactiveSwitchBlocks.clear()
@@ -1979,7 +1994,10 @@ export class PlumberRun implements ArcadeGameInstance {
       }
     }
     this.crackIce()
-    if (keys.pressed.down && this.ground && !climbed) this.tryDoor()
+    if (keys.pressed.down && this.ground && !climbed) {
+      this.tryDoor()
+      if (this.mode !== 'play') return
+    }
     if (!this.stage.space && keys.pressed.x && !this.cooldown)
       this.useTool(keys.held.down)
     this.collectTokens()
@@ -2632,6 +2650,7 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   private tryDoor() {
+    if (this.tryHushDoor()) return
     const hero = this.hero
     const feet = Math.round(hero.y + TALL)
     const doors = this.stage.doors
@@ -2651,6 +2670,41 @@ export class PlumberRun implements ArcadeGameInstance {
       playPlumberCue(this.sound, 'portal')
       return
     }
+  }
+
+  private tryHushDoor(): boolean {
+    const rooms = this.mazeRooms
+    if (!rooms || Math.round(this.hero.y + TALL) !== HUSH_FLOOR_ROW * TILE)
+      return false
+    const index = rooms.findIndex(
+      (room) =>
+        this.hero.x >= room.col * TILE &&
+        this.hero.x < (room.col + HUSH_ROOM_WIDTH) * TILE,
+    )
+    if (index < 0) return false
+    const room = rooms[index]!
+    for (const side of ['left', 'right'] as const) {
+      const x = (room.col + HUSH_DOOR_OFFSETS[side]) * TILE + TILE / 2
+      if (Math.abs(this.hero.x - x) > 10) continue
+      const destination = hushDestination(rooms, index, side)
+      if (destination === 'normal') {
+        this.stageClear()
+        return true
+      }
+      const target = rooms[destination]!
+      this.hero.x = (target.col + 12) * TILE + TILE / 2
+      this.hero.y = HUSH_FLOOR_ROW * TILE - TALL
+      this.hero.vx = this.hero.vy = 0
+      this.jumpBuffer = 0
+      this.grace = 0
+      this.riding = null
+      this.cameraLead = 0
+      this.camera = this.cameraTarget()
+      this.cameraY = this.cameraTargetY()
+      playPlumberCue(this.sound, 'portal')
+      return true
+    }
+    return false
   }
 
   private toolBox() {
@@ -3920,9 +3974,9 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     const flags = this.checkpoints.map((f) => f.reached)
     const stageCheckpoint = this.checkpoint
-    const chapel = chapelCourse(this.stage.code)
+    const optional = optionalCourse(this.stage.code)
     if (this.customLevel) this.loadDef(this.customLevel)
-    else if (chapel) this.loadDef(chapel)
+    else if (optional) this.loadDef(optional)
     else this.loadStage(this.stageIndex)
     this.checkpoints.forEach((f, i) => {
       f.reached = flags[i] ?? false
@@ -5145,9 +5199,11 @@ export class PlumberRun implements ArcadeGameInstance {
       g,
       this.endless
         ? `${this.member.name}  ·  ONE LIFE  ·  HOW FAR CAN YOU RUN?`
-        : chapelCourse(this.stage.code)
-          ? 'REACH THE VALVE TO SOLIDIFY SWITCH BLOCKS'
-          : `${this.member.name}  ×${this.lives}`,
+        : this.mazeRooms
+          ? 'FOLLOW THE RISING DRIPS · DOWN AT A DOOR'
+          : chapelCourse(this.stage.code)
+            ? 'REACH THE VALVE TO SOLIDIFY SWITCH BLOCKS'
+            : `${this.member.name}  ×${this.lives}`,
       W / 2,
       172,
       12,
@@ -5423,7 +5479,7 @@ export class PlumberRun implements ArcadeGameInstance {
     const max = Math.max(1, this.stage.cols * TILE - W)
     this.plate(
       g,
-      chapelCourse(this.stage.code) ? `${this.world}-1` : this.stage.code,
+      optionalCourse(this.stage.code) ? `${this.world}-1` : this.stage.code,
       this.camera / max,
     )
     if (this.stage.space) this.renderSpaceBackdrop(g)
@@ -5442,6 +5498,7 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.highContrast) this.renderContrastEdges(g)
     if (this.stage.space) this.renderSpaceFeatures(g)
     this.renderThings(g)
+    this.renderHushDoors(g)
     this.renderWinterHazards(g)
     this.renderFoes(g)
     if (this.boss) this.renderBoss(g)
@@ -5547,6 +5604,27 @@ export class PlumberRun implements ArcadeGameInstance {
     g.font = 'bold 11px system-ui'
     g.textAlign = 'left'
     g.fillText(this.scrollWarned ? '» MOVE RIGHT!' : '» KEEP PACE', 15, H - 15)
+  }
+
+  private renderHushDoors(g: CanvasRenderingContext2D) {
+    for (const room of this.mazeRooms ?? []) {
+      const center = (room.col + HUSH_ROOM_WIDTH / 2) * TILE
+      this.text(g, room.name.toUpperCase(), center, 9 * TILE, 13)
+      this.text(
+        g,
+        room.drip === 'left' ? '← RISING DRIPS' : 'RISING DRIPS →',
+        center,
+        11 * TILE,
+        12,
+        '#b6f1ff',
+      )
+      for (const side of ['left', 'right'] as const) {
+        const x = (room.col + HUSH_DOOR_OFFSETS[side]) * TILE + TILE / 2
+        const y = HUSH_FLOOR_ROW * TILE
+        drawSprite(g, PLUMBER_ART.prop('goal-valve'), x, y, 48)
+        this.text(g, '↓ DOOR', x, y - 52, 11)
+      }
+    }
   }
 
   /** Hide the surrounding course while a sealed chamber has the camera. */

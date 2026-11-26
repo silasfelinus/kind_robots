@@ -127,6 +127,7 @@ export const RAINBOW_IDLE_ATLASES: Readonly<Record<string, number>> = {
   'bosses/b06-phase3': 8,
   'bosses/b08-phase2': 8,
   'bosses/b08-phase3': 8,
+  'bosses/flagship': 8,
   'enemies/angler': 8,
   'enemies/captive': 8,
   'enemies/clawstrike': 8,
@@ -954,13 +955,25 @@ export function drawRainbowFlagshipSprite(
   const { width } = RAINBOW_FLAGSHIP_ART
   const battered =
     phase === 2 ? loadedArt(rainbowArt(RAINBOW_FLAGSHIP_ART.phase2.path)) : null
-  const img = battered ?? loadedArt(rainbowArt(RAINBOW_FLAGSHIP_ART.path))
+  const src = battered ? null : rainbowArt(RAINBOW_FLAGSHIP_ART.path)
+  const img = battered ?? (src ? loadedArt(src) : null)
   if (!img) return false
   const { crownX, crownY } = battered
     ? RAINBOW_FLAGSHIP_ART.phase2
     : RAINBOW_FLAGSHIP_ART
   const height = (width * img.naturalHeight) / img.naturalWidth
-  g.drawImage(img, -crownX * width, -crownY * height, width, height)
+  // Phase 1 bobs on its Fever Dream idle loop (anim/flagship-idle) once that atlas loads; phase 2 stays still.
+  if (src)
+    drawSpriteOrFrame(
+      g,
+      src,
+      img,
+      -crownX * width,
+      -crownY * height,
+      width,
+      height,
+    )
+  else g.drawImage(img, -crownX * width, -crownY * height, width, height)
   return true
 }
 

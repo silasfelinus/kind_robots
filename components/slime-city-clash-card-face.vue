@@ -25,7 +25,9 @@
       <span class="ccf-top">
         <b class="ccf-cost">{{ plays }} PLAY{{ plays === 2 ? 'S' : '' }}</b>
         <span class="ccf-combat">
-          <em class="ccf-badge">{{ clashCardBadge(card, level, balanceVersion) }}</em>
+          <em class="ccf-badge">{{
+            clashCardBadge(card, level, balanceVersion)
+          }}</em>
           <SlimeCityArmorStat
             v-if="card.kind === 'creature'"
             :armor="balance.armor"

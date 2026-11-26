@@ -1229,7 +1229,7 @@ export const DRIP_PARLOUR: StageDef = {
   mazeRooms: DRIP_ROOMS,
   secretExit: { col: 64, row: 17 },
   rows: Array.from({ length: 24 }, (_, row) => {
-    const line = Array.from({ length: 72 }, (_, col) => {
+    const line: string[] = Array.from({ length: 72 }, (_, col) => {
       if (row >= HUSH_FLOOR_ROW || row === 7) return 'B'
       if (row >= 8 && (col % HUSH_ROOM_WIDTH === 0 || col % HUSH_ROOM_WIDTH === 23))
         return 'B'

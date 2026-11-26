@@ -129,7 +129,12 @@ const expandedScroll = resizeMakerLevel(scroll, 80, 32)
 assert.deepEqual(expandedScroll.autoScroll, scroll.autoScroll)
 const scrollRun = () =>
   createSavePlumberPreview(
-    { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+    {
+      rng: () => 0.5,
+      sound: { play: () => undefined },
+      demo: false,
+      hiScore: 0,
+    },
     { customLevel: toMakerStage(decodeMakerLevel(encodeMakerLevel(scroll))) },
   )
 const scrolling = scrollRun()

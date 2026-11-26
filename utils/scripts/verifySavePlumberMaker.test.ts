@@ -867,6 +867,45 @@ invalid(
   },
   /Pair every pipe/,
 )
+// Pipe bodies can have different heights; only the tops are paired by the engine.
+const pipeGrid = initial.rows.map((row) => row.split(''))
+pipeGrid[19]![12] = 'D'
+pipeGrid[20]![12] = 'D'
+pipeGrid[21]![12] = 'D'
+pipeGrid[21]![40] = 'E'
+const pipeCourse = validateMakerLevel({
+  ...initial,
+  rows: pipeGrid.map((row) => row.join('')),
+})
+assert.deepEqual(decodeMakerLevel(encodeMakerLevel(pipeCourse)), pipeCourse)
+assert.deepEqual(parseStage(toMakerStage(pipeCourse)).doors, [
+  { col: 12, row: 19, to: 1 },
+  { col: 40, row: 21, to: 0 },
+])
+const pipeRun = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(pipeCourse) },
+)
+pipeRun.hero = { x: 12 * 16 + 8, y: 19 * 16 - 20, vx: 0, vy: 0 }
+pipeRun.ground = true
+const enterPipe = emptyInput()
+enterPipe.pressed.down = true
+pipeRun.update(enterPipe)
+assert.equal(pipeRun.hero.x, 40 * 16 + 8)
+assert.equal(pipeRun.hero.y, 21 * 16 - 20)
+assert.equal(pipeRun.save, undefined)
+pipeRun.update(emptyInput())
+pipeRun.update(enterPipe)
+assert.equal(pipeRun.hero.x, 12 * 16 + 8)
+
+// Equal numbers of painted cells do not mean equal numbers of pipe mouths.
+pipeGrid[20]![40] = 'E'
+pipeGrid[21]![45] = 'E'
+invalid(
+  { ...initial, rows: pipeGrid.map((row) => row.join('')) },
+  /Pair every pipe/,
+)
+
 assert.throws(() => decodeMakerLevel('javascript:alert(1)'), /share code/)
 assert.throws(() => decodeMakerLevel('X'.repeat(12001)), /share code/)
 assert.throws(() => decodeMakerLevel('xxxx'), /Cannot open course/)

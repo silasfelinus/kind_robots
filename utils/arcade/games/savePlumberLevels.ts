@@ -1248,8 +1248,55 @@ export const DRIP_PARLOUR: StageDef = {
   }),
 }
 
+/** Rustbolt's first two key chambers; Foreman Flange's arena follows. */
+export const RUSTBOLT_KEEP: StageDef = {
+  code: '1-f',
+  name: 'Rustbolt Keep',
+  rows: Array.from({ length: 24 }, (_, row) => {
+    const line = Array.from({ length: 96 }, () => '.')
+    if (row >= 21) line.fill('#')
+    else {
+      line[28] = '['
+      line[64] = '['
+    }
+    if (row === 20) {
+      line[2] = '@'
+      line[8] = '0'
+      line[40] = 'K'
+      line[47] = '0'
+      line[91] = 'G'
+    }
+    if (row === 17) {
+      for (let col = 12; col <= 18; col++) line[col] = '='
+      for (let col = 49; col <= 55; col++) line[col] = '='
+      for (let col = 75; col <= 82; col++) line[col] = '='
+    }
+    if (row === 16) {
+      for (const col of [13, 15, 17, 50, 52, 54, 76, 78, 80]) line[col] = 'o'
+    }
+    if (row === 13) {
+      for (let col = 19; col <= 24; col++) line[col] = '='
+      for (let col = 56; col <= 61; col++) line[col] = '='
+      for (let col = 83; col <= 88; col++) line[col] = '='
+    }
+    if (row === 12) {
+      line[22] = '^'
+      line[59] = '^'
+      line[86] = '^'
+    }
+    if (row === 15) {
+      line[20] = 'P'
+      line[57] = 'P'
+      line[84] = 'P'
+    }
+    return line.join('')
+  }),
+}
+
 export function optionalCourse(code: string | undefined): StageDef | undefined {
-  return code === DRIP_PARLOUR.code ? DRIP_PARLOUR : chapelCourse(code)
+  if (code === DRIP_PARLOUR.code) return DRIP_PARLOUR
+  if (code === RUSTBOLT_KEEP.code) return RUSTBOLT_KEEP
+  return chapelCourse(code)
 }
 
 /** Every playable stage, in campaign order. */

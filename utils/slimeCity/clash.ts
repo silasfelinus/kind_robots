@@ -383,9 +383,8 @@ export const CLASH_CREW_BUDGET: Partial<Record<TeamId, number>> = {
 // V2 support and trap tempo shifts the starter matchups; correct the crew
 // life budgets only for new matches. V1 transcripts remain deterministic.
 const CLASH_V2_CREW_ADJUSTMENT: Partial<Record<TeamId, number>> = {
-  ironjaw: -1.5,
-  riot: 1.5,
-  catgirls: 0.5,
+  ironjaw: -0.5,
+  riot: 0.5,
   exchange: -0.5,
 }
 export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {

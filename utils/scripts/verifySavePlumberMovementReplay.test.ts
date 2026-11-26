@@ -20,6 +20,7 @@ import {
   SOLID_SNOWBANK,
   SOLID_SLOPE_UP,
   SOLID_SLOPE_DOWN,
+  enclosedPipeRooms,
   parseStage,
   TILE,
   type StageDef,
@@ -925,3 +926,53 @@ function rollerRun() {
   replay(run, 1, () => {})
   assert.equal(run.heldRoller, null, 'death clears held enemies')
 }
+
+// The eight late-campaign sealed chambers have their own camera, not a view
+// of the unrelated terrain below. The paired pipe remains the return route.
+for (const def of CAMPAIGN.filter((stage) => /^[78]-[1-4]$/.test(stage.code))) {
+  const stage = parseStage(def)
+  const rooms = enclosedPipeRooms(stage)
+  assert.equal(rooms.length, 1, def.code + ' has exactly one sealed chamber')
+  const room = rooms[0]!
+  const run = new PlumberRun(options, { customLevel: def })
+  const entrance = stage.doors[0]!
+  const exit = stage.doors[entrance.to]!
+  const standOn = (door: typeof entrance) => {
+    run.hero.x = door.col * TILE + TILE / 2
+    run.hero.y = door.row * TILE - HERO_TALL
+    run.hero.vx = run.hero.vy = 0
+    run.ground = true
+  }
+  const enterPipe = () => {
+    const down = emptyInput()
+    down.pressed.down = true
+    run.update(down)
+  }
+  standOn(entrance)
+  assert.equal(run.activePipeRoom, undefined)
+  enterPipe()
+  assert.deepEqual(run.activePipeRoom, room)
+  assert.equal(run.hero.x, exit.col * TILE + TILE / 2)
+  assert.equal(run.camera, (room.left + room.right - VIEW_W) / 2)
+  assert.equal(run.cameraY, (room.top + room.bottom - VIEW_H) / 2)
+  const roomCamera = [run.camera, run.cameraY]
+  replay(run, 12, (_, input) => {
+    input.held.right = true
+  })
+  assert.deepEqual([run.camera, run.cameraY], roomCamera)
+  assert.deepEqual(run.activePipeRoom, room)
+  const gear = run.gear!
+  run.hero.x = gear.x
+  run.hero.y = gear.y - HERO_TALL / 2
+  run.hero.vx = run.hero.vy = 0
+  replay(run, 1, () => {})
+  assert.equal(gear.taken, true, def.code + ' chamber reward is collectible')
+  standOn(exit)
+  enterPipe()
+  assert.equal(run.activePipeRoom, undefined)
+  assert.equal(run.hero.x, entrance.col * TILE + TILE / 2)
+  assert.ok(run.cameraY >= 0, 'return restores ordinary level camera')
+  assert.equal(run.gear, gear, 'pipe transit does not reload the stage')
+  assert.equal(gear.taken, true, 'return preserves the collected reward')
+}
+assert.equal(enclosedPipeRooms(parseStage(lab)).length, 0)

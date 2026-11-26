@@ -36,10 +36,12 @@ import {
   TILE,
   CAMPAIGN,
   chapelCourse,
+  enclosedPipeRooms,
   parseStage,
   isSlope,
   slopeHeight,
   stageWorld,
+  type PipeRoom,
   type Stage,
   type StageDef,
 } from './savePlumberLevels'
@@ -570,6 +572,7 @@ export class PlumberRun implements ArcadeGameInstance {
   private highContrast = false
   /** Vertical scroll: 0 shows the top of the stage; the lowest view frames the ground. */
   cameraY = 0
+  private pipeRooms: PipeRoom[] = []
   locked = false
 
   platforms: Platform[] = []
@@ -1179,6 +1182,7 @@ export class PlumberRun implements ArcadeGameInstance {
   private loadDef(def: StageDef) {
     const stage = parseStage(def)
     this.stage = stage
+    this.pipeRooms = enclosedPipeRooms(stage)
     this.solid = stage.solid.slice()
     this.inactiveSwitchBlocks.clear()
     if (!this.customLevel && !this.endless && !this.autopilot) {
@@ -2019,7 +2023,7 @@ export class PlumberRun implements ArcadeGameInstance {
       }
     }
     const desiredLead =
-      this.locked || this.stillCamera
+      this.locked || this.stillCamera || this.activePipeRoom
         ? 0
         : Math.max(-42, Math.min(42, hero.vx * 10))
     this.cameraLead += (desiredLead - this.cameraLead) * 0.12
@@ -2460,14 +2464,47 @@ export class PlumberRun implements ArcadeGameInstance {
     return this.stage.rows - 3
   }
 
+  /** A room is selected by physical presence, including after a checkpoint reload. */
+  get activePipeRoom(): PipeRoom | undefined {
+    const { x, y } = this.hero
+    const centerY = y + TALL / 2
+    return this.pipeRooms.find(
+      (room) =>
+        x > room.left &&
+        x < room.right &&
+        centerY > room.top &&
+        centerY < room.bottom,
+    )
+  }
+
+  private roomCameraAxis(
+    target: number,
+    min: number,
+    max: number,
+    viewport: number,
+  ) {
+    if (max - min <= viewport) return (min + max - viewport) / 2
+    return Math.max(min, Math.min(max - viewport, target - viewport / 2))
+  }
+
   /** Follow the heroine up; on the ground the view sits at the bottom of the stage. */
   private cameraTargetY() {
+    const room = this.activePipeRoom
+    if (room)
+      return this.roomCameraAxis(
+        this.hero.y + TALL / 2,
+        room.top,
+        room.bottom,
+        H,
+      )
     const max = Math.max(0, this.stage.rows * TILE - H)
     if (this.locked) return max
     return Math.max(0, Math.min(max, this.hero.y + TALL / 2 - H * 0.55))
   }
 
   private cameraTarget() {
+    const room = this.activePipeRoom
+    if (room) return this.roomCameraAxis(this.hero.x, room.left, room.right, W)
     const max = this.stage.cols * TILE - W
     if (this.locked) return max
     return Math.max(0, Math.min(max, this.hero.x - W * 0.5 + this.cameraLead))
@@ -2509,6 +2546,9 @@ export class PlumberRun implements ArcadeGameInstance {
       hero.x = to.col * TILE + TILE / 2
       hero.y = to.row * TILE - TALL
       hero.vx = hero.vy = 0
+      this.jumpBuffer = 0
+      this.grace = 0
+      this.riding = null
       this.cameraLead = 0
       this.camera = this.cameraTarget()
       this.cameraY = this.cameraTargetY()
@@ -5329,6 +5369,7 @@ export class PlumberRun implements ArcadeGameInstance {
       }
     }
     if (this.stage.dark) this.renderDark(g)
+    this.renderRoomMask(g)
     this.renderHud(g)
     if (this.stage.space) {
       g.fillStyle = 'rgba(7, 14, 33, 0.84)'
@@ -5380,6 +5421,21 @@ export class PlumberRun implements ArcadeGameInstance {
         9,
       )
     }
+  }
+
+  /** Hide the surrounding course while a sealed chamber has the camera. */
+  private renderRoomMask(g: CanvasRenderingContext2D) {
+    const room = this.activePipeRoom
+    if (!room) return
+    const left = Math.max(0, room.left - Math.round(this.camera))
+    const right = Math.min(W, room.right - Math.round(this.camera))
+    const top = Math.max(0, room.top - Math.round(this.cameraY))
+    const bottom = Math.min(H, room.bottom - Math.round(this.cameraY))
+    g.fillStyle = '#101626'
+    g.fillRect(0, 0, W, top)
+    g.fillRect(0, bottom, W, H - bottom)
+    g.fillRect(0, top, left, bottom - top)
+    g.fillRect(right, top, W - right, bottom - top)
   }
 
   /** Cues for running and the special: behind the heroine, then in front. */

@@ -1289,6 +1289,13 @@ export type Spawn = {
 
 export type Door = { col: number; row: number; to: number }
 
+export type PipeRoom = {
+  left: number
+  top: number
+  right: number
+  bottom: number
+}
+
 export type Stage = {
   code: string
   name: string
@@ -1462,4 +1469,55 @@ export function parseStage(def: StageDef): Stage {
     snow: def.snow === true,
     space: def.space === true,
   }
+}
+
+/** Identify sealed rectangular chambers around pipe endpoints, not open-air pipes. */
+export function enclosedPipeRooms(stage: Stage): PipeRoom[] {
+  const rooms: PipeRoom[] = []
+  const block = (col: number, row: number) =>
+    stage.solid[row * stage.cols + col] === SOLID_BLOCK
+  for (const door of stage.doors) {
+    let left = door.col - 1
+    let right = door.col + 1
+    while (left >= 0 && !block(left, door.row)) left--
+    while (right < stage.cols && !block(right, door.row)) right++
+    if (left < 0 || right >= stage.cols || right - left < 3) continue
+    const sealed = (row: number) => {
+      for (let col = left; col <= right; col++)
+        if (!block(col, row)) return false
+      return true
+    }
+    let top = door.row - 1
+    let bottom = door.row + 1
+    while (top >= 0 && !sealed(top)) {
+      if (!block(left, top) || !block(right, top)) break
+      top--
+    }
+    while (bottom < stage.rows && !sealed(bottom)) {
+      if (!block(left, bottom) || !block(right, bottom)) break
+      bottom++
+    }
+    if (
+      top < 0 ||
+      bottom >= stage.rows ||
+      !sealed(top) ||
+      !sealed(bottom) ||
+      door.row - top < 2 ||
+      bottom - door.row < 1
+    )
+      continue
+    const room = {
+      left: left * TILE,
+      top: top * TILE,
+      right: (right + 1) * TILE,
+      bottom: (bottom + 1) * TILE,
+    }
+    if (
+      !rooms.some(
+        (existing) => existing.left === room.left && existing.top === room.top,
+      )
+    )
+      rooms.push(room)
+  }
+  return rooms
 }

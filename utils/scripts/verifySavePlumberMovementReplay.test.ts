@@ -1024,8 +1024,7 @@ function scrollRun() {
     previous = run.camera
     if (run.scrollRail !== null) {
       assert.ok(run.hero.x + HERO_HALF <= run.camera + VIEW_W)
-      if (run.hero.x + HERO_HALF > run.camera + VIEW_W - 20)
-        reachedFront = true
+      if (run.hero.x + HERO_HALF > run.camera + VIEW_W - 20) reachedFront = true
     }
   }
   assert.ok(reachedFront, 'a sprint catches the moving leading edge')

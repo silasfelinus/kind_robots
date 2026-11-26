@@ -2034,7 +2034,10 @@ export class PlumberRun implements ArcadeGameInstance {
     this.updateAutoScroll()
     if (this.mode !== 'play') return
     const desiredLead =
-      this.locked || this.stillCamera || this.activePipeRoom || this.scrollRail !== null
+      this.locked ||
+      this.stillCamera ||
+      this.activePipeRoom ||
+      this.scrollRail !== null
         ? 0
         : Math.max(-42, Math.min(42, hero.vx * 10))
     this.cameraLead += (desiredLead - this.cameraLead) * 0.12

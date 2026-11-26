@@ -142,6 +142,9 @@ jobs:
       - name: Oracle reading engine contract
         run: npm run test:oracle-engine
 
+      - name: Tarot Studio catalog and canonical Kind Oracle id contract
+        run: npm run test:tarot-studio
+
       - name: Art-request YAML indentation contract
         run: npm run test:art-request-yaml
 

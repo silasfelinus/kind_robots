@@ -471,7 +471,8 @@ export function clashBalance(
             (tempo
               ? (CLASH_V2_CREW_ADJUSTMENT.base[card.team]?.[tier] ?? 0) +
                 (lv === 1
-                  ? (CLASH_V2_CREW_ADJUSTMENT.opening[card.team]?.[plays - 1] ?? 0)
+                  ? (CLASH_V2_CREW_ADJUSTMENT.opening[card.team]?.[plays - 1] ??
+                    0)
                   : 0)
               : 0)) -
         attack * 2 -

@@ -21,7 +21,10 @@ type Candidate = {
     undertow?: TierBudget
   }
   opening: Partial<
-    Record<'ironjaw' | 'riot' | 'catgirls' | 'undertow' | 'exchange', OpeningBudget>
+    Record<
+      'ironjaw' | 'riot' | 'catgirls' | 'undertow' | 'exchange',
+      OpeningBudget
+    >
   >
 }
 type Result = {
@@ -128,17 +131,25 @@ export function reportCalibrationCandidates(): void {
     }))
     best.sort(
       (a, b) =>
-        penalty(a.result) + penalty(a.holdout) -
-        penalty(b.result) - penalty(b.holdout),
+        penalty(a.result) +
+        penalty(a.holdout) -
+        penalty(b.result) -
+        penalty(b.holdout),
     )
     const variants: Candidate[] = []
     for (const { candidate } of best.slice(0, 2)) {
-      for (const catgirls of [[0, 0.5], [0.5, 0]] as OpeningBudget[])
+      for (const catgirls of [
+        [0, 0.5],
+        [0.5, 0],
+      ] as OpeningBudget[])
         variants.push({
           ...candidate,
           opening: { ...candidate.opening, catgirls },
         })
-      for (const undertow of [[0, -0.5], [-0.5, 0]] as OpeningBudget[])
+      for (const undertow of [
+        [0, -0.5],
+        [-0.5, 0],
+      ] as OpeningBudget[])
         variants.push({
           ...candidate,
           opening: { ...candidate.opening, undertow },
@@ -161,8 +172,10 @@ export function reportCalibrationCandidates(): void {
       })),
     ].sort(
       (a, b) =>
-        penalty(a.result) + penalty(a.holdout) -
-        penalty(b.result) - penalty(b.holdout),
+        penalty(a.result) +
+        penalty(a.holdout) -
+        penalty(b.result) -
+        penalty(b.holdout),
     )
     console.log('CLASH_CALIBRATION_FULL', JSON.stringify(verified))
   } catch (error) {

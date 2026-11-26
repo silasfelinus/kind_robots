@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { pvpMeatRewards } from '../slimeCity/pvp'
 import { existsSync, readFileSync } from 'node:fs'
 import {
   newPvpGame,
@@ -1034,3 +1035,44 @@ for (const file of [
 const armorView = readFileSync('components/slime-city-pvp-game.vue', 'utf8')
 assert.match(armorView, /<SlimeCityArmorStat/)
 assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
+
+// Rewards need a real exchange of plays, rounds and time after joining.
+{
+  const commands = (['player', 'enemy'] as const).flatMap((side) =>
+    Array.from({ length: 3 }, () => ({
+      t: 'play' as const,
+      side,
+      card: 'test',
+      lane: 0,
+    })),
+  )
+  const joined = '2026-11-25T00:00:00Z'
+  const now = Date.parse(joined) + 300_000
+  const state = { round: 4, commands }
+  assert.deepEqual(pvpMeatRewards(state, 'player', joined, now), {
+    player: 30,
+    enemy: 10,
+  })
+  assert.deepEqual(pvpMeatRewards(state, 'draw', joined, now), {
+    player: 15,
+    enemy: 15,
+  })
+  assert.deepEqual(
+    pvpMeatRewards({ ...state, round: 1 }, 'player', joined, now),
+    {
+      player: 0,
+      enemy: 0,
+    },
+  )
+  assert.deepEqual(pvpMeatRewards(state, 'enemy', joined, now - 1), {
+    player: 0,
+    enemy: 0,
+  })
+  assert.deepEqual(
+    pvpMeatRewards({ ...state, commands: [] }, 'enemy', joined, now),
+    {
+      player: 0,
+      enemy: 0,
+    },
+  )
+}

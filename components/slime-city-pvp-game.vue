@@ -165,7 +165,7 @@
                     ? 'Open duels are listed in VS for any signed-in player.'
                     : 'Only someone with your link can join.'
             }}
-            These fights award no Meat or cards.
+            Fair duels pay Meat to both players; quick forfeits pay nothing.
           </p>
         </div>
       </section>
@@ -795,7 +795,8 @@ const resultNote = computed(() => {
       ? 'You forfeited.'
       : 'Your rival forfeited.'
     : 'Boss life at the final bell.'
-  return how + ' VS duels award no Meat or cards.'
+  const meat = pvp.duel?.meatReward ?? 0
+  return how + (meat ? ' Your cut: +' + meat + ' Meat.' : ' No Meat earned.')
 })
 const rivalIsFriend = computed(() =>
   pvp.friends.some((friend) => friend.id === pvp.duel?.rivalId),

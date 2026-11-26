@@ -98,7 +98,7 @@ const ALL_ROUTES = flag(
     '/auth/google,/build-bench,/coloring-page,/music-mentor,/play/challenges/leaderboard,/play/video-generator,' +
     '/users/1,/play/challenges/neon-ramen-bar-icon,' +
     '/play/arcade,/play/arcade?game=zuzu-ghost-trail,/play/arcade?game=battery-maze,/play/zuzu-gamebook,/play/emperor-of-dust,/play/game-of-captains,/play/zuzu-showdown,/play/zuzu-ghost-trail,' +
-    '/play/zuzu-pinball,/play/zuzu-shifting-lands,/play/shifting-desks,' +
+    '/play/zuzu-pinball,/play/zuzu-shifting-lands,/play/shifting-desks,/play/ruler-hooked,' +
     '/play/mandarin,/play/aquarium/browse,/play/daily-pitches,/tzaddik-gallery',
 )
   .split(',')
@@ -145,6 +145,12 @@ const EXTRA_TABLET_VIEWPORT = {
   name: 'tablet-768',
   width: 768,
   height: 1024,
+  mobile: true,
+}
+const RULER_LANDSCAPE_VIEWPORT = {
+  name: 'tablet-landscape',
+  width: 1180,
+  height: 820,
   mobile: true,
 }
 
@@ -461,11 +467,116 @@ const routeTimings = []
 /** route -> { phone, tablet, desktop } resolved backdrop URLs. */
 const backdropsByRoute = {}
 
-for (const vp of [...VIEWPORTS, EXTRA_TABLET_VIEWPORT]) {
+// A guest-only walk through the actual game, not a screenshot of the title
+// route or its old project case study. Every transition uses visible controls.
+async function auditRulerOpening(page, vp) {
+  const label = `${vp.name} /play/ruler-hooked`
+  const title = page.locator('.rh-title-screen')
+  async function stage(name, locator) {
+    await locator.waitFor({ state: 'visible', timeout: 15000 })
+    await page
+      .waitForFunction(
+        () => [...document.images].every((img) => img.complete),
+        undefined,
+        { timeout: IMAGE_SETTLE_MS },
+      )
+      .catch(() => {})
+    const metrics = await page.evaluate(collect, MIN_FLEX_WIDTH)
+    viewportReadings.push({
+      route: '/play/ruler-hooked',
+      breakpoint: vp.name,
+      stage: name,
+      loaded: true,
+      ...metrics.viewportOwnership,
+    })
+    if (SHOTS) {
+      await page.screenshot({
+        path: `${SHOTS}/${vp.name}_ruler-hooked_${name}.png`,
+      })
+    }
+    if (
+      metrics.horizontalScroll ||
+      metrics.spill.length ||
+      metrics.crushed.length ||
+      metrics.brokenArtTotal
+    ) {
+      failures += 1
+      console.log(
+        `${label} ❌ ${name}: ${JSON.stringify({
+          horizontalScroll: metrics.horizontalScroll,
+          spill: metrics.spill,
+          crushed: metrics.crushed,
+          brokenArt: metrics.brokenArt,
+        })}`,
+      )
+    } else {
+      console.log(`${label} ${name}: rendered geometry clean`)
+    }
+  }
+
+  try {
+    if (new URL(page.url()).pathname !== '/play/ruler-hooked') {
+      throw new Error(`Unexpected route: ${page.url()}`)
+    }
+    await stage('title', title)
+    await title.getByRole('button', { name: 'Settings', exact: true }).click()
+    await stage('settings', title.getByLabel('Game settings', { exact: true }))
+    await title
+      .getByRole('button', { name: 'Return to reign selection', exact: true })
+      .click()
+    await title
+      .getByRole('button', { name: 'Royal Scrapbook', exact: true })
+      .click()
+    await stage('scrapbook', title.locator('.rh-title-screen__panel'))
+    await title
+      .getByRole('button', { name: 'Return to reign selection', exact: true })
+      .click()
+    await title
+      .getByRole('button', { name: 'Achievements', exact: true })
+      .click()
+    await stage(
+      'achievements',
+      title.getByLabel('Royal achievements', { exact: true }),
+    )
+    await title
+      .getByRole('button', { name: 'Return to reign selection', exact: true })
+      .click()
+    await title.getByLabel('Your name', { exact: true }).fill('Layout Audit')
+    await title.getByRole('button', { name: 'Begin your reign' }).click()
+    const opening = page.getByLabel('Coronation', { exact: true })
+    await stage('coronation', opening)
+    await opening.getByRole('button', { name: 'Next', exact: true }).click()
+    await stage('coronation-next', opening)
+    await opening.getByRole('button', { name: 'Skip', exact: true }).click()
+    const crier = page.locator('.rh-crier')
+    await stage('crier', crier)
+    await crier.getByRole('button', { name: 'Hear, hear!' }).click()
+    const lake = page.getByLabel('Castle Lake', { exact: true })
+    await stage('lake-idle', lake.locator('.rh-cast'))
+    await lake.getByRole('button', { name: /Cast a line/ }).click()
+    await stage('fishing', lake.locator('.rh-lake__dock--classic'))
+  } catch (error) {
+    failures += 1
+    console.log(`${label} ❌ opening flow: ${error.message}`)
+    if (SHOTS) {
+      await page.screenshot({
+        path: `${SHOTS}/${vp.name}_ruler-hooked_failure.png`,
+      })
+    }
+  }
+}
+
+for (const vp of [
+  ...VIEWPORTS,
+  EXTRA_TABLET_VIEWPORT,
+  RULER_LANDSCAPE_VIEWPORT,
+]) {
   const viewportRoutes =
     vp.name === EXTRA_TABLET_VIEWPORT.name
       ? ROUTES.filter((route) => EXTRA_TABLET_ROUTES.has(route))
-      : ROUTES
+      : vp.name === RULER_LANDSCAPE_VIEWPORT.name
+        ? ROUTES.filter((route) => route === '/play/ruler-hooked')
+        : ROUTES
   if (!viewportRoutes.length) continue
   const ctx = await browser.newContext({
     viewport: { width: vp.width, height: vp.height },
@@ -622,7 +733,7 @@ for (const vp of [...VIEWPORTS, EXTRA_TABLET_VIEWPORT]) {
 
     // Record which backdrop each viewport resolved, so the cross-viewport
     // check below can run once every viewport has been visited.
-    if (m?.backdrop && vp.name !== EXTRA_TABLET_VIEWPORT.name) {
+    if (m?.backdrop && VIEWPORTS.some((item) => item.name === vp.name)) {
       ;(backdropsByRoute[route] ??= {})[vp.name] = m.backdrop
     }
 
@@ -630,6 +741,9 @@ for (const vp of [...VIEWPORTS, EXTRA_TABLET_VIEWPORT]) {
       await page.screenshot({
         path: `${SHOTS}/${vp.name}${route.replace(/[^a-zA-Z0-9_-]/g, '_')}.png`,
       })
+    }
+    if (loaded && route === '/play/ruler-hooked') {
+      await auditRulerOpening(page, vp)
     }
     await page.close()
     routeTimings.push({

@@ -4160,6 +4160,13 @@ export class PlumberRun implements ArcadeGameInstance {
   private pilotInput(): InputFrame {
     const input = emptyInput()
     if (this.mode !== 'play') return input
+    if (this.swimming) {
+      input.held.right = true
+      input.held.a = true
+      this.pilotRight = true
+      this.pilotHold = 8
+      return input
+    }
     const boss = this.boss
     if (boss && this.locked && boss.state !== 'defeat')
       return this.pilotBoss(input)

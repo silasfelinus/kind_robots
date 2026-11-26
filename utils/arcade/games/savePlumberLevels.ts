@@ -1340,7 +1340,9 @@ export function optionalCourse(code: string | undefined): StageDef | undefined {
   return chapelCourse(code)
 }
 
-export function optionalCourseAtNode(id: string | undefined): StageDef | undefined {
+export function optionalCourseAtNode(
+  id: string | undefined,
+): StageDef | undefined {
   if (id === SLUICEGATE_NODE_ID) return SLUICEGATE_STEPS
   return optionalCourse(id)
 }

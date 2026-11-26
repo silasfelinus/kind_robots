@@ -641,8 +641,7 @@ damInput.held.right = false
 damInput.held.up = true
 sluice.update(damInput)
 assert.ok(sluice.climbing)
-for (let i = 0; i < 100 && sluice.climbing; i++)
-  sluice.update(damInput)
+for (let i = 0; i < 100 && sluice.climbing; i++) sluice.update(damInput)
 assert.ok(sluice.hero.y + 20 <= 13 * TILE + 1)
 assert.ok(sluice.cameraY < lowerCamera)
 damInput.held.up = false
@@ -652,14 +651,12 @@ for (let i = 0; i < 200 && !sluice.checkpoints[0]!.reached; i++)
 assert.ok(sluice.checkpoints[0]!.reached)
 const damLives = sluice.lives
 sluice.hero.y = sluice.stage.rows * TILE + 60
-for (let i = 0; i < 600 && sluice.lives === damLives; i++)
-  sluice.update(input)
+for (let i = 0; i < 600 && sluice.lives === damLives; i++) sluice.update(input)
 assert.equal(sluice.stage.code, SLUICEGATE_STEPS.code)
 assert.equal(sluice.mode, 'play')
 assert.equal(sluice.hero.x, sluice.checkpoint.x)
 assert.ok(sluice.checkpoints[0]!.reached)
-for (let i = 0; i < 1000 && sluice.mode === 'play'; i++)
-  sluice.update(damInput)
+for (let i = 0; i < 1000 && sluice.mode === 'play'; i++) sluice.update(damInput)
 assert.equal(sluice.mode, 'clear')
 for (let i = 0; i < 200 && sluice.modeTimer; i++) sluice.update(input)
 assert.equal(sluice.mode, 'map')

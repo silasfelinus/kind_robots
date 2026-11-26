@@ -1,0 +1,59 @@
+name: Hopeful Hues browser playthrough
+
+# The real static game in Chromium, played through visible input at 390/768/1440
+# (conductor hopeful-hues t-006): tutorial, a won level, Back, keyboard play, quests,
+# the world fork, save export/import, calm motion and a finale to its ending.
+on:
+  pull_request:
+    paths:
+      - 'public/hopeful-hues/**'
+      - 'utils/scripts/verifyHopefulHuesBrowser.browser.test.mjs'
+      - 'utils/scripts/verifyHopefulHues.test.ts'
+      - '.github/workflows/hopeful-hues-browser.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  hopeful-hues-browser:
+    name: Hopeful Hues played through visible input in Chromium
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Install headless Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Engine, 495-level winnability and board mechanics
+        run: npm run test:hopeful-hues
+
+      - name: Browser playthrough at 390/768/1440
+        if: always()
+        run: node utils/scripts/verifyHopefulHuesBrowser.browser.test.mjs
+        env:
+          HOPEFUL_HUES_SHOTS: test-results/hopeful-hues
+
+      - name: Preserve screenshots for visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hopeful-hues-screenshots
+          path: test-results/hopeful-hues/
+          if-no-files-found: ignore
+          retention-days: 7

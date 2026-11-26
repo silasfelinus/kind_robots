@@ -88,6 +88,15 @@
   )
 
   const embedded = new URLSearchParams(location.search).get('embedded') === '1'
+  // ?qa=1: a read-only view of the level in progress for the browser playthrough contract
+  // (utils/scripts/verifyHopefulHuesBrowser.browser.test.mjs). It changes nothing in play.
+  if (new URLSearchParams(location.search).get('qa') === '1')
+    window.__hhQA = {
+      state: () => (game ? game.state : null),
+      busy: () => !game || !!game.busy || !!game.coachOpen,
+      level: () => (game ? game.id : null),
+      slot: () => slot(),
+    }
   const storage = (() => {
     try {
       localStorage.setItem('hh-probe', '1')
@@ -685,8 +694,8 @@
         <span class="chip" title="Stars">⭐ ${stars}</span>
         <span class="chip" title="Sparkles">✨ ${s.sparkles}</span>
         <span class="spacer"></span>
-        <button class="btn small" data-action="quests">🌈<span class="label-text"> Quests</span>${claimable ? `<span class="badge">${claimable}</span>` : ''}</button>
-        <button class="btn small" data-action="hero">🗺️<span class="label-text"> Worlds</span></button>
+        <button class="btn small" data-action="quests" aria-label="${claimable ? `Quests, ${claimable} ready to claim` : 'Quests'}">🌈<span class="label-text"> Quests</span>${claimable ? `<span class="badge">${claimable}</span>` : ''}</button>
+        <button class="btn small" data-action="hero" aria-label="Worlds">🗺️<span class="label-text"> Worlds</span></button>
         <button class="btn small icon" data-action="scrapbook" aria-label="Scrapbook">📔</button>
         <button class="btn small icon" data-action="trophies" aria-label="Achievements">🏆</button>
         <button class="btn small icon" data-action="settings" aria-label="Settings">⚙️</button>
@@ -903,7 +912,7 @@
       </div>
       <div class="board-wrap" data-wrap>
         <div class="board" data-board role="grid" aria-label="Game board" tabindex="0">
-          <div class="cells"></div><div class="gloom-layer"></div><div class="tiles"></div><div class="fx"></div><div class="cursor" hidden></div>
+          <div class="cells"></div><div class="gloom-layer"></div><div class="tiles"></div><div class="marks" aria-hidden="true"></div><div class="fx"></div><div class="cursor" hidden></div>
         </div>
       </div>
       <div class="controls">
@@ -928,6 +937,7 @@
       cells: board.querySelector('.cells'),
       gloom: board.querySelector('.gloom-layer'),
       tiles: board.querySelector('.tiles'),
+      marks: board.querySelector('.marks'),
       fx: board.querySelector('.fx'),
       cursorEl: board.querySelector('.cursor'),
       tileMap: new Map(),
@@ -973,6 +983,20 @@
         text: 'Every three moves the cloud may add a new patch of Gloom. It never costs a life or ends a level.',
       },
       buddy: { title: b.buddy.name, text: b.buddy.text },
+      conveyor: {
+        title: 'Carousel rows',
+        text: 'After each move, a row with arrows slides one step the way they point and wraps around the edge. A slide can line up a free match!',
+      },
+      portal: {
+        title: 'Rainbow portals',
+        text: 'A jewel that falls into a swirl at the bottom of a column pops out of the matching swirl at the top of another column.',
+      },
+      dispenser: {
+        title: b.buddy.name + ' chutes',
+        text:
+          b.buddy.name +
+          ' only arrive down the columns with a chute. Clear the way below them to bring them home.',
+      },
       comb: { title: sp.comb.name + '!', text: sp.comb.text },
       bomb: { title: sp.bomb.name + '!', text: sp.bomb.text },
       rainbow: {
@@ -1149,6 +1173,9 @@
       if (kinds.has(key)) await showTip(key)
     }
     if (game.def.ribbons?.length) await showTip('ribbon')
+    if (game.state.conveyors?.length) await showTip('conveyor')
+    if (game.state.portals?.length) await showTip('portal')
+    if (game.state.dispensers?.length) await showTip('dispenser')
     if (game.state.weather) await showTip(game.state.weather.kind)
     const hasRainbow = game.state.board.some((row) =>
       row.some((tile) => tile && tile.special === 'rainbow'),
@@ -1195,8 +1222,76 @@
         if (!E.isCell(st, r, c)) continue
         cells += `<div class="cell-bg ${(r + c) % 2 ? 'alt' : ''}" style="left:${c * cell + 2}px;top:${r * cell + 2}px;width:${cell - 4}px;height:${cell - 4}px"></div>`
       }
+    // Conveyor rows get a striped belt under their tiles; portal and chute cells glow.
+    for (const belt of st.conveyors || [])
+      cells += `<div class="belt ${belt.dir < 0 ? 'left' : 'right'}" style="left:0;top:${belt.row * cell}px;width:${st.cols * cell}px;height:${cell}px"></div>`
+    const edgeCell = (c, fromBottom) => {
+      for (let i = 0; i < st.rows; i++) {
+        const r = fromBottom ? st.rows - 1 - i : i
+        if (E.isCell(st, r, c)) return r
+      }
+      return -1
+    }
+    const glow = (r, c, cls) =>
+      r < 0
+        ? ''
+        : `<div class="${cls}" style="left:${c * cell + 1}px;top:${r * cell + 1}px;width:${cell - 2}px;height:${cell - 2}px"></div>`
+    ;(st.portals || []).forEach((portal, i) => {
+      const tint = i ? ' two' : ''
+      cells += glow(
+        edgeCell(portal.from, true),
+        portal.from,
+        'portal-cell' + tint,
+      )
+      cells += glow(edgeCell(portal.to, false), portal.to, 'portal-cell' + tint)
+    })
+    for (const c of st.dispensers || [])
+      cells += glow(edgeCell(c, false), c, 'chute-cell')
     game.els.cells.innerHTML = cells
+    drawMarks()
     drawGloom()
+  }
+
+  /** Mechanic markers that sit over the tiles: belt arrows, portal swirls and buddy chutes. */
+  function drawMarks() {
+    const st = game.state
+    const cell = game.cell
+    const chip = Math.max(22, Math.round(cell * 0.56))
+    const at = (x, y, text, cls, label) =>
+      `<span class="mark ${cls}" title="${label}" style="left:${x - chip / 2}px;top:${y - chip / 2}px;width:${chip}px;height:${chip}px;font-size:${Math.round(chip * 0.62)}px">${text}</span>`
+    let html = ''
+    for (const belt of st.conveyors || []) {
+      const arrow = belt.dir < 0 ? '‹' : '›'
+      const y = (belt.row + 0.5) * cell
+      html += at(-chip * 0.2, y, arrow, 'belt-arrow', 'Carousel row')
+      html += at(
+        st.cols * cell + chip * 0.2,
+        y,
+        arrow,
+        'belt-arrow',
+        'Carousel row',
+      )
+    }
+    ;(st.portals || []).forEach((portal, i) => {
+      const tint = i ? 'two' : 'one'
+      html += at(
+        (portal.from + 0.5) * cell,
+        st.rows * cell + chip * 0.25,
+        '🌀',
+        'portal in ' + tint,
+        'Portal entrance',
+      )
+      html += at(
+        (portal.to + 0.5) * cell,
+        -chip * 0.25,
+        '🌀',
+        'portal out ' + tint,
+        'Portal exit',
+      )
+    })
+    for (const c of st.dispensers || [])
+      html += at((c + 0.5) * cell, -chip * 0.25, '💝', 'chute', 'Buddy chute')
+    game.els.marks.innerHTML = html
   }
 
   function drawGloom() {
@@ -1563,6 +1658,14 @@
             : 'Gloom is spreading!',
         )
       }
+      if (phase.combo) {
+        // Two specials together: a rainbow flash over the whole board (a soft tint in calm motion).
+        const flash = document.createElement('div')
+        flash.className = 'combo-flash'
+        fx.appendChild(flash)
+        setTimeout(() => flash.remove(), 700)
+        cheer('Super combo! 🌈✨')
+      }
       if (phase.swap) {
         const ea = game.els.tileMap.get(phase.swap.ids[0])
         const eb = game.els.tileMap.get(phase.swap.ids[1])
@@ -1682,10 +1785,22 @@
         updateHud()
         await wait(320)
       }
+      if (phase.conveyor) cheer('The carousel turns! 🎠')
       if (phase.board) {
         const spawnFrom = new Map()
-        for (const f of phase.falls || [])
+        for (const f of phase.falls || []) {
           if (f.spawn) spawnFrom.set(f.id, f.from)
+          // Through a portal: reappear above the exit column, then fall into place.
+          if (f.portal) {
+            const el = game.els.tileMap.get(f.id)
+            if (el) {
+              el.style.transition = 'none'
+              el.style.transform = pos(f.from, f.c)
+              el.offsetWidth
+              el.style.transition = ''
+            }
+          }
+        }
         drawBoard(phase.board, false, spawnFrom)
         updateHud()
         await wait(phase.falls && phase.falls.length ? 240 : 60)

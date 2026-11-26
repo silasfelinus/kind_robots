@@ -664,6 +664,7 @@ textarea:focus-visible {
 .board .cells,
 .board .gloom-layer,
 .board .tiles,
+.board .marks,
 .board .fx {
   position: absolute;
   inset: 0;
@@ -1991,4 +1992,117 @@ textarea.code {
   background: var(--card);
   color: var(--ink);
   box-shadow: 0 3px 0 #00000033;
+}
+
+/* t-003/t-009 board mechanics: conveyor belts, portals and buddy chutes. */
+.board .marks {
+  pointer-events: none;
+  z-index: 2;
+}
+
+.belt {
+  position: absolute;
+  border-radius: 14px;
+  background: repeating-linear-gradient(
+    120deg,
+    #ff9fd2a6 0 12px,
+    #9fe6ffa6 12px 24px
+  );
+  box-shadow:
+    inset 0 2px 0 #ffffffcc,
+    inset 0 -2px 0 #ffffffcc;
+}
+
+.mark {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #ffffffe6;
+  box-shadow: 0 2px 6px #6d4c9a40;
+  color: #8b4fd1;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.mark {
+  border: 2px solid #b07cff;
+}
+
+.mark.chute {
+  border-color: #ff7fbf;
+}
+
+.portal-cell,
+.chute-cell {
+  position: absolute;
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+.portal-cell {
+  background: radial-gradient(circle, #e7d2ffd9 30%, #b07cff99);
+  box-shadow: inset 0 0 0 3px #9b5cff;
+}
+
+.portal-cell.two {
+  filter: hue-rotate(140deg);
+}
+
+.chute-cell {
+  background: linear-gradient(#ffd1ead9, #ffffff80);
+  box-shadow: inset 0 0 0 3px #ff7fbf;
+}
+
+.mark.portal.two {
+  filter: hue-rotate(140deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mark.portal {
+    animation: hh-portal-spin calc(4s * var(--speed, 1)) linear infinite;
+  }
+}
+
+@keyframes hh-portal-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+.reduced-motion .mark.portal {
+  animation: none;
+}
+
+.combo-flash {
+  position: absolute;
+  inset: -6px;
+  border-radius: 28px;
+  pointer-events: none;
+  background: conic-gradient(
+    from 0deg,
+    #ff8fc855,
+    #ffd36e55,
+    #8ff0b455,
+    #8fd8ff55,
+    #c39bff55,
+    #ff8fc855
+  );
+  animation: combo-flash calc(0.65s * var(--speed, 1)) ease-out forwards;
+}
+
+@keyframes combo-flash {
+  from {
+    opacity: 1;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
+.reduced-motion .combo-flash {
+  animation: none;
+  opacity: 0.5;
 }

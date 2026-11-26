@@ -37,6 +37,7 @@ import {
   CAMPAIGN,
   chapelCourse,
   optionalCourse,
+  optionalCourseAtNode,
   HUSH_ROOM_WIDTH,
   HUSH_FLOOR_ROW,
   HUSH_DOOR_OFFSETS,
@@ -1049,7 +1050,7 @@ export class PlumberRun implements ArcadeGameInstance {
     if (!(keys.pressed.a || keys.pressed.start)) return
     const node = mapNode(this.mapNodeId)
     if (!node || node.kind === 'start') return
-    const optional = optionalCourse(node.id)
+    const optional = optionalCourseAtNode(node.id)
     if (optional) {
       this.sound.play('level')
       this.loadDef(optional)

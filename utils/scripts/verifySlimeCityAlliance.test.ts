@@ -764,3 +764,12 @@ console.log('Slime City ALLIANCE: decks, powers, replay, balance and saves OK')
   assert.match(collection, /data-testid="slime-saved-decks-toggle"/)
   assert.match(collection, /:open="classicOpen\[group\.id\]"/)
 }
+
+// Collapsed deck sections remain art-forward, including an empty saved shelf.
+{
+  const collection = readFileSync('pages/admin/slime-city.vue', 'utf8')
+  assert.match(collection, /class="sc-shelf-banner-art"/)
+  assert.match(collection, /v-for="\(deck, index\) in savedDeckBanner"/)
+  assert.match(collection, /\.sc-shelf-banner-pair :deep\(img\)/)
+  assert.match(collection, /\[\{ general: lab\.activeTeam, ally: null \}\]/)
+}

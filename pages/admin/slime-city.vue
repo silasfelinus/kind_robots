@@ -469,7 +469,29 @@
                   class="sc-shelf-label"
                   :data-testid="'slime-' + group.id + '-toggle'"
                 >
-                  {{ group.title }} · {{ group.decks.length }}
+                  <span class="sc-shelf-banner-art" aria-hidden="true">
+                    <span
+                      v-for="deck in group.decks.slice(0, group.id === 'faction-classic' ? 6 : 3)"
+                      :key="deck.id"
+                      class="sc-shelf-banner-pair"
+                    >
+                      <SlimeCityArtwork
+                        :image-id="slimeArtId('crews', deck.general)"
+                        alt=""
+                        compact
+                      />
+                      <SlimeCityArtwork
+                        v-if="deck.ally"
+                        :image-id="slimeArtId('crews', deck.ally)"
+                        alt=""
+                        compact
+                      />
+                    </span>
+                  </span>
+                  <span class="sc-shelf-banner-title">
+                    <b>{{ group.title }}</b>
+                    <small>{{ group.decks.length }} STARTER DECKS</small>
+                  </span>
                 </summary>
                 <div class="sc-shelf-group" :aria-label="group.title">
                   <button
@@ -510,8 +532,36 @@
                 </div>
               </details>
               <details class="sc-shelf-section" open>
-                <summary class="sc-shelf-label" data-testid="slime-saved-decks-toggle">
-                  SAVED DECKS · {{ lab.library.length + lab.customSoloTeams.length }}
+                <summary
+                  class="sc-shelf-label"
+                  data-testid="slime-saved-decks-toggle"
+                >
+                  <span class="sc-shelf-banner-art" aria-hidden="true">
+                    <span
+                      v-for="(deck, index) in savedDeckBanner"
+                      :key="index"
+                      class="sc-shelf-banner-pair"
+                    >
+                      <SlimeCityArtwork
+                        :image-id="slimeArtId('crews', deck.general)"
+                        alt=""
+                        compact
+                      />
+                      <SlimeCityArtwork
+                        v-if="deck.ally"
+                        :image-id="slimeArtId('crews', deck.ally)"
+                        alt=""
+                        compact
+                      />
+                    </span>
+                  </span>
+                  <span class="sc-shelf-banner-title">
+                    <b>SAVED DECKS</b>
+                    <small>
+                      {{ lab.library.length + lab.customSoloTeams.length }}
+                      CUSTOM DECKS
+                    </small>
+                  </span>
                 </summary>
                 <div class="sc-shelf-group" aria-label="Saved decks">
                   <button
@@ -1368,6 +1418,15 @@ const classicDeckGroups = computed(() => [
     decks: lab.starterDecks.filter((deck) => !!deck.ally),
   },
 ])
+const savedDeckBanner = computed(() => {
+  const decks = [
+    ...lab.library.map((deck) => ({ general: deck.general, ally: deck.ally })),
+    ...lab.customSoloTeams.map((team) => ({ general: team, ally: null })),
+  ]
+  return decks.length
+    ? decks.slice(0, 4)
+    : [{ general: lab.activeTeam, ally: null }]
+})
 function setClassicOpen(id: keyof typeof classicOpen.value, event: Event) {
   classicOpen.value[id] = (event.currentTarget as HTMLDetailsElement).open
 }
@@ -2353,23 +2412,84 @@ onUnmounted(() => {
   background: #0e1420;
 }
 .sc-shelf-section > summary.sc-shelf-label {
+  position: relative;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: clamp(3.8rem, 7cqw, 5.25rem);
   max-width: none;
-  padding: 0.5rem 0.7rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.45rem;
   cursor: pointer;
   list-style: none;
+}
+.sc-shelf-banner-art {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  display: flex;
+}
+.sc-shelf-banner-pair {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+}
+.sc-shelf-banner-pair + .sc-shelf-banner-pair {
+  border-left: 2px solid #0e1420;
+}
+.sc-shelf-banner-pair :deep(.slime-art) {
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+}
+.sc-shelf-banner-pair :deep(img) {
+  object-position: center 35%;
+}
+.sc-shelf-section > summary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(0deg, #050b14e8, #050b1430 62%, transparent);
+}
+.sc-shelf-banner-title {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+  color: #fff;
+  text-shadow: 0 1px 4px #000;
+}
+.sc-shelf-banner-title b {
+  font-size: 0.9rem;
+  line-height: 1.1;
+}
+.sc-shelf-banner-title small {
+  color: #d7ff89;
+  font-size: 0.6rem;
 }
 .sc-shelf-section > summary::-webkit-details-marker {
   display: none;
 }
 .sc-shelf-section > summary::after {
   content: '▸';
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 0.35rem;
+  background: #0b1719e6;
   color: #c5ff59;
+  font-size: 1.1rem;
 }
 .sc-shelf-section[open] > summary::after {
   content: '▾';
+}
+.sc-shelf-section > summary:focus-visible {
+  outline: 2px solid #c5ff59;
+  outline-offset: -2px;
 }
 @container (max-width: 600px) {
   .sc-shelf-deck {

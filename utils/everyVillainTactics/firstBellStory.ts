@@ -3,6 +3,7 @@ import { ACCIDENT_ARCS } from './accidentArcs'
 import { MUTANT_ARCS } from './mutantArcs'
 import { TECH_ARCS } from './techArcs'
 import { MAGIC_ARCS } from './magicArcs'
+import { ALIEN_ARCS } from './alienArcs'
 import { recordTrigger, type TrainingState } from './training'
 
 export type Perspective = 'hero' | 'villain' | 'henchman' | 'sidekick'
@@ -559,7 +560,8 @@ export function storyMoment(
       ? (ACCIDENT_ARCS[lead] ??
           MUTANT_ARCS[lead] ??
           TECH_ARCS[lead] ??
-          MAGIC_ARCS[lead])?.[role]?.[beat]
+          MAGIC_ARCS[lead] ??
+          ALIEN_ARCS[lead])?.[role]?.[beat]
       : undefined
   const person = IDENTITY_ARCS.find((identity) => identity.signature === lead)
   const support = state?.units.find(
@@ -581,6 +583,16 @@ export function storyMoment(
         }
       : base
   const lines = [...scene.lines]
+  if (personal && person && beat === 'arrival' && lead !== 'accident-fire') {
+    lines.push(
+      a(
+        supporter.hero.alias,
+        role === 'hero'
+          ? 'The catwalk gives us a view of the trapped students; the service corridor offers cover. Choose how we approach.'
+          : 'The rigging gives us a view of the vault; the service corridor conceals our approach. Which route are we securing?',
+      ),
+    )
+  }
   if (beat === 'arrival' && lead === 'accident-fire') {
     if (personal && person) {
       lines.push(

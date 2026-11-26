@@ -900,7 +900,8 @@ for (const person of IDENTITY_ARCS.filter(
     entry.signature.startsWith('accident-') ||
     entry.signature.startsWith('mutant-') ||
     entry.signature.startsWith('tech-') ||
-    entry.signature.startsWith('magic-'),
+    entry.signature.startsWith('magic-') ||
+    entry.signature.startsWith('alien-'),
 )) {
   for (const perspective of ['hero', 'villain'] as const) {
     const run = createStory()
@@ -929,6 +930,7 @@ for (const person of IDENTITY_ARCS.filter(
       )
       assert.equal(scene.lines[0]?.speaker, person.hero.alias)
       assert.equal(scene.lines[1]?.speaker, supportName)
+      if (beat === 'arrival') assert.ok(scene.lines.length >= 3)
       const dialogue = scene.lines
         .slice(0, 2)
         .map((line) => line.text)
@@ -963,7 +965,7 @@ for (const person of IDENTITY_ARCS.filter(
     assert.ok(run.completed)
   }
 }
-assert.equal(personalScenes.size, 320)
+assert.equal(personalScenes.size, 400)
 
 const missionChoices = [
   ['science-lab', 'lab-rescued', 'lab-evidence'],

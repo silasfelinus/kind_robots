@@ -2912,7 +2912,9 @@ for (const [id, extra] of [
     const target = cast.units.find((u) => u.uid === 9001)!
     const power = clashBalance(card, 1, version).power
     assert.equal(target.hp, 12 - power, id)
-    assert.ok(clashCardText(card, 1, undefined, version).includes(String(power)))
+    assert.ok(
+      clashCardText(card, 1, undefined, version).includes(String(power)),
+    )
     if (card.effect === 'debt') assert.ok(target.rooted)
   }
 }

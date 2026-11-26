@@ -228,7 +228,7 @@ assert.match(
 )
 const screenUnion = page.match(/type Screen =([^\n]*(?:\n\s*\|[^\n]*)*)/)
 assert.ok(screenUnion, 'the console declares its Screen union')
-const screens = [...(screenUnion[1] ?? '').matchAll(/'([a-z]+)'/g)].map(
+const screens = [...(screenUnion?.[1] ?? '').matchAll(/'([a-z]+)'/g)].map(
   (m) => m[1],
 )
 for (const name of [

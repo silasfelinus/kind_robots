@@ -408,6 +408,7 @@ type Cargo = {
 type Boss = {
   kind: BossKind
   name: string
+  taunts: PlumberWorld['boss']['taunts']
   x: number
   y: number
   vy: number
@@ -609,6 +610,8 @@ export class PlumberRun implements ArcadeGameInstance {
   gear: { x: number; y: number; taken: boolean } | null = null
   gears = new Set<string>()
   gearFlash = 0
+  /** The boss's latest line, shown under the HUD bar until its timer runs out. */
+  bossLine: { words: string; timer: number } | null = null
   /** The power the heroine carries; a hit costs it instead of a heart. */
   power: PlumberPower | null = null
   /**
@@ -1244,6 +1247,7 @@ export class PlumberRun implements ArcadeGameInstance {
       : null
     this.clearExit = 'normal'
     this.boss = null
+    this.bossLine = null
     this.locked = false
     let lift = 0
     for (const spawn of stage.spawns) {
@@ -1464,6 +1468,7 @@ export class PlumberRun implements ArcadeGameInstance {
           this.boss = {
             kind: BOSS_KINDS[world - 1] ?? 'pressure',
             name: PLUMBER_WORLDS[world - 1]!.boss.name,
+            taunts: PLUMBER_WORLDS[world - 1]!.boss.taunts,
             x: cx,
             y: bottom,
             vy: 0,
@@ -2026,7 +2031,10 @@ export class PlumberRun implements ArcadeGameInstance {
             this.release(foe)
             foe.state = 'gone'
           }
-        if (this.boss) this.boss.state = 'walk'
+        if (this.boss) {
+          this.boss.state = 'walk'
+          this.taunt(this.boss.taunts.enter)
+        }
         this.sound.play('extra')
       }
     }
@@ -3617,8 +3625,13 @@ export class PlumberRun implements ArcadeGameInstance {
     }
   }
 
+  private taunt(words: string) {
+    this.bossLine = { words, timer: 150 }
+  }
+
   private updateBoss(prevBottom: number) {
     const boss = this.boss!
+    if (this.bossLine && --this.bossLine.timer <= 0) this.bossLine = null
     const hero = this.hero
     boss.timer--
     const left = ((this.stage.gate ?? 0) + 3) * TILE
@@ -3805,6 +3818,13 @@ export class PlumberRun implements ArcadeGameInstance {
   private hitBoss() {
     const boss = this.boss!
     boss.hp--
+    this.taunt(
+      boss.hp > 1
+        ? boss.taunts.hit[0]
+        : boss.hp > 0
+          ? boss.taunts.hit[1]
+          : boss.taunts.defeat,
+    )
     boss.state = 'hurt'
     boss.timer = 50
     boss.speed *= 1.25
@@ -6763,6 +6783,14 @@ export class PlumberRun implements ArcadeGameInstance {
     // Endless zones hide no Golden Gear.
     if (!this.endless) this.drawCog(g, 244, 12, 6, 0, !this.gear?.taken)
     if (this.gearFlash) this.text(g, 'GOLDEN GEAR!', W / 2, 46, 18, '#ffd98a')
+    if (this.bossLine && this.boss) {
+      // The boss's line: a dark speech plate below the bar, under any gear flash.
+      const top = this.gearFlash ? 56 : 30
+      g.fillStyle = 'rgba(28, 63, 82, 0.78)'
+      g.fillRect(W / 2 - 170, top, 340, 34)
+      this.text(g, this.boss.name.toUpperCase(), W / 2, top + 12, 9, '#ffb59e')
+      this.text(g, `“${this.bossLine.words}”`, W / 2, top + 28, 13, '#fff1ce')
+    }
     if (this.power) {
       g.fillStyle = 'rgba(255, 244, 220, 0.25)'
       g.beginPath()

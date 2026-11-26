@@ -23,7 +23,12 @@ export type PlumberWorld = {
   name: string
   tagline: string
   mechanic: string
-  boss: { name: string; tell: string }
+  boss: {
+    name: string
+    tell: string
+    /** What the boss says in the arena: on the gate closing, after the first two hits, and on the last. */
+    taunts: { enter: string; hit: [string, string]; defeat: string }
+  }
   enemies: string[]
   stages: PlumberStage[]
   palette: {
@@ -67,6 +72,14 @@ export const PLUMBER_WORLDS: PlumberWorld[] = [
     boss: {
       name: 'Madame Pressure',
       tell: 'Her gauge needle swings to red a full beat before each steam burst.',
+      taunts: {
+        enter: 'Mind the gauge, dear. It only reads RED.',
+        hit: [
+          'Ooh! You let some of my steam out!',
+          'Valves, hold! Hold, I said!',
+        ],
+        defeat: 'Fine. Let the river run downhill.',
+      },
     },
     enemies: ['Pumpbugs', 'Rivet rollers'],
     stages: stages(1, [
@@ -94,6 +107,14 @@ export const PLUMBER_WORLDS: PlumberWorld[] = [
     boss: {
       name: 'Captain Barnaclejack',
       tell: 'His anchor glows before it swings, and the tide always pulls the same way.',
+      taunts: {
+        enter: 'This harbour is mine, and so is the sky!',
+        hit: [
+          'Arr, that one rattled me barnacles.',
+          "The tide's turning... on ME?",
+        ],
+        defeat: "Take the water. I'm going fishing.",
+      },
     },
     enemies: ['Clockwork minnows', 'Cork crabs', 'Glass gulls'],
     stages: stages(2, [
@@ -121,6 +142,14 @@ export const PLUMBER_WORLDS: PlumberWorld[] = [
     boss: {
       name: 'The Overripe Baron',
       tell: 'He wobbles and drips before every belly-slam.',
+      taunts: {
+        enter: 'Too ripe to stop! Too sweet to lose!',
+        hit: [
+          "Squish! You've bruised my best side.",
+          "I'm getting... a little mushy.",
+        ],
+        defeat: 'Splat. Plant my seeds somewhere nice.',
+      },
     },
     enemies: ['Moss lanterns', 'Spring hares'],
     stages: stages(3, [
@@ -148,6 +177,14 @@ export const PLUMBER_WORLDS: PlumberWorld[] = [
     boss: {
       name: 'Tick-Tock Duchess',
       tell: 'Her chimes count down, and the fourth chime is always the swing.',
+      taunts: {
+        enter: 'Tick, tock. Your ride is over.',
+        hit: [
+          "You're early! How terribly rude.",
+          "My springs! You're winding me down!",
+        ],
+        defeat: "Time's up. The water goes home.",
+      },
     },
     enemies: ['Gasket golems', 'Rivet rollers'],
     stages: stages(4, [
@@ -175,6 +212,14 @@ export const PLUMBER_WORLDS: PlumberWorld[] = [
     boss: {
       name: 'Admiral Gust',
       tell: 'His sails fill and creak before each gale sweeps the deck.',
+      taunts: {
+        enter: "Batten down, little plumber. I'm the weather!",
+        hit: [
+          'Just a breeze. A small breeze.',
+          'Who let the wind out of my sails?',
+        ],
+        defeat: 'Becalmed. The clouds can have it back.',
+      },
     },
     enemies: ['Paper kites', 'Umbrella mites'],
     stages: stages(5, [
@@ -202,6 +247,11 @@ export const PLUMBER_WORLDS: PlumberWorld[] = [
     boss: {
       name: 'Prism Mole',
       tell: 'Light bends toward the spot it will burrow up through.',
+      taunts: {
+        enter: 'Down here, every shine belongs to me.',
+        hit: ['Ow! My lovely facets!', "Stop finding me! I'm hiding!"],
+        defeat: 'All right. The light can go back up.',
+      },
     },
     enemies: ['Puddle mimics', 'Siphon sprites'],
     stages: stages(6, [
@@ -229,6 +279,11 @@ export const PLUMBER_WORLDS: PlumberWorld[] = [
     boss: {
       name: 'The Umbrella Dragon',
       tell: 'It snaps its canopy shut right before it dives.',
+      taunts: {
+        enter: 'No one stays dry tonight.',
+        hit: ['My canopy! You bent a rib!', "Rain, rain, don't go away!"],
+        defeat: 'Fold me up. The lanterns can stay lit.',
+      },
     },
     enemies: ['Chimney spirits', 'Tea-kettle knights'],
     stages: stages(7, [
@@ -256,6 +311,14 @@ export const PLUMBER_WORLDS: PlumberWorld[] = [
     boss: {
       name: 'Lady Spigot',
       tell: 'Watch her valves: whichever one hisses is the one she will open.',
+      taunts: {
+        enter: 'Every river ends with me. So will you.',
+        hit: [
+          'One valve. I have a hundred more.',
+          'No! The pressure is all wrong!',
+        ],
+        defeat: 'Go, then. Take Teo and the rivers.',
+      },
     },
     enemies: ['Gasket golems', 'Siphon sprites', 'Pumpbugs'],
     stages: stages(8, [

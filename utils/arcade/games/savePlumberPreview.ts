@@ -369,10 +369,7 @@ type Checkpoint = { x: number; y: number; reached: boolean }
 type Wave = { x: number; y: number; dir: number }
 type Soot = { x: number; y: number; vx: number; vy: number }
 export type PlumberPower =
-  | 'springstep'
-  | 'bottled-storm'
-  | 'pocket-lift'
-  | 'sailwing'
+  'springstep' | 'bottled-storm' | 'pocket-lift' | 'sailwing'
 type Pickup = {
   x: number
   y: number
@@ -3822,9 +3819,11 @@ export class PlumberRun implements ArcadeGameInstance {
     const boss = this.boss!
     boss.hp--
     this.taunt(
-      boss.hp > 0
-        ? boss.taunts.hit[Math.max(0, Math.min(1, 2 - boss.hp))]
-        : boss.taunts.defeat,
+      boss.hp > 1
+        ? boss.taunts.hit[0]
+        : boss.hp > 0
+          ? boss.taunts.hit[1]
+          : boss.taunts.defeat,
     )
     boss.state = 'hurt'
     boss.timer = 50

@@ -43,19 +43,17 @@ assert.ok(probe.boss, '1-4 holds a boss')
 assert.ok(probe.stage.gate !== null, '1-4 has an arena gate')
 assert.equal(probe.bossLine, null, 'the boss is silent before the arena')
 const taunts = PLUMBER_WORLDS[0]!.boss.taunts
+// Read through a function so the null check above does not narrow later reads.
+const said = () => probe.bossLine?.words
 probe.hero.x = (probe.stage.gate! + 3) * 32
 run.update(emptyInput())
 assert.equal(run.locked, true, 'crossing the gate closes the arena')
-assert.equal(
-  probe.bossLine?.words,
-  taunts.enter,
-  'the gate closing cues her entrance line',
-)
+assert.equal(said(), taunts.enter, 'the gate closing cues her entrance line')
 
 const expected = [taunts.hit[0], taunts.hit[1], taunts.defeat]
 for (const words of expected) {
   probe.hitBoss()
-  assert.equal(probe.bossLine?.words, words, `hit answers with "${words}"`)
+  assert.equal(said(), words, `hit answers with "${words}"`)
   probe.boss!.state = 'walk'
 }
 assert.equal(probe.boss!.hp, 0)

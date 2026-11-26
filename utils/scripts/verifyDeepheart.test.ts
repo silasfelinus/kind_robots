@@ -76,6 +76,7 @@ import {
   pairKey,
 } from '../deepheart/roster'
 import { DEEPHEART_ART_IDS, deepheartArtSrc } from '../deepheart/renderedArt'
+import { enemyArt } from '../deepheart/art'
 import {
   DEEPHEART_APPROVED_ART_MODELS,
   DEEPHEART_STYLE_DESIGNER,
@@ -172,6 +173,16 @@ for (const code of Object.values(DH_ACHIEVEMENT_CODES)) {
   )
 }
 assert.equal(new Set(Object.values(DEEPHEART.achievementArt ?? {})).size, 20)
+for (const [enemy, key] of [
+  ['warden', 'cast:bone-warden'],
+  ['brine', 'cast:mother-brine'],
+  ['king', 'cast:hollow-king'],
+  ['mimic', 'moment:mimic'],
+] as const) {
+  assert.ok(enemyArt(enemy)?.src)
+  assert.equal(enemyArt(enemy)?.src, deepheartArtSrc(key))
+}
+assert.equal(enemyArt('not-an-enemy'), undefined)
 assert.ok(deepheartArtSrc('premise'), 'title art is mapped')
 assert.ok(deepheartArtSrc('room:fight'), 'fight art is mapped')
 assert.ok(deepheartArtSrc('ending:delver'), 'ending art is mapped')

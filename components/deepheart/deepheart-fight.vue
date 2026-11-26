@@ -15,7 +15,13 @@
           :data-testid="`dh-enemy-${e.uid}`"
           @click="target = e.uid"
         >
-          <span class="dh-enemy-glyph" aria-hidden="true">{{
+          <PlaybookKitArt
+            v-if="portraits[e.id]"
+            :art="portraits[e.id]!"
+            class="dh-enemy-art"
+            tone="error"
+          />
+          <span v-else class="dh-enemy-glyph" aria-hidden="true">{{
             e.boss ? '♛' : '☠'
           }}</span>
           <span class="dh-enemy-name">{{ e.name }}</span>
@@ -136,6 +142,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useDeepheartStore } from '~/stores/deepheartStore'
+import { enemyArt } from '~/utils/deepheart/art'
 import * as engine from '~/utils/deepheart/engine'
 import { ROLES } from '~/utils/deepheart/roster'
 import { roleFor } from '~/utils/deepheart/party'
@@ -143,6 +150,14 @@ import { roleFor } from '~/utils/deepheart/party'
 const dh = useDeepheartStore()
 const run = computed(() => dh.run)
 const combat = computed(() => run.value?.combat ?? null)
+const portraits = computed(() =>
+  Object.fromEntries(
+    (combat.value?.enemies ?? []).map((enemy) => [
+      enemy.id,
+      enemyArt(enemy.id),
+    ]),
+  ),
+)
 const actor = computed(() =>
   run.value ? engine.currentActor(run.value) : null,
 )
@@ -215,6 +230,11 @@ const weakestName = computed(() =>
 }
 .dh-enemy.is-dead {
   opacity: 0.35;
+}
+.dh-enemy-art {
+  width: 100%;
+  height: clamp(3rem, 12vh, 6rem);
+  border-radius: var(--radius-box);
 }
 .dh-enemy-glyph {
   font-size: 2rem;

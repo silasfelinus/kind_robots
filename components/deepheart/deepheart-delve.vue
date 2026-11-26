@@ -233,7 +233,7 @@ import { computed } from 'vue'
 import { useDeepheartStore } from '~/stores/deepheartStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import { ENEMIES, LAYERS, item } from '~/utils/deepheart/dungeon'
-import { ROOM_ART } from '~/utils/deepheart/art'
+import { enemyArt, ROOM_ART } from '~/utils/deepheart/art'
 import { DEEPHEART } from '~/utils/playbookKit/games/deepheart'
 import { deepheartArtSrc } from '~/utils/deepheart/renderedArt'
 import * as engine from '~/utils/deepheart/engine'
@@ -263,8 +263,14 @@ const campMomentArt = computed(() => {
 })
 const roomArt = computed(() => {
   const current = run.value
-  if (!current || current.phase === 'map' || current.phase === 'ended')
-    return null
+  if (!current || current.phase === 'ended') return null
+  if (current.phase === 'map')
+    return DEEPHEART.moments.find((moment) => moment.id === layer.value.moment)
+      ?.art
+  if (current.phase === 'fight' && current.combat?.boss) {
+    const art = enemyArt(layer.value.boss)
+    if (art) return art
+  }
   if (current.phase === 'choice' && ev.value?.id.startsWith('fairy-')) {
     const ruler = DEEPHEART.cast.find((member) => member.id === ev.value?.id)
     if (ruler?.portrait.src) return ruler.portrait
@@ -295,7 +301,7 @@ const doorCards = computed<DhCard[]>(() => {
         id: String(i),
         label: boss.name,
         chip: 'Boss',
-        image: deepheartArtSrc('room:boss'),
+        image: enemyArt(boss.id)?.src ?? deepheartArtSrc('room:boss'),
         hint: ROOM.boss.hint,
         icon: ROOM.boss.icon,
       }

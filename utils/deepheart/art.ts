@@ -1,5 +1,6 @@
 import type { KitArt } from '../playbookKit/types'
 import { ANTHRO_ROMANCE_ACTION } from './anthro'
+import { ENEMIES } from './dungeon'
 import { DEEPHEART_ART_IDS, deepheartArtSrc } from './renderedArt'
 import { CHARACTERS, ROLES, character } from './roster'
 import type { Character, RoomKind } from './types'
@@ -63,6 +64,26 @@ export const ROOM_ART: Record<RoomKind, KitArt> = {
     brief: 'The boss chamber at the bottom of a layer',
     prompt: `A vast round stone chamber with a raised dais at the far end, a huge dark figure rising from a throne in a ring of torches, the floor cracked and glowing. Wide shot from the chamber entrance. ${DH_PALETTE}`,
   },
+}
+
+const BOSS_ART_KEYS: Readonly<Record<string, string>> = {
+  warden: 'cast:bone-warden',
+  brine: 'cast:mother-brine',
+  king: 'cast:hollow-king',
+  mimic: 'moment:mimic',
+}
+
+export function enemyArt(id: string): KitArt | undefined {
+  const enemy = ENEMIES[id]
+  const key = BOSS_ART_KEYS[id] ?? `enemy:${id}`
+  const src = deepheartArtSrc(key)
+  if (!enemy || !src) return undefined
+  return {
+    src,
+    alt: enemy.name,
+    brief: enemy.look,
+    prompt: enemy.look,
+  }
 }
 
 export const ART_BASE = '/images/deepheart'

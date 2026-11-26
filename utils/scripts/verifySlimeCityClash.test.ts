@@ -90,8 +90,14 @@ assert.equal(
 )
 for (const face of editorialCopy) {
   assert.ok(
-    face.text.trim(),
-    face.id + ' ' + face.level + ' has readable rules',
+    face.text.trim() ||
+      (face.level === '1' &&
+        cardById(face.id).kind === 'creature' &&
+        !(cardById(face.id).keywords ?? []).length),
+    face.id +
+      ' ' +
+      face.level +
+      ' has readable rules or is a stat-only fighter',
   )
   assert.ok(
     face.text.length <= 160,
@@ -605,6 +611,13 @@ assert.equal(
   70,
   'the first 70 curated evolution arcs are playable',
 )
+// Stat-only fighter evolutions belong on the combat badges, not in filler prose.
+function evolutionFace(card: ReturnType<typeof cardById>, level: number) {
+  const rules = clashCardText(card, level)
+  return card.kind === 'creature'
+    ? rules + '|' + clashCardBadge(card, level)
+    : rules
+}
 for (const id of Object.keys(CLASH_TWISTS)) {
   const card = cardById(id)
   assert.ok(
@@ -619,8 +632,8 @@ for (const id of Object.keys(CLASH_TWISTS)) {
     ].includes(card.team),
   )
   assert.ok(
-    new Set([1, 2, 3].map((lv) => clashCardText(card, lv))).size === 3,
-    id + ' meaningful evolution text',
+    new Set([1, 2, 3].map((lv) => evolutionFace(card, lv))).size === 3,
+    id + ' meaningful evolution face',
   )
 }
 
@@ -1180,10 +1193,17 @@ for (const id of evoIds) {
   assert.ok(CLASH_TWISTS[id], id + ' has authored stage text')
   const stages = [1, 2, 3].map((level) => clashCardText(card, level))
   assert.ok(
-    stages.every((line) => line.length > 12),
+    stages.every(
+      (line, index) =>
+        (index === 0 && card.kind === 'creature') || line.length > 12,
+    ),
     id + ' has useful instructions',
   )
-  assert.equal(new Set(stages).size, 3, id + ' tells three different stories')
+  assert.equal(
+    new Set([1, 2, 3].map((lv) => evolutionFace(card, lv))).size,
+    3,
+    id + ' has three distinct faces',
+  )
 }
 function evolved(
   team: Parameters<typeof createClash>[0],
@@ -1633,11 +1653,17 @@ for (const id of waveThreeIds) {
   const card = cardById(id)
   assert.ok(CLASH_TWISTS[id], id + ' has explicit authored evolution rules')
   const texts = [1, 2, 3].map((lv) => clashCardText(card, lv))
-  assert.ok(texts.every((line) => line.length >= 16 && line.length <= 160))
+  assert.ok(
+    texts.every(
+      (line, index) =>
+        ((index === 0 && card.kind === 'creature') || line.length >= 16) &&
+        line.length <= 160,
+    ),
+  )
   assert.equal(
-    new Set(texts).size,
+    new Set([1, 2, 3].map((lv) => evolutionFace(card, lv))).size,
     3,
-    id + ' improves through three story beats',
+    id + ' improves through three distinct faces',
   )
 }
 function third(team: Parameters<typeof createClash>[0], id: string) {
@@ -2150,8 +2176,8 @@ const finalEleven = [
 for (const id of finalEleven) {
   assert.ok(CLASH_TWISTS[id], id + ' authored evolution exists')
   const card = cardById(id)
-  const texts = [1, 2, 3].map((level) => clashCardText(card, level))
-  assert.equal(new Set(texts).size, 3, id + ' must evolve in three steps')
+  const faces = [1, 2, 3].map((level) => evolutionFace(card, level))
+  assert.equal(new Set(faces).size, 3, id + ' must evolve in three steps')
 }
 assert.equal(Object.keys(CLASH_TWISTS).length, 70)
 
@@ -2736,7 +2762,16 @@ for (const keyword of Object.keys(CLASH_TRAIT_TEXT)) {
     CLASH_GLOSSARY.some((entry) => entry.aliases.includes(keyword)),
     'Glossary must cover ' + keyword,
   )
+  assert.ok(
+    CLASH_GLOSSARY.find((entry) => entry.aliases.includes(keyword))?.icon,
+    'Every battlefield keyword has a glossary icon: ' + keyword,
+  )
 }
+assert.equal(
+  CLASH_GLOSSARY.find((entry) => entry.term === 'Armor')?.icon,
+  undefined,
+  'Armor belongs in the stat display, not the ability icon row',
+)
 const glossarySample = 'Tap (skip strike): grant BULLDOZE and faction power.'
 const glossaryParts = clashGlossaryParts(glossarySample)
 assert.equal(glossaryParts.map((part) => part.text).join(''), glossarySample)
@@ -2765,6 +2800,17 @@ for (const path of [
     'both battle surfaces show the same summoning sickness effect',
   )
 }
+
+// Printed armor is a stat, not a passive rule; no flavor-only bouncer line.
+assert.equal(clashCardText(cardById('merc-fungal-bouncer'), 1), '')
+assert.match(clashCardText(cardById('merc-fungal-bouncer'), 2), /shield/)
+for (const card of CARDS)
+  if (card.kind === 'creature')
+    for (const level of [1, 2, 3])
+      assert.doesNotMatch(
+        clashCardText(card, level),
+        /^Armor: blocks 1 per hit\./,
+      )
 
 // Versioned tempo tuning: every trap and permanent stat upgrade gets more value.
 for (const card of CARDS) {

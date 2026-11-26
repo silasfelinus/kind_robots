@@ -1409,3 +1409,32 @@ console.log(
   demo.grantPower('prism')
   assert.equal(demo.powerTip, null, 'the attract demo shows no tutorial')
 }
+
+// Painted orbs (Silas 2026-11-25 PT: painted must replace code-drawn art): one painted orb per
+// hue and bubble style, plus the color cannon, queued in conductor as superkate-spectrum-orb-*.
+{
+  const { spectrumOrbArt, SPECTRUM_LAUNCHER_ART } =
+    await import('../arcade/games/superkateSpectrum')
+  const orbs = new Set<string>()
+  for (const style of ['glass', 'candy', 'starlight', 'prismatic'] as const)
+    for (const hue of [
+      'pink',
+      'teal',
+      'gold',
+      'violet',
+      'blue',
+      'lime',
+    ] as const) {
+      const path = spectrumOrbArt(style, hue)
+      assert.match(
+        path,
+        /^\/images\/arcade\/superkate-spectrum\/orbs\/[a-z]+-[a-z]+\.webp$/,
+      )
+      orbs.add(path)
+    }
+  assert.equal(orbs.size, 24, 'a distinct painted orb for every hue and style')
+  assert.equal(
+    SPECTRUM_LAUNCHER_ART,
+    '/images/arcade/superkate-spectrum/orbs/launcher.webp',
+  )
+}

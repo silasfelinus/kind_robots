@@ -976,3 +976,153 @@ for (const def of CAMPAIGN.filter((stage) => /^[78]-[1-4]$/.test(stage.code))) {
   assert.equal(gear.taken, true, 'return preserves the collected reward')
 }
 assert.equal(enclosedPipeRooms(parseStage(lab)).length, 0)
+
+// A scroll rail advances on its own; moving right never becomes automatic.
+const scrollLab: StageDef = {
+  ...lab,
+  autoScroll: { from: 12, to: 38, speed: 1.15 },
+  rows: [...lab.rows.slice(0, 21), ...Array(3).fill('#'.repeat(80))],
+}
+function scrollRun() {
+  const run = new PlumberRun(options, { customLevel: scrollLab })
+  replay(run, 4, () => {})
+  run.hero.x = 12 * TILE
+  replay(run, 1, () => {})
+  assert.notEqual(run.scrollRail, null)
+  return run
+}
+
+{
+  const run = scrollRun()
+  const start = run.camera
+  const x = run.hero.x
+  replay(run, 60, () => {})
+  assert.ok(Math.abs(run.camera - start - 69) < 0.001)
+  assert.equal(run.hero.x, x, 'scrolling does not control the heroine')
+  assert.equal(run.mode, 'play')
+  replay(run, 160, () => {})
+  assert.equal(run.mode, 'dying', 'falling behind the rail costs a life')
+  replay(run, 80, () => {})
+  assert.equal(run.mode, 'play')
+  assert.equal(run.scrollRail, null, 'respawn before the rail resets it')
+  assert.equal(run.hero.x, run.checkpoint.x)
+  assert.equal(run.lives, 2)
+}
+
+{
+  const run = scrollRun()
+  let reachedFront = false
+  let previous = run.camera
+  for (let i = 0; i < 600 && run.scrollRail !== null; i++) {
+    replay(run, 1, (_, input) => {
+      input.held.right = true
+      input.held.b = true
+    })
+    assert.equal(run.mode, 'play')
+    assert.equal(embedded(run), null)
+    assert.ok(run.camera >= previous)
+    previous = run.camera
+    if (run.scrollRail !== null) {
+      assert.ok(run.hero.x + HERO_HALF <= run.camera + VIEW_W)
+      if (run.hero.x + HERO_HALF > run.camera + VIEW_W - 20) reachedFront = true
+    }
+  }
+  assert.ok(reachedFront, 'a sprint catches the moving leading edge')
+  assert.equal(run.scrollRail, null, 'the rail releases at its authored end')
+  assert.ok(run.hero.x >= 38 * TILE)
+  replay(run, 10, runRight)
+  assert.ok(run.hero.x > 38 * TILE, 'ordinary movement resumes after the rail')
+}
+
+{
+  const coaster = CAMPAIGN.find((stage) => stage.code === '4-2')!
+  assert.deepEqual(coaster.autoScroll, { from: 310, to: 364, speed: 1.15 })
+  const stage = parseStage(coaster)
+  assert.ok(
+    stage.spawns.some(
+      (spawn) => spawn.kind === 'checkpoint' && spawn.col === 309,
+    ),
+    'the real coaster has a recovery pennant immediately before its rail',
+  )
+}
+
+// Neon Tiles now has a lower shaft below its original secret chamber.
+// The original pipe, gear shelf and normal campaign route remain intact.
+{
+  const def = CAMPAIGN.find((stage) => stage.code === '7-1')!
+  const stage = parseStage(def)
+  const room = enclosedPipeRooms(stage)[0]!
+  assert.equal(room.bottom - room.top, 14 * TILE)
+  const run = new PlumberRun(options, { customLevel: def })
+  const entrance = stage.doors[0]!
+  const exit = stage.doors[entrance.to]!
+  const standOn = (door: typeof entrance) => {
+    run.hero.x = door.col * TILE + TILE / 2
+    run.hero.y = door.row * TILE - HERO_TALL
+    run.hero.vx = run.hero.vy = 0
+    run.ground = true
+  }
+  const usePipe = () => {
+    const input = emptyInput()
+    input.pressed.down = true
+    run.update(input)
+  }
+  standOn(entrance)
+  usePipe()
+  assert.deepEqual(run.activePipeRoom, room)
+  const ladderX = 183 * TILE + TILE / 2
+  const steerTo = (target: number, input: InputFrame) => {
+    const projected = run.hero.x + run.hero.vx * 3
+    input.held.right = projected < target - 1
+    input.held.left = projected > target + 1
+  }
+  const walkTo = (target: number) => {
+    for (let frame = 0; frame < 180; frame++) {
+      if (
+        Math.abs(run.hero.x - target) < 3 &&
+        Math.abs(run.hero.vx) < 0.3 &&
+        run.ground
+      )
+        break
+      replay(run, 1, (_, input) => steerTo(target, input))
+    }
+    assert.ok(Math.abs(run.hero.x - target) < 4)
+    assert.equal(run.ground, true)
+  }
+  walkTo(ladderX)
+  assert.equal(run.hero.y + HERO_TALL, 6 * TILE)
+  replay(run, 1, (_, input) => {
+    input.held.down = true
+  })
+  assert.equal(run.climbing, true)
+  replay(run, 100, (_, input) => {
+    input.held.down = true
+  })
+  assert.equal(run.climbing, false)
+  assert.equal(run.hero.y + HERO_TALL, 14 * TILE)
+  assert.deepEqual(run.activePipeRoom, room)
+  const before = run.tokens
+  replay(run, 24, runRight)
+  assert.ok(run.tokens > before, 'the lower shaft has collectible rewards')
+  walkTo(ladderX)
+  replay(run, 100, (_, input) => {
+    input.held.up = true
+  })
+  assert.equal(run.climbing, false)
+  assert.equal(run.hero.y + HERO_TALL, 6 * TILE)
+  assert.equal(embedded(run), null)
+  // The pipe mouth is two tiles above the shelf, reachable with a jump.
+  const returnX = exit.col * TILE + TILE / 2
+  walkTo(returnX + 25)
+  replay(run, 55, (frame, input) => {
+    steerTo(returnX, input)
+    input.pressed.a = frame === 0
+    input.held.a = frame < 12
+  })
+  assert.equal(run.hero.y + HERO_TALL, exit.row * TILE)
+  const earned = run.tokens
+  usePipe()
+  assert.equal(run.activePipeRoom, undefined)
+  assert.equal(run.hero.x, entrance.col * TILE + TILE / 2)
+  assert.equal(run.tokens, earned)
+}

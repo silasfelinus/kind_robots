@@ -681,14 +681,21 @@ textarea:focus-visible {
   background: #fff1f8c4;
 }
 
+/* Gloom sits OVER the tiles as a translucent wash, so it shows on painted tiles (whose
+   backgrounds are opaque) as well as drawn ones; it never takes pointer input. */
+.board .gloom-layer {
+  z-index: 1;
+  pointer-events: none;
+}
+
 .gloom {
   position: absolute;
   border-radius: 12px;
-  /* The painted Gloom texture (t-013) over the drawn gradient; a missing image leaves the gradient. */
+  /* The painted Gloom mist (t-013) over the drawn gradient; a missing image leaves the gradient. */
   background:
     var(--gloom-art, none) center / cover,
     radial-gradient(circle at 35% 30%, #c9c4d8, #9c97ad);
-  opacity: 0.78;
+  opacity: 0.52;
   transition: opacity calc(0.3s * var(--speed));
   pointer-events: none;
 }
@@ -697,15 +704,16 @@ textarea:focus-visible {
   background:
     var(--gloom-art, none) center / cover,
     radial-gradient(circle at 35% 30%, #a9a3bd, #77718a);
-  opacity: 0.9;
+  /* Darker than one layer, but the jewel underneath must still be identifiable. */
+  opacity: 0.68;
 }
 
 .gloom.l2::after {
   content: '';
   position: absolute;
-  inset: 22%;
-  border-radius: 50%;
-  border: 3px dotted #ffffff88;
+  inset: 8%;
+  border-radius: 12px;
+  border: 3px dotted #ffffffcc;
 }
 
 .tile {
@@ -1880,19 +1888,23 @@ textarea.code {
 }
 
 .gloom {
-  background: radial-gradient(
-    circle at 35% 30%,
-    var(--gloom1, #c9c4d8),
-    var(--gloom2, #9c97ad)
-  );
+  background:
+    var(--gloom-art, none) center / cover,
+    radial-gradient(
+      circle at 35% 30%,
+      var(--gloom1, #c9c4d8),
+      var(--gloom2, #9c97ad)
+    );
 }
 
 .gloom.l2 {
-  background: radial-gradient(
-    circle at 35% 30%,
-    var(--gloom2, #a9a3bd),
-    var(--gloom1, #77718a)
-  );
+  background:
+    var(--gloom-art, none) center / cover,
+    radial-gradient(
+      circle at 35% 30%,
+      var(--gloom2, #a9a3bd),
+      var(--gloom1, #77718a)
+    );
   filter: brightness(0.82);
 }
 

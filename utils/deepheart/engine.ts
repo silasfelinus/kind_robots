@@ -383,6 +383,9 @@ function makeEnemy(
   let hp = def.hp
   let defence = def.def
   if (boss) hp = Math.round(hp * (0.45 + 0.17 * size))
+  const healthScale = size === 3 ? 0.92 : size === 4 ? 1.18 : 1
+  const attackScale = size === 3 ? 0.9 : size === 4 ? 1.12 : 1
+  hp = Math.round(hp * healthScale)
   if (id === 'brine' && run.flags.brinesecret) {
     hp = Math.round(hp * 0.8)
     defence = Math.round(defence / 2)
@@ -393,7 +396,7 @@ function makeEnemy(
     name: def.name,
     hp,
     max: hp,
-    atk: def.atk,
+    atk: Math.max(1, Math.round(def.atk * attackScale)),
     def: defence,
     trait: def.trait,
     boss,

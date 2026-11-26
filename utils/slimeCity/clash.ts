@@ -380,6 +380,14 @@ export const CLASH_BURST_COST = 1
 export const CLASH_CREW_BUDGET: Partial<Record<TeamId, number>> = {
   undertow: 0.5,
 }
+// V2 support and trap tempo shifts the starter matchups; correct the crew
+// life budgets only for new matches. V1 transcripts remain deterministic.
+const CLASH_V2_CREW_ADJUSTMENT: Partial<Record<TeamId, number>> = {
+  ironjaw: -1.5,
+  riot: 1.5,
+  catgirls: 0.5,
+  exchange: -0.5,
+}
 export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
   ambush: 'Ambush: attacks immediately; +1 first strike.',
   regen: 'Regen: heals 1 after each round.',
@@ -448,7 +456,10 @@ export function clashBalance(
   const hp = clamp(
     Math.round(
       CLASH_FOLLOWER_BUDGET[plays][tier] +
-        (card.team === 'mercenary' ? 0 : (CLASH_CREW_BUDGET[card.team] ?? 0)) -
+        (card.team === 'mercenary'
+          ? 0
+          : (CLASH_CREW_BUDGET[card.team] ?? 0) +
+            (tempo ? (CLASH_V2_CREW_ADJUSTMENT[card.team] ?? 0) : 0)) -
         attack * 2 -
         armor * CLASH_ARMOR_COST -
         traits,
@@ -634,7 +645,6 @@ export function clashCardText(
   pick?: EvoPick,
   version: ClashBalanceVersion = CLASH_BALANCE_VERSION,
 ): string {
-  const b = clashBalance(card, level, version)
   // Named spells, traps and gear now evolve their RULES as well as their stats.
   // The active level's promise must match its actual Clash handler.
   const evolvedText = clashTwistText(card.id, level)
@@ -644,7 +654,6 @@ export function clashCardText(
       : evolvedText
   if (card.kind === 'creature')
     return [
-      ...(b.armor ? ['Armor: blocks 1 per hit.'] : []),
       ...(card.keywords ?? []).map((k) => CLASH_TRAIT_TEXT[k]),
       clashTwistText(card.id, level),
       clashEvolutionText(card, level, pick),

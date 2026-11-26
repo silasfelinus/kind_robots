@@ -908,16 +908,22 @@ for (const entry of artPack.front) {
     painted(Art.gemSvg(0, 'rainbow', true, world), world, 'rainbow')
     painted(Art.buddySvg(world), world, 'buddy')
     const knot = Art.tangleSvg(3, world)
-    painted(knot, world, 'tangle')
+    painted(knot, world, 'knot')
     assert.ok(
       knot.slice(knot.indexOf('class="over"')).includes('>3<'),
       `${world}: knot strength above the paint`,
     )
-    painted(Art.goalIconSvg({ type: 'gloom' }, world), world, 'gloom')
+    painted(Art.goalIconSvg({ type: 'gloom' }, world), world, 'mist')
   }
   assert.ok(
-    read('public/hopeful-hues/app.js').includes("gloom.webp')"),
-    'board Gloom uses the painted texture',
+    read('public/hopeful-hues/app.js').includes("mist.webp')"),
+    'board Gloom uses the painted mist',
+  )
+  // Gloom washes over the tiles, so opaque painted tiles never hide it.
+  assert.match(
+    read('public/hopeful-hues/style.css'),
+    /\.board \.gloom-layer \{\s*z-index: 1;/,
+    'the Gloom layer sits above the tiles',
   )
 }
 

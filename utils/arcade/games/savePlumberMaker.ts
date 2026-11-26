@@ -266,7 +266,10 @@ export function validateMakerLevel(input: unknown): MakerLevel {
   try {
     parseStage(toMakerStage(result))
   } catch (error) {
-    if (error instanceof Error && error.message.endsWith(': unpaired pipe doors'))
+    if (
+      error instanceof Error &&
+      error.message.endsWith(': unpaired pipe doors')
+    )
       throw new Error('Pair every pipe entrance with a return')
     throw error
   }

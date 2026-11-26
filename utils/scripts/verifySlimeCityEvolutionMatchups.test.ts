@@ -140,7 +140,8 @@ for (const offset of [0, 5000]) {
         const deckA = plan.build(a)
         const deckB = plan.build(b)
         for (let trial = 0; trial < 4; trial++) {
-          const seed = 13001 + offset + variant * 101 + trial * 17 + left * 7 + right
+          const seed =
+            13001 + offset + variant * 101 + trial * 17 + left * 7 + right
           play(a, b, seed, deckA, deckB, tally, trial === 0)
           play(b, a, seed, deckB, deckA, tally, false)
         }

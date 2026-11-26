@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useAchievementStore } from './achievementStore'
 import { usePlaybookKitStore } from './playbookKitStore'
+import type { DeepheartBackup } from '~/utils/deepheart/accountBackup'
 import { achievementsProven } from '~/utils/deepheart/achievements'
 import {
   SAVE_SLOTS,
@@ -540,6 +541,31 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     screen.value = next
   }
 
+  function accountSnapshot(): DeepheartBackup | null {
+    load()
+    if (heldSaves.value || heldChronicle.value) return null
+    return clone({
+      kind: 'deepheart',
+      version: 1,
+      chronicle: chronicle.value,
+      saves: saves.value,
+    })
+  }
+
+  function restoreAccount(backup: DeepheartBackup): boolean {
+    load()
+    if (run.value || heldSaves.value || heldChronicle.value) return false
+    chronicle.value = clone(backup.chronicle)
+    saves.value = clone(backup.saves)
+    if (chronicle.value.lastHero) {
+      hero.value = clone(chronicle.value.lastHero)
+      focus.value = hero.value.presetId
+    }
+    persistChronicle()
+    persistSaves()
+    return true
+  }
+
   function resetChronicle() {
     heldChronicle.value = false
     chronicle.value = emptyChronicle()
@@ -614,5 +640,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     chooseCourtOption,
     finishedTo,
     resetChronicle,
+    accountSnapshot,
+    restoreAccount,
   }
 })

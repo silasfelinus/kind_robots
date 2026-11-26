@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { parseDeepheartBackup } from '../deepheart/accountBackup'
 import { readFileSync, readdirSync } from 'node:fs'
 import { parse as parseYaml } from 'yaml'
 import {
@@ -1273,4 +1274,60 @@ console.log(
   )
     .map(([e, s]) => `${e}@${s}`)
     .join(' ')}), ${catalog.length} achievements.`,
+)
+
+const archiveRun = createRun(hero('idris'), ['brannoc'], 481)
+const archiveSlot = {
+  slot: 'auto',
+  savedAt: '2026-11-25T00:00:00.000Z',
+  label: 'Idris',
+  run: archiveRun,
+}
+const archive = {
+  kind: 'deepheart',
+  version: 1,
+  chronicle: recordStart(emptyChronicle(), archiveRun),
+  saves: { version: 1, slots: [archiveSlot] },
+}
+assert.deepEqual(parseDeepheartBackup(JSON.stringify(archive)), archive)
+assert.throws(() =>
+  parseDeepheartBackup(JSON.stringify({ ...archive, version: 99 })),
+)
+assert.throws(() =>
+  parseDeepheartBackup(
+    JSON.stringify({
+      ...archive,
+      saves: { version: 1, slots: [archiveSlot, archiveSlot] },
+    }),
+  ),
+)
+assert.throws(() =>
+  parseDeepheartBackup(
+    JSON.stringify({
+      ...archive,
+      saves: {
+        version: 1,
+        slots: [{ ...archiveSlot, run: { version: 1 } }],
+      },
+    }),
+  ),
+)
+assert.throws(() =>
+  parseDeepheartBackup(
+    JSON.stringify({ ...archive, chronicle: { version: 1 } }),
+  ),
+)
+for (const method of ['get', 'put']) {
+  const route = readFileSync(
+    `server/api/deepheart/account-save.${method}.ts`,
+    'utf8',
+  )
+  assert.match(route, /requireHumanApiUser\(event\)/)
+  assert.match(route, /user\.id/)
+  assert.match(route, /parseDeepheartBackup/)
+  assert.match(route, /private, no-store/)
+}
+assert.match(
+  readFileSync('server/api/deepheart/account-save.put.ts', 'utf8'),
+  /revision: prior/,
 )

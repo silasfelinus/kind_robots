@@ -38,6 +38,70 @@
     </div>
 
     <div v-if="saves" class="dh-chronicle-body kr-scroll">
+      <section
+        v-if="account.signedIn"
+        class="dh-slot-card"
+        aria-label="Account saves"
+      >
+        <p class="pf-display text-primary">Account backup</p>
+        <p class="text-xs">
+          Copy your slots and chronicle between devices. Local saves work
+          offline.
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn btn-sm"
+            :disabled="account.busy"
+            @click="account.refresh()"
+          >
+            Read account
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm"
+            :disabled="account.busy || !account.archive"
+            @click="confirmAccount = 'backup'"
+          >
+            Back up device
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm"
+            :disabled="account.busy || !account.archive?.save || !!dh.run"
+            @click="confirmAccount = 'restore'"
+          >
+            Restore account
+          </button>
+        </div>
+        <div v-if="confirmAccount" class="flex flex-wrap items-center gap-2">
+          <p class="text-xs">
+            {{
+              confirmAccount === 'backup'
+                ? 'Replace the account backup with this device’s progress?'
+                : 'Replace this device’s slots and chronicle with the account backup?'
+            }}
+          </p>
+          <button
+            type="button"
+            class="btn btn-warning btn-xs"
+            :disabled="account.busy"
+            @click="applyAccount()"
+          >
+            Confirm
+          </button>
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs"
+            @click="confirmAccount = null"
+          >
+            Cancel
+          </button>
+        </div>
+        <p v-if="account.message" class="text-xs" role="status">
+          {{ account.message }}
+        </p>
+      </section>
       <div class="dh-slots">
         <article
           v-for="(slot, i) in allSlots"
@@ -243,7 +307,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useDeepheartAccountStore } from '~/stores/deepheartAccountStore'
 import { useDeepheartStore } from '~/stores/deepheartStore'
 import { ALL_ENDINGS } from '~/utils/deepheart/achievements'
 import { metCount } from '~/utils/deepheart/chronicle'
@@ -256,6 +321,22 @@ import {
 } from '~/utils/deepheart/roster'
 
 const dh = useDeepheartStore()
+const account = useDeepheartAccountStore()
+const confirmAccount = ref<'backup' | 'restore' | null>(null)
+watch(
+  () => account.archive,
+  () => {
+    confirmAccount.value = null
+  },
+  { flush: 'sync' },
+)
+
+function applyAccount() {
+  const action = confirmAccount.value
+  confirmAccount.value = null
+  if (action === 'backup') void account.backup()
+  if (action === 'restore') account.restore()
+}
 const saves = computed(() => dh.screen === 'saves')
 const confirmReset = ref(false)
 

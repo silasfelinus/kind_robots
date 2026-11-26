@@ -637,6 +637,42 @@ printSurvival('party', survivalBySize)
 printSurvival('role', survivalByRole)
 printSurvival('party-role', survivalByCombination)
 
+// The original matrix is the calibration target. A distinct seed and party
+// sample provides an additional check against tuning only these 300 delves.
+const holdoutSurvival = new Map<number, SurvivalCount>()
+for (const [index, lead] of CHARACTERS.entries()) {
+  const pool = ids.filter((id) => id !== lead.id)
+  for (const size of [1, 2, 3]) {
+    for (let trial = 0; trial < 2; trial++) {
+      const seed = (index * 6 + (size - 1) * 2 + trial + 1) * 130363 + 17
+      const offset = (index * 17 + trial * 23 + size * 5) % pool.length
+      const companions = Array.from(
+        { length: size },
+        (_, slot) => pool[(offset + slot * 19) % pool.length]!,
+      )
+      const run = autoplay(createRun(hero(lead.id), companions, seed))
+      assert.equal(run.phase, 'ended', `holdout seed ${seed} terminates`)
+      assert.ok(run.ending, `holdout seed ${seed} has an ending`)
+      countSurvival(holdoutSurvival, size + 1, run.ending !== 'fallen')
+    }
+  }
+}
+printSurvival('holdout-party', holdoutSurvival)
+
+for (const [size, count] of survivalBySize) {
+  assert.ok(
+    count.survived >= 75 && count.survived <= 85,
+    `party ${size} survival ${count.survived}/100 is outside 75-85%`,
+  )
+}
+for (const [size, count] of holdoutSurvival) {
+  assert.equal(count.total, 100)
+  assert.ok(
+    count.survived >= 70 && count.survived <= 90,
+    `holdout party ${size} survival ${count.survived}/100 is outside 70-90%`,
+  )
+}
+
 // ── Every ending from a fresh seed ───────────────────────────────────────
 type Plan = {
   hero: HeroSetup

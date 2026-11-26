@@ -364,6 +364,9 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     }
     activeFishing.value = null
     activeClassicFishing.value = null
+    if (!activeCard.value && save.value.status === 'ACTIVE') {
+      pendingEnding.value = eligibleEnding(bundle, save.value)
+    }
     persist()
   }
 
@@ -374,9 +377,6 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     const choice = card.choices.find((c) => c.id === choiceId)
     if (!choice) return
     const next = resolveChoice(save.value, card, choice)
-    if (!choice.requeue) {
-      next.counters.cardsResolved = (next.counters.cardsResolved ?? 0) + 1
-    }
     save.value = next
     activeCard.value = null
     activeArcId.value = null

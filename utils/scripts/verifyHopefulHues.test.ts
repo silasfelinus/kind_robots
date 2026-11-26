@@ -561,39 +561,28 @@ assert.ok(
       )
     }
     assert.ok(slid, 'a conveyor row slides after a move')
-    // A leftward belt on an untouched row: each tile moves one cell left, wrapping.
+    // A leftward belt: the slide moves every tile on its row one cell left, wrapping.
     const belt = E.createLevelState(
       plain({ conveyors: [{ row: 0, dir: -1 }] }),
     ) as Featured
-    const moves = (
-      E as unknown as { allMoves: (s: State) => number[][][] }
-    ).allMoves(belt)
-    const low = moves.find(([a, b]) => a![0] >= 4 && b![0] >= 4)
-    if (low) {
-      const before = belt.board[0]!.map((tile) => tile!.id)
-      const result = E.trySwap(belt, must(low[0]), must(low[1]))
-      const slide = (result.phases as FeaturePhase[]).find(
-        (phase) => phase.conveyor,
-      )
-      assert.ok(slide, 'the belt slid')
-      const after = slide!.board![0]!.map((tile) => tile!.id)
-      if (
-        !(result.phases as FeaturePhase[]).some(
-          (phase) =>
-            phase.cleared.length &&
-            phase.board &&
-            phase !== slide &&
-            (result.phases as FeaturePhase[]).indexOf(phase) <
-              (result.phases as FeaturePhase[]).indexOf(slide!) &&
-            phase.board[0]!.some((tile, c) => tile!.id !== before[c]),
-        )
-      )
-        assert.deepEqual(
-          plainOf(after),
-          plainOf(before.map((_, c) => before[(c + 1) % 6])),
-          'each tile moves one cell left',
-        )
-    }
+    const initial = belt.board[0]!.map((tile) => tile!.id)
+    const beltMove = E.bestMove(belt)!
+    const beltPhases = E.trySwap(belt, must(beltMove[0]), must(beltMove[1]))
+      .phases as FeaturePhase[]
+    const slideAt = beltPhases.findIndex((phase) => phase.conveyor)
+    assert.ok(slideAt >= 0, 'the belt slid')
+    // The row as it stood just before the slide (after the move's own cascade).
+    const prior = beltPhases
+      .slice(0, slideAt)
+      .reverse()
+      .find((phase) => phase.board)
+    const rowBefore = prior ? prior.board![0]!.map((tile) => tile!.id) : initial
+    const rowAfter = beltPhases[slideAt]!.board![0]!.map((tile) => tile!.id)
+    assert.deepEqual(
+      plainOf(rowAfter),
+      plainOf(rowBefore.map((_, c) => rowBefore[(c + 1) % rowBefore.length])),
+      'each tile on the belt moves one cell left',
+    )
     assert.ok(belt.board.flat().every(Boolean), 'the board stays full')
     const rejected = E.createLevelState(
       plain({ conveyors: [{ row: 2, dir: 1 }], tangles: [[2, 3, 1]] }),

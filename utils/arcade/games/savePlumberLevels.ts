@@ -42,11 +42,20 @@
 
 export const TILE = 16
 
+export type MazeRoom = {
+  name: string
+  /** First column of a 24-tile room, with two doors and a central arrival. */
+  col: number
+  drip: 'left' | 'right'
+}
+
 export type StageDef = {
   code: string
   name: string
   rows: string[]
   secretExit?: { col: number; row: number }
+  /** Connected Hush House rooms; their rising drips identify the forward door. */
+  mazeRooms?: readonly MazeRoom[]
   /** A forced-scroll stretch, in tile columns, with speed in pixels per tick. */
   autoScroll?: { from: number; to: number; speed: number }
   /** Optional solid steps powered by a cleared Valve Chapel. */
@@ -1191,6 +1200,53 @@ export const CHAPEL_COURSES: readonly StageDef[] = [
 
 export function chapelCourse(code: string | undefined): StageDef | undefined {
   return CHAPEL_COURSES.find((course) => course.code === code)
+}
+
+export const HUSH_ROOM_WIDTH = 24
+export const HUSH_FLOOR_ROW = 21
+export const HUSH_DOOR_OFFSETS = { left: 5, right: 18 } as const
+
+/** A false door loops backwards; the last correct door is the normal exit. */
+export function hushDestination(
+  rooms: readonly MazeRoom[],
+  room: number,
+  side: 'left' | 'right',
+): number | 'normal' {
+  if (side !== rooms[room]!.drip) return Math.max(0, room - 1)
+  return room + 1 === rooms.length ? 'normal' : room + 1
+}
+
+const DRIP_ROOMS: readonly MazeRoom[] = [
+  { name: 'Entrance Hall', col: 0, drip: 'right' },
+  { name: 'Music Room', col: 24, drip: 'left' },
+  { name: 'Attic Passage', col: 48, drip: 'right' },
+]
+
+/** A first playable Drip Parlour route; expanded attic/cellar art is t-021. */
+export const DRIP_PARLOUR: StageDef = {
+  code: '1-h',
+  name: 'The Drip Parlour',
+  mazeRooms: DRIP_ROOMS,
+  secretExit: { col: 64, row: 17 },
+  rows: Array.from({ length: 24 }, (_, row) => {
+    const line = Array.from({ length: 72 }, (_, col) => {
+      if (row >= HUSH_FLOOR_ROW || row === 7) return 'B'
+      if (row >= 8 && (col % HUSH_ROOM_WIDTH === 0 || col % HUSH_ROOM_WIDTH === 23))
+        return 'B'
+      return '.'
+    })
+    if (row === 20) {
+      line[12] = '@'
+      line[36] = 'K'
+    }
+    if (row === 18)
+      for (let col = 62; col <= 66; col++) line[col] = '='
+    return line.join('')
+  }),
+}
+
+export function optionalCourse(code: string | undefined): StageDef | undefined {
+  return code === DRIP_PARLOUR.code ? DRIP_PARLOUR : chapelCourse(code)
 }
 
 /** Every playable stage, in campaign order. */

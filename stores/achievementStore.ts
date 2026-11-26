@@ -14,6 +14,7 @@ import { mergeDefinedRecord, mergeRecordsById } from './helpers/recordMerge'
 import {
   parsePendingAchievementCodes,
   resolvePendingAchievementCodes,
+  settlePendingAchievementCodes,
   withPendingAchievementCode,
   withoutAchievementCodes,
 } from './helpers/pendingAchievementCodes'
@@ -408,12 +409,23 @@ export const useAchievementStore = defineStore('achievementStore', () => {
 
     if (!pendingIds.length) return
 
+    const settled = new Set<number>()
     for (const id of pendingIds) {
-      await rewardAchievement(id)
+      if (await rewardWithReceipt(id)) settled.add(id)
     }
 
-    pendingGuestAchievements.value = []
-    safeRemoveLocalStorage(pendingGuestAchievementsStorageKey)
+    const remaining = safeParseArray<number>(
+      safeGetLocalStorage(pendingGuestAchievementsStorageKey),
+    ).filter((id) => Number.isInteger(id) && id > 0 && !settled.has(id))
+    pendingGuestAchievements.value = remaining
+    if (remaining.length) {
+      safeSetLocalStorage(
+        pendingGuestAchievementsStorageKey,
+        JSON.stringify(remaining),
+      )
+    } else {
+      safeRemoveLocalStorage(pendingGuestAchievementsStorageKey)
+    }
   }
 
   async function confirmAchievement(achievementId: number) {
@@ -847,6 +859,14 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     }
   }
 
+  async function rewardWithReceipt(achievementId: number): Promise<boolean> {
+    const userId = userStore.userId
+    const guest = userStore.isGuest
+    await rewardAchievement(achievementId)
+    if (guest) return pendingGuestAchievements.value.includes(achievementId)
+    return !!userId && hasAchievement(userId, achievementId)
+  }
+
   // Trigger a achievement by its unique triggerCode instead of a magic numeric
   // id. Codes are canonical slugs (see utils/slugify), so call sites survive
   // reseeded databases where ids shift.
@@ -876,13 +896,14 @@ export const useAchievementStore = defineStore('achievementStore', () => {
       return
     }
 
-    return rewardAchievement(achievement.id)
+    if (!(await rewardWithReceipt(achievement.id)) && known)
+      queuePendingAchievementCode(target, false)
   }
 
   // The app knows this code but the catalog has no row for it yet (the seed
   // has not run since the code shipped). Keep the deed on this device and say
   // so once; retryPendingAchievementCodes awards it when the row appears.
-  function queuePendingAchievementCode(code: string) {
+  function queuePendingAchievementCode(code: string, missing = true) {
     const queued = withPendingAchievementCode(
       parsePendingAchievementCodes(
         safeGetLocalStorage(pendingAchievementCodesStorageKey),
@@ -892,7 +913,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     safeSetLocalStorage(pendingAchievementCodesStorageKey, JSON.stringify(queued))
     pendingAchievementCodes.value = queued
 
-    if (reportedMissingCodes.has(code)) return
+    if (!missing || reportedMissingCodes.has(code)) return
     reportedMissingCodes.add(code)
     errorStore.report(
       `Achievement "${code}" is not in the catalog yet. It is saved on this device and will be awarded once the catalog has it.`,
@@ -913,18 +934,19 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     if (!ready.length) return
 
     retryPendingCodesPromise = (async () => {
+      let settled: string[] = []
       try {
-        for (const { achievement } of ready) {
-          await rewardAchievement(achievement.id)
-        }
-      } catch (error) {
-        handleError(error, 'awarding pending achievement codes')
+        settled = await settlePendingAchievementCodes(
+          ready,
+          ({ id }) => rewardWithReceipt(id),
+          (error) => handleError(error, 'awarding pending achievement codes'),
+        )
       } finally {
         const remaining = withoutAchievementCodes(
           parsePendingAchievementCodes(
             safeGetLocalStorage(pendingAchievementCodesStorageKey),
           ),
-          ready.map(({ code }) => code),
+          settled,
         )
         if (remaining.length) {
           safeSetLocalStorage(

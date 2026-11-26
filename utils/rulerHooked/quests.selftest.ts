@@ -1328,23 +1328,22 @@ for (const id of QUESTS)
       )
       const before = save
       const narrative = makeRng(seed + ':' + save.turnCount)
-      const result =
-        fight.phase === 'LANDED'
-          ? takeTurn(C, save, narrative)
-          : advanceAfterFishingAttempt(C, save, narrative)
+      const landedTurn =
+        fight.phase === 'LANDED' ? takeTurn(C, save, narrative) : null
+      const result = landedTurn ?? advanceAfterFishingAttempt(C, save, narrative)
       save = result.save
       assert.equal(save.turnCount, before.turnCount + 1)
-      if ('catch' in result) {
+      if (landedTurn) {
         landed++
         caught.add(slug)
-        assert.equal(result.catch.fishSlug, slug)
+        assert.equal(landedTurn.catch.fishSlug, slug)
         assert.equal(
           save.counters.fishCaught,
           (before.counters.fishCaught ?? 0) + 1,
         )
         assert.equal(
           save.counters.coins ?? 0,
-          (before.counters.coins ?? 0) + result.catch.coinsFound,
+          (before.counters.coins ?? 0) + landedTurn.catch.coinsFound,
         )
       } else {
         escaped++

@@ -100,6 +100,62 @@ for (const cols of [32, 33, 64, MAKER_MAX_COLS]) {
     makerId(decodeMakerLevel(encodeMakerLevel(level))),
   )
 }
+const scroll = validateMakerLevel({
+  ...initial,
+  autoScroll: { from: 16, to: 40, speed: 1.25 },
+})
+assert.equal('autoScroll' in initial, false)
+assert.deepEqual(decodeMakerLevel(encodeMakerLevel(scroll)), scroll)
+assert.notEqual(makerId(scroll), makerId(initial))
+assert.deepEqual(toMakerStage(scroll).autoScroll, scroll.autoScroll)
+assert.equal(
+  'autoScroll' in validateMakerLevel({ ...scroll, autoScroll: undefined }),
+  false,
+)
+for (const autoScroll of [
+  null,
+  [],
+  { from: -1, to: 40, speed: 1 },
+  { from: 16, to: 16, speed: 1 },
+  { from: 16, to: 63, speed: 1 },
+  { from: 16.5, to: 40, speed: 1 },
+  { from: 16, to: 40, speed: '1' },
+  { from: 16, to: 40, speed: 0 },
+  { from: 16, to: 40, speed: Infinity },
+  { from: 16, to: 40, speed: 3 },
+])
+  assert.throws(() => validateMakerLevel({ ...initial, autoScroll }), /scroll/)
+const expandedScroll = resizeMakerLevel(scroll, 80, 32)
+assert.deepEqual(expandedScroll.autoScroll, scroll.autoScroll)
+const scrollRun = () =>
+  createSavePlumberPreview(
+    { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+    { customLevel: toMakerStage(decodeMakerLevel(encodeMakerLevel(scroll))) },
+  )
+const scrolling = scrollRun()
+const runRight = emptyInput()
+runRight.held.right = true
+for (let i = 0; i < 160 && scrolling.scrollRail === null; i++)
+  scrolling.update(runRight)
+assert.notEqual(scrolling.scrollRail, null, 'camera starts on entering rail')
+const railStart = scrolling.scrollRail!
+for (let i = 0; i < 20; i++) scrolling.update(runRight)
+assert.ok(scrolling.scrollRail! >= railStart + 20, 'camera advances')
+for (let i = 0; i < 500 && scrolling.scrollRail !== null; i++)
+  scrolling.update(runRight)
+assert.equal(scrolling.scrollRail, null, 'camera releases at end column')
+assert.equal(scrolling.mode, 'play')
+assert.ok(scrolling.hero.x >= 40 * 16)
+assert.equal(scrolling.lives, 3)
+assert.equal(scrolling.save, undefined)
+const stalled = scrollRun()
+for (let i = 0; i < 160 && stalled.scrollRail === null; i++)
+  stalled.update(runRight)
+assert.notEqual(stalled.scrollRail, null)
+for (let i = 0; i < 500 && stalled.mode === 'play'; i++)
+  stalled.update(emptyInput())
+assert.equal(stalled.mode, 'dying', 'falling behind the camera is dangerous')
+
 const unicode = validateMakerLevel({
   ...initial,
   title: 'The ♡ of Moonlight',

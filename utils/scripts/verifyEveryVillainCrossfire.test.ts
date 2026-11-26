@@ -916,13 +916,25 @@ for (const person of IDENTITY_ARCS.filter((entry) =>
       'victory',
       'defeat',
     ] as const) {
-      const scene = storyMoment(perspective, beat, person.signature, run, battle)
+      const scene = storyMoment(
+        perspective,
+        beat,
+        person.signature,
+        run,
+        battle,
+      )
       assert.equal(scene.lines[0]?.speaker, person.hero.alias)
       assert.equal(scene.lines[1]?.speaker, supportName)
-      const dialogue = scene.lines.slice(0, 2).map((line) => line.text).join(' ')
+      const dialogue = scene.lines
+        .slice(0, 2)
+        .map((line) => line.text)
+        .join(' ')
       assert.ok(!accidentScenes.has(dialogue), person.signature + ':' + beat)
       accidentScenes.add(dialogue)
-      assert.equal(scene.choices.length, beat === 'victory' || beat === 'defeat' ? 1 : 2)
+      assert.equal(
+        scene.choices.length,
+        beat === 'victory' || beat === 'defeat' ? 1 : 2,
+      )
     }
     assert.ok(applyChoice(run, battle, perspective, 'catwalk'))
     battle.turn = 2
@@ -934,8 +946,15 @@ for (const person of IDENTITY_ARCS.filter((entry) =>
     assert.ok(applyChoice(run, battle, perspective, 'spare'))
     battle.phase = 'victory'
     enqueueBeat(run, battle)
-    assert.ok(storyMoment(perspective, 'victory', person.signature, run, battle)
-      .lines.some((line) => line.text.includes('2 students evacuated')))
+    assert.ok(
+      storyMoment(
+        perspective,
+        'victory',
+        person.signature,
+        run,
+        battle,
+      ).lines.some((line) => line.text.includes('2 students evacuated')),
+    )
     assert.ok(applyChoice(run, battle, perspective, 'finish'))
     assert.ok(run.completed)
   }

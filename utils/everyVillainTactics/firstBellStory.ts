@@ -559,19 +559,21 @@ export function storyMoment(
   const support = state?.units.find(
     (unit) => unit.team === 'squad' && unit.identity !== lead,
   )
-  const supporter = IDENTITY_ARCS.find(
-    (identity) => identity.signature === support?.identity,
-  ) ?? identityFor('tech-genius')
-  const scene = personal && person
-    ? {
-        ...base,
-        title: personal[0],
-        lines: [
-          a(person.hero.alias, personal[1]),
-          a(supporter.hero.alias, personal[2]),
-        ],
-      }
-    : base
+  const supporter =
+    IDENTITY_ARCS.find(
+      (identity) => identity.signature === support?.identity,
+    ) ?? identityFor('tech-genius')
+  const scene =
+    personal && person
+      ? {
+          ...base,
+          title: personal[0],
+          lines: [
+            a(person.hero.alias, personal[1]),
+            a(supporter.hero.alias, personal[2]),
+          ],
+        }
+      : base
   const lines = [...scene.lines]
   if (!personal && beat === 'arrival' && lead === 'accident-fire')
     lines.splice(1, 0, PERSONAL_ROUTE[role])

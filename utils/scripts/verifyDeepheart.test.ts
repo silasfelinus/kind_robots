@@ -152,6 +152,17 @@ assert.ok(
 assert.ok(deepheartArtSrc('premise'), 'title art is mapped')
 assert.ok(deepheartArtSrc('room:fight'), 'fight art is mapped')
 assert.ok(deepheartArtSrc('ending:delver'), 'ending art is mapped')
+for (const id of ['hollow-king', 'bone-warden', 'mother-brine', 'vesper']) {
+  const member = DEEPHEART.cast.find((entry) => entry.id === id)
+  assert.ok(member?.portrait.src, `boss portrait ${id} is wired`)
+  assert.equal(member.portrait.src, deepheartArtSrc(`cast:${id}`))
+}
+for (const id of ['drowned-crown', 'lantern-seed', 'keystone']) {
+  const moment = DEEPHEART.moments.find((entry) => entry.id === id)
+  assert.ok(moment?.art.src, `scrapbook plate ${id} is wired`)
+  assert.equal(moment.art.src, deepheartArtSrc(`moment:${id}`))
+}
+
 assert.ok(
   Object.keys(DEEPHEART_ART_IDS).filter((key) =>
     key.startsWith('moment:romance-'),

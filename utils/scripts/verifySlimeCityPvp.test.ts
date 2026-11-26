@@ -1011,3 +1011,20 @@ for (const file of [
 const armorView = readFileSync('components/slime-city-pvp-game.vue', 'utf8')
 assert.match(armorView, /<SlimeCityArmorStat/)
 assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
+
+// Turn email is explicit opt-in, authenticated, verified and sent after commit.
+{
+  const service = readFileSync('server/utils/slimeCityPvp.ts', 'utf8')
+  const mail = readFileSync('server/utils/slimeCityTurnEmail.ts', 'utf8')
+  assert.match(service, /!after\.victor && before\.active !== after\.active/)
+  assert.match(service, /await notifySlimeCityTurn\(nextTurnUserId, id\)/)
+  assert.match(mail, /raw\.pvpTurnEmail === true/)
+  assert.match(mail, /user\.emailVerified/)
+  assert.match(mail, /if \(!optedIn\(row\?\.data\)\) return/)
+  assert.match(mail, /version: row\.version/)
+  for (const route of ['get', 'patch'])
+    assert.match(
+      readFileSync('server/api/slime-city/pvp/turn-email.' + route + '.ts', 'utf8'),
+      /requireSlimeCityPlayer\(event\)/,
+    )
+}

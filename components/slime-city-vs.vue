@@ -180,6 +180,7 @@
             {{ pvp.tally.draw }}D</small
           >
         </h3>
+        <SlimeCityTurnEmailPreference />
         <section
           class="vs-friends"
           aria-label="Challenge a friend"

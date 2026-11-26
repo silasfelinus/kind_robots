@@ -270,7 +270,9 @@ export function validateMakerLevel(input: unknown): MakerLevel {
       error instanceof Error &&
       error.message.endsWith(': unpaired pipe doors')
     )
-      throw new Error('Pair every pipe entrance with a return', { cause: error })
+      throw new Error('Pair every pipe entrance with a return', {
+        cause: error,
+      })
     throw error
   }
   return result

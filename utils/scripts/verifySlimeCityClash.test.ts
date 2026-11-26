@@ -608,6 +608,13 @@ assert.equal(
   70,
   'the first 70 curated evolution arcs are playable',
 )
+// Stat-only fighter evolutions belong on the combat badges, not in filler prose.
+function evolutionFace(card: ReturnType<typeof cardById>, level: number) {
+  const rules = clashCardText(card, level)
+  return card.kind === 'creature'
+    ? rules + '|' + clashCardBadge(card, level)
+    : rules
+}
 for (const id of Object.keys(CLASH_TWISTS)) {
   const card = cardById(id)
   assert.ok(
@@ -622,8 +629,8 @@ for (const id of Object.keys(CLASH_TWISTS)) {
     ].includes(card.team),
   )
   assert.ok(
-    new Set([1, 2, 3].map((lv) => clashCardText(card, lv))).size === 3,
-    id + ' meaningful evolution text',
+    new Set([1, 2, 3].map((lv) => evolutionFace(card, lv))).size === 3,
+    id + ' meaningful evolution face',
   )
 }
 
@@ -1189,7 +1196,11 @@ for (const id of evoIds) {
     ),
     id + ' has useful instructions',
   )
-  assert.equal(new Set(stages).size, 3, id + ' tells three different stories')
+  assert.equal(
+    new Set([1, 2, 3].map((lv) => evolutionFace(card, lv))).size,
+    3,
+    id + ' has three distinct faces',
+  )
 }
 function evolved(
   team: Parameters<typeof createClash>[0],
@@ -1647,9 +1658,9 @@ for (const id of waveThreeIds) {
     ),
   )
   assert.equal(
-    new Set(texts).size,
+    new Set([1, 2, 3].map((lv) => evolutionFace(card, lv))).size,
     3,
-    id + ' improves through three story beats',
+    id + ' improves through three distinct faces',
   )
 }
 function third(team: Parameters<typeof createClash>[0], id: string) {
@@ -2158,8 +2169,8 @@ const finalEleven = [
 for (const id of finalEleven) {
   assert.ok(CLASH_TWISTS[id], id + ' authored evolution exists')
   const card = cardById(id)
-  const texts = [1, 2, 3].map((level) => clashCardText(card, level))
-  assert.equal(new Set(texts).size, 3, id + ' must evolve in three steps')
+  const faces = [1, 2, 3].map((level) => evolutionFace(card, level))
+  assert.equal(new Set(faces).size, 3, id + ' must evolve in three steps')
 }
 assert.equal(Object.keys(CLASH_TWISTS).length, 70)
 

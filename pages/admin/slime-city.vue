@@ -458,120 +458,125 @@
               aria-label="Decks"
               data-testid="slime-deck-library"
             >
-              <div class="sc-shelf-group" aria-label="Your decks">
-                <span class="sc-shelf-label">YOUR DECKS</span>
-                <button
-                  v-for="deck in lab.library"
-                  :key="deck.id"
-                  type="button"
-                  class="sc-shelf-deck"
-                  :class="{ chosen: lab.libraryId === deck.id }"
-                  :aria-pressed="lab.libraryId === deck.id"
-                  :title="deck.name"
-                  :data-testid="'slime-library-' + deck.id"
-                  @click="lab.selectLibraryDeck(deck.id)"
-                >
-                  <span class="sc-shelf-art" aria-hidden="true">
-                    <SlimeCityArtwork
-                      :image-id="slimeArtId('crews', deck.general)"
-                      :alt="teamName(deck.general)"
-                      compact
-                    />
-                    <SlimeCityArtwork
-                      class="is-ally"
-                      :image-id="slimeArtId('crews', deck.ally)"
-                      :alt="teamName(deck.ally)"
-                      compact
-                    />
-                  </span>
-                  <b>{{ deck.name }}</b>
-                  <small>
-                    ALLIANCE · {{ deck.cards.length }}/{{ ALLIANCE_DECK_SIZE }}
-                  </small>
-                </button>
-                <button
-                  v-for="team in lab.customSoloTeams"
-                  :key="'solo-' + team"
-                  type="button"
-                  class="sc-shelf-deck"
-                  :class="{ chosen: lab.activeSoloDeck === team }"
-                  :aria-pressed="lab.activeSoloDeck === team"
-                  :title="'Your ' + teamName(team) + ' Solo deck'"
-                  :data-testid="'slime-solo-deck-' + team"
-                  @click="lab.selectSoloDeck(team)"
-                >
-                  <span class="sc-shelf-art solo" aria-hidden="true">
-                    <SlimeCityArtwork
-                      :image-id="slimeArtId('crews', team)"
-                      :alt="teamName(team)"
-                      compact
-                    />
-                  </span>
-                  <b>{{ teamName(team) }}</b>
-                  <small>FACTION · CONSTRUCTED</small>
-                </button>
-                <button
-                  v-if="lab.library.length < lab.libraryMax"
-                  type="button"
-                  class="sc-shelf-deck is-new"
-                  data-testid="slime-library-new"
-                  @click="lab.newLibraryDeck()"
-                >
-                  <strong aria-hidden="true">＋</strong>
-                  <b>NEW DECK</b>
-                  <small>BUILD AN ALLIANCE</small>
-                </button>
-              </div>
-              <div
-                class="sc-shelf-group is-starters"
-                :class="{ open: startersOpen }"
-                aria-label="Starter decks"
+              <details
+                v-for="group in classicDeckGroups"
+                :key="group.id"
+                class="sc-shelf-section"
+                :open="classicOpen[group.id]"
+                @toggle="setClassicOpen(group.id, $event)"
               >
-                <button
-                  type="button"
+                <summary
                   class="sc-shelf-label"
-                  :aria-expanded="startersOpen"
-                  data-testid="slime-starters-toggle"
-                  @click="startersOpen = !startersOpen"
+                  :data-testid="'slime-' + group.id + '-toggle'"
                 >
-                  STARTER DECKS · {{ lab.starterDecks.length }}
-                </button>
-                <button
-                  v-for="deck in lab.starterDecks"
-                  :key="deck.id"
-                  type="button"
-                  class="sc-shelf-deck"
-                  :class="{ chosen: lab.activeStarterId === deck.id }"
-                  :aria-pressed="lab.activeStarterId === deck.id"
-                  :title="
-                    deck.name +
-                    (deck.ally ? ' Alliance starter' : ' Solo starter')
-                  "
-                  :data-testid="'slime-starter-' + deck.id"
-                  @click="lab.dealStarterDeck(deck.general, deck.ally)"
-                >
-                  <span
-                    class="sc-shelf-art"
-                    :class="{ solo: !deck.ally }"
-                    aria-hidden="true"
+                  {{ group.title }} · {{ group.decks.length }}
+                </summary>
+                <div class="sc-shelf-group" :aria-label="group.title">
+                  <button
+                    v-for="deck in group.decks"
+                    :key="deck.id"
+                    type="button"
+                    class="sc-shelf-deck"
+                    :class="{ chosen: lab.activeStarterId === deck.id }"
+                    :aria-pressed="lab.activeStarterId === deck.id"
+                    :title="
+                      deck.name +
+                      (deck.ally ? ' Alliance starter' : ' Solo starter')
+                    "
+                    :data-testid="'slime-starter-' + deck.id"
+                    @click="lab.dealStarterDeck(deck.general, deck.ally)"
                   >
-                    <SlimeCityArtwork
-                      :image-id="slimeArtId('crews', deck.general)"
-                      :alt="teamName(deck.general)"
-                      compact
-                    />
-                    <SlimeCityArtwork
-                      v-if="deck.ally"
-                      class="is-ally"
-                      :image-id="slimeArtId('crews', deck.ally)"
-                      :alt="teamName(deck.ally)"
-                      compact
-                    />
-                  </span>
-                  <b>{{ deck.ally ? deck.name : teamName(deck.general) }}</b>
-                  <small>{{ deck.ally ? 'ALLIANCE' : 'FACTION' }} · CLASSIC</small>
-                </button>
-              </div>
+                    <span
+                      class="sc-shelf-art"
+                      :class="{ solo: !deck.ally }"
+                      aria-hidden="true"
+                    >
+                      <SlimeCityArtwork
+                        :image-id="slimeArtId('crews', deck.general)"
+                        :alt="teamName(deck.general)"
+                        compact
+                      />
+                      <SlimeCityArtwork
+                        v-if="deck.ally"
+                        class="is-ally"
+                        :image-id="slimeArtId('crews', deck.ally)"
+                        :alt="teamName(deck.ally)"
+                        compact
+                      />
+                    </span>
+                    <b>{{ deck.ally ? deck.name : teamName(deck.general) }}</b>
+                    <small>{{ deck.ally ? 'ALLIANCE' : 'FACTION' }} · CLASSIC</small>
+                  </button>
+                </div>
+              </details>
+              <details class="sc-shelf-section" open>
+                <summary class="sc-shelf-label" data-testid="slime-saved-decks-toggle">
+                  SAVED DECKS · {{ lab.library.length + lab.customSoloTeams.length }}
+                </summary>
+                <div class="sc-shelf-group" aria-label="Saved decks">
+                  <button
+                    v-for="deck in lab.library"
+                    :key="deck.id"
+                    type="button"
+                    class="sc-shelf-deck"
+                    :class="{ chosen: lab.libraryId === deck.id }"
+                    :aria-pressed="lab.libraryId === deck.id"
+                    :title="deck.name"
+                    :data-testid="'slime-library-' + deck.id"
+                    @click="lab.selectLibraryDeck(deck.id)"
+                  >
+                    <span class="sc-shelf-art" aria-hidden="true">
+                      <SlimeCityArtwork
+                        :image-id="slimeArtId('crews', deck.general)"
+                        :alt="teamName(deck.general)"
+                        compact
+                      />
+                      <SlimeCityArtwork
+                        class="is-ally"
+                        :image-id="slimeArtId('crews', deck.ally)"
+                        :alt="teamName(deck.ally)"
+                        compact
+                      />
+                    </span>
+                    <b>{{ deck.name }}</b>
+                    <small>
+                      ALLIANCE · {{ deck.cards.length }}/{{ ALLIANCE_DECK_SIZE }}
+                    </small>
+                  </button>
+                  <button
+                    v-for="team in lab.customSoloTeams"
+                    :key="'solo-' + team"
+                    type="button"
+                    class="sc-shelf-deck"
+                    :class="{ chosen: lab.activeSoloDeck === team }"
+                    :aria-pressed="lab.activeSoloDeck === team"
+                    :title="'Your ' + teamName(team) + ' Solo deck'"
+                    :data-testid="'slime-solo-deck-' + team"
+                    @click="lab.selectSoloDeck(team)"
+                  >
+                    <span class="sc-shelf-art solo" aria-hidden="true">
+                      <SlimeCityArtwork
+                        :image-id="slimeArtId('crews', team)"
+                        :alt="teamName(team)"
+                        compact
+                      />
+                    </span>
+                    <b>{{ teamName(team) }}</b>
+                    <small>FACTION · CONSTRUCTED</small>
+                  </button>
+                  <button
+                    v-if="lab.library.length < lab.libraryMax"
+                    type="button"
+                    class="sc-shelf-deck is-new"
+                    data-testid="slime-library-new"
+                    @click="lab.newLibraryDeck()"
+                  >
+                    <strong aria-hidden="true">＋</strong>
+                    <b>NEW DECK</b>
+                    <small>BUILD AN ALLIANCE</small>
+                  </button>
+                </div>
+              </details>
             </section>
 
             <section
@@ -1350,7 +1355,22 @@ async function confirmReset(): Promise<void> {
   if (await lab.resetGuestJourney(resetTyped.value)) resetTyped.value = ''
 }
 /** Phones fold the starter decks behind their label. */
-const startersOpen = ref(false)
+const classicOpen = ref({ 'faction-classic': false, 'alliance-classic': false })
+const classicDeckGroups = computed(() => [
+  {
+    id: 'faction-classic' as const,
+    title: 'FACTION CLASSIC',
+    decks: lab.starterDecks.filter((deck) => !deck.ally),
+  },
+  {
+    id: 'alliance-classic' as const,
+    title: 'ALLIANCE CLASSIC',
+    decks: lab.starterDecks.filter((deck) => !!deck.ally),
+  },
+])
+function setClassicOpen(id: keyof typeof classicOpen.value, event: Event) {
+  classicOpen.value[id] = (event.currentTarget as HTMLDetailsElement).open
+}
 /** The library deck in the builder, if one is chosen. */
 const libraryEntry = computed(
   () => lab.library.find((deck) => deck.id === lab.libraryId) ?? null,
@@ -2326,21 +2346,30 @@ onUnmounted(() => {
   background: #c5ff59;
   color: #12200c;
 }
-button.sc-shelf-label {
-  padding: 0.35rem 0.55rem;
+.sc-shelf-section {
+  min-width: 0;
   border: 1px solid #4d5567;
   border-radius: 0.5rem;
   background: #0e1420;
+}
+.sc-shelf-section > summary.sc-shelf-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: none;
+  padding: 0.5rem 0.7rem;
   cursor: pointer;
+  list-style: none;
 }
-button.sc-shelf-label::after {
-  content: ' ▸';
-}
-.is-starters.open button.sc-shelf-label::after {
-  content: ' ▾';
-}
-.is-starters:not(.open) .sc-shelf-deck {
+.sc-shelf-section > summary::-webkit-details-marker {
   display: none;
+}
+.sc-shelf-section > summary::after {
+  content: '▸';
+  color: #c5ff59;
+}
+.sc-shelf-section[open] > summary::after {
+  content: '▾';
 }
 @container (max-width: 600px) {
   .sc-shelf-deck {

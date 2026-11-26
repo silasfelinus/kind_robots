@@ -437,8 +437,10 @@ export async function joinSlimeCityDuel(
   })
 }
 
+type DuelTransaction = Parameters<Parameters<typeof prisma.$transaction>[0]>[0]
+
 async function settleDuelMeat(
-  tx: Prisma.TransactionClient,
+  tx: DuelTransaction,
   row: Row,
   record: PvpRecord,
   state: ClashState,

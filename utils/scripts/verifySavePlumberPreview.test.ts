@@ -81,7 +81,7 @@ assert.match(page, /RESTORE DEFAULTS/)
 {
   const store = source('../../stores/arcadeStore.ts')
   const reset = store.match(
-    /function resetCabinetSettings\(prefersReducedMotion: boolean\) \{([\s\S]*?)\n  \}/,
+    /function resetCabinetSettings\(prefersReducedMotion: boolean\) \{([\s\S]*?)\n {2}\}/,
   )?.[1]
   assert.ok(reset, 'arcade store exposes resetCabinetSettings')
   assert.match(reset, /muted\.value = false/)
@@ -90,7 +90,7 @@ assert.match(page, /RESTORE DEFAULTS/)
   assert.match(reset, /highContrast\.value = false/)
   assert.match(reset, /savePreferences\(\)/)
   assert.doesNotMatch(reset, /keyRemaps|saves|initials|renderStyle/)
-  assert.match(store, /^    resetCabinetSettings,$/m)
+  assert.match(store, /^ {4}resetCabinetSettings,$/m)
 }
 assert.match(page, /:disabled="arcade.muted"/)
 assert.doesNotMatch(page, /localStorage/)

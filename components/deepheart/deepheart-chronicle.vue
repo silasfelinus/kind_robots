@@ -45,7 +45,8 @@
       >
         <p class="pf-display text-primary">Account backup</p>
         <p class="text-xs">
-          Copy your slots and chronicle between devices. Local saves work offline.
+          Copy your slots and chronicle between devices. Local saves work
+          offline.
         </p>
         <div class="flex flex-wrap gap-2">
           <button

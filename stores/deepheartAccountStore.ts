@@ -93,7 +93,8 @@ export const useDeepheartAccountStore = defineStore('deepheartAccount', () => {
     } catch {
       if (token === epoch) {
         archive.value = null
-        message.value = 'Backup failed. Read the account again; device saves are safe.'
+        message.value =
+          'Backup failed. Read the account again; device saves are safe.'
       }
     } finally {
       if (token === epoch) busy.value = false

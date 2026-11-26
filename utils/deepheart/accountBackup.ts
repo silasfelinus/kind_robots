@@ -61,26 +61,49 @@ function validRun(value: unknown): boolean {
       object(value[key]),
     ) &&
     [
-      'partners', 'oaths', 'seenEvents', 'log', 'moments', 'reveals',
-      'choices', 'riddlesUsed',
+      'partners',
+      'oaths',
+      'seenEvents',
+      'log',
+      'moments',
+      'reveals',
+      'choices',
+      'riddlesUsed',
     ].every((key) => strings(value[key])) &&
     Array.isArray(value.rooms) &&
     value.rooms.length === 7 &&
-    value.rooms.every(
-      (layer) => Array.isArray(layer) && layer.every(object),
-    ) &&
+    value.rooms.every((layer) => Array.isArray(layer) && layer.every(object)) &&
     Array.isArray(value.notices) &&
     count(value.layer) &&
     Number(value.layer) < 3 &&
     count(value.depth) &&
     typeof value.mercy === 'number' &&
     Number.isFinite(value.mercy) &&
-    ['map', 'fight', 'puzzle', 'treasure', 'choice', 'camp', 'loot', 'finale', 'court', 'ended'].includes(
-      String(value.phase),
-    ) &&
-    ['gold', 'potions', 'turns', 'fights', 'puzzlesSolved', 'puzzlesFailed', 'chests', 'mimics', 'deepening', 'cleanLayers', 'peakGold'].every(
-      (key) => count(value[key]),
-    )
+    [
+      'map',
+      'fight',
+      'puzzle',
+      'treasure',
+      'choice',
+      'camp',
+      'loot',
+      'finale',
+      'court',
+      'ended',
+    ].includes(String(value.phase)) &&
+    [
+      'gold',
+      'potions',
+      'turns',
+      'fights',
+      'puzzlesSolved',
+      'puzzlesFailed',
+      'chests',
+      'mimics',
+      'deepening',
+      'cleanLayers',
+      'peakGold',
+    ].every((key) => count(value[key]))
   )
 }
 

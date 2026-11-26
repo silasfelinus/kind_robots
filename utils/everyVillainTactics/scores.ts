@@ -1,5 +1,5 @@
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
-import { sceneTriggerId } from './sceneGraph'
+import { sceneTriggerId, settableFlags } from './sceneGraph'
 import { checksumV1, type EvtSave } from './saves'
 
 export type ScoreLine = {
@@ -27,6 +27,26 @@ const ROUND_WORDS: Record<number, string> = {
   5: 'five',
   6: 'six',
   7: 'seven',
+}
+
+const STAGE_EVIDENCE = [
+  ['science-lab', 'lab-evidence'],
+  ['crosswalk-crisis', 'crosswalk-jammed'],
+  ['rooftop-broadcast', 'roof-jammed'],
+  ['under-comet-breach', 'breach-evidence'],
+] as const
+
+/** One authored evidence decision per tactical stage, never a count of flags. */
+function evidenceFromSave(save: EvtSave): number {
+  if (save.mode === 'story') return save.story.evidence
+  const stage = save.stage
+  if (!stage?.script) return 0
+  const flag = STAGE_EVIDENCE.find(([id]) => id === stage.id)?.[1]
+  return flag &&
+    settableFlags(stage.script).has(flag) &&
+    save.state.flags?.includes(flag)
+    ? 1
+    : 0
 }
 
 /** Only call with a validated save. A story receives its award after its
@@ -66,7 +86,7 @@ export function scoreFromSave(save: EvtSave): BattleResult | null {
         scene.trigger.kind === 'secret' &&
         state.fired?.includes(sceneTriggerId(scene.id)),
     )
-  const evidence = save.mode === 'story' ? save.story.evidence : 0
+  const evidence = evidenceFromSave(save)
   const lines: ScoreLine[] = [
     {
       id: 'outcome',

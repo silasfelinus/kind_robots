@@ -27,6 +27,9 @@ import {
   canClashPlay,
   chooseClashCpu,
   clashBalance,
+  clashArmorGain,
+  clashArmorHeal,
+  clashGrantPower,
   clashDeck,
   CLASH_CRAFTED_DECKS,
   clashPower,
@@ -537,7 +540,7 @@ for (const card of CARDS) {
           clashCardText(card, level).includes(CLASH_TRAIT_TEXT[k]),
           card.id + k,
         )
-    } else assert.ok(b.power >= 1 && b.power <= 10, card.id)
+    } else assert.ok(b.power >= 1 && b.power <= 12, card.id)
     const badge = clashCardBadge(card, level)
     assert.ok(badge.length > 0 && badge.length < 16, card.id)
     assert.ok(
@@ -2758,3 +2761,21 @@ for (const path of [
     'both battle surfaces show the same summoning sickness effect',
   )
 }
+
+// Versioned tempo tuning: every trap and permanent stat upgrade gets more value.
+for (const card of CARDS) {
+  for (const level of [1, 2, 3]) {
+    const old = clashBalance(card, level, 1)
+    const next = clashBalance(card, level, 2)
+    if (card.kind === 'trap') assert.equal(next.power, old.power + 2, card.id)
+    if (card.kind === 'equipment' && (card.effect === 'boost' || card.effect === 'sharpen'))
+      assert.ok(next.bonus > old.bonus, card.id)
+    if (card.effect === 'armor') {
+      assert.ok(clashArmorGain(card.id, level, 2) >= clashArmorGain(card.id, level, 1))
+      assert.equal(clashArmorHeal(level, 2), clashArmorHeal(level, 1) + 2)
+    }
+    if (card.effect === 'grant') assert.equal(clashGrantPower(level, 2), clashGrantPower(level, 1) + 1)
+  }
+}
+assert.equal(createClash().balanceVersion, 2)
+assert.equal(createClash('catgirls', 'ironjaw', 1, { balanceVersion: 1 }).balanceVersion, undefined)

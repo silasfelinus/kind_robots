@@ -58,6 +58,7 @@
               cardById(cardId),
               clashLevel(game, me, cardId),
               held === index ? choicePick : undefined,
+              game.balanceVersion ?? 1,
             )
           "
           :data-testid="'clash-hand-' + index"
@@ -67,6 +68,7 @@
           @click="tap(index)"
         >
           <SlimeCityClashCardFace
+            :balance-version="game.balanceVersion ?? 1"
             :card-id="cardId"
             :glossary-interactive="big === index && !drag?.moved"
             :pick="held === index ? choicePick : undefined"
@@ -110,6 +112,7 @@
           }}
         </span>
         <SlimeCityClashCardFace
+            :balance-version="game.balanceVersion ?? 1"
           :card-id="peekCard.id"
           :level="peekCard.level"
           :pick="peekCard.pick"
@@ -133,6 +136,7 @@
           }}
         </span>
         <SlimeCityClashCardFace
+            :balance-version="game.balanceVersion ?? 1"
           :card-id="inspectCard.id"
           glossary-interactive
           :level="previewLevel ?? inspectCard.level"

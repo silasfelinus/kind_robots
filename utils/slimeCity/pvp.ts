@@ -51,6 +51,7 @@ export interface PvpRecord {
   forfeitedBy?: Side
   /** Duels created after 2026-11-22 PT deal each next hand at turn end. */
   dealEarly?: boolean
+  balanceVersion?: ClashOptions['balanceVersion']
   /**
    * Silas, 2026-11-22 PT: "There should be a back button if it's your turn,
    * with options for more depending on game options at start." Older duels
@@ -101,7 +102,7 @@ export function replayPvpTrail(
   guest: TeamId,
   seed: number,
   commands: ClashCommand[],
-  rules: Pick<ClashOptions, 'dealEarly'> = {},
+  rules: Pick<ClashOptions, 'dealEarly' | 'balanceVersion'> = {},
   keep = 12,
 ): { state: ClashState; strikes: PvpStrike[] } {
   let state = createClash(host, guest, seed, rules)
@@ -216,6 +217,7 @@ export function pvpTakeBack(
 }
 
 export interface PvpBoard {
+  balanceVersion?: ClashOptions['balanceVersion']
   round: number
   active: Side
   phase: ClashState['phase']
@@ -314,6 +316,7 @@ export function parsePvpRecord(value: unknown): PvpRecord | null {
       data.invitedId !== null &&
       (!Number.isSafeInteger(data.invitedId) || Number(data.invitedId) <= 0)) ||
     (data.isPublic !== undefined && typeof data.isPublic !== 'boolean') ||
+    (data.balanceVersion !== undefined && data.balanceVersion !== 1 && data.balanceVersion !== 2) ||
     (data.dealEarly !== undefined && typeof data.dealEarly !== 'boolean') ||
     (data.takebacks !== undefined &&
       !PVP_TAKEBACK_CHOICES.includes(data.takebacks as 0)) ||
@@ -393,9 +396,9 @@ export function pvpCommand(raw: unknown, side: Side): ClashCommand | null {
 
 /** The engine rules a stored duel was created under. */
 export function pvpRules(
-  record: Pick<PvpRecord, 'dealEarly'>,
-): Pick<ClashOptions, 'dealEarly'> {
-  return record.dealEarly ? { dealEarly: true } : {}
+  record: Pick<PvpRecord, 'dealEarly' | 'balanceVersion'>,
+): Pick<ClashOptions, 'dealEarly' | 'balanceVersion'> {
+  return { balanceVersion: record.balanceVersion ?? 1, ...(record.dealEarly ? { dealEarly: true } : {}) }
 }
 
 export function replayPvp(
@@ -403,7 +406,7 @@ export function replayPvp(
   guest: TeamId,
   seed: number,
   commands: ClashCommand[],
-  rules: Pick<ClashOptions, 'dealEarly'> = {},
+  rules: Pick<ClashOptions, 'dealEarly' | 'balanceVersion'> = {},
 ): ClashState {
   return replayClash(host, guest, seed, commands, rules)
 }
@@ -412,7 +415,7 @@ export function newPvpGame(
   host: TeamId,
   guest: TeamId,
   seed: number,
-  rules: Pick<ClashOptions, 'dealEarly'> = {},
+  rules: Pick<ClashOptions, 'dealEarly' | 'balanceVersion'> = {},
 ): ClashState {
   return createClash(host, guest, seed, rules)
 }
@@ -430,6 +433,7 @@ export function stepPvp(
 export function pvpBoard(state: ClashState, seat: Side): PvpBoard {
   const other = seat === 'player' ? 'enemy' : 'player'
   return {
+    ...(state.balanceVersion ? { balanceVersion: state.balanceVersion } : {}),
     round: state.round,
     active: state.active,
     phase: state.phase,
@@ -634,6 +638,7 @@ export function pvpClashView(
       ? { player: mine, enemy: theirs }
       : { player: theirs, enemy: mine }
   return {
+    ...(board.balanceVersion ? { balanceVersion: board.balanceVersion } : {}),
     seed: 0,
     rng: 0,
     teams: { player: hostTeam, enemy: guestTeam },

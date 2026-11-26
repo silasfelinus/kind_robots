@@ -208,6 +208,7 @@ export async function createSlimeCityDuel(
         version: 1,
         guestId: null,
         dealEarly: true,
+        balanceVersion: 2,
         takebacks: PVP_TAKEBACKS_ANY,
         ...(invitedId ? { invitedId } : {}),
         ...(isPublic ? { isPublic: true } : {}),

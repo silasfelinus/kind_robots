@@ -12,6 +12,7 @@ import { createRun } from '~/utils/rulerHooked/newGame'
 import { applyEffect, resolveChoice } from '~/utils/rulerHooked/applyEffects'
 import { eligiblePool } from '~/utils/rulerHooked/select'
 import {
+  advanceAfterFishingAttempt,
   allDeckCards,
   dismissedFinaleFlag,
   eligibleEnding,
@@ -32,7 +33,22 @@ import {
   FISHING_LOCATIONS,
   locationUnlocked,
 } from '~/utils/rulerHooked/fishingLocations'
-import { startFishingEncounter } from '~/utils/rulerHooked/encounter'
+import {
+  applyFishingStop,
+  fishingEncounterFinished,
+  startFishingEncounter,
+} from '~/utils/rulerHooked/encounter'
+import {
+  fightAim,
+  fightTargetFor,
+  timingProfileFor,
+} from '~/utils/rulerHooked/timingBar'
+import {
+  GEAR_CATALOG,
+  KINGDOM_CATALOG,
+  purchaseGearFor,
+  purchaseKingdomFor,
+} from '~/utils/rulerHooked/economy'
 import type { FishingRegion, AxisKey, RunSave } from '~/types/ruler-hooked'
 import { makeRng } from '~/utils/rulerHooked/seed'
 import { CARD_PROMPTS, FISH_PROMPTS } from '~/utils/rulerHooked/artPrompts'
@@ -1166,6 +1182,393 @@ for (const id of QUESTS)
       ),
     )
   }
+}
+
+// Full-reign policy exploration uses actual timed encounters, not automatic
+// successful casts. Every choice must have been offered by the turn engine.
+{
+  interface Policy {
+    id: string
+    weights: Partial<Record<AxisKey, number>>
+  }
+
+  const policies: Policy[] = [
+    { id: 'compassionate', weights: { joy: 5, nature: 2 } },
+    { id: 'selfish', weights: { joy: 5, order: -2 } },
+    { id: 'greedy', weights: { treasury: 5, prosperity: 2 } },
+    { id: 'industrial', weights: { prosperity: 5, nature: -3 } },
+    { id: 'nature-positive', weights: { nature: 5, prosperity: -2 } },
+    { id: 'chaotic', weights: {} },
+    { id: 'fishing-only', weights: {} },
+    { id: 'completionist', weights: {} },
+    { id: 'diplomatic', weights: { order: 4, joy: 3 } },
+    { id: 'low-resource', weights: { treasury: -5, prosperity: -3 } },
+    { id: 'unlucky', weights: { joy: 2 } },
+    { id: 'exploiter', weights: { treasury: 2, order: -2 } },
+  ]
+  const regions = Object.keys(FISHING_LOCATIONS) as FishingRegion[]
+  const cards = [...allDeckCards(C), ...C.arcs.flatMap((a) => a.steps)]
+  const expected = cards.flatMap((card) =>
+    card.choices.map((choice) => card.id + '/' + choice.id),
+  )
+
+  function explore(
+    policy: Policy,
+    seed: string,
+    roundTrip = false,
+    directives: Record<string, string> = {},
+  ) {
+    let save = createRun(C, {
+      saveId: 'policy-matrix',
+      name: 'Policy matrix',
+      rulerName: 'Mo',
+      honorific: 'Ruler',
+      seed,
+      stamp: 'T0',
+    })
+    const rng = makeRng(seed + ':policy')
+    const choices = new Set<string>()
+    const opened = new Set<FishingRegion>()
+    const closed = new Set<FishingRegion>()
+    const caught = new Set<string>()
+    const trace: string[] = []
+    let landed = 0
+    let escaped = 0
+    let purchases = 0
+
+    function availableRegions(): FishingRegion[] {
+      const fish = availableFish(save)
+      const legal = regions.filter((region) => {
+        const pool = fishAtLocation(save, region)
+        assert.ok(locationUnlocked(save, region) || pool.length === 0)
+        assert.ok(
+          pool.every(
+            (member) =>
+              member.habitats.includes(region) &&
+              fish.some((candidate) => candidate.slug === member.slug),
+          ),
+        )
+        assert.equal(canFishAt(save, region), pool.length > 0)
+        return pool.length > 0
+      })
+      assert.ok(legal.includes('lake'), seed + ': lost the starting lake')
+      for (const region of regions) {
+        if (legal.includes(region)) opened.add(region)
+        else if (opened.has(region)) closed.add(region)
+      }
+      return legal
+    }
+
+    for (let turn = 0; turn < 120 && save.status === 'ACTIVE'; turn++) {
+      const proclamation = pendingProclamation(save)
+      if (proclamation && policy.id !== 'fishing-only') {
+        save = hearProclamation(save)
+        trace.push('hear:' + proclamation.event.key)
+      }
+      if (policy.id === 'completionist' || policy.id === 'exploiter') {
+        for (const gear of GEAR_CATALOG) {
+          const before = save
+          save = purchaseGearFor(save, gear.id)
+          if (save !== before) {
+            purchases++
+            trace.push('buy:' + gear.id)
+            assert.equal(
+              save.counters.coins,
+              (before.counters.coins ?? 0) - gear.cost,
+            )
+            assert.equal(purchaseGearFor(save, gear.id), save)
+          }
+        }
+        if (policy.id === 'exploiter') {
+          for (const item of KINGDOM_CATALOG) {
+            const before = save
+            save = purchaseKingdomFor(save, item.id)
+            if (save !== before) {
+              purchases++
+              trace.push('buy:' + item.id)
+              assert.equal(
+                save.counters.coins,
+                (before.counters.coins ?? 0) - item.cost,
+              )
+            }
+          }
+        }
+      }
+
+      const legal = availableRegions()
+      const region =
+        policy.id === 'fishing-only'
+          ? 'lake'
+          : legal[Math.floor(rng.next() * legal.length)]!
+      save.fishingRegion = region
+      assert.equal(currentFishingRegion(save), region)
+      let fight = startFishingEncounter(save)
+      const slug = fight.fishSlug
+      assert.ok(fishAtLocation(save, region).some((f) => f.slug === slug))
+      const stops: number[] = []
+      while (!fishingEncounterFinished(fight)) {
+        assert.ok(stops.length < 32, seed + ': encounter stalled')
+        if (policy.id === 'exploiter') {
+          assert.equal(applyFishingStop(fight, NaN), fight)
+          assert.equal(applyFishingStop(fight, Infinity), fight)
+        }
+        const target = fightTargetFor(timingProfileFor(fight), fightAim(fight))
+        const miss =
+          (policy.id === 'unlucky' && turn % 3 !== 0) ||
+          (policy.id === 'chaotic' && rng.next() < 0.25)
+        const position = miss ? 0 : target.start + target.width / 2
+        stops.push(position)
+        fight = applyFishingStop(fight, position)
+      }
+      assert.equal(applyFishingStop(fight, 50), fight)
+      trace.push(
+        'cast:' +
+          region +
+          ':' +
+          slug +
+          ':' +
+          fight.phase +
+          ':' +
+          stops.join(','),
+      )
+      const before = save
+      const narrative = makeRng(seed + ':' + save.turnCount)
+      const landedTurn =
+        fight.phase === 'LANDED' ? takeTurn(C, save, narrative) : null
+      const result =
+        landedTurn ?? advanceAfterFishingAttempt(C, save, narrative)
+      save = result.save
+      assert.equal(save.turnCount, before.turnCount + 1)
+      if (landedTurn) {
+        landed++
+        caught.add(slug)
+        assert.equal(landedTurn.catch.fishSlug, slug)
+        assert.equal(
+          save.counters.fishCaught,
+          (before.counters.fishCaught ?? 0) + 1,
+        )
+        assert.equal(
+          save.counters.coins ?? 0,
+          (before.counters.coins ?? 0) + landedTurn.catch.coinsFound,
+        )
+      } else {
+        escaped++
+        assert.deepEqual(save.fishopedia, before.fishopedia)
+        assert.equal(save.counters.fishCaught, before.counters.fishCaught)
+        assert.equal(save.counters.coins, before.counters.coins)
+      }
+
+      if (result.card) {
+        const card = result.card
+        const ranked = card.choices
+          .map((choice) => {
+            const key = card.id + '/' + choice.id
+            const weighted = Object.entries(policy.weights).reduce(
+              (score, [axis, weight]) =>
+                score +
+                (choice.effects?.sliders?.[axis as AxisKey] ?? 0) * weight,
+              0,
+            )
+            const novelty =
+              policy.id === 'completionist' && !choices.has(key) ? 20 : 0
+            const deferral = choice.requeue
+              ? policy.id === 'fishing-only' || policy.id === 'exploiter'
+                ? 20
+                : -20
+              : 0
+            return {
+              choice,
+              key,
+              score: weighted + novelty + deferral + rng.next() * 12,
+            }
+          })
+          .sort((a, b) => b.score - a.score)
+        const directive = directives[card.id]
+        const chosen =
+          (directive && !choices.has(card.id + '/' + directive)
+            ? ranked.find((option) => option.choice.id === directive)
+            : undefined) ?? ranked[0]!
+        const resolved = save.counters.cardsResolved ?? 0
+        save = resolveChoice(save, card, chosen.choice)
+        choices.add(chosen.key)
+        trace.push('choose:' + chosen.key)
+        assert.equal(
+          save.counters.cardsResolved,
+          resolved + (chosen.choice.requeue ? 0 : 1),
+        )
+      }
+
+      const legalAfter = availableRegions()
+      if (!legalAfter.includes(region))
+        assert.equal(currentFishingRegion(save), 'lake')
+      for (const value of Object.values(save.kingdomHealth))
+        assert.ok(Number.isFinite(value) && value >= 0 && value <= 100)
+      assert.ok((save.counters.coins ?? 0) >= 0)
+      const offer = eligibleEnding(C, save)
+      if (offer && save.status === 'ACTIVE') {
+        if (turn >= 80 && policy.id !== 'completionist') {
+          trace.push('accept:' + offer)
+          applyEffect(save, { ending: offer })
+        } else {
+          trace.push('decline:' + offer)
+          save.flags[dismissedFinaleFlag(offer)] = true
+        }
+      }
+      if (roundTrip) save = JSON.parse(JSON.stringify(save)) as RunSave
+    }
+    assert.equal(save.turnCount, landed + escaped)
+    assert.ok(save.status === 'COMPLETE' || save.turnCount === 120)
+    return {
+      save: JSON.stringify(save),
+      ending: save.endingKey,
+      health: save.kingdomHealth,
+      landed,
+      escaped,
+      purchases,
+      choices: [...choices].sort(),
+      opened: [...opened].sort(),
+      closed: [...closed].sort(),
+      caught: [...caught].sort(),
+      trace,
+    }
+  }
+
+  const covered = new Set<string>()
+  const locations = new Set<string>()
+  const closures = new Set<string>()
+  const species = new Set<string>()
+  const worlds = new Set<string>()
+  let attempts = 0
+  let misses = 0
+  let purchases = 0
+  for (const policy of policies) {
+    let policyCatches = 0
+    let policyEscapes = 0
+    const endings = new Set<string>()
+    for (let i = 0; i < 12; i++) {
+      const seed = 'matrix-' + policy.id + '-' + i
+      const result = explore(policy, seed)
+      if (i === 0) {
+        assert.deepEqual(explore(policy, seed, true), result)
+        console.log(
+          'Policy replay ' +
+            JSON.stringify({ policy: policy.id, seed, trace: result.trace }),
+        )
+      }
+      for (const key of result.choices) covered.add(key)
+      for (const region of result.opened) locations.add(region)
+      for (const region of result.closed) closures.add(region)
+      for (const slug of result.caught) species.add(slug)
+      worlds.add(JSON.stringify(result.health))
+      if (result.ending) endings.add(result.ending)
+      policyCatches += result.landed
+      policyEscapes += result.escaped
+      purchases += result.purchases
+    }
+    attempts += policyCatches + policyEscapes
+    misses += policyEscapes
+    console.log(
+      'Policy matrix ' +
+        JSON.stringify({
+          policy: policy.id,
+          landed: policyCatches,
+          escaped: policyEscapes,
+          endings: [...endings].sort(),
+        }),
+    )
+  }
+  // Exercise the rare cross-arc branches through explicit legal decisions,
+  // rather than hoping a random policy happens to choose their prerequisites.
+  const commonsRoute = {
+    'weir-1': 'build-weir',
+    'weir-stone': 'net-the-run',
+    'weir-reckoning': 'reopen-migration',
+    'envoy-1': 'negotiate-tough',
+    'envoy-tough': 'finalize-tough',
+    'treaty-reckoning': 'ease-the-border',
+  }
+  const trustRoute = {
+    'weir-1': 'build-weir',
+    'weir-stone': 'net-the-run',
+    'weir-reckoning': 'keep-netting',
+    'moat-1': 'keep-moat-common',
+    'moat-crowded': 'let-moat-run',
+    'moat-reckoning': 'license-roach',
+  }
+  const targetedRoutes: Record<string, Record<string, string>> = {
+    'warlock-return/defer-vex': {},
+    'druid-sanctuary/defer-sela': {},
+    'vex-model-village/defer-terraces': {},
+    'fen-satire/answer-song': {},
+    'river-commons-vote/charter-the-run': commonsRoute,
+    'river-commons-vote/license-the-run': commonsRoute,
+    'flood-debt-council/fund-floodplain': commonsRoute,
+    'flood-debt-council/mortgage-crossing': commonsRoute,
+    'water-rights-hearing/found-the-water-trust': trustRoute,
+    'water-stewards-strike/pay-the-stewards': trustRoute,
+    'water-stewards-strike/share-the-patrol': trustRoute,
+  }
+  let targetedWitnesses = 0
+  for (const target of expected.filter((key) => !covered.has(key))) {
+    if (covered.has(target)) continue
+    const [cardId, choiceId] = target.split('/')
+    assert.ok(cardId && choiceId)
+    const directives = { ...targetedRoutes[target], [cardId]: choiceId }
+    const policy: Policy = {
+      id: 'completionist',
+      weights: cardId === 'fen-satire' ? { joy: -5 } : {},
+    }
+    let witness: ReturnType<typeof explore> | undefined
+    let witnessSeed = ''
+    for (let i = 0; i < 48 && !witness; i++) {
+      const seed = 'targeted-' + cardId + '-' + choiceId + '-' + i
+      const result = explore(policy, seed, false, directives)
+      if (result.choices.includes(target)) {
+        witness = result
+        witnessSeed = seed
+      }
+    }
+    assert.ok(witness, 'No legal seeded witness for ' + target)
+    assert.deepEqual(explore(policy, witnessSeed, true, directives), witness)
+    for (const key of witness.choices) covered.add(key)
+    targetedWitnesses++
+    console.log(
+      'Targeted choice witness ' +
+        JSON.stringify({
+          target,
+          seed: witnessSeed,
+          trace: witness.trace,
+        }),
+    )
+  }
+  assert.deepEqual(
+    expected.filter((key) => !covered.has(key)),
+    [],
+    'Every authored choice must have a real fresh-reign witness',
+  )
+  console.log('Targeted choice witnesses: ' + targetedWitnesses)
+
+  assert.ok(attempts >= 12 * 12 * 80)
+  assert.ok(misses > 0 && misses < attempts)
+  assert.ok(purchases > 0)
+  assert.ok(worlds.size > policies.length)
+  assert.deepEqual([...locations].sort(), [...regions].sort())
+  console.log(
+    'Policy matrix coverage ' +
+      JSON.stringify({
+        reigns: policies.length * 12,
+        attempts,
+        misses,
+        purchases,
+        choices: covered.size,
+        authoredChoices: expected.length,
+        uncovered: expected.filter((key) => !covered.has(key)),
+        locations: [...locations].sort(),
+        closures: [...closures].sort(),
+        species: [...species].sort(),
+        worlds: worlds.size,
+      }),
+  )
 }
 
 console.log('ruler-hooked QUESTS self-test: ALL PASS')

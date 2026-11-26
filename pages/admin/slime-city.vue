@@ -471,7 +471,10 @@
                 >
                   <span class="sc-shelf-banner-art" aria-hidden="true">
                     <span
-                      v-for="deck in group.decks.slice(0, group.id === 'faction-classic' ? 6 : 3)"
+                      v-for="deck in group.decks.slice(
+                        0,
+                        group.id === 'faction-classic' ? 6 : 3,
+                      )"
                       :key="deck.id"
                       class="sc-shelf-banner-pair"
                     >
@@ -527,7 +530,9 @@
                       />
                     </span>
                     <b>{{ deck.ally ? deck.name : teamName(deck.general) }}</b>
-                    <small>{{ deck.ally ? 'ALLIANCE' : 'FACTION' }} · CLASSIC</small>
+                    <small
+                      >{{ deck.ally ? 'ALLIANCE' : 'FACTION' }} · CLASSIC</small
+                    >
                   </button>
                 </div>
               </details>
@@ -590,7 +595,9 @@
                     </span>
                     <b>{{ deck.name }}</b>
                     <small>
-                      ALLIANCE · {{ deck.cards.length }}/{{ ALLIANCE_DECK_SIZE }}
+                      ALLIANCE · {{ deck.cards.length }}/{{
+                        ALLIANCE_DECK_SIZE
+                      }}
                     </small>
                   </button>
                   <button

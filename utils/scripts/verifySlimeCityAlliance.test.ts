@@ -751,7 +751,10 @@ console.log('Slime City ALLIANCE: decks, powers, replay, balance and saves OK')
   assert.match(collection, /@click="openPackShop"/)
   assert.match(collection, /packShop\.value\?\.scrollIntoView/)
   assert.match(collection, /\.sc-shelf-group \{[\s\S]*?overflow-x: auto;/)
-  assert.match(collection, /\.sc-shelf-deck b \{[\s\S]*?overflow-wrap: anywhere;/)
+  assert.match(
+    collection,
+    /\.sc-shelf-deck b \{[\s\S]*?overflow-wrap: anywhere;/,
+  )
 }
 
 // The two classic families and saved decks expand independently.
@@ -759,8 +762,14 @@ console.log('Slime City ALLIANCE: decks, powers, replay, balance and saves OK')
   const collection = readFileSync('pages/admin/slime-city.vue', 'utf8')
   assert.match(collection, /id: 'faction-classic' as const/)
   assert.match(collection, /id: 'alliance-classic' as const/)
-  assert.match(collection, /lab\.starterDecks\.filter\(\(deck\) => !deck\.ally\)/)
-  assert.match(collection, /lab\.starterDecks\.filter\(\(deck\) => !!deck\.ally\)/)
+  assert.match(
+    collection,
+    /lab\.starterDecks\.filter\(\(deck\) => !deck\.ally\)/,
+  )
+  assert.match(
+    collection,
+    /lab\.starterDecks\.filter\(\(deck\) => !!deck\.ally\)/,
+  )
   assert.match(collection, /data-testid="slime-saved-decks-toggle"/)
   assert.match(collection, /:open="classicOpen\[group\.id\]"/)
 }

@@ -12,11 +12,17 @@ import {
 import { join } from 'node:path'
 
 type TierBudget = [number, number, number]
+type OpeningBudget = [number, number]
 type Candidate = {
-  ironjaw: TierBudget
-  riot: TierBudget
-  exchange: TierBudget
-  undertow?: TierBudget
+  base: {
+    ironjaw: TierBudget
+    riot: TierBudget
+    exchange: TierBudget
+    undertow?: TierBudget
+  }
+  opening: Partial<
+    Record<'ironjaw' | 'riot' | 'catgirls' | 'undertow' | 'exchange', OpeningBudget>
+  >
 }
 type Result = {
   rates: Record<string, number>
@@ -71,7 +77,7 @@ export function reportCalibrationCandidates(): void {
         engine,
         source.replace(
           table,
-          'const CLASH_V2_CREW_ADJUSTMENT: Partial<Record<TeamId, [number, number, number]>> = ' +
+          'const CLASH_V2_CREW_ADJUSTMENT: CrewLifeTuning = ' +
             JSON.stringify(candidate),
         ),
       )
@@ -86,40 +92,78 @@ export function reportCalibrationCandidates(): void {
       return JSON.parse(line || '{}') as Result
     }
 
-    // The first scan established a good aggregate baseline; now use the
-    // full acceptance seed set for every refinement. A tiny screen can hide
-    // a bad matchup or over-rank a candidate due to sampling noise.
-    const iron: TierBudget[] = [
-      [-0.5, 0, 0],
-      [-0.5, 0.5, 0],
-      [-0.5, 0, 0.5],
-      [-0.5, 0.5, 0.5],
+    // Earlier sweeps showed level-two/three Ironjaw adjustments do not
+    // materially change these matchups. Screen opening play-cost bands and
+    // keep the measured aggregate baseline for every candidate.
+    const base: Candidate['base'] = {
+      ironjaw: [-0.5, 0, 0],
+      riot: [0, 0.5, 0.5],
+      exchange: [-0.5, -0.5, -0.5],
+    }
+    const iron: OpeningBudget[] = [
+      [0, 0],
+      [0, 0.5],
+      [0.5, 0],
     ]
-    const exchange: TierBudget[] = [
-      [-0.5, -0.5, -0.5],
-      [-0.5, 0, 0],
-      [0, -0.5, -0.5],
-      [-0.5, 0.5, 0],
+    const riot: OpeningBudget[] = [
+      [0, 0],
+      [0, 0.5],
+      [0.5, 0],
     ]
     const candidates: Candidate[] = []
     for (const a of iron)
-      for (const b of exchange)
-        candidates.push({ ironjaw: a, riot: [0, 0.5, 0.5], exchange: b })
-    for (const a of iron)
-      candidates.push({
-        ironjaw: a,
-        riot: [0, 0.5, 0.5],
-        exchange: [-0.5, -0.5, -0.5],
-        undertow: [0, -0.5, 0],
-      })
+      for (const b of riot)
+        candidates.push({ base, opening: { ironjaw: a, riot: b } })
     const screened = candidates
       .map((candidate) => ({ candidate, result: run(candidate, 40, 700) }))
       .sort((a, b) => penalty(a.result) - penalty(b.result))
     console.log('CLASH_CALIBRATION_SCREEN', JSON.stringify(screened))
-    const verified = screened.slice(0, 6).map(({ candidate, result }) => {
-      const holdout = run(candidate, 40, 1400)
-      return { candidate, result, holdout, penalty: penalty(result) }
-    })
+
+    // Evaluate independent seeds for the strongest base configurations,
+    // then refine the remaining weak opening bands on the best two.
+    const best = screened.slice(0, 3).map(({ candidate, result }) => ({
+      candidate,
+      result,
+      holdout: run(candidate, 40, 1400),
+    }))
+    best.sort(
+      (a, b) =>
+        penalty(a.result) + penalty(a.holdout) -
+        penalty(b.result) - penalty(b.holdout),
+    )
+    const variants: Candidate[] = []
+    for (const { candidate } of best.slice(0, 2)) {
+      for (const catgirls of [[0, 0.5], [0.5, 0]] as OpeningBudget[])
+        variants.push({
+          ...candidate,
+          opening: { ...candidate.opening, catgirls },
+        })
+      for (const undertow of [[0, -0.5], [-0.5, 0]] as OpeningBudget[])
+        variants.push({
+          ...candidate,
+          opening: { ...candidate.opening, undertow },
+        })
+      variants.push({
+        ...candidate,
+        opening: { ...candidate.opening, exchange: [0, -0.5] },
+      })
+    }
+    const refined = variants
+      .map((candidate) => ({ candidate, result: run(candidate, 40, 700) }))
+      .sort((a, b) => penalty(a.result) - penalty(b.result))
+    console.log('CLASH_CALIBRATION_REFINED', JSON.stringify(refined))
+    const verified = [
+      ...best,
+      ...refined.slice(0, 3).map(({ candidate, result }) => ({
+        candidate,
+        result,
+        holdout: run(candidate, 40, 1400),
+      })),
+    ].sort(
+      (a, b) =>
+        penalty(a.result) + penalty(a.holdout) -
+        penalty(b.result) - penalty(b.holdout),
+    )
     console.log('CLASH_CALIBRATION_FULL', JSON.stringify(verified))
   } catch (error) {
     console.warn('CLASH_CALIBRATION_UNAVAILABLE', error)

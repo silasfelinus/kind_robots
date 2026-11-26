@@ -300,6 +300,51 @@ assert.equal(
   'Fragile ice shatters under sustained weight',
 )
 
+// Tidecoat is a real Maker power: water remains lethal without the suit.
+const tideGrid = initial.rows.map((row) => row.split(''))
+tideGrid[20]![8] = '6'
+for (let row = 18; row < 23; row++)
+  for (let col = 18; col < 40; col++) tideGrid[row]![col] = 'w'
+const tideLevel = validateMakerLevel({
+  ...initial,
+  rows: tideGrid.map((row) => row.join('')),
+})
+assert.deepEqual(decodeMakerLevel(encodeMakerLevel(tideLevel)), tideLevel)
+const tideRun = () =>
+  createSavePlumberPreview(
+    { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+    { customLevel: toMakerStage(tideLevel) },
+  )
+const swimmer = tideRun()
+const tidePickup = swimmer.pickups.find((pickup) => pickup.kind === 'tidecoat')!
+assert.ok(tidePickup)
+swimmer.hero = { x: tidePickup.x, y: tidePickup.y - 12, vx: 0, vy: 0 }
+swimmer.update(emptyInput())
+assert.equal(swimmer.power, 'tidecoat')
+const deepWater = () => ({ x: 25 * 16 + 8, y: 20 * 16, vx: 0, vy: 0 })
+const unprotected = tideRun()
+unprotected.hero = deepWater()
+unprotected.ground = false
+unprotected.update(emptyInput())
+assert.equal(unprotected.mode, 'dying')
+swimmer.hero = deepWater()
+swimmer.ground = false
+const swimRight = emptyInput()
+swimRight.held.right = true
+swimRight.held.down = true
+for (let i = 0; i < 12; i++) swimmer.update(swimRight)
+assert.ok(swimmer.hero.x > 25 * 16 + 24)
+assert.ok(swimmer.hero.y > 20 * 16 + 12)
+assert.equal(swimmer.mode, 'play')
+const diveY = swimmer.hero.y
+const swimUp = emptyInput()
+swimUp.held.a = true
+for (let i = 0; i < 35; i++) swimmer.update(swimUp)
+assert.ok(swimmer.hero.y < diveY - 45)
+assert.ok(swimmer.hero.y + 20 < 18 * 16, 'swim stroke breaches the surface')
+assert.equal(swimmer.mode, 'play')
+assert.equal(swimmer.save, undefined)
+
 const spaceCourse = makerTemplate('spacewalk')
 const spaceStage = parseStage(toMakerStage(spaceCourse))
 assert.equal(spaceStage.space, true)

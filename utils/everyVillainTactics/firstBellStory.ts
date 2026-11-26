@@ -2,6 +2,7 @@ import { identityFor, IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import { ACCIDENT_ARCS } from './accidentArcs'
 import { MUTANT_ARCS } from './mutantArcs'
 import { TECH_ARCS } from './techArcs'
+import { MAGIC_ARCS } from './magicArcs'
 import { recordTrigger, type TrainingState } from './training'
 
 export type Perspective = 'hero' | 'villain' | 'henchman' | 'sidekick'
@@ -555,7 +556,7 @@ export function storyMoment(
   const base = SCRIPT[role][beat]
   const personal =
     role === 'hero' || role === 'villain'
-      ? (ACCIDENT_ARCS[lead] ?? MUTANT_ARCS[lead] ?? TECH_ARCS[lead])?.[role]?.[
+      ? (ACCIDENT_ARCS[lead] ?? MUTANT_ARCS[lead] ?? TECH_ARCS[lead] ?? MAGIC_ARCS[lead])?.[role]?.[
           beat
         ]
       : undefined

@@ -899,7 +899,8 @@ for (const person of IDENTITY_ARCS.filter(
   (entry) =>
     entry.signature.startsWith('accident-') ||
     entry.signature.startsWith('mutant-') ||
-    entry.signature.startsWith('tech-'),
+    entry.signature.startsWith('tech-') ||
+      entry.signature.startsWith('magic-'),
 )) {
   for (const perspective of ['hero', 'villain'] as const) {
     const run = createStory()
@@ -962,7 +963,7 @@ for (const person of IDENTITY_ARCS.filter(
     assert.ok(run.completed)
   }
 }
-assert.equal(personalScenes.size, 240)
+assert.equal(personalScenes.size, 320)
 
 const missionChoices = [
   ['science-lab', 'lab-rescued', 'lab-evidence'],

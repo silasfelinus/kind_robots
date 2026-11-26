@@ -482,6 +482,14 @@
                 <p>Settings take effect when you enter the game.</p>
                 <button
                   type="button"
+                  class="plumber-control"
+                  aria-label="Restore default sound and accessibility settings"
+                  @click="arcade.resetCabinetSettings(reducedMotion)"
+                >
+                  RESTORE DEFAULTS
+                </button>
+                <button
+                  type="button"
                   class="plumber-control plumber-control--accent"
                   @click="go('play')"
                 >

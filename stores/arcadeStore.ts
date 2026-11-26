@@ -833,6 +833,19 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     savePreferences()
   }
 
+  /**
+   * Put the shared sound and accessibility options back to a fresh device's defaults:
+   * sound on at full volume, high contrast off, and the still camera following the
+   * viewer's reduced-motion preference. Keys, styles, saves and initials are untouched.
+   */
+  function resetCabinetSettings(prefersReducedMotion: boolean) {
+    muted.value = false
+    volume.value = 1
+    stillCamera.value = prefersReducedMotion
+    highContrast.value = false
+    savePreferences()
+  }
+
   function setComms(value: ArcadeComms) {
     comms.value = value
     savePreferences()
@@ -1009,6 +1022,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     setCrt,
     setStillCamera,
     setHighContrast,
+    resetCabinetSettings,
     setComms,
     setKeyRemap,
     difficultyFor,

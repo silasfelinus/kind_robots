@@ -76,6 +76,22 @@ assert.match(page, /arcade\.setMuted\(!arcade\.muted\)/)
 assert.match(page, /arcade\.setStillCamera\(!arcade\.stillCamera\)/)
 assert.match(page, /arcade\.setHighContrast\(!arcade\.highContrast\)/)
 assert.match(page, /aria-label="Arcade volume"/)
+assert.match(page, /arcade\.resetCabinetSettings\(reducedMotion\)/)
+assert.match(page, /RESTORE DEFAULTS/)
+{
+  const store = source('../../stores/arcadeStore.ts')
+  const reset = store.match(
+    /function resetCabinetSettings\(prefersReducedMotion: boolean\) \{([\s\S]*?)\n  \}/,
+  )?.[1]
+  assert.ok(reset, 'arcade store exposes resetCabinetSettings')
+  assert.match(reset, /muted\.value = false/)
+  assert.match(reset, /volume\.value = 1/)
+  assert.match(reset, /stillCamera\.value = prefersReducedMotion/)
+  assert.match(reset, /highContrast\.value = false/)
+  assert.match(reset, /savePreferences\(\)/)
+  assert.doesNotMatch(reset, /keyRemaps|saves|initials|renderStyle/)
+  assert.match(store, /^    resetCabinetSettings,$/m)
+}
 assert.match(page, /:disabled="arcade.muted"/)
 assert.doesNotMatch(page, /localStorage/)
 assert.match(page, /prefers-reduced-motion: reduce/)

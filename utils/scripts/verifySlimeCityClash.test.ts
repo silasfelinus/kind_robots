@@ -91,7 +91,10 @@ for (const face of editorialCopy) {
       (face.level === '1' &&
         cardById(face.id).kind === 'creature' &&
         !(cardById(face.id).keywords ?? []).length),
-    face.id + ' ' + face.level + ' has readable rules or is a stat-only fighter',
+    face.id +
+      ' ' +
+      face.level +
+      ' has readable rules or is a stat-only fighter',
   )
   assert.ok(
     face.text.length <= 160,

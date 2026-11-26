@@ -917,9 +917,10 @@ for (const person of IDENTITY_ARCS.filter((entry) =>
             {
               state: {
                 phase: 'victory',
-                flags: choice === 'command' || chapter === 0
-                  ? []
-                  : [flags[choice === 'rescue' ? 0 : 1]!],
+                flags:
+                  choice === 'command' || chapter === 0
+                    ? []
+                    : [flags[choice === 'rescue' ? 0 : 1]!],
               },
               story: {
                 mercy: false,
@@ -933,11 +934,17 @@ for (const person of IDENTITY_ARCS.filter((entry) =>
           )
           assert.equal(scene.choice, choice)
           assert.ok(scene.text.includes(person.hero.alias))
-          assert.ok(!campaignPassages.has(scene.text), person.signature + ':' + chapter + ':' + choice)
+          assert.ok(
+            !campaignPassages.has(scene.text),
+            person.signature + ':' + chapter + ':' + choice,
+          )
           campaignPassages.add(scene.text)
           return scene
         })
-      assert.equal(new Set(passages.map((scene) => scene.title)).size, passages.length)
+      assert.equal(
+        new Set(passages.map((scene) => scene.title)).size,
+        passages.length,
+      )
     }
   }
 }

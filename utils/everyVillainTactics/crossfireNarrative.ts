@@ -156,24 +156,36 @@ export function crossfireFinale(
     return {
       path: 'open-doors',
       title: 'The Doors Stayed Open',
-      text: close(0, `${lead} wins something harder than a battle: the city keeps its evacuation routes open. The students, researchers and workers who were protected on earlier nights run the final rescue themselves. Even ${opponent} cannot claim those people were merely pieces on the board.`),
+      text: close(
+        0,
+        `${lead} wins something harder than a battle: the city keeps its evacuation routes open. The students, researchers and workers who were protected on earlier nights run the final rescue themselves. Even ${opponent} cannot claim those people were merely pieces on the board.`,
+      ),
     }
   if (last === 'rescue' && network.enemiesExposed)
     return {
       path: 'black-box',
       title: 'The Evidence They Could Not Burn',
-      text: close(1, `${lead} leaves the ballroom with testimony from every district. The files from earlier missions make the final broadcast impossible to discredit. ${opponent} faces a public reckoning rather than a convenient final duel, and the city gets to read its own history.`),
+      text: close(
+        1,
+        `${lead} leaves the ballroom with testimony from every district. The files from earlier missions make the final broadcast impossible to discredit. ${opponent} faces a public reckoning rather than a convenient final duel, and the city gets to read its own history.`,
+      ),
     }
   if (last === 'rescue')
     return {
       path: 'unfinished',
       title: 'No One Gets the Last Word',
-      text: close(2, `${lead} opens the exits and gets the truth into the street, but the network behind ${opponent} survives. Some neighbors remember the rescues. Others remember the missing records. Graduation becomes the beginning of an argument the city intends to finish.`),
+      text: close(
+        2,
+        `${lead} opens the exits and gets the truth into the street, but the network behind ${opponent} survives. Some neighbors remember the rescues. Others remember the missing records. Graduation becomes the beginning of an argument the city intends to finish.`,
+      ),
     }
   return {
     path: 'signed-order',
     title: 'The Signature on the Order',
-    text: close(3, `${lead} gets the emergency gates open by controlling the floor and the microphone. ${opponent} is beaten, but the city has learned to fear whoever writes its orders. The prom ends safely enough; the question of who deserves authority is left burning above the dance floor.`),
+    text: close(
+      3,
+      `${lead} gets the emergency gates open by controlling the floor and the microphone. ${opponent} is beaten, but the city has learned to fear whoever writes its orders. The prom ends safely enough; the question of who deserves authority is left burning above the dance floor.`,
+    ),
   }
 }
 

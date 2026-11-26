@@ -346,7 +346,8 @@ function openingCrossfireSave(
   chapter: number,
   completed: readonly EvtSave[],
 ): EvtSave {
-  const stage = chapter === 0 ? null : clonePreset(CROSSFIRE_CHAPTERS[chapter]!.id)
+  const stage =
+    chapter === 0 ? null : clonePreset(CROSSFIRE_CHAPTERS[chapter]!.id)
   const story = createStory()
   if (stage) story.current = null
   const state = trainingState(0x53a1b7 + chapter * 997, stage ?? undefined, {

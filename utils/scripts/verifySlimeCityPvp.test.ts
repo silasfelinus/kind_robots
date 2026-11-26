@@ -934,8 +934,14 @@ console.log('Slime City Chromebook duel layout contract PASS')
   assert.match(duel, /--pvp-preview-width: min\(18rem, 42cqw, 38cqh\)/)
   assert.match(duel, /--x: var\(--preview-offset\);/)
   assert.match(duel, /--y: calc\(var\(--pvp-preview-width\) \* 0\.75 - 50cqh\)/)
-  assert.match(duel, /\.cxh-card\.cxh-inspect\) \{\s*left: var\(--preview-center\);/)
-  assert.match(duel, /\.cxh-levels\.docked\) \{\s*left: var\(--preview-center\);/)
+  assert.match(
+    duel,
+    /\.cxh-card\.cxh-inspect\) \{\s*left: var\(--preview-center\);/,
+  )
+  assert.match(
+    duel,
+    /\.cxh-levels\.docked\) \{\s*left: var\(--preview-center\);/,
+  )
   assert.doesNotMatch(
     duel,
     /SlimeCityTakebackChoice/,

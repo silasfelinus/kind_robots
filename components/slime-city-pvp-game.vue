@@ -2982,8 +2982,12 @@ watch(
 @media (min-width: 691px) and (orientation: landscape) {
   .scpvp-arena :deep(.cxh) {
     --rail-width: clamp(10rem, 17vw, 15rem);
-    --preview-offset: calc(50cqw + var(--rail-width) + 0.4rem - var(--pvp-preview-width) / 2);
-    --preview-center: calc(100% + var(--rail-width) + 0.4rem - var(--pvp-preview-width) / 2);
+    --preview-offset: calc(
+      50cqw + var(--rail-width) + 0.4rem - var(--pvp-preview-width) / 2
+    );
+    --preview-center: calc(
+      100% + var(--rail-width) + 0.4rem - var(--pvp-preview-width) / 2
+    );
     --pvp-preview-width: min(20rem, 42cqw, 42cqh);
   }
 }

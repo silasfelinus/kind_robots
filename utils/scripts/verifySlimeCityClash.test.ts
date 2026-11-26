@@ -87,8 +87,11 @@ assert.equal(
 )
 for (const face of editorialCopy) {
   assert.ok(
-    face.text.trim(),
-    face.id + ' ' + face.level + ' has readable rules',
+    face.text.trim() ||
+      (face.level === '1' &&
+        cardById(face.id).kind === 'creature' &&
+        !(cardById(face.id).keywords ?? []).length),
+    face.id + ' ' + face.level + ' has readable rules or is a stat-only fighter',
   )
   assert.ok(
     face.text.length <= 160,

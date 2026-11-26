@@ -14,6 +14,8 @@ import { triggerHolds } from '~/utils/rulerHooked/triggers'
 import { resolveScene } from '~/utils/rulerHooked/compositor'
 import { makeRng } from '~/utils/rulerHooked/seed'
 import { readCourtCheckpoint } from '~/utils/rulerHooked/courtCheckpoint'
+import { classicCheckpoint, readClassicCheckpoint } from '~/utils/rulerHooked/fishingCheckpoint'
+import { applyFishingStop, fishingEncounterFinished, startFishingEncounter } from '~/utils/rulerHooked/encounter'
 import { royalBackup } from '~/utils/rulerHooked/accountBackup'
 import {
   loadIndex, loadSave, writeSave, renameSlot, deleteSlot, makeSaveId,
@@ -279,6 +281,61 @@ const fresh = (id = 'sv_a'): RunSave =>
   s.status = 'COMPLETE'
   s.pendingFinaleKey = C.endings[0]!.outcomeKey
   assert.equal(readCourtCheckpoint(C, s).ending, null)
+}
+
+// Classic encounters resume by replaying recorded stops, not awarding a catch.
+{
+  const s = fresh('sv_fight')
+  s.createdAt = '2026-11-26T00:00:00Z'
+  const initial = startFishingEncounter(s)
+  s.pendingClassicFishing = classicCheckpoint(initial)
+  assert.deepEqual(readClassicCheckpoint(s), initial)
+  let fight = initial
+  for (const position of [50, 35, 75]) {
+    const next = applyFishingStop(fight, position)
+    if (fishingEncounterFinished(next)) break
+    fight = next
+    s.pendingClassicFishing = classicCheckpoint(fight)
+    writeSave(s, '2026-11-26T00:01:00Z')
+    const loaded = loadSave(s.saveId)!
+    assert.deepEqual(readClassicCheckpoint(loaded), fight)
+    const backup = royalBackup([loaded], {})
+    assert.deepEqual(readClassicCheckpoint(backup.reigns[0]!), fight)
+    assert.equal(loaded.turnCount, 0)
+    assert.deepEqual(loaded.fishopedia, {})
+    assert.deepEqual(
+      applyFishingStop(readClassicCheckpoint(loaded)!, 42),
+      applyFishingStop(fight, 42),
+    )
+  }
+  assert.ok(fight.history.length > 0)
+  const saved = classicCheckpoint(fight)!
+  s.pendingClassicFishing = { ...saved, encounterId: 'stale' }
+  assert.equal(readClassicCheckpoint(s), null)
+  s.pendingClassicFishing = { ...saved, stops: [Infinity] }
+  assert.equal(readClassicCheckpoint(s), null)
+  s.pendingClassicFishing = { ...saved, stops: Array(129).fill(50) }
+  assert.equal(readClassicCheckpoint(s), null)
+  s.pendingClassicFishing = saved
+  s.pendingCardId = 'pending'
+  assert.equal(readClassicCheckpoint(s), null)
+  delete s.pendingCardId
+  s.turnCount++
+  assert.equal(readClassicCheckpoint(s), null)
+  s.turnCount--
+  s.status = 'COMPLETE'
+  assert.equal(readClassicCheckpoint(s), null)
+  s.status = 'ACTIVE'
+  let terminal = initial
+  for (let i = 0; i < 128 && !fishingEncounterFinished(terminal); i++)
+    terminal = applyFishingStop(terminal, 0)
+  assert.ok(fishingEncounterFinished(terminal))
+  assert.equal(classicCheckpoint(terminal), undefined)
+  s.pendingClassicFishing = {
+    encounterId: initial.id,
+    stops: terminal.history.map((beat) => beat.stopPosition!),
+  }
+  assert.equal(readClassicCheckpoint(s), null)
 }
 
 console.log('ruler-hooked GAME self-test: ALL PASS')

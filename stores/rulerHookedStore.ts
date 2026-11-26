@@ -9,6 +9,10 @@ import { RULER_HOOKED_CONTENT as BUNDLE } from '~/utils/rulerHooked/content'
 import { createRun } from '~/utils/rulerHooked/newGame'
 import { readCourtCheckpoint } from '~/utils/rulerHooked/courtCheckpoint'
 import {
+  classicCheckpoint,
+  readClassicCheckpoint,
+} from '~/utils/rulerHooked/fishingCheckpoint'
+import {
   advanceAfterFishingAttempt,
   takeTurn,
   eligibleEnding,
@@ -169,6 +173,13 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     activeCard.value = checkpoint.card
     activeArcId.value = checkpoint.arcId
     pendingEnding.value = checkpoint.ending
+    if (!activeCard.value && !pendingEnding.value) {
+      const encounter = readClassicCheckpoint(save.value)
+      if (encounter) {
+        activeFishing.value = startSimpleFishing(save.value)
+        activeClassicFishing.value = encounter
+      }
+    }
   }
 
   /** Load the last active slot (or leave null for the title screen). */
@@ -285,6 +296,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     activeFishing.value = startSimpleFishing(save.value)
     activeClassicFishing.value =
       mode === 'classic' ? startFishingEncounter(save.value) : null
+    if (activeClassicFishing.value) persist()
   }
 
   /** One input on every beat: the visual stop bar resolves reel/slack/wait.
@@ -294,7 +306,10 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     if (!activeClassicFishing.value || !activeFishing.value) return
     const next = applyFishingStop(activeClassicFishing.value, position)
     activeClassicFishing.value = next
-    if (!fishingEncounterFinished(next)) return
+    if (!fishingEncounterFinished(next)) {
+      persist()
+      return
+    }
     activeClassicFishing.value = null
     advanceFishing({
       ...activeFishing.value,
@@ -456,6 +471,9 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     if (save.value) {
       save.value.pendingCardId = activeCard.value?.id
       save.value.pendingFinaleKey = pendingEnding.value ?? undefined
+      save.value.pendingClassicFishing = activeClassicFishing.value
+        ? classicCheckpoint(activeClassicFishing.value)
+        : undefined
       writeSave(save.value, nowStamp())
     }
     refreshSlots()

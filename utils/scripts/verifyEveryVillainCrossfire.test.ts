@@ -895,14 +895,7 @@ for (const perspective of ['hero', 'villain'] as const)
 // Each authored origin identity has independently authored playable
 // hero and villain scenes. The actual squad member speaks, not a stale slot.
 const personalScenes = new Set<string>()
-for (const person of IDENTITY_ARCS.filter(
-  (entry) =>
-    entry.signature.startsWith('accident-') ||
-    entry.signature.startsWith('mutant-') ||
-    entry.signature.startsWith('tech-') ||
-    entry.signature.startsWith('magic-') ||
-    entry.signature.startsWith('alien-'),
-)) {
+for (const person of IDENTITY_ARCS) {
   for (const perspective of ['hero', 'villain'] as const) {
     const run = createStory()
     const battle = trainingState(0x53a1b7, undefined, {
@@ -965,7 +958,7 @@ for (const person of IDENTITY_ARCS.filter(
     assert.ok(run.completed)
   }
 }
-assert.equal(personalScenes.size, 400)
+assert.equal(personalScenes.size, 480)
 
 const missionChoices = [
   ['science-lab', 'lab-rescued', 'lab-evidence'],

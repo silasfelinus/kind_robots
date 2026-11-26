@@ -4,6 +4,7 @@ import { MUTANT_ARCS } from './mutantArcs'
 import { TECH_ARCS } from './techArcs'
 import { MAGIC_ARCS } from './magicArcs'
 import { ALIEN_ARCS } from './alienArcs'
+import { PSYCHIC_ARCS } from './psychicArcs'
 import { recordTrigger, type TrainingState } from './training'
 
 export type Perspective = 'hero' | 'villain' | 'henchman' | 'sidekick'
@@ -561,7 +562,8 @@ export function storyMoment(
           MUTANT_ARCS[lead] ??
           TECH_ARCS[lead] ??
           MAGIC_ARCS[lead] ??
-          ALIEN_ARCS[lead])?.[role]?.[beat]
+          ALIEN_ARCS[lead] ??
+          PSYCHIC_ARCS[lead])?.[role]?.[beat]
       : undefined
   const person = IDENTITY_ARCS.find((identity) => identity.signature === lead)
   const support = state?.units.find(

@@ -24,7 +24,7 @@ import {
   PROCLAMATION_EVENT_INDEX_COUNTER,
   hearProclamation,
 } from './dailyEvents'
-import { resolveFishingCatch } from './fish'
+import { fishAtLocation, resolveFishingCatch } from './fish'
 import { GEAR_CATALOG, purchaseGearFor } from './economy'
 
 const fresh = () => createRun(C, {
@@ -252,7 +252,15 @@ function playSmart(encounter: FishingEncounter): FishingEncounter {
     save.seed = `day-boundary-${i}`
     save.turnCount = CASTS_PER_DAY - 1
     save.kingdomHealth.joy = 70
+    save.kingdomHealth.nature = 70
     save.flags.newlywedsGarden = true
+    save.fishingRegion = 'near_bank'
+    assert.ok(
+      fishAtLocation(save, 'near_bank').some(
+        (fish) => fish.slug === 'orchardjaw-perch',
+      ),
+      'the crier must boost a fish in the selected waters',
+    )
     save.counters[PROCLAMATION_COUNTER] = 1
     save.counters[PROCLAMATION_EVENT_INDEX_COUNTER] = eventIndex
     const fishSeed = `${save.seed}:${save.turnCount}:fish`

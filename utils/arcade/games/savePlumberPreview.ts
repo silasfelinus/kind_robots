@@ -2372,12 +2372,15 @@ export class PlumberRun implements ArcadeGameInstance {
    * Where she hangs on the rope in her column. She is wider than a tile, so on a
    * ladder against a wall she hangs flush to that wall rather than centred; a
    * shaft walled on both sides one tile wide is too narrow for her (build two).
+   * The whole rope counts, above her as well as below, so a wall beside the
+   * upper rungs moves her over before her head can catch on it.
    */
   private ropeX(): number {
     const hero = this.hero
     const col = Math.floor(hero.x / TILE)
-    const first = Math.floor((hero.y + 1) / TILE)
+    let first = Math.floor((hero.y + 1) / TILE)
     const last = Math.floor((hero.y + TALL + 2 * TILE) / TILE)
+    while (first > 0 && this.solidAt(col, first - 1) === SOLID_LADDER) first--
     let wallLeft = false
     let wallRight = false
     for (let row = first; row <= last; row++) {
@@ -4696,6 +4699,36 @@ export class PlumberRun implements ArcadeGameInstance {
       } else if (boss.state !== 'burst' && Math.abs(dx) < keep) {
         if (dx > 0) input.held.left = true
         else input.held.right = true
+      }
+      if (!this.ground && hero.vy < 0) input.held.a = true
+      return input
+    }
+    // A slam that will land within reach throws its shockwave out from under
+    // it, too close to outrun: be in the air as it comes down.
+    if (
+      boss.kind === 'slam' &&
+      boss.state === 'burst' &&
+      boss.vy > 0 &&
+      Math.abs(dx) < 96 &&
+      boss.floor - boss.y < boss.vy * 6
+    ) {
+      if (this.ground) input.pressed.a = true
+      input.held.a = true
+      return input
+    }
+    // The gale stays at home and only blows: lean into the gust at arm's length
+    // and hop its wave, so the recover window is close enough to stomp in.
+    if (
+      boss.kind === 'gale' &&
+      (boss.state === 'tell' || boss.state === 'burst')
+    ) {
+      if (Math.abs(dx) > keep) {
+        if (dx > 0) input.held.right = true
+        else input.held.left = true
+      }
+      if (wave && this.ground) {
+        input.pressed.a = true
+        input.held.a = true
       }
       if (!this.ground && hero.vy < 0) input.held.a = true
       return input

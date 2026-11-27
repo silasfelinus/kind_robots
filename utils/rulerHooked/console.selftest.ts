@@ -64,7 +64,7 @@ import {
 import { resolveScene } from '~/utils/rulerHooked/compositor'
 import { CHARACTER_EXPRESSION_KEYS } from '~/utils/rulerHooked/characterArt'
 import { availableFish } from '~/utils/rulerHooked/fish'
-import type { RunSave } from '~/types/ruler-hooked'
+import type { RegionKey, RunSave, TimeKey } from '~/types/ruler-hooked'
 
 const fresh = (seed = 'console-seed'): RunSave =>
   createRun(C, {
@@ -395,6 +395,42 @@ const fresh = (seed = 'console-seed'): RunSave =>
     '/images/ruler-hooked/treeline-wild-day.webp',
   ])
   assert.deepEqual(vistaCandidates('lake', undefined, 'day'), [])
+  assert.deepEqual(vistaCandidates('ruler', 'king-osric', 'day'), [])
+  const times: TimeKey[] = ['day', 'golden', 'dusk', 'night', 'dawn']
+  for (const [key, def] of Object.entries(C.regions.regions)) {
+    if (key === 'ruler') continue
+    for (const state of def.states) {
+      for (const time of times) {
+        const candidates = vistaCandidates(key as RegionKey, state, time)
+        const base = `/images/ruler-hooked/${key}-${state}`
+        const authored = (def.times?.length ? def.times : ['']).map(
+          (variant) => `${base}${variant ? '-' + variant : ''}.webp`,
+        )
+        const expectedTime =
+          def.times?.includes('golden') &&
+          (time === 'golden' || time === 'dusk')
+            ? 'golden'
+            : time === 'night' || time === 'dusk'
+              ? 'night'
+              : 'day'
+        const expected = def.times?.length
+          ? `${base}-${expectedTime}.webp`
+          : `${base}.webp`
+        assert.equal(candidates[0], expected)
+        assert.ok(candidates.every((path) => authored.includes(path)))
+        assert.equal(new Set(candidates).size, candidates.length)
+      }
+    }
+  }
+  const bankScene = {
+    ...scene,
+    regionStates: { ...scene.regionStates, near_bank: 'dead' },
+    fallbackStates: { ...scene.fallbackStates, near_bank: 'grassy' },
+  }
+  assert.deepEqual(sceneVistaCandidates('near_bank', bankScene, 'night'), [
+    '/images/ruler-hooked/near_bank-dead.webp',
+    '/images/ruler-hooked/near_bank-grassy.webp',
+  ])
 
   for (const [key, list] of Object.entries(BACKDROPS)) {
     assert.ok(list.length >= 2, `${key} backdrop has a rendered fallback`)

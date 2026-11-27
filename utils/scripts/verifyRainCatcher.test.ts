@@ -224,4 +224,3 @@ for (const seed of [5, 15, 42]) {
 console.log(
   'Rain Catcher: bed growth, barrels, petal chains, snowballs and pilot',
 )
-

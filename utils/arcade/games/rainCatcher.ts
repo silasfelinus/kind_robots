@@ -597,7 +597,8 @@ class RainCatcher implements ArcadeGameInstance {
     this.level = wave
     this.forecast = rainWaveForLevel(wave)
     this.chain = 0
-    this.barrelSites = this.forecast.garden === 'Terrace Paddies' ? [70, 140, 250] : BARRELS
+    this.barrelSites =
+      this.forecast.garden === 'Terrace Paddies' ? [70, 140, 250] : BARRELS
     this.filledBarrels.clear()
     this.rainIndex = 0
     this.barrels = this.barrelSites.map(() => 0)
@@ -624,9 +625,13 @@ class RainCatcher implements ArcadeGameInstance {
     this.banner = {
       text: this.forecast.localWave === 3 ? this.forecast.name : `WAVE ${wave}`,
       sub:
-        this.forecast.name === 'FIRST BLOOM' ? 'GROW SIX BEDS TO BUD' : this.forecast.name === 'FILL THE PADDIES' ? 'FILL EACH OF THREE BARRELS' : this.multiplier > 1
-          ? `${this.multiplier}X POINTS • LET RAIN FALL`
-          : 'CATCH HAIL • LET RAIN FALL',
+        this.forecast.name === 'FIRST BLOOM'
+          ? 'GROW SIX BEDS TO BUD'
+          : this.forecast.name === 'FILL THE PADDIES'
+            ? 'FILL EACH OF THREE BARRELS'
+            : this.multiplier > 1
+              ? `${this.multiplier}X POINTS • LET RAIN FALL`
+              : 'CATCH HAIL • LET RAIN FALL',
       ticks: WAVE_READY_TICKS,
     }
   }
@@ -653,8 +658,10 @@ class RainCatcher implements ArcadeGameInstance {
   }
 
   private rainTarget() {
-    if (this.forecast.name === 'FIRST BLOOM') return BEDS[this.rainIndex++ % BEDS.length]!
-    if (this.forecast.name === 'FILL THE PADDIES') return this.barrelSites[this.rainIndex++ % this.barrelSites.length]!
+    if (this.forecast.name === 'FIRST BLOOM')
+      return BEDS[this.rainIndex++ % BEDS.length]!
+    if (this.forecast.name === 'FILL THE PADDIES')
+      return this.barrelSites[this.rainIndex++ % this.barrelSites.length]!
     return BEDS[Math.floor(this.rng() * BEDS.length)]!
   }
 
@@ -910,7 +917,8 @@ class RainCatcher implements ArcadeGameInstance {
         if (this.barrels[barrel]! >= BARREL_CAPACITY) {
           this.barrels[barrel] = 0
           this.filledBarrels.add(barrel)
-          const launcher = this.barrelSites.length === 3 ? barrel : barrel === 0 ? 0 : 2
+          const launcher =
+            this.barrelSites.length === 3 ? barrel : barrel === 0 ? 0 : 2
           this.ammo[launcher] = Math.min(AMMO + 3, this.ammo[launcher]! + 5)
           this.soaked[launcher] = false
           this.sound.play('extra')
@@ -1070,10 +1078,14 @@ class RainCatcher implements ArcadeGameInstance {
     const umbrellas = this.ammo.reduce((sum, a) => sum + a, 0)
     const beds = this.lives
     const specialClear =
-      (this.forecast.name === 'FIRST BLOOM' && this.beds.every((stage) => stage >= 3)) ||
-      (this.forecast.name === 'FILL THE PADDIES' && this.filledBarrels.size === 3)
+      (this.forecast.name === 'FIRST BLOOM' &&
+        this.beds.every((stage) => stage >= 3)) ||
+      (this.forecast.name === 'FILL THE PADDIES' &&
+        this.filledBarrels.size === 3)
     const gardenBonus = specialClear ? 1000 : 0
-    const bonus = gardenBonus + (umbrellas * AMMO_BONUS + beds * BED_BONUS) * this.multiplier
+    const bonus =
+      gardenBonus +
+      (umbrellas * AMMO_BONUS + beds * BED_BONUS) * this.multiplier
     this.addScore(bonus, W / 2, 120)
     // Growth persists across waves; only earned bonus beds regrow wilted beds.
     let regrown = 0
@@ -1751,4 +1763,3 @@ const rainCatcher: ArcadeGameModule = {
 
 export const create = rainCatcher.create
 export default rainCatcher
-

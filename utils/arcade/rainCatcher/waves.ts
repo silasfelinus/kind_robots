@@ -36,7 +36,8 @@ export function rainWaveForLevel(level: number): RainWave {
   const mix = garden.mix.filter(
     (kind) => kind !== 'moth' || localWave >= 3 || gardenIndex > 0,
   ) as RainWeather[]
-  const specialName = ['FIRST BLOOM', 'FILL THE PADDIES'][gardenIndex] ?? 'SPECIAL FORECAST'
+  const specialName =
+    ['FIRST BLOOM', 'FILL THE PADDIES'][gardenIndex] ?? 'SPECIAL FORECAST'
   return {
     garden: garden.name,
     name: localWave === 3 ? specialName : 'GARDEN WAVE',
@@ -66,4 +67,3 @@ export function weatherForVolley(
   const hazards = wave.threatMix.filter((kind) => kind !== 'rain')
   return hazards[Math.abs(sequence) % hazards.length] ?? 'hail'
 }
-

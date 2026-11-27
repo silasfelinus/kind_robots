@@ -706,7 +706,7 @@ const controls = [
     keyboard: 'SPACE / ↑',
     pad: 'A',
     label: 'JUMP',
-    does: 'Hold to jump higher; W works too',
+    does: 'Hold to jump higher; W works too. With Gurgle, press again in midair to spend stored water on an extra hop.',
   },
   {
     keyboard: 'SHIFT',
@@ -718,7 +718,7 @@ const controls = [
     keyboard: 'E / C',
     pad: 'X',
     label: 'WRENCH',
-    does: 'Strike enemies, crates and valves. Hold Down + Wrench to lift a stunned Rivet Roller; Wrench again to throw.',
+    does: 'Strike enemies, crates and valves. Down + Wrench mounts or parks Gurgle on dry ground, or lifts a stunned Rivet Roller. Wrench again throws a held roller.',
   },
   {
     keyboard: 'F / V',

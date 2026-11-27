@@ -25,7 +25,7 @@ import {
   walkScene,
 } from '../everyVillainTactics/sceneGraph'
 
-assert.equal(STAGE_PRESETS.length, 21)
+assert.equal(STAGE_PRESETS.length, 22)
 assert.ok(STAGE_PRESETS.some((stage) => stage.id === 'hydrant-blue'))
 assert.ok(
   STAGE_PRESETS.some((stage) => stage.id === 'song-that-stopped'),
@@ -44,6 +44,54 @@ for (const preset of STAGE_PRESETS) {
   assert.equal(preset.spawns.length, 6)
   assert.equal(new Set(preset.spawns.map((u) => u.id)).size, 6)
 }
+// The vigil's allegiance-specific introductions and irreversible narrative
+// decision have real, one-time effects and distinct closing branches.
+for (const perspective of ['hero', 'villain'] as const) {
+  for (const choice of [0, 1]) {
+    const vigil = clonePreset('candle-that-wouldnt-die')
+    const vigilScript = vigil.script!
+    const battle = trainingState(41, vigil, { lead: 'magic-fire' })
+    assert.deepEqual(latchScenes(battle, vigilScript, vigil), [
+      'candle-vigil-opening',
+    ])
+    const intro = pendingScriptScene(battle, vigilScript)!
+    assert.ok(
+      walkScene(intro, [], { state: battle, perspective })!.nodes.some(
+        (node) => node.id === (perspective === 'hero' ? 'oh' : 'ov'),
+      ),
+    )
+    assert.ok(finishScene(battle, intro, [], perspective))
+    battle.turn = 2
+    assert.ok(
+      latchScenes(battle, vigilScript, vigil).includes('candle-vigil-choice'),
+    )
+    const decision = pendingScriptScene(battle, vigilScript)!
+    const lead = battle.units[0]!
+    lead.hp = lead.maxHp - 1
+    assert.ok(finishScene(battle, decision, [choice], perspective))
+    assert.equal(finishScene(battle, decision, [1 - choice], perspective), false)
+    assert.ok(
+      battle.flags?.includes(choice === 0 ? 'vigil-memories' : 'vigil-extinguish'),
+    )
+    if (choice === 0) assert.equal(lead.hp, lead.maxHp)
+    else
+      assert.ok(
+        battle.units.some(
+          (unit) => unit.team === 'rival' && unit.statuses.includes('suppressed'),
+        ),
+      )
+    battle.phase = 'victory'
+    latchScenes(battle, vigilScript, vigil)
+    const finale = pendingScriptScene(battle, vigilScript)!
+    assert.equal(finale.id, 'candle-vigil-victory')
+    assert.ok(
+      walkScene(finale, [], { state: battle, perspective })!.nodes.some(
+        (node) => node.id === (choice === 0 ? 'va' : 'vb'),
+      ),
+    )
+  }
+}
+
 const quad = clonePreset('college-quad')
 assert.equal(tileAt(quad.map, { x: 4, y: 2 }).wall, true)
 assert.equal(tileAt(quad.map, { x: 5, y: 3 }).wall, true)

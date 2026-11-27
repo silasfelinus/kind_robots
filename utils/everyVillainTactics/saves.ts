@@ -678,7 +678,16 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
     if (power) {
       if (!isInt(unit.powerCooldown, 0, power.cooldown))
         return reject(unit.id + ' power recharge is invalid.')
-      if (!isBool(unit.powerSpent) || (unit.powerSpent && power.cooldown !== 0))
+      const ritualSpent =
+        mission &&
+        unit.id === 'backdraft' &&
+        unit.identity === mission.lead &&
+        state.flags?.includes(mission.flag) &&
+        unit.powerCooldown === 0
+      if (
+        !isBool(unit.powerSpent) ||
+        (unit.powerSpent && power.cooldown !== 0 && !ritualSpent)
+      )
         return reject(unit.id + ' power use is invalid.')
     } else if (
       unit.powerCooldown !== undefined ||

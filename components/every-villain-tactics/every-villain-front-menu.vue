@@ -539,6 +539,44 @@
             </button>
           </div>
         </div>
+        <div
+          v-if="pickedLead === 'magic-fire'"
+          class="evf-origin-battle"
+          data-testid="front-origin-candle-that-wouldnt-die-section"
+        >
+          <h3 class="evf-label">
+            YOUR POWER ORIGIN / THE CANDLE THAT WOULDN'T DIE
+          </h3>
+          <div class="evf-stages">
+            <button
+              type="button"
+              class="evf-stage"
+              data-testid="front-origin-candle-that-wouldnt-die"
+              @click="
+                store.startOneShot(
+                  'candle-that-wouldnt-die',
+                  pickedLead,
+                  pickedView,
+                )
+              "
+            >
+              <img
+                v-if="art('districts/student-commons')"
+                :src="art('districts/student-commons')!"
+                alt=""
+                loading="lazy"
+              />
+              <span class="evf-stage-text">
+                <small class="evf-kicker">LANTERNWITCH / ORIGIN BATTLE</small>
+                <strong>The Candle That Wouldn't Die</strong>
+                <span>
+                  Bind the candle beside column 5, row 4 with both AP free.
+                  Rescue both mourners before the chapel collapses.
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
         <template v-if="store.screen === 'oneshot'">
           <h3 class="evf-label">04 / Pick a battlefield</h3>
           <div class="evf-stages">

@@ -728,6 +728,60 @@ assert.equal(
   'wall blocks remote proof rewrite',
 )
 
+// Lanternwitch's ritual uses both AP and binds a normally rechargeable power
+// for this origin only. Check the saved receipt and ordinary power rejection.
+for (const perspective of ['hero', 'villain'] as const) {
+  const stage = clonePreset('candle-that-wouldnt-die')
+  assert.deepEqual(stageProblems(stage), [])
+  const state = trainingState(41, stage, { lead: 'magic-fire' })
+  const actor = state.units[0]!
+  state.selected = actor.id
+  actor.x = 5
+  actor.y = 2
+  actor.ap = 2
+  assert.equal(rescueSelected(state), false)
+  actor.x = 3
+  actor.y = 3
+  actor.ap = 1
+  assert.equal(useSelectedPower(state, { x: 4, y: 3 }), false)
+  actor.ap = 2
+  assert.deepEqual(selectedPowerTargets(state), [{ x: 4, y: 3 }])
+  assert.equal(useSelectedPower(state, { x: 4, y: 3 }), true)
+  assert.equal(actor.ap, 0)
+  assert.ok(state.flags?.includes('vigil-flame-bound'))
+  assert.equal(actor.powerSpent, true)
+  const checkpoint = createSave({
+    slot: 'slot-2',
+    perspective,
+    leadSignature: 'magic-fire',
+    stage,
+    state,
+    story: { ...createStory(), current: null },
+  })
+  assert.ok(loadSave(JSON.stringify(checkpoint)).ok)
+  assert.equal(
+    loadSave(
+      JSON.stringify(createSave({ ...checkpoint, state: { ...state, flags: [] } })),
+    ).ok,
+    false,
+  )
+  actor.ap = 2
+  assert.deepEqual(selectedPowerTargets(state), [])
+  for (const civilian of stage.civilians!) {
+    actor.x = civilian.x
+    actor.y = civilian.y
+    actor.ap = 2
+    assert.equal(rescueSelected(state), true)
+  }
+  assert.equal(state.phase, 'victory')
+}
+assert.ok(
+  readFileSync(
+    'components/every-villain-tactics/every-villain-front-menu.vue',
+    'utf8',
+  ).includes('front-origin-candle-that-wouldnt-die'),
+)
+
 // Identity-locked rescue scenarios cannot strand someone without the needed
 // power, even if a saved menu or scripted call bypasses the visual filter.
 assert.deepEqual(ORIGIN_STAGE_LEADS, {
@@ -739,6 +793,7 @@ assert.deepEqual(ORIGIN_STAGE_LEADS, {
   'hydrant-blue': 'accident-water',
   'clocktower-collapse': 'accident-discipline',
   'equation-that-escaped': 'accident-genius',
+  'candle-that-wouldnt-die': 'magic-fire',
 })
 for (const [stage, signature] of Object.entries(ORIGIN_STAGE_LEADS)) {
   assert.equal(canStartOneShot(stage, signature), true)

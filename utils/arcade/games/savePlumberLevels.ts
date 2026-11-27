@@ -39,6 +39,8 @@
  *   %  compressed-air canister: restores jet pressure in space
  *   ;  recharge dock: continuously tops up pressure when nearby
  *   &  orbiting space debris: circles its anchor and hurts on contact
+ *   _  scale plate: weighed down by Ballast Boots or a parked Gurgle
+ *   Z  sluice gate (a wall that lifts while every scale plate is weighed down)
  *   $  solar gust: pulses outward after a visible warning
  */
 
@@ -1410,6 +1412,8 @@ export const SOLID_LOCK = 15
 /** One-way, walkable 45-degree terrain surfaces. */
 export const SOLID_SLOPE_UP = 16
 export const SOLID_SLOPE_DOWN = 17
+/** A wall that lifts while every scale plate on the stage is weighed down. */
+export const SOLID_SLUICE = 18
 
 export function isSlope(solid: number): boolean {
   return solid === SOLID_SLOPE_UP || solid === SOLID_SLOPE_DOWN
@@ -1464,6 +1468,7 @@ export type SpawnKind =
   | 'orbital-debris'
   | 'solar-gust'
   | 'key'
+  | 'scale-plate'
 
 export type Spawn = {
   kind: SpawnKind
@@ -1543,6 +1548,7 @@ const SPAWNS: Record<string, SpawnKind> = {
   '&': 'orbital-debris',
   $: 'solar-gust',
   '0': 'key',
+  _: 'scale-plate',
 }
 
 /** Giant versions of the original foe roster. Each glyph plays with the base AI. */
@@ -1580,6 +1586,7 @@ const SOLIDS: Record<string, number> = {
   ':': SOLID_BRIDGE,
   '|': SOLID_LADDER,
   '[': SOLID_LOCK,
+  Z: SOLID_SLUICE,
   '/': SOLID_SLOPE_UP,
   '\\': SOLID_SLOPE_DOWN,
 }

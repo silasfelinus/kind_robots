@@ -16,6 +16,7 @@ on:
       - 'utils/scripts/verifySavePlumberOverworld.test.ts'
       - 'utils/scripts/verifySavePlumberGears.test.ts'
       - 'utils/scripts/verifySavePlumberPreview.test.ts'
+      - 'utils/scripts/verifyCabinetSavePlumberScalePlates.test.ts'
       - '.github/workflows/save-plumber-maker-contract.yml'
 permissions:
   contents: read
@@ -47,3 +48,5 @@ jobs:
         run: npx tsx utils/scripts/verifySavePlumberGears.test.ts --secret-exits-only
       - name: Verify opening flow, music and action cues
         run: npx tsx utils/scripts/verifySavePlumberPreview.test.ts
+      - name: Verify scale plates and sluice gates
+        run: npx tsx utils/scripts/verifyCabinetSavePlumberScalePlates.test.ts

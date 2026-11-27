@@ -32,6 +32,7 @@ export type TarotCardAvgAggregateOutputType = {
   ordinal: number | null
   artJobId: number | null
   artImageId: number | null
+  selectedArtId: number | null
 }
 
 export type TarotCardSumAggregateOutputType = {
@@ -40,6 +41,7 @@ export type TarotCardSumAggregateOutputType = {
   ordinal: number | null
   artJobId: number | null
   artImageId: number | null
+  selectedArtId: number | null
 }
 
 export type TarotCardMinAggregateOutputType = {
@@ -62,6 +64,7 @@ export type TarotCardMinAggregateOutputType = {
   artJobId: number | null
   artImageId: number | null
   imageUrl: string | null
+  selectedArtId: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -86,6 +89,7 @@ export type TarotCardMaxAggregateOutputType = {
   artJobId: number | null
   artImageId: number | null
   imageUrl: string | null
+  selectedArtId: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -110,6 +114,7 @@ export type TarotCardCountAggregateOutputType = {
   artJobId: number
   artImageId: number
   imageUrl: number
+  selectedArtId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -122,6 +127,7 @@ export type TarotCardAvgAggregateInputType = {
   ordinal?: true
   artJobId?: true
   artImageId?: true
+  selectedArtId?: true
 }
 
 export type TarotCardSumAggregateInputType = {
@@ -130,6 +136,7 @@ export type TarotCardSumAggregateInputType = {
   ordinal?: true
   artJobId?: true
   artImageId?: true
+  selectedArtId?: true
 }
 
 export type TarotCardMinAggregateInputType = {
@@ -152,6 +159,7 @@ export type TarotCardMinAggregateInputType = {
   artJobId?: true
   artImageId?: true
   imageUrl?: true
+  selectedArtId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -176,6 +184,7 @@ export type TarotCardMaxAggregateInputType = {
   artJobId?: true
   artImageId?: true
   imageUrl?: true
+  selectedArtId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -200,6 +209,7 @@ export type TarotCardCountAggregateInputType = {
   artJobId?: true
   artImageId?: true
   imageUrl?: true
+  selectedArtId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -311,6 +321,7 @@ export type TarotCardGroupByOutputType = {
   artJobId: number | null
   artImageId: number | null
   imageUrl: string | null
+  selectedArtId: number | null
   createdAt: Date
   updatedAt: Date
   _count: TarotCardCountAggregateOutputType | null
@@ -358,9 +369,11 @@ export type TarotCardWhereInput = {
   artJobId?: Prisma.IntNullableFilter<"TarotCard"> | number | null
   artImageId?: Prisma.IntNullableFilter<"TarotCard"> | number | null
   imageUrl?: Prisma.StringNullableFilter<"TarotCard"> | string | null
+  selectedArtId?: Prisma.IntNullableFilter<"TarotCard"> | number | null
   createdAt?: Prisma.DateTimeFilter<"TarotCard"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"TarotCard"> | Date | string
   Deck?: Prisma.XOR<Prisma.TarotDeckScalarRelationFilter, Prisma.TarotDeckWhereInput>
+  Art?: Prisma.TarotArtListRelationFilter
 }
 
 export type TarotCardOrderByWithRelationInput = {
@@ -383,9 +396,11 @@ export type TarotCardOrderByWithRelationInput = {
   artJobId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  selectedArtId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   Deck?: Prisma.TarotDeckOrderByWithRelationInput
+  Art?: Prisma.TarotArtOrderByRelationAggregateInput
   _relevance?: Prisma.TarotCardOrderByRelevanceInput
 }
 
@@ -413,9 +428,11 @@ export type TarotCardWhereUniqueInput = Prisma.AtLeast<{
   artJobId?: Prisma.IntNullableFilter<"TarotCard"> | number | null
   artImageId?: Prisma.IntNullableFilter<"TarotCard"> | number | null
   imageUrl?: Prisma.StringNullableFilter<"TarotCard"> | string | null
+  selectedArtId?: Prisma.IntNullableFilter<"TarotCard"> | number | null
   createdAt?: Prisma.DateTimeFilter<"TarotCard"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"TarotCard"> | Date | string
   Deck?: Prisma.XOR<Prisma.TarotDeckScalarRelationFilter, Prisma.TarotDeckWhereInput>
+  Art?: Prisma.TarotArtListRelationFilter
 }, "id" | "deckId_key">
 
 export type TarotCardOrderByWithAggregationInput = {
@@ -438,6 +455,7 @@ export type TarotCardOrderByWithAggregationInput = {
   artJobId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  selectedArtId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TarotCardCountOrderByAggregateInput
@@ -470,6 +488,7 @@ export type TarotCardScalarWhereWithAggregatesInput = {
   artJobId?: Prisma.IntNullableWithAggregatesFilter<"TarotCard"> | number | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"TarotCard"> | number | null
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"TarotCard"> | string | null
+  selectedArtId?: Prisma.IntNullableWithAggregatesFilter<"TarotCard"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"TarotCard"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"TarotCard"> | Date | string
 }
@@ -492,9 +511,11 @@ export type TarotCardCreateInput = {
   artJobId?: number | null
   artImageId?: number | null
   imageUrl?: string | null
+  selectedArtId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   Deck: Prisma.TarotDeckCreateNestedOneWithoutCardsInput
+  Art?: Prisma.TarotArtCreateNestedManyWithoutCardInput
 }
 
 export type TarotCardUncheckedCreateInput = {
@@ -517,8 +538,10 @@ export type TarotCardUncheckedCreateInput = {
   artJobId?: number | null
   artImageId?: number | null
   imageUrl?: string | null
+  selectedArtId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  Art?: Prisma.TarotArtUncheckedCreateNestedManyWithoutCardInput
 }
 
 export type TarotCardUpdateInput = {
@@ -539,9 +562,11 @@ export type TarotCardUpdateInput = {
   artJobId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selectedArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Deck?: Prisma.TarotDeckUpdateOneRequiredWithoutCardsNestedInput
+  Art?: Prisma.TarotArtUpdateManyWithoutCardNestedInput
 }
 
 export type TarotCardUncheckedUpdateInput = {
@@ -564,8 +589,10 @@ export type TarotCardUncheckedUpdateInput = {
   artJobId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selectedArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Art?: Prisma.TarotArtUncheckedUpdateManyWithoutCardNestedInput
 }
 
 export type TarotCardCreateManyInput = {
@@ -588,6 +615,7 @@ export type TarotCardCreateManyInput = {
   artJobId?: number | null
   artImageId?: number | null
   imageUrl?: string | null
+  selectedArtId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -610,6 +638,7 @@ export type TarotCardUpdateManyMutationInput = {
   artJobId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selectedArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -634,6 +663,7 @@ export type TarotCardUncheckedUpdateManyInput = {
   artJobId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selectedArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -679,6 +709,7 @@ export type TarotCardCountOrderByAggregateInput = {
   artJobId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  selectedArtId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -689,6 +720,7 @@ export type TarotCardAvgOrderByAggregateInput = {
   ordinal?: Prisma.SortOrder
   artJobId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  selectedArtId?: Prisma.SortOrder
 }
 
 export type TarotCardMaxOrderByAggregateInput = {
@@ -711,6 +743,7 @@ export type TarotCardMaxOrderByAggregateInput = {
   artJobId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  selectedArtId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -735,6 +768,7 @@ export type TarotCardMinOrderByAggregateInput = {
   artJobId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  selectedArtId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -745,6 +779,12 @@ export type TarotCardSumOrderByAggregateInput = {
   ordinal?: Prisma.SortOrder
   artJobId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  selectedArtId?: Prisma.SortOrder
+}
+
+export type TarotCardNullableScalarRelationFilter = {
+  is?: Prisma.TarotCardWhereInput | null
+  isNot?: Prisma.TarotCardWhereInput | null
 }
 
 export type TarotCardCreateNestedManyWithoutDeckInput = {
@@ -789,6 +829,22 @@ export type TarotCardUncheckedUpdateManyWithoutDeckNestedInput = {
   deleteMany?: Prisma.TarotCardScalarWhereInput | Prisma.TarotCardScalarWhereInput[]
 }
 
+export type TarotCardCreateNestedOneWithoutArtInput = {
+  create?: Prisma.XOR<Prisma.TarotCardCreateWithoutArtInput, Prisma.TarotCardUncheckedCreateWithoutArtInput>
+  connectOrCreate?: Prisma.TarotCardCreateOrConnectWithoutArtInput
+  connect?: Prisma.TarotCardWhereUniqueInput
+}
+
+export type TarotCardUpdateOneWithoutArtNestedInput = {
+  create?: Prisma.XOR<Prisma.TarotCardCreateWithoutArtInput, Prisma.TarotCardUncheckedCreateWithoutArtInput>
+  connectOrCreate?: Prisma.TarotCardCreateOrConnectWithoutArtInput
+  upsert?: Prisma.TarotCardUpsertWithoutArtInput
+  disconnect?: Prisma.TarotCardWhereInput | boolean
+  delete?: Prisma.TarotCardWhereInput | boolean
+  connect?: Prisma.TarotCardWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TarotCardUpdateToOneWithWhereWithoutArtInput, Prisma.TarotCardUpdateWithoutArtInput>, Prisma.TarotCardUncheckedUpdateWithoutArtInput>
+}
+
 export type TarotCardCreateWithoutDeckInput = {
   key: string
   title: string
@@ -807,8 +863,10 @@ export type TarotCardCreateWithoutDeckInput = {
   artJobId?: number | null
   artImageId?: number | null
   imageUrl?: string | null
+  selectedArtId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  Art?: Prisma.TarotArtCreateNestedManyWithoutCardInput
 }
 
 export type TarotCardUncheckedCreateWithoutDeckInput = {
@@ -830,8 +888,10 @@ export type TarotCardUncheckedCreateWithoutDeckInput = {
   artJobId?: number | null
   artImageId?: number | null
   imageUrl?: string | null
+  selectedArtId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  Art?: Prisma.TarotArtUncheckedCreateNestedManyWithoutCardInput
 }
 
 export type TarotCardCreateOrConnectWithoutDeckInput = {
@@ -883,8 +943,123 @@ export type TarotCardScalarWhereInput = {
   artJobId?: Prisma.IntNullableFilter<"TarotCard"> | number | null
   artImageId?: Prisma.IntNullableFilter<"TarotCard"> | number | null
   imageUrl?: Prisma.StringNullableFilter<"TarotCard"> | string | null
+  selectedArtId?: Prisma.IntNullableFilter<"TarotCard"> | number | null
   createdAt?: Prisma.DateTimeFilter<"TarotCard"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"TarotCard"> | Date | string
+}
+
+export type TarotCardCreateWithoutArtInput = {
+  key: string
+  title: string
+  arcana: string
+  suit?: string | null
+  rank: string
+  ordinal: number
+  oracleId: string
+  prompt: string
+  checkpoint?: string | null
+  loras: string
+  status?: string
+  upright: string
+  reversed: string
+  notes: string
+  artJobId?: number | null
+  artImageId?: number | null
+  imageUrl?: string | null
+  selectedArtId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  Deck: Prisma.TarotDeckCreateNestedOneWithoutCardsInput
+}
+
+export type TarotCardUncheckedCreateWithoutArtInput = {
+  id?: number
+  deckId: number
+  key: string
+  title: string
+  arcana: string
+  suit?: string | null
+  rank: string
+  ordinal: number
+  oracleId: string
+  prompt: string
+  checkpoint?: string | null
+  loras: string
+  status?: string
+  upright: string
+  reversed: string
+  notes: string
+  artJobId?: number | null
+  artImageId?: number | null
+  imageUrl?: string | null
+  selectedArtId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type TarotCardCreateOrConnectWithoutArtInput = {
+  where: Prisma.TarotCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.TarotCardCreateWithoutArtInput, Prisma.TarotCardUncheckedCreateWithoutArtInput>
+}
+
+export type TarotCardUpsertWithoutArtInput = {
+  update: Prisma.XOR<Prisma.TarotCardUpdateWithoutArtInput, Prisma.TarotCardUncheckedUpdateWithoutArtInput>
+  create: Prisma.XOR<Prisma.TarotCardCreateWithoutArtInput, Prisma.TarotCardUncheckedCreateWithoutArtInput>
+  where?: Prisma.TarotCardWhereInput
+}
+
+export type TarotCardUpdateToOneWithWhereWithoutArtInput = {
+  where?: Prisma.TarotCardWhereInput
+  data: Prisma.XOR<Prisma.TarotCardUpdateWithoutArtInput, Prisma.TarotCardUncheckedUpdateWithoutArtInput>
+}
+
+export type TarotCardUpdateWithoutArtInput = {
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  arcana?: Prisma.StringFieldUpdateOperationsInput | string
+  suit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rank?: Prisma.StringFieldUpdateOperationsInput | string
+  ordinal?: Prisma.IntFieldUpdateOperationsInput | number
+  oracleId?: Prisma.StringFieldUpdateOperationsInput | string
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  loras?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  upright?: Prisma.StringFieldUpdateOperationsInput | string
+  reversed?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.StringFieldUpdateOperationsInput | string
+  artJobId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selectedArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Deck?: Prisma.TarotDeckUpdateOneRequiredWithoutCardsNestedInput
+}
+
+export type TarotCardUncheckedUpdateWithoutArtInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  deckId?: Prisma.IntFieldUpdateOperationsInput | number
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  arcana?: Prisma.StringFieldUpdateOperationsInput | string
+  suit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rank?: Prisma.StringFieldUpdateOperationsInput | string
+  ordinal?: Prisma.IntFieldUpdateOperationsInput | number
+  oracleId?: Prisma.StringFieldUpdateOperationsInput | string
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  loras?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  upright?: Prisma.StringFieldUpdateOperationsInput | string
+  reversed?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.StringFieldUpdateOperationsInput | string
+  artJobId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selectedArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TarotCardCreateManyDeckInput = {
@@ -906,6 +1081,7 @@ export type TarotCardCreateManyDeckInput = {
   artJobId?: number | null
   artImageId?: number | null
   imageUrl?: string | null
+  selectedArtId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -928,8 +1104,10 @@ export type TarotCardUpdateWithoutDeckInput = {
   artJobId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selectedArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Art?: Prisma.TarotArtUpdateManyWithoutCardNestedInput
 }
 
 export type TarotCardUncheckedUpdateWithoutDeckInput = {
@@ -951,8 +1129,10 @@ export type TarotCardUncheckedUpdateWithoutDeckInput = {
   artJobId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selectedArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Art?: Prisma.TarotArtUncheckedUpdateManyWithoutCardNestedInput
 }
 
 export type TarotCardUncheckedUpdateManyWithoutDeckInput = {
@@ -974,10 +1154,40 @@ export type TarotCardUncheckedUpdateManyWithoutDeckInput = {
   artJobId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selectedArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type TarotCardCountOutputType
+ */
+
+export type TarotCardCountOutputType = {
+  Art: number
+}
+
+export type TarotCardCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  Art?: boolean | TarotCardCountOutputTypeCountArtArgs
+}
+
+/**
+ * TarotCardCountOutputType without action
+ */
+export type TarotCardCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TarotCardCountOutputType
+   */
+  select?: Prisma.TarotCardCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * TarotCardCountOutputType without action
+ */
+export type TarotCardCountOutputTypeCountArtArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TarotArtWhereInput
+}
 
 
 export type TarotCardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1000,9 +1210,12 @@ export type TarotCardSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   artJobId?: boolean
   artImageId?: boolean
   imageUrl?: boolean
+  selectedArtId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   Deck?: boolean | Prisma.TarotDeckDefaultArgs<ExtArgs>
+  Art?: boolean | Prisma.TarotCard$ArtArgs<ExtArgs>
+  _count?: boolean | Prisma.TarotCardCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tarotCard"]>
 
 
@@ -1027,19 +1240,23 @@ export type TarotCardSelectScalar = {
   artJobId?: boolean
   artImageId?: boolean
   imageUrl?: boolean
+  selectedArtId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TarotCardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "deckId" | "key" | "title" | "arcana" | "suit" | "rank" | "ordinal" | "oracleId" | "prompt" | "checkpoint" | "loras" | "status" | "upright" | "reversed" | "notes" | "artJobId" | "artImageId" | "imageUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["tarotCard"]>
+export type TarotCardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "deckId" | "key" | "title" | "arcana" | "suit" | "rank" | "ordinal" | "oracleId" | "prompt" | "checkpoint" | "loras" | "status" | "upright" | "reversed" | "notes" | "artJobId" | "artImageId" | "imageUrl" | "selectedArtId" | "createdAt" | "updatedAt", ExtArgs["result"]["tarotCard"]>
 export type TarotCardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Deck?: boolean | Prisma.TarotDeckDefaultArgs<ExtArgs>
+  Art?: boolean | Prisma.TarotCard$ArtArgs<ExtArgs>
+  _count?: boolean | Prisma.TarotCardCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $TarotCardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "TarotCard"
   objects: {
     Deck: Prisma.$TarotDeckPayload<ExtArgs>
+    Art: Prisma.$TarotArtPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1061,6 +1278,10 @@ export type $TarotCardPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     artJobId: number | null
     artImageId: number | null
     imageUrl: string | null
+    /**
+     * The TarotArt variant currently shown as this card's default face.
+     */
+    selectedArtId: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["tarotCard"]>
@@ -1404,6 +1625,7 @@ readonly fields: TarotCardFieldRefs;
 export interface Prisma__TarotCardClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   Deck<T extends Prisma.TarotDeckDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TarotDeckDefaultArgs<ExtArgs>>): Prisma.Prisma__TarotDeckClient<runtime.Types.Result.GetResult<Prisma.$TarotDeckPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Art<T extends Prisma.TarotCard$ArtArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TarotCard$ArtArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TarotArtPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1452,6 +1674,7 @@ export interface TarotCardFieldRefs {
   readonly artJobId: Prisma.FieldRef<"TarotCard", 'Int'>
   readonly artImageId: Prisma.FieldRef<"TarotCard", 'Int'>
   readonly imageUrl: Prisma.FieldRef<"TarotCard", 'String'>
+  readonly selectedArtId: Prisma.FieldRef<"TarotCard", 'Int'>
   readonly createdAt: Prisma.FieldRef<"TarotCard", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"TarotCard", 'DateTime'>
 }
@@ -1799,6 +2022,30 @@ export type TarotCardDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many TarotCards to delete.
    */
   limit?: number
+}
+
+/**
+ * TarotCard.Art
+ */
+export type TarotCard$ArtArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TarotArt
+   */
+  select?: Prisma.TarotArtSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TarotArt
+   */
+  omit?: Prisma.TarotArtOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TarotArtInclude<ExtArgs> | null
+  where?: Prisma.TarotArtWhereInput
+  orderBy?: Prisma.TarotArtOrderByWithRelationInput | Prisma.TarotArtOrderByWithRelationInput[]
+  cursor?: Prisma.TarotArtWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TarotArtScalarFieldEnum | Prisma.TarotArtScalarFieldEnum[]
 }
 
 /**

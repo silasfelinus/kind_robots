@@ -2,13 +2,14 @@ import { defineEventHandler } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
 import { errorHandler } from '~/server/utils/error'
+import { TAROT_DECK_INCLUDE } from '~/server/utils/tarotStudio'
 
 export default defineEventHandler(async (event) => {
   try {
     await requireAdminApiUser(event)
     const decks = await prisma.tarotDeck.findMany({
       orderBy: { createdAt: 'asc' },
-      include: { Cards: { orderBy: { ordinal: 'asc' } } },
+      include: TAROT_DECK_INCLUDE,
     })
     return {
       success: true,

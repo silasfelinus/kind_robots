@@ -194,6 +194,8 @@ export const ModelName = {
   SlimeCityMatch: 'SlimeCityMatch',
   TarotDeck: 'TarotDeck',
   TarotCard: 'TarotCard',
+  TarotDesign: 'TarotDesign',
+  TarotArt: 'TarotArt',
   ArcadeCabinetSave: 'ArcadeCabinetSave',
   SiteStatDaily: 'SiteStatDaily',
   TzaddikCandidate: 'TzaddikCandidate',
@@ -2895,6 +2897,9 @@ export const TarotDeckScalarFieldEnum = {
   defaultLoras: 'defaultLoras',
   backPrompt: 'backPrompt',
   printStatus: 'printStatus',
+  isPublic: 'isPublic',
+  approvedDesignId: 'approvedDesignId',
+  backArtId: 'backArtId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2922,11 +2927,55 @@ export const TarotCardScalarFieldEnum = {
   artJobId: 'artJobId',
   artImageId: 'artImageId',
   imageUrl: 'imageUrl',
+  selectedArtId: 'selectedArtId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TarotCardScalarFieldEnum = (typeof TarotCardScalarFieldEnum)[keyof typeof TarotCardScalarFieldEnum]
+
+
+export const TarotDesignScalarFieldEnum = {
+  id: 'id',
+  deckId: 'deckId',
+  key: 'key',
+  title: 'title',
+  stylePrompt: 'stylePrompt',
+  backPrompt: 'backPrompt',
+  engine: 'engine',
+  checkpoint: 'checkpoint',
+  loras: 'loras',
+  status: 'status',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TarotDesignScalarFieldEnum = (typeof TarotDesignScalarFieldEnum)[keyof typeof TarotDesignScalarFieldEnum]
+
+
+export const TarotArtScalarFieldEnum = {
+  id: 'id',
+  deckId: 'deckId',
+  designId: 'designId',
+  cardId: 'cardId',
+  side: 'side',
+  purpose: 'purpose',
+  prompt: 'prompt',
+  engine: 'engine',
+  checkpoint: 'checkpoint',
+  loras: 'loras',
+  width: 'width',
+  height: 'height',
+  status: 'status',
+  error: 'error',
+  artJobId: 'artJobId',
+  artImageId: 'artImageId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TarotArtScalarFieldEnum = (typeof TarotArtScalarFieldEnum)[keyof typeof TarotArtScalarFieldEnum]
 
 
 export const ArcadeCabinetSaveScalarFieldEnum = {
@@ -4570,6 +4619,35 @@ export const TarotCardOrderByRelevanceFieldEnum = {
 } as const
 
 export type TarotCardOrderByRelevanceFieldEnum = (typeof TarotCardOrderByRelevanceFieldEnum)[keyof typeof TarotCardOrderByRelevanceFieldEnum]
+
+
+export const TarotDesignOrderByRelevanceFieldEnum = {
+  key: 'key',
+  title: 'title',
+  stylePrompt: 'stylePrompt',
+  backPrompt: 'backPrompt',
+  engine: 'engine',
+  checkpoint: 'checkpoint',
+  loras: 'loras',
+  status: 'status',
+  notes: 'notes'
+} as const
+
+export type TarotDesignOrderByRelevanceFieldEnum = (typeof TarotDesignOrderByRelevanceFieldEnum)[keyof typeof TarotDesignOrderByRelevanceFieldEnum]
+
+
+export const TarotArtOrderByRelevanceFieldEnum = {
+  side: 'side',
+  purpose: 'purpose',
+  prompt: 'prompt',
+  engine: 'engine',
+  checkpoint: 'checkpoint',
+  loras: 'loras',
+  status: 'status',
+  error: 'error'
+} as const
+
+export type TarotArtOrderByRelevanceFieldEnum = (typeof TarotArtOrderByRelevanceFieldEnum)[keyof typeof TarotArtOrderByRelevanceFieldEnum]
 
 
 export const ArcadeCabinetSaveOrderByRelevanceFieldEnum = {

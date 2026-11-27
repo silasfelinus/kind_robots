@@ -29,10 +29,14 @@ export type AggregateTarotDeck = {
 
 export type TarotDeckAvgAggregateOutputType = {
   id: number | null
+  approvedDesignId: number | null
+  backArtId: number | null
 }
 
 export type TarotDeckSumAggregateOutputType = {
   id: number | null
+  approvedDesignId: number | null
+  backArtId: number | null
 }
 
 export type TarotDeckMinAggregateOutputType = {
@@ -46,6 +50,9 @@ export type TarotDeckMinAggregateOutputType = {
   defaultLoras: string | null
   backPrompt: string | null
   printStatus: string | null
+  isPublic: boolean | null
+  approvedDesignId: number | null
+  backArtId: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -61,6 +68,9 @@ export type TarotDeckMaxAggregateOutputType = {
   defaultLoras: string | null
   backPrompt: string | null
   printStatus: string | null
+  isPublic: boolean | null
+  approvedDesignId: number | null
+  backArtId: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -76,6 +86,9 @@ export type TarotDeckCountAggregateOutputType = {
   defaultLoras: number
   backPrompt: number
   printStatus: number
+  isPublic: number
+  approvedDesignId: number
+  backArtId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -84,10 +97,14 @@ export type TarotDeckCountAggregateOutputType = {
 
 export type TarotDeckAvgAggregateInputType = {
   id?: true
+  approvedDesignId?: true
+  backArtId?: true
 }
 
 export type TarotDeckSumAggregateInputType = {
   id?: true
+  approvedDesignId?: true
+  backArtId?: true
 }
 
 export type TarotDeckMinAggregateInputType = {
@@ -101,6 +118,9 @@ export type TarotDeckMinAggregateInputType = {
   defaultLoras?: true
   backPrompt?: true
   printStatus?: true
+  isPublic?: true
+  approvedDesignId?: true
+  backArtId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -116,6 +136,9 @@ export type TarotDeckMaxAggregateInputType = {
   defaultLoras?: true
   backPrompt?: true
   printStatus?: true
+  isPublic?: true
+  approvedDesignId?: true
+  backArtId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -131,6 +154,9 @@ export type TarotDeckCountAggregateInputType = {
   defaultLoras?: true
   backPrompt?: true
   printStatus?: true
+  isPublic?: true
+  approvedDesignId?: true
+  backArtId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -233,6 +259,9 @@ export type TarotDeckGroupByOutputType = {
   defaultLoras: string
   backPrompt: string
   printStatus: string
+  isPublic: boolean
+  approvedDesignId: number | null
+  backArtId: number | null
   createdAt: Date
   updatedAt: Date
   _count: TarotDeckCountAggregateOutputType | null
@@ -271,9 +300,14 @@ export type TarotDeckWhereInput = {
   defaultLoras?: Prisma.StringFilter<"TarotDeck"> | string
   backPrompt?: Prisma.StringFilter<"TarotDeck"> | string
   printStatus?: Prisma.StringFilter<"TarotDeck"> | string
+  isPublic?: Prisma.BoolFilter<"TarotDeck"> | boolean
+  approvedDesignId?: Prisma.IntNullableFilter<"TarotDeck"> | number | null
+  backArtId?: Prisma.IntNullableFilter<"TarotDeck"> | number | null
   createdAt?: Prisma.DateTimeFilter<"TarotDeck"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"TarotDeck"> | Date | string
   Cards?: Prisma.TarotCardListRelationFilter
+  Designs?: Prisma.TarotDesignListRelationFilter
+  Art?: Prisma.TarotArtListRelationFilter
 }
 
 export type TarotDeckOrderByWithRelationInput = {
@@ -287,9 +321,14 @@ export type TarotDeckOrderByWithRelationInput = {
   defaultLoras?: Prisma.SortOrder
   backPrompt?: Prisma.SortOrder
   printStatus?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
+  approvedDesignId?: Prisma.SortOrderInput | Prisma.SortOrder
+  backArtId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   Cards?: Prisma.TarotCardOrderByRelationAggregateInput
+  Designs?: Prisma.TarotDesignOrderByRelationAggregateInput
+  Art?: Prisma.TarotArtOrderByRelationAggregateInput
   _relevance?: Prisma.TarotDeckOrderByRelevanceInput
 }
 
@@ -307,9 +346,14 @@ export type TarotDeckWhereUniqueInput = Prisma.AtLeast<{
   defaultLoras?: Prisma.StringFilter<"TarotDeck"> | string
   backPrompt?: Prisma.StringFilter<"TarotDeck"> | string
   printStatus?: Prisma.StringFilter<"TarotDeck"> | string
+  isPublic?: Prisma.BoolFilter<"TarotDeck"> | boolean
+  approvedDesignId?: Prisma.IntNullableFilter<"TarotDeck"> | number | null
+  backArtId?: Prisma.IntNullableFilter<"TarotDeck"> | number | null
   createdAt?: Prisma.DateTimeFilter<"TarotDeck"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"TarotDeck"> | Date | string
   Cards?: Prisma.TarotCardListRelationFilter
+  Designs?: Prisma.TarotDesignListRelationFilter
+  Art?: Prisma.TarotArtListRelationFilter
 }, "id" | "slug">
 
 export type TarotDeckOrderByWithAggregationInput = {
@@ -323,6 +367,9 @@ export type TarotDeckOrderByWithAggregationInput = {
   defaultLoras?: Prisma.SortOrder
   backPrompt?: Prisma.SortOrder
   printStatus?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
+  approvedDesignId?: Prisma.SortOrderInput | Prisma.SortOrder
+  backArtId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TarotDeckCountOrderByAggregateInput
@@ -346,6 +393,9 @@ export type TarotDeckScalarWhereWithAggregatesInput = {
   defaultLoras?: Prisma.StringWithAggregatesFilter<"TarotDeck"> | string
   backPrompt?: Prisma.StringWithAggregatesFilter<"TarotDeck"> | string
   printStatus?: Prisma.StringWithAggregatesFilter<"TarotDeck"> | string
+  isPublic?: Prisma.BoolWithAggregatesFilter<"TarotDeck"> | boolean
+  approvedDesignId?: Prisma.IntNullableWithAggregatesFilter<"TarotDeck"> | number | null
+  backArtId?: Prisma.IntNullableWithAggregatesFilter<"TarotDeck"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"TarotDeck"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"TarotDeck"> | Date | string
 }
@@ -360,9 +410,14 @@ export type TarotDeckCreateInput = {
   defaultLoras: string
   backPrompt: string
   printStatus?: string
+  isPublic?: boolean
+  approvedDesignId?: number | null
+  backArtId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   Cards?: Prisma.TarotCardCreateNestedManyWithoutDeckInput
+  Designs?: Prisma.TarotDesignCreateNestedManyWithoutDeckInput
+  Art?: Prisma.TarotArtCreateNestedManyWithoutDeckInput
 }
 
 export type TarotDeckUncheckedCreateInput = {
@@ -376,9 +431,14 @@ export type TarotDeckUncheckedCreateInput = {
   defaultLoras: string
   backPrompt: string
   printStatus?: string
+  isPublic?: boolean
+  approvedDesignId?: number | null
+  backArtId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   Cards?: Prisma.TarotCardUncheckedCreateNestedManyWithoutDeckInput
+  Designs?: Prisma.TarotDesignUncheckedCreateNestedManyWithoutDeckInput
+  Art?: Prisma.TarotArtUncheckedCreateNestedManyWithoutDeckInput
 }
 
 export type TarotDeckUpdateInput = {
@@ -391,9 +451,14 @@ export type TarotDeckUpdateInput = {
   defaultLoras?: Prisma.StringFieldUpdateOperationsInput | string
   backPrompt?: Prisma.StringFieldUpdateOperationsInput | string
   printStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedDesignId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  backArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Cards?: Prisma.TarotCardUpdateManyWithoutDeckNestedInput
+  Designs?: Prisma.TarotDesignUpdateManyWithoutDeckNestedInput
+  Art?: Prisma.TarotArtUpdateManyWithoutDeckNestedInput
 }
 
 export type TarotDeckUncheckedUpdateInput = {
@@ -407,9 +472,14 @@ export type TarotDeckUncheckedUpdateInput = {
   defaultLoras?: Prisma.StringFieldUpdateOperationsInput | string
   backPrompt?: Prisma.StringFieldUpdateOperationsInput | string
   printStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedDesignId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  backArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Cards?: Prisma.TarotCardUncheckedUpdateManyWithoutDeckNestedInput
+  Designs?: Prisma.TarotDesignUncheckedUpdateManyWithoutDeckNestedInput
+  Art?: Prisma.TarotArtUncheckedUpdateManyWithoutDeckNestedInput
 }
 
 export type TarotDeckCreateManyInput = {
@@ -423,6 +493,9 @@ export type TarotDeckCreateManyInput = {
   defaultLoras: string
   backPrompt: string
   printStatus?: string
+  isPublic?: boolean
+  approvedDesignId?: number | null
+  backArtId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -437,6 +510,9 @@ export type TarotDeckUpdateManyMutationInput = {
   defaultLoras?: Prisma.StringFieldUpdateOperationsInput | string
   backPrompt?: Prisma.StringFieldUpdateOperationsInput | string
   printStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedDesignId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  backArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -452,6 +528,9 @@ export type TarotDeckUncheckedUpdateManyInput = {
   defaultLoras?: Prisma.StringFieldUpdateOperationsInput | string
   backPrompt?: Prisma.StringFieldUpdateOperationsInput | string
   printStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedDesignId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  backArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -473,12 +552,17 @@ export type TarotDeckCountOrderByAggregateInput = {
   defaultLoras?: Prisma.SortOrder
   backPrompt?: Prisma.SortOrder
   printStatus?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
+  approvedDesignId?: Prisma.SortOrder
+  backArtId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type TarotDeckAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  approvedDesignId?: Prisma.SortOrder
+  backArtId?: Prisma.SortOrder
 }
 
 export type TarotDeckMaxOrderByAggregateInput = {
@@ -492,6 +576,9 @@ export type TarotDeckMaxOrderByAggregateInput = {
   defaultLoras?: Prisma.SortOrder
   backPrompt?: Prisma.SortOrder
   printStatus?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
+  approvedDesignId?: Prisma.SortOrder
+  backArtId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -507,12 +594,17 @@ export type TarotDeckMinOrderByAggregateInput = {
   defaultLoras?: Prisma.SortOrder
   backPrompt?: Prisma.SortOrder
   printStatus?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
+  approvedDesignId?: Prisma.SortOrder
+  backArtId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type TarotDeckSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  approvedDesignId?: Prisma.SortOrder
+  backArtId?: Prisma.SortOrder
 }
 
 export type TarotDeckScalarRelationFilter = {
@@ -534,6 +626,34 @@ export type TarotDeckUpdateOneRequiredWithoutCardsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TarotDeckUpdateToOneWithWhereWithoutCardsInput, Prisma.TarotDeckUpdateWithoutCardsInput>, Prisma.TarotDeckUncheckedUpdateWithoutCardsInput>
 }
 
+export type TarotDeckCreateNestedOneWithoutDesignsInput = {
+  create?: Prisma.XOR<Prisma.TarotDeckCreateWithoutDesignsInput, Prisma.TarotDeckUncheckedCreateWithoutDesignsInput>
+  connectOrCreate?: Prisma.TarotDeckCreateOrConnectWithoutDesignsInput
+  connect?: Prisma.TarotDeckWhereUniqueInput
+}
+
+export type TarotDeckUpdateOneRequiredWithoutDesignsNestedInput = {
+  create?: Prisma.XOR<Prisma.TarotDeckCreateWithoutDesignsInput, Prisma.TarotDeckUncheckedCreateWithoutDesignsInput>
+  connectOrCreate?: Prisma.TarotDeckCreateOrConnectWithoutDesignsInput
+  upsert?: Prisma.TarotDeckUpsertWithoutDesignsInput
+  connect?: Prisma.TarotDeckWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TarotDeckUpdateToOneWithWhereWithoutDesignsInput, Prisma.TarotDeckUpdateWithoutDesignsInput>, Prisma.TarotDeckUncheckedUpdateWithoutDesignsInput>
+}
+
+export type TarotDeckCreateNestedOneWithoutArtInput = {
+  create?: Prisma.XOR<Prisma.TarotDeckCreateWithoutArtInput, Prisma.TarotDeckUncheckedCreateWithoutArtInput>
+  connectOrCreate?: Prisma.TarotDeckCreateOrConnectWithoutArtInput
+  connect?: Prisma.TarotDeckWhereUniqueInput
+}
+
+export type TarotDeckUpdateOneRequiredWithoutArtNestedInput = {
+  create?: Prisma.XOR<Prisma.TarotDeckCreateWithoutArtInput, Prisma.TarotDeckUncheckedCreateWithoutArtInput>
+  connectOrCreate?: Prisma.TarotDeckCreateOrConnectWithoutArtInput
+  upsert?: Prisma.TarotDeckUpsertWithoutArtInput
+  connect?: Prisma.TarotDeckWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TarotDeckUpdateToOneWithWhereWithoutArtInput, Prisma.TarotDeckUpdateWithoutArtInput>, Prisma.TarotDeckUncheckedUpdateWithoutArtInput>
+}
+
 export type TarotDeckCreateWithoutCardsInput = {
   slug: string
   title: string
@@ -544,8 +664,13 @@ export type TarotDeckCreateWithoutCardsInput = {
   defaultLoras: string
   backPrompt: string
   printStatus?: string
+  isPublic?: boolean
+  approvedDesignId?: number | null
+  backArtId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  Designs?: Prisma.TarotDesignCreateNestedManyWithoutDeckInput
+  Art?: Prisma.TarotArtCreateNestedManyWithoutDeckInput
 }
 
 export type TarotDeckUncheckedCreateWithoutCardsInput = {
@@ -559,8 +684,13 @@ export type TarotDeckUncheckedCreateWithoutCardsInput = {
   defaultLoras: string
   backPrompt: string
   printStatus?: string
+  isPublic?: boolean
+  approvedDesignId?: number | null
+  backArtId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  Designs?: Prisma.TarotDesignUncheckedCreateNestedManyWithoutDeckInput
+  Art?: Prisma.TarotArtUncheckedCreateNestedManyWithoutDeckInput
 }
 
 export type TarotDeckCreateOrConnectWithoutCardsInput = {
@@ -589,8 +719,13 @@ export type TarotDeckUpdateWithoutCardsInput = {
   defaultLoras?: Prisma.StringFieldUpdateOperationsInput | string
   backPrompt?: Prisma.StringFieldUpdateOperationsInput | string
   printStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedDesignId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  backArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Designs?: Prisma.TarotDesignUpdateManyWithoutDeckNestedInput
+  Art?: Prisma.TarotArtUpdateManyWithoutDeckNestedInput
 }
 
 export type TarotDeckUncheckedUpdateWithoutCardsInput = {
@@ -604,8 +739,201 @@ export type TarotDeckUncheckedUpdateWithoutCardsInput = {
   defaultLoras?: Prisma.StringFieldUpdateOperationsInput | string
   backPrompt?: Prisma.StringFieldUpdateOperationsInput | string
   printStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedDesignId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  backArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Designs?: Prisma.TarotDesignUncheckedUpdateManyWithoutDeckNestedInput
+  Art?: Prisma.TarotArtUncheckedUpdateManyWithoutDeckNestedInput
+}
+
+export type TarotDeckCreateWithoutDesignsInput = {
+  slug: string
+  title: string
+  description: string
+  styleBible: string
+  defaultEngine?: string
+  defaultCheckpoint?: string | null
+  defaultLoras: string
+  backPrompt: string
+  printStatus?: string
+  isPublic?: boolean
+  approvedDesignId?: number | null
+  backArtId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  Cards?: Prisma.TarotCardCreateNestedManyWithoutDeckInput
+  Art?: Prisma.TarotArtCreateNestedManyWithoutDeckInput
+}
+
+export type TarotDeckUncheckedCreateWithoutDesignsInput = {
+  id?: number
+  slug: string
+  title: string
+  description: string
+  styleBible: string
+  defaultEngine?: string
+  defaultCheckpoint?: string | null
+  defaultLoras: string
+  backPrompt: string
+  printStatus?: string
+  isPublic?: boolean
+  approvedDesignId?: number | null
+  backArtId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  Cards?: Prisma.TarotCardUncheckedCreateNestedManyWithoutDeckInput
+  Art?: Prisma.TarotArtUncheckedCreateNestedManyWithoutDeckInput
+}
+
+export type TarotDeckCreateOrConnectWithoutDesignsInput = {
+  where: Prisma.TarotDeckWhereUniqueInput
+  create: Prisma.XOR<Prisma.TarotDeckCreateWithoutDesignsInput, Prisma.TarotDeckUncheckedCreateWithoutDesignsInput>
+}
+
+export type TarotDeckUpsertWithoutDesignsInput = {
+  update: Prisma.XOR<Prisma.TarotDeckUpdateWithoutDesignsInput, Prisma.TarotDeckUncheckedUpdateWithoutDesignsInput>
+  create: Prisma.XOR<Prisma.TarotDeckCreateWithoutDesignsInput, Prisma.TarotDeckUncheckedCreateWithoutDesignsInput>
+  where?: Prisma.TarotDeckWhereInput
+}
+
+export type TarotDeckUpdateToOneWithWhereWithoutDesignsInput = {
+  where?: Prisma.TarotDeckWhereInput
+  data: Prisma.XOR<Prisma.TarotDeckUpdateWithoutDesignsInput, Prisma.TarotDeckUncheckedUpdateWithoutDesignsInput>
+}
+
+export type TarotDeckUpdateWithoutDesignsInput = {
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  styleBible?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultEngine?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultCheckpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultLoras?: Prisma.StringFieldUpdateOperationsInput | string
+  backPrompt?: Prisma.StringFieldUpdateOperationsInput | string
+  printStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedDesignId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  backArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Cards?: Prisma.TarotCardUpdateManyWithoutDeckNestedInput
+  Art?: Prisma.TarotArtUpdateManyWithoutDeckNestedInput
+}
+
+export type TarotDeckUncheckedUpdateWithoutDesignsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  styleBible?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultEngine?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultCheckpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultLoras?: Prisma.StringFieldUpdateOperationsInput | string
+  backPrompt?: Prisma.StringFieldUpdateOperationsInput | string
+  printStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedDesignId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  backArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Cards?: Prisma.TarotCardUncheckedUpdateManyWithoutDeckNestedInput
+  Art?: Prisma.TarotArtUncheckedUpdateManyWithoutDeckNestedInput
+}
+
+export type TarotDeckCreateWithoutArtInput = {
+  slug: string
+  title: string
+  description: string
+  styleBible: string
+  defaultEngine?: string
+  defaultCheckpoint?: string | null
+  defaultLoras: string
+  backPrompt: string
+  printStatus?: string
+  isPublic?: boolean
+  approvedDesignId?: number | null
+  backArtId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  Cards?: Prisma.TarotCardCreateNestedManyWithoutDeckInput
+  Designs?: Prisma.TarotDesignCreateNestedManyWithoutDeckInput
+}
+
+export type TarotDeckUncheckedCreateWithoutArtInput = {
+  id?: number
+  slug: string
+  title: string
+  description: string
+  styleBible: string
+  defaultEngine?: string
+  defaultCheckpoint?: string | null
+  defaultLoras: string
+  backPrompt: string
+  printStatus?: string
+  isPublic?: boolean
+  approvedDesignId?: number | null
+  backArtId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  Cards?: Prisma.TarotCardUncheckedCreateNestedManyWithoutDeckInput
+  Designs?: Prisma.TarotDesignUncheckedCreateNestedManyWithoutDeckInput
+}
+
+export type TarotDeckCreateOrConnectWithoutArtInput = {
+  where: Prisma.TarotDeckWhereUniqueInput
+  create: Prisma.XOR<Prisma.TarotDeckCreateWithoutArtInput, Prisma.TarotDeckUncheckedCreateWithoutArtInput>
+}
+
+export type TarotDeckUpsertWithoutArtInput = {
+  update: Prisma.XOR<Prisma.TarotDeckUpdateWithoutArtInput, Prisma.TarotDeckUncheckedUpdateWithoutArtInput>
+  create: Prisma.XOR<Prisma.TarotDeckCreateWithoutArtInput, Prisma.TarotDeckUncheckedCreateWithoutArtInput>
+  where?: Prisma.TarotDeckWhereInput
+}
+
+export type TarotDeckUpdateToOneWithWhereWithoutArtInput = {
+  where?: Prisma.TarotDeckWhereInput
+  data: Prisma.XOR<Prisma.TarotDeckUpdateWithoutArtInput, Prisma.TarotDeckUncheckedUpdateWithoutArtInput>
+}
+
+export type TarotDeckUpdateWithoutArtInput = {
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  styleBible?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultEngine?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultCheckpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultLoras?: Prisma.StringFieldUpdateOperationsInput | string
+  backPrompt?: Prisma.StringFieldUpdateOperationsInput | string
+  printStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedDesignId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  backArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Cards?: Prisma.TarotCardUpdateManyWithoutDeckNestedInput
+  Designs?: Prisma.TarotDesignUpdateManyWithoutDeckNestedInput
+}
+
+export type TarotDeckUncheckedUpdateWithoutArtInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  styleBible?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultEngine?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultCheckpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultLoras?: Prisma.StringFieldUpdateOperationsInput | string
+  backPrompt?: Prisma.StringFieldUpdateOperationsInput | string
+  printStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedDesignId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  backArtId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Cards?: Prisma.TarotCardUncheckedUpdateManyWithoutDeckNestedInput
+  Designs?: Prisma.TarotDesignUncheckedUpdateManyWithoutDeckNestedInput
 }
 
 
@@ -615,10 +943,14 @@ export type TarotDeckUncheckedUpdateWithoutCardsInput = {
 
 export type TarotDeckCountOutputType = {
   Cards: number
+  Designs: number
+  Art: number
 }
 
 export type TarotDeckCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Cards?: boolean | TarotDeckCountOutputTypeCountCardsArgs
+  Designs?: boolean | TarotDeckCountOutputTypeCountDesignsArgs
+  Art?: boolean | TarotDeckCountOutputTypeCountArtArgs
 }
 
 /**
@@ -638,6 +970,20 @@ export type TarotDeckCountOutputTypeCountCardsArgs<ExtArgs extends runtime.Types
   where?: Prisma.TarotCardWhereInput
 }
 
+/**
+ * TarotDeckCountOutputType without action
+ */
+export type TarotDeckCountOutputTypeCountDesignsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TarotDesignWhereInput
+}
+
+/**
+ * TarotDeckCountOutputType without action
+ */
+export type TarotDeckCountOutputTypeCountArtArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TarotArtWhereInput
+}
+
 
 export type TarotDeckSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -650,9 +996,14 @@ export type TarotDeckSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   defaultLoras?: boolean
   backPrompt?: boolean
   printStatus?: boolean
+  isPublic?: boolean
+  approvedDesignId?: boolean
+  backArtId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   Cards?: boolean | Prisma.TarotDeck$CardsArgs<ExtArgs>
+  Designs?: boolean | Prisma.TarotDeck$DesignsArgs<ExtArgs>
+  Art?: boolean | Prisma.TarotDeck$ArtArgs<ExtArgs>
   _count?: boolean | Prisma.TarotDeckCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tarotDeck"]>
 
@@ -669,13 +1020,18 @@ export type TarotDeckSelectScalar = {
   defaultLoras?: boolean
   backPrompt?: boolean
   printStatus?: boolean
+  isPublic?: boolean
+  approvedDesignId?: boolean
+  backArtId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TarotDeckOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "title" | "description" | "styleBible" | "defaultEngine" | "defaultCheckpoint" | "defaultLoras" | "backPrompt" | "printStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["tarotDeck"]>
+export type TarotDeckOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "title" | "description" | "styleBible" | "defaultEngine" | "defaultCheckpoint" | "defaultLoras" | "backPrompt" | "printStatus" | "isPublic" | "approvedDesignId" | "backArtId" | "createdAt" | "updatedAt", ExtArgs["result"]["tarotDeck"]>
 export type TarotDeckInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Cards?: boolean | Prisma.TarotDeck$CardsArgs<ExtArgs>
+  Designs?: boolean | Prisma.TarotDeck$DesignsArgs<ExtArgs>
+  Art?: boolean | Prisma.TarotDeck$ArtArgs<ExtArgs>
   _count?: boolean | Prisma.TarotDeckCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -683,6 +1039,8 @@ export type $TarotDeckPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   name: "TarotDeck"
   objects: {
     Cards: Prisma.$TarotCardPayload<ExtArgs>[]
+    Designs: Prisma.$TarotDesignPayload<ExtArgs>[]
+    Art: Prisma.$TarotArtPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -695,6 +1053,12 @@ export type $TarotDeckPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     defaultLoras: string
     backPrompt: string
     printStatus: string
+    /**
+     * Shown in the public /play/tarot reader (approved card art only).
+     */
+    isPublic: boolean
+    approvedDesignId: number | null
+    backArtId: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["tarotDeck"]>
@@ -1038,6 +1402,8 @@ readonly fields: TarotDeckFieldRefs;
 export interface Prisma__TarotDeckClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   Cards<T extends Prisma.TarotDeck$CardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TarotDeck$CardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TarotCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Designs<T extends Prisma.TarotDeck$DesignsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TarotDeck$DesignsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TarotDesignPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Art<T extends Prisma.TarotDeck$ArtArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TarotDeck$ArtArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TarotArtPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1077,6 +1443,9 @@ export interface TarotDeckFieldRefs {
   readonly defaultLoras: Prisma.FieldRef<"TarotDeck", 'String'>
   readonly backPrompt: Prisma.FieldRef<"TarotDeck", 'String'>
   readonly printStatus: Prisma.FieldRef<"TarotDeck", 'String'>
+  readonly isPublic: Prisma.FieldRef<"TarotDeck", 'Boolean'>
+  readonly approvedDesignId: Prisma.FieldRef<"TarotDeck", 'Int'>
+  readonly backArtId: Prisma.FieldRef<"TarotDeck", 'Int'>
   readonly createdAt: Prisma.FieldRef<"TarotDeck", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"TarotDeck", 'DateTime'>
 }
@@ -1448,6 +1817,54 @@ export type TarotDeck$CardsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.TarotCardScalarFieldEnum | Prisma.TarotCardScalarFieldEnum[]
+}
+
+/**
+ * TarotDeck.Designs
+ */
+export type TarotDeck$DesignsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TarotDesign
+   */
+  select?: Prisma.TarotDesignSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TarotDesign
+   */
+  omit?: Prisma.TarotDesignOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TarotDesignInclude<ExtArgs> | null
+  where?: Prisma.TarotDesignWhereInput
+  orderBy?: Prisma.TarotDesignOrderByWithRelationInput | Prisma.TarotDesignOrderByWithRelationInput[]
+  cursor?: Prisma.TarotDesignWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TarotDesignScalarFieldEnum | Prisma.TarotDesignScalarFieldEnum[]
+}
+
+/**
+ * TarotDeck.Art
+ */
+export type TarotDeck$ArtArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TarotArt
+   */
+  select?: Prisma.TarotArtSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TarotArt
+   */
+  omit?: Prisma.TarotArtOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TarotArtInclude<ExtArgs> | null
+  where?: Prisma.TarotArtWhereInput
+  orderBy?: Prisma.TarotArtOrderByWithRelationInput | Prisma.TarotArtOrderByWithRelationInput[]
+  cursor?: Prisma.TarotArtWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TarotArtScalarFieldEnum | Prisma.TarotArtScalarFieldEnum[]
 }
 
 /**

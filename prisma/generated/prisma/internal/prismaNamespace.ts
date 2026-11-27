@@ -540,6 +540,8 @@ export const ModelName = {
   SlimeCityMatch: 'SlimeCityMatch',
   TarotDeck: 'TarotDeck',
   TarotCard: 'TarotCard',
+  TarotDesign: 'TarotDesign',
+  TarotArt: 'TarotArt',
   ArcadeCabinetSave: 'ArcadeCabinetSave',
   SiteStatDaily: 'SiteStatDaily',
   TzaddikCandidate: 'TzaddikCandidate',
@@ -560,7 +562,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "artSlot" | "artCandidate" | "brainstormSession" | "brainstormCandidate" | "brainstormRiff" | "brainstormLine" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "plumberLevel" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "monstriqueBibleEntry" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "hybridizerFusion" | "hybridizerUpload" | "spaceCouchAlienGuide" | "spaceCouchVoyageSave" | "slimeCityAccount" | "zuzuGamebookSave" | "slimeCityMatch" | "tarotDeck" | "tarotCard" | "arcadeCabinetSave" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "artSlot" | "artCandidate" | "brainstormSession" | "brainstormCandidate" | "brainstormRiff" | "brainstormLine" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "plumberLevel" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "monstriqueBibleEntry" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "hybridizerFusion" | "hybridizerUpload" | "spaceCouchAlienGuide" | "spaceCouchVoyageSave" | "slimeCityAccount" | "zuzuGamebookSave" | "slimeCityMatch" | "tarotDeck" | "tarotCard" | "tarotDesign" | "tarotArt" | "arcadeCabinetSave" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -10002,6 +10004,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    TarotDesign: {
+      payload: Prisma.$TarotDesignPayload<ExtArgs>
+      fields: Prisma.TarotDesignFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TarotDesignFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotDesignPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TarotDesignFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotDesignPayload>
+        }
+        findFirst: {
+          args: Prisma.TarotDesignFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotDesignPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TarotDesignFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotDesignPayload>
+        }
+        findMany: {
+          args: Prisma.TarotDesignFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotDesignPayload>[]
+        }
+        create: {
+          args: Prisma.TarotDesignCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotDesignPayload>
+        }
+        createMany: {
+          args: Prisma.TarotDesignCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.TarotDesignDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotDesignPayload>
+        }
+        update: {
+          args: Prisma.TarotDesignUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotDesignPayload>
+        }
+        deleteMany: {
+          args: Prisma.TarotDesignDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TarotDesignUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.TarotDesignUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotDesignPayload>
+        }
+        aggregate: {
+          args: Prisma.TarotDesignAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTarotDesign>
+        }
+        groupBy: {
+          args: Prisma.TarotDesignGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TarotDesignGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TarotDesignCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TarotDesignCountAggregateOutputType> | number
+        }
+      }
+    }
+    TarotArt: {
+      payload: Prisma.$TarotArtPayload<ExtArgs>
+      fields: Prisma.TarotArtFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TarotArtFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotArtPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TarotArtFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotArtPayload>
+        }
+        findFirst: {
+          args: Prisma.TarotArtFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotArtPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TarotArtFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotArtPayload>
+        }
+        findMany: {
+          args: Prisma.TarotArtFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotArtPayload>[]
+        }
+        create: {
+          args: Prisma.TarotArtCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotArtPayload>
+        }
+        createMany: {
+          args: Prisma.TarotArtCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.TarotArtDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotArtPayload>
+        }
+        update: {
+          args: Prisma.TarotArtUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotArtPayload>
+        }
+        deleteMany: {
+          args: Prisma.TarotArtDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TarotArtUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.TarotArtUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TarotArtPayload>
+        }
+        aggregate: {
+          args: Prisma.TarotArtAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTarotArt>
+        }
+        groupBy: {
+          args: Prisma.TarotArtGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TarotArtGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TarotArtCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TarotArtCountAggregateOutputType> | number
+        }
+      }
+    }
     ArcadeCabinetSave: {
       payload: Prisma.$ArcadeCabinetSavePayload<ExtArgs>
       fields: Prisma.ArcadeCabinetSaveFieldRefs
@@ -13049,6 +13183,9 @@ export const TarotDeckScalarFieldEnum = {
   defaultLoras: 'defaultLoras',
   backPrompt: 'backPrompt',
   printStatus: 'printStatus',
+  isPublic: 'isPublic',
+  approvedDesignId: 'approvedDesignId',
+  backArtId: 'backArtId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -13076,11 +13213,55 @@ export const TarotCardScalarFieldEnum = {
   artJobId: 'artJobId',
   artImageId: 'artImageId',
   imageUrl: 'imageUrl',
+  selectedArtId: 'selectedArtId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TarotCardScalarFieldEnum = (typeof TarotCardScalarFieldEnum)[keyof typeof TarotCardScalarFieldEnum]
+
+
+export const TarotDesignScalarFieldEnum = {
+  id: 'id',
+  deckId: 'deckId',
+  key: 'key',
+  title: 'title',
+  stylePrompt: 'stylePrompt',
+  backPrompt: 'backPrompt',
+  engine: 'engine',
+  checkpoint: 'checkpoint',
+  loras: 'loras',
+  status: 'status',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TarotDesignScalarFieldEnum = (typeof TarotDesignScalarFieldEnum)[keyof typeof TarotDesignScalarFieldEnum]
+
+
+export const TarotArtScalarFieldEnum = {
+  id: 'id',
+  deckId: 'deckId',
+  designId: 'designId',
+  cardId: 'cardId',
+  side: 'side',
+  purpose: 'purpose',
+  prompt: 'prompt',
+  engine: 'engine',
+  checkpoint: 'checkpoint',
+  loras: 'loras',
+  width: 'width',
+  height: 'height',
+  status: 'status',
+  error: 'error',
+  artJobId: 'artJobId',
+  artImageId: 'artImageId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TarotArtScalarFieldEnum = (typeof TarotArtScalarFieldEnum)[keyof typeof TarotArtScalarFieldEnum]
 
 
 export const ArcadeCabinetSaveScalarFieldEnum = {
@@ -14726,6 +14907,35 @@ export const TarotCardOrderByRelevanceFieldEnum = {
 export type TarotCardOrderByRelevanceFieldEnum = (typeof TarotCardOrderByRelevanceFieldEnum)[keyof typeof TarotCardOrderByRelevanceFieldEnum]
 
 
+export const TarotDesignOrderByRelevanceFieldEnum = {
+  key: 'key',
+  title: 'title',
+  stylePrompt: 'stylePrompt',
+  backPrompt: 'backPrompt',
+  engine: 'engine',
+  checkpoint: 'checkpoint',
+  loras: 'loras',
+  status: 'status',
+  notes: 'notes'
+} as const
+
+export type TarotDesignOrderByRelevanceFieldEnum = (typeof TarotDesignOrderByRelevanceFieldEnum)[keyof typeof TarotDesignOrderByRelevanceFieldEnum]
+
+
+export const TarotArtOrderByRelevanceFieldEnum = {
+  side: 'side',
+  purpose: 'purpose',
+  prompt: 'prompt',
+  engine: 'engine',
+  checkpoint: 'checkpoint',
+  loras: 'loras',
+  status: 'status',
+  error: 'error'
+} as const
+
+export type TarotArtOrderByRelevanceFieldEnum = (typeof TarotArtOrderByRelevanceFieldEnum)[keyof typeof TarotArtOrderByRelevanceFieldEnum]
+
+
 export const ArcadeCabinetSaveOrderByRelevanceFieldEnum = {
   gameSlug: 'gameSlug',
   payload: 'payload'
@@ -15662,6 +15872,8 @@ export type GlobalOmitConfig = {
   slimeCityMatch?: Prisma.SlimeCityMatchOmit
   tarotDeck?: Prisma.TarotDeckOmit
   tarotCard?: Prisma.TarotCardOmit
+  tarotDesign?: Prisma.TarotDesignOmit
+  tarotArt?: Prisma.TarotArtOmit
   arcadeCabinetSave?: Prisma.ArcadeCabinetSaveOmit
   siteStatDaily?: Prisma.SiteStatDailyOmit
   tzaddikCandidate?: Prisma.TzaddikCandidateOmit

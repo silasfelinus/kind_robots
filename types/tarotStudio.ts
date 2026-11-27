@@ -20,8 +20,65 @@ export type TarotCardRecord = {
   artJobId: number | null
   artImageId: number | null
   imageUrl: string | null
+  selectedArtId: number | null
   updatedAt: string
 }
+
+export type TarotDesignStatus = 'EXPLORING' | 'APPROVED' | 'ARCHIVED'
+
+export type TarotDesignRecord = {
+  id: number
+  deckId: number
+  key: string
+  title: string
+  stylePrompt: string
+  backPrompt: string
+  engine: string
+  checkpoint: string | null
+  loras: string
+  status: TarotDesignStatus
+  notes: string
+  updatedAt: string
+}
+
+export type TarotArtStatus =
+  'PENDING' | 'QUEUED' | 'RENDERED' | 'FAILED' | 'REJECTED'
+
+export type TarotArtRecord = {
+  id: number
+  deckId: number
+  designId: number | null
+  cardId: number | null
+  side: 'FACE' | 'BACK'
+  purpose: 'SAMPLE' | 'SET' | 'REVISION'
+  prompt: string
+  engine: string
+  checkpoint: string | null
+  loras: string
+  width: number
+  height: number
+  status: TarotArtStatus
+  error: string | null
+  artJobId: number | null
+  artImageId: number | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type TarotArtEnqueueBody = Record<string, unknown> & {
+  requestKey: string
+}
+
+export type TarotDesignEdit = Pick<
+  TarotDesignRecord,
+  | 'title'
+  | 'stylePrompt'
+  | 'backPrompt'
+  | 'engine'
+  | 'checkpoint'
+  | 'loras'
+  | 'notes'
+>
 
 export type TarotDeckRecord = {
   id: number
@@ -34,8 +91,13 @@ export type TarotDeckRecord = {
   defaultLoras: string
   backPrompt: string
   printStatus: string
+  isPublic: boolean
+  approvedDesignId: number | null
+  backArtId: number | null
   updatedAt: string
   Cards: TarotCardRecord[]
+  Designs: TarotDesignRecord[]
+  Art: TarotArtRecord[]
 }
 
 export type TarotCardEdit = Pick<
@@ -59,4 +121,4 @@ export type TarotDeckEdit = Pick<
   | 'defaultCheckpoint'
   | 'defaultLoras'
   | 'backPrompt'
->
+> & { isPublic?: boolean }

@@ -2,6 +2,7 @@ import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
 import { errorHandler } from '~/server/utils/error'
+import { TAROT_DECK_INCLUDE } from '~/server/utils/tarotStudio'
 
 type DeckPatch = {
   title?: string
@@ -11,9 +12,10 @@ type DeckPatch = {
   defaultCheckpoint?: string | null
   defaultLoras?: string
   backPrompt?: string
+  isPublic?: boolean
 }
 
-const LIMITS: Record<keyof DeckPatch, number> = {
+const LIMITS: Record<Exclude<keyof DeckPatch, 'isPublic'>, number> = {
   title: 200,
   description: 2000,
   styleBible: 30000,
@@ -46,12 +48,21 @@ export default defineEventHandler(async (event) => {
       }
       Object.assign(patch, { [key]: value.trim() })
     }
+    if ('isPublic' in body) {
+      if (typeof body.isPublic !== 'boolean') {
+        throw createError({
+          statusCode: 400,
+          message: 'isPublic must be true or false.',
+        })
+      }
+      patch.isPublic = body.isPublic
+    }
     if (patch.title === '')
       throw createError({ statusCode: 400, message: 'Title is required.' })
     const deck = await prisma.tarotDeck.update({
       where: { slug },
       data: patch,
-      include: { Cards: { orderBy: { ordinal: 'asc' } } },
+      include: TAROT_DECK_INCLUDE,
     })
     return {
       success: true,

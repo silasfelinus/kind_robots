@@ -1226,6 +1226,19 @@ export type TarotDeck = Prisma.TarotDeckModel
  */
 export type TarotCard = Prisma.TarotCardModel
 /**
+ * Model TarotDesign
+ * A candidate visual design for a deck: style, model checkpoint and LoRAs.
+ * Samples are rendered per design; approving one sets the deck's art recipe.
+ */
+export type TarotDesign = Prisma.TarotDesignModel
+/**
+ * Model TarotArt
+ * One rendered (or pending) art variant for a card face or a deck back.
+ * ArtJob provenance is reconciled by /api/tarot/art/sync via the request key
+ * `tarot-art:<id>`, so a lost client response never orphans a render.
+ */
+export type TarotArt = Prisma.TarotArtModel
+/**
  * Model ArcadeCabinetSave
  * * Per-account Arcade career record. One revisioned private save for each cabinet.
  */

@@ -1453,9 +1453,18 @@ for (const lead of Object.keys(ACCIDENT_SCIENCE_LINES)) {
     const state = trainingState(41, clonePreset('science-lab'), {
       lead,
       foil: personalCastFor(lead)!.foil,
-      perspective,
       crossfireCast: 2,
     })
+    const arrival = walkScene(SCIENCE_WING_SCRIPT.scenes[0]!, [], {
+      state,
+      perspective,
+    })
+    assert.ok(arrival)
+    assert.ok(
+      arrival.nodes.some(
+        (node) => node.id === (perspective === 'hero' ? 'sh' : 'sv'),
+      ),
+    )
     const before = JSON.stringify(state)
     let changed = 0
     for (const node of scienceNodes) {
@@ -1468,13 +1477,30 @@ for (const lead of Object.keys(ACCIDENT_SCIENCE_LINES)) {
         changed++
         assert.ok(line.text.length > 10 && line.text.length <= 400)
         assert.notEqual(line.text, node.text)
-        assert.ok(state.units.some((u) => u.id === line.speaker && u.team === 'squad'))
+        assert.ok(
+          state.units.some((u) => u.id === line.speaker && u.team === 'squad'),
+        )
         scienceVoices.add(line.text)
       }
-      assert.equal(personalScienceNode(node, lead, 'science-lab', false, state), node)
-      assert.equal(personalScienceNode(node, lead, 'crosswalk-crisis', true, state), node)
-      assert.equal(personalScienceNode(node, 'constructor', 'science-lab', true, state), node)
-      assert.equal(personalScienceNode(node, lead, 'science-lab', true, { ...state, crossfireCast: 1 }), node)
+      assert.equal(
+        personalScienceNode(node, lead, 'science-lab', false, state),
+        node,
+      )
+      assert.equal(
+        personalScienceNode(node, lead, 'crosswalk-crisis', true, state),
+        node,
+      )
+      assert.equal(
+        personalScienceNode(node, 'constructor', 'science-lab', true, state),
+        node,
+      )
+      assert.equal(
+        personalScienceNode(node, lead, 'science-lab', true, {
+          ...state,
+          crossfireCast: 1,
+        }),
+        node,
+      )
     }
     assert.equal(changed, 11)
     assert.equal(JSON.stringify(state), before)

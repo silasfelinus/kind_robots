@@ -5,6 +5,7 @@ import { useRulerHookedStore } from '~/stores/rulerHookedStore'
 import { deviceRoyalBackup } from '~/utils/rulerHooked/save'
 import {
   mergeRoyalBackups,
+  nextRoyalArchiveRetryDelay,
   parseRoyalBackup,
   type RoyalBackup,
 } from '~/utils/rulerHooked/accountBackup'
@@ -104,17 +105,25 @@ export const useRulerHookedAccountStore = defineStore(
           }),
         })
         if (token !== epoch || owner !== user.authenticatedUserId) return
-        if (!result.success || !result.data) {
+        if (
+          !result.success ||
+          !result.data ||
+          !Number.isSafeInteger(result.data.revision) ||
+          result.data.revision < 0
+        ) {
           archive.value = null
-          message.value =
-            result.message || 'Backup failed. Read the archive again.'
+          message.value = result.success
+            ? 'Invalid archive revision. Read the archive again.'
+            : result.message || 'Backup failed. Read the archive again.'
           return
         }
         archive.value = { save: merged, revision: result.data.revision }
         message.value = 'Account backup saved. Device reigns are unchanged.'
       } catch {
-        if (token === epoch)
+        if (token === epoch) {
+          archive.value = null
           message.value = 'Backup failed. Your device reigns are safe.'
+        }
       } finally {
         if (token === epoch) busy.value = false
       }
@@ -139,6 +148,14 @@ export const useRulerHookedAccountStore = defineStore(
       }, delay)
     }
 
+    function retrySync() {
+      pullNeeded = true
+      const delay = nextRoyalArchiveRetryDelay(retries)
+      if (delay === undefined) return
+      retries++
+      queueSync(delay)
+    }
+
     async function sync() {
       const owner = user.authenticatedUserId
       if (!running || !owner) return
@@ -150,7 +167,10 @@ export const useRulerHookedAccountStore = defineStore(
       if (pullNeeded || !archive.value) {
         await refresh()
         if (!running || owner !== user.authenticatedUserId) return
-        if (!archive.value) return
+        if (!archive.value) {
+          retrySync()
+          return
+        }
       }
 
       try {
@@ -181,13 +201,8 @@ export const useRulerHookedAccountStore = defineStore(
         }
         await backup()
         if (!running || owner !== user.authenticatedUserId) return
-        if (!archive.value && retries < 2) {
-          retries++
-          pullNeeded = true
-          queueSync(1500)
-        } else if (archive.value) {
-          retries = 0
-        }
+        if (!archive.value) retrySync()
+        else retries = 0
       } catch {
         message.value = 'Automatic backup failed. Device reigns are safe.'
       }

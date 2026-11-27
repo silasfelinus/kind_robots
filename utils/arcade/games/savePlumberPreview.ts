@@ -1995,8 +1995,7 @@ export class PlumberRun implements ArcadeGameInstance {
     if (!gurgle) return false
     const feet = this.hero.y + TALL
     const nearby =
-      Math.abs(gurgle.x - this.hero.x) < 24 &&
-      Math.abs(gurgle.y - feet) < 20
+      Math.abs(gurgle.x - this.hero.x) < 24 && Math.abs(gurgle.y - feet) < 20
     if (gurgle.state === 'puddle') {
       gurgle.timer--
       gurgle.recovery = nearby && this.ground ? gurgle.recovery + 1 : 0
@@ -2060,17 +2059,18 @@ export class PlumberRun implements ArcadeGameInstance {
       waterline !== null &&
       Math.abs(hero.y + TALL - waterline) <= 3 &&
       (keys.pressed.a || keys.pressed.up)
-    const target = mount && waterline !== null
-      ? launch
-        ? -6.5
-        : Math.max(-4, Math.min(3, waterline - hero.y - TALL))
-      : up && !down
-        ? surface
+    const target =
+      mount && waterline !== null
+        ? launch
           ? -6.5
-          : -2.8
-        : down && !up
-          ? 2
-          : -0.55
+          : Math.max(-4, Math.min(3, waterline - hero.y - TALL))
+        : up && !down
+          ? surface
+            ? -6.5
+            : -2.8
+          : down && !up
+            ? 2
+            : -0.55
     if (mount) {
       mount.water = true
       mount.hopped = false
@@ -6095,7 +6095,14 @@ export class PlumberRun implements ArcadeGameInstance {
           flipX: this.facing < 0,
         })
       )
-        this.text(g, pose === 'puddle' ? 'GURGLE · RECOVER' : 'GURGLE', x, feet - 4, 9, '#8bdfff')
+        this.text(
+          g,
+          pose === 'puddle' ? 'GURGLE · RECOVER' : 'GURGLE',
+          x,
+          feet - 4,
+          9,
+          '#8bdfff',
+        )
     }
     if (this.boss) this.renderBoss(g)
     this.renderSpecial(g, false)

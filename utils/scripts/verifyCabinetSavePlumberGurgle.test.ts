@@ -4,10 +4,7 @@ import {
   TILE,
   type StageDef,
 } from '../arcade/games/savePlumberLevels'
-import {
-  HERO_TALL,
-  PlumberRun,
-} from '../arcade/games/savePlumberPreview'
+import { HERO_TALL, PlumberRun } from '../arcade/games/savePlumberPreview'
 import { emptyInput, type ArcadeButton } from '../arcade/types'
 
 const cols = 48
@@ -17,8 +14,7 @@ const pool: StageDef = {
   gurgleBarrel: { col: 4, row: 20 },
   rows: Array.from({ length: 24 }, (_, row) =>
     Array.from({ length: cols }, (_, col) => {
-      if (row >= 21)
-        return col >= 12 && col < 30 && row < 23 ? 'w' : '#'
+      if (row >= 21) return col >= 12 && col < 30 && row < 23 ? 'w' : '#'
       if (row === 20 && col === 4) return '@'
       if (row === 20 && col === 43) return 'G'
       return '.'

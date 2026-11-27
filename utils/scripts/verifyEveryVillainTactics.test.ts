@@ -202,6 +202,33 @@ assert.equal(
   null,
 )
 
+// At one HP, a move into partial cover can still be worse than staying
+// put when that move triggers an immediate overwatch shot.
+const watchedRetreat = retreatScenario(41)
+watchedRetreat.run.map.tiles = {
+  '4,0': { elevation: 0, cover: { west: 'half' } },
+}
+assert.deepEqual(
+  rivalRetreatDestination(watchedRetreat.run, watchedRetreat.rival),
+  { x: 4, y: 0, steps: 2, cost: 1 },
+)
+watchedRetreat.squad.overwatch = true
+const watchedBefore = JSON.stringify(watchedRetreat.run)
+assert.equal(
+  rivalRetreatDestination(watchedRetreat.run, watchedRetreat.rival),
+  null,
+  'a wounded rival must account for immediate overwatch',
+)
+assert.equal(JSON.stringify(watchedRetreat.run), watchedBefore)
+watchedRetreat.run.map.tiles = {
+  '4,0': { elevation: 0, cover: { west: 'full' } },
+}
+assert.deepEqual(
+  rivalRetreatDestination(watchedRetreat.run, watchedRetreat.rival),
+  { x: 4, y: 0, steps: 2, cost: 1 },
+  'strong cover can still justify the reaction risk',
+)
+
 // A flanker must use the same directional hit calculation as the player.
 const flankScenario = (seed: number) => {
   const scenario = retreatScenario(seed)

@@ -514,11 +514,20 @@
               'slime-pvp-boss-' + (side === pvp.duel.seat ? 'mine' : 'rival')
             "
           >
-            <SlimeCityArtwork
-              :image-id="slimeArtId('crews', teamOf(side))"
-              :alt="nameOf(teamOf(side))"
-              compact
-            />
+            <button
+              type="button"
+              class="scpvp-boss-portrait"
+              :aria-label="'Inspect ' + nameOf(teamOf(side)) + ' faction powers'"
+              aria-haspopup="dialog"
+              :data-testid="'slime-pvp-power-portrait-' + side"
+              @click="powerSide = side"
+            >
+              <SlimeCityArtwork
+                :image-id="slimeArtId('crews', teamOf(side))"
+                :alt="nameOf(teamOf(side))"
+                compact
+              />
+            </button>
             <div class="scpvp-boss-info">
               <small>{{
                 side === pvp.duel.seat
@@ -557,6 +566,16 @@
             </button>
           </div>
         </aside>
+
+        <SlimeCityFactionPowerPopup
+          v-if="powerSide !== null"
+          :game="view"
+          :side="powerSide"
+          :own="powerSide === seat"
+          :ready="powerReady"
+          @close="powerSide = null"
+          @activate="activatePortraitPower"
+        />
 
         <footer class="scpvp-console">
           <div id="clash-hand-dock" class="scpvp-hand-dock"></div>
@@ -604,30 +623,6 @@
             @click="tapFighter(pinnedTap.uid)"
           >
             ↷ TAP
-          </button>
-          <button
-            v-for="team in myPowers"
-            :key="'power-' + team"
-            type="button"
-            class="scpvp-power"
-            :class="{
-              armed: powerArmed === team,
-              spent: clashPowerSpent(view, pvp.duel.seat, team),
-            }"
-            :aria-pressed="powerArmed === team"
-            :title="powerTitle(team)"
-            :disabled="!powerReady(team)"
-            data-testid="slime-pvp-power"
-            @click="firePower(team)"
-          >
-            {{ factionPower(team).symbol }}
-            <span>{{
-              clashPowerSpent(view, pvp.duel.seat, team)
-                ? 'USED'
-                : powerArmed === team
-                  ? 'PICK TARGET'
-                  : factionPower(team).name
-            }}</span>
           </button>
           <button
             type="button"
@@ -727,8 +722,6 @@ import {
   clashCardText,
   clashEffectivePlayCost,
   clashPlayLimit,
-  clashPowers,
-  clashPowerSpent,
   clashSummoningSick,
   type ClashStrike,
 } from '~/utils/slimeCity/clash'
@@ -742,7 +735,7 @@ import {
 import type { ClashRewardSetup } from '~/utils/slimeCity/clashRewards'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { CLASH_SPEED_PACE } from '~/stores/helpers/slimeCityClashPreference'
-import { OVERCHARGE_RULE, factionPower } from '~/utils/slimeCity/factionPowers'
+import { factionPower } from '~/utils/slimeCity/factionPowers'
 import { slimeArtId, slimeCardArtId } from '~/utils/slimeCity/artManifest'
 
 const route = useRoute()
@@ -872,6 +865,7 @@ const heldIndex = ref<number | null>(null)
 const pinnedUid = ref<number | null>(null)
 const hoverUid = ref<number | null>(null)
 const powerArmed = ref<TeamId | null>(null)
+const powerSide = ref<Side | null>(null)
 const choice = ref<0 | 1>(0)
 const sweeping = ref(false)
 const lunge = ref<{ side: Side; lane: number } | null>(null)
@@ -1063,26 +1057,16 @@ const pinnedTap = computed(() => {
     ready: canClashActivate(view.value, seat.value, fighter.uid),
   }
 })
-const myPowers = computed(() =>
-  view.value ? clashPowers(view.value, seat.value) : [],
-)
-function powerTitle(team: TeamId): string {
-  const power = factionPower(team)
-  return (
-    power.name +
-    ': ' +
-    power.text +
-    ' One use per match. ' +
-    OVERCHARGE_RULE +
-    ' Overcharged: ' +
-    power.overcharge
-  )
-}
 function powerReady(team: TeamId): boolean {
   if (!canPlay.value || !view.value) return false
   return lanes.some((lane) =>
     canClashPower(view.value!, seat.value, lane, team),
   )
+}
+async function activatePortraitPower(team: TeamId) {
+  if (!powerReady(team)) return
+  powerSide.value = null
+  await firePower(team)
 }
 async function firePower(team: TeamId) {
   if (!powerReady(team)) return
@@ -2529,9 +2513,18 @@ watch(
 .scpvp-boss.healed {
   box-shadow: 0 0 1.2rem #7dffb088;
 }
-.scpvp-boss > .slime-art {
+.scpvp-boss-portrait {
   flex: 1 1 auto;
   min-height: 0;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.scpvp-boss-portrait :deep(.slime-art) {
+  width: 100%;
+  height: 100%;
 }
 .scpvp-boss-info {
   flex: none;
@@ -2747,8 +2740,10 @@ watch(
     gap: 0.2rem;
     padding-top: 0;
   }
-  .scpvp-boss > .slime-art {
-    display: none;
+  .scpvp-boss-portrait {
+    flex: none;
+    width: 2rem;
+    height: 2rem;
   }
   .scpvp-boss-info {
     margin-top: 0;
@@ -2808,7 +2803,7 @@ watch(
     gap: 0.25rem;
     padding: 0.15rem;
   }
-  .scpvp-boss > .slime-art {
+  .scpvp-boss-portrait {
     flex: none;
     width: 2rem;
     height: 2rem;
@@ -2871,7 +2866,7 @@ watch(
     gap: 0.3rem;
     padding: 0.2rem;
   }
-  .scpvp-boss > .slime-art {
+  .scpvp-boss-portrait {
     flex: none;
     width: clamp(2rem, 5vw, 3.5rem);
     height: clamp(2rem, 5vw, 3.5rem);

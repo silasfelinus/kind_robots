@@ -166,7 +166,11 @@ export const MAKER_GROUPS: MakerGroup[] = [
         icon: '▼',
         label: 'Ballast Boots · wind-proof, Down to slam',
       },
-      { key: '6', icon: '≈', label: 'Tidecoat · swim Up/Jump, dive Down' },
+      {
+        key: '6',
+        icon: '≈',
+        label: 'Tidecoat · swim Up/Jump, dive Down, B underwater kick',
+      },
       { key: '+', icon: '♥', label: 'Water heart' },
     ],
   },

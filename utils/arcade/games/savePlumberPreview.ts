@@ -3067,7 +3067,12 @@ export class PlumberRun implements ArcadeGameInstance {
       return
     }
     if (!grab && this.mounted && !this.carrying) {
-      if (this.grabRoller(true) || this.slurpSupply()) return
+      if (
+        this.grabRoller(true) ||
+        this.slurpSmallFoe() ||
+        this.slurpSupply()
+      )
+        return
     }
     if (grab && !this.carrying && this.grabRoller()) return
     if (this.carrying) {
@@ -3159,6 +3164,33 @@ export class PlumberRun implements ArcadeGameInstance {
       const row = Math.floor((startY + (dy * i) / steps) / TILE)
       if (isWall(this.solidAt(col, row))) return false
     }
+    return true
+  }
+
+  private slurpSmallFoe(): boolean {
+    const hero = this.hero
+    const foe = this.foes.find((candidate) => {
+      const dx = (candidate.x - hero.x) * this.facing
+      const small =
+        candidate.kind === 'pumpbug' ||
+        candidate.kind === 'cork-crab' ||
+        (candidate.kind === 'minnow' && candidate.y < candidate.homeY)
+      return (
+        small &&
+        !candidate.giant &&
+        !candidate.glide &&
+        !candidate.fade &&
+        candidate.state !== 'gone' &&
+        dx >= 0 &&
+        dx <= 42 &&
+        Math.abs(candidate.y - hero.y - TALL) <= 20 &&
+        this.toolPathClear(candidate.x, candidate.y - 8)
+      )
+    })
+    if (!foe) return false
+    this.defeat(foe, true, 150)
+    if (foe.kind === 'minnow') this.gurgle!.water = true
+    else this.gainTokens(1)
     return true
   }
 

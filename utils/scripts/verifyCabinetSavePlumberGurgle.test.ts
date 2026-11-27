@@ -173,6 +173,63 @@ assert.equal(walledSupply.power, null, 'wall occludes pickup slurp')
 assert.equal(walledSupply.gurgle?.water, false, 'wall occludes water slurp')
 assert.equal(walledSupply.pickups[0]!.taken, false)
 
+function smallFoeArena(glyph: string, blocked = false): StageDef {
+  return {
+    ...pool,
+    rows: pool.rows.map((line, row) =>
+      Array.from(line.replace(/w/g, '#'), (cell, col) => {
+        if (blocked && col === 5 && (row === 19 || row === 20)) return 'B'
+        if (row === 20 && col === 6) return glyph
+        if (row === 20 && col === 7 && glyph === 'p') return 'k'
+        return cell
+      }).join(''),
+    ),
+  }
+}
+
+const gulp = new PlumberRun(options, { customLevel: smallFoeArena('p') })
+frame(gulp)
+frame(gulp, ['down'], ['x'])
+const bug = gulp.foes[0]!
+const crab = gulp.foes[1]!
+crab.x = gulp.hero.x + 39
+const tokensBefore = gulp.tokens
+frame(gulp, [], ['x'])
+assert.ok(bug.fade, 'mounted wrench swallows a pumpbug')
+assert.equal(crab.fade, 0, 'one small enemy per slurp')
+assert.equal(gulp.tokens, tokensBefore + 1)
+assert.equal(gulp.heldRoller, null)
+for (let i = 0; i < 22; i++) frame(gulp)
+crab.x = gulp.hero.x + 32
+frame(gulp, [], ['x'])
+assert.ok(crab.fade, 'mounted wrench swallows a cork crab')
+assert.equal(gulp.tokens, tokensBefore + 2, 'no duplicate swallow reward')
+
+const screenedBug = new PlumberRun(options, {
+  customLevel: smallFoeArena('p', true),
+})
+frame(screenedBug)
+frame(screenedBug, ['down'], ['x'])
+frame(screenedBug, [], ['x'])
+assert.equal(screenedBug.foes[0]?.fade, 0, 'wall blocks a small-enemy gulp')
+assert.equal(screenedBug.tokens, 0)
+
+const fishRun = new PlumberRun(options, { customLevel: smallFoeArena('m') })
+frame(fishRun)
+frame(fishRun, ['down'], ['x'])
+const fish = fishRun.foes[0]!
+fish.y = fish.homeY - 8
+frame(fishRun, [], ['x'])
+assert.ok(fish.fade, 'Gurgle catches a leaping minnow')
+assert.equal(fishRun.gurgle?.water, true, 'a minnow refills the spout hop')
+assert.equal(fishRun.tokens, 0)
+
+const soloBug = new PlumberRun(options, { customLevel: smallFoeArena('p') })
+frame(soloBug)
+frame(soloBug, [], ['x'])
+assert.ok(soloBug.foes[0]?.fade)
+assert.equal(soloBug.tokens, 0, 'ordinary wrench gives no swallow reward')
+
 const stageIndex = CAMPAIGN.findIndex((stage) => stage.code === '2-1')
 const seedFile = readPlumberFile({
   v: 3,

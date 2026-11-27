@@ -17,6 +17,7 @@ on:
       - 'utils/scripts/verifySavePlumberGears.test.ts'
       - 'utils/scripts/verifySavePlumberPreview.test.ts'
       - 'utils/scripts/verifyCabinetSavePlumberScalePlates.test.ts'
+      - 'utils/scripts/verifyCabinetSavePlumberGurgle.test.ts'
       - '.github/workflows/save-plumber-maker-contract.yml'
 permissions:
   contents: read
@@ -50,3 +51,5 @@ jobs:
         run: npx tsx utils/scripts/verifySavePlumberPreview.test.ts
       - name: Verify scale plates and sluice gates
         run: npx tsx utils/scripts/verifyCabinetSavePlumberScalePlates.test.ts
+      - name: Verify Gurgle swimming, slurping and save isolation
+        run: npx tsx utils/scripts/verifyCabinetSavePlumberGurgle.test.ts

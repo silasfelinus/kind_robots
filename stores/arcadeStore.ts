@@ -13,6 +13,15 @@ import { useUserStore } from '@/stores/userStore'
 import { performFetch } from './utils'
 import { useAchievementStore } from './achievementStore'
 import {
+  PlumberCloud,
+  type PlumberAccountCopy,
+  type PlumberCloudStatus,
+} from './helpers/plumberCloud'
+import {
+  PLUMBER_SLUG,
+  type PlumberFile,
+} from '~/utils/arcade/games/savePlumberSave'
+import {
   enqueuePending,
   PENDING_FLUSH_BATCH,
   sanitizePending,
@@ -276,6 +285,78 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   const mastery = ref<MasteryRecord>({})
   /** Each long cabinet's saved progress on this device, by game slug. */
   const saves = ref<SaveRecord>({})
+  const plumberCloudStatus = ref<PlumberCloudStatus>('local')
+  const plumberFile = ref<PlumberFile | null>(null)
+  const plumberDeviceOwner = ref<string | null>(null)
+  const plumberCloud = new PlumberCloud({
+    read(owner) {
+      try {
+        return JSON.parse(localStorage.getItem(`kr-plumber-save-${owner}`) ?? 'null')
+      } catch {
+        return null
+      }
+    },
+    write(owner, cache) {
+      try {
+        localStorage.setItem(`kr-plumber-save-${owner}`, JSON.stringify(cache))
+      } catch {
+        // Keep the current account's save in memory.
+      }
+    },
+    async get(token) {
+      const reply = await $fetch<{
+        success: boolean
+        data: PlumberAccountCopy | null
+      }>('/api/arcade/saves/save-the-plumber', {
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 4000,
+      })
+      if (!reply.success) throw new Error('Could not read account save')
+      return reply.data
+    },
+    async put(token, save, expectedRevision) {
+      const reply = await $fetch<{
+        success: boolean
+        data?: { revision: number }
+      }>('/api/arcade/saves/save-the-plumber', {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 4000,
+        body: { save, expectedRevision },
+      })
+      if (!reply.success || !reply.data)
+        throw new Error('Could not write account save')
+      return reply.data.revision
+    },
+    changed(save, status) {
+      plumberFile.value = save
+      plumberCloudStatus.value = status
+    },
+  })
+
+  function plumberOwner() {
+    return String(useUserStore().authenticatedUserId ?? 'guest')
+  }
+
+  function selectPlumberOwner() {
+    if (!import.meta.client) return
+    const owner = plumberOwner()
+    plumberDeviceOwner.value = owner
+    plumberCloud.select(owner, saves.value[PLUMBER_SLUG])
+  }
+
+  async function syncPlumberCareer() {
+    if (!import.meta.client) return
+    selectPlumberOwner()
+    const token = useUserStore().token ?? null
+    await plumberCloud.sync(plumberOwner(), token, saves.value[PLUMBER_SLUG])
+  }
+
+  function retryPlumberCareer() {
+    if (!import.meta.client) return
+    plumberCloud.retry(plumberOwner(), useUserStore().token ?? null)
+  }
+
   const spectrumCloudStatus = ref<SpectrumCloudStatus>('local')
   let spectrumOwner: number | null = null
   let spectrumRevision: number | null = null
@@ -413,6 +494,10 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
 
   /** A game's saved progress on this device, if any. */
   function saveFor(game: string): unknown {
+    if (game === PLUMBER_SLUG)
+      return plumberDeviceOwner.value === plumberOwner()
+        ? plumberFile.value
+        : undefined
     const key =
       game === RAINBOW_SAVE_GAME ? rainbowSlotKey(rainbowSlot.value) : game
     return key ? saves.value[key] : undefined
@@ -673,6 +758,11 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
 
   /** Keep (or, with null, clear) a game's saved progress. */
   function recordSave(game: string, save: unknown) {
+    if (game === PLUMBER_SLUG) {
+      if (import.meta.client && plumberDeviceOwner.value === plumberOwner())
+        plumberCloud.record(plumberOwner(), useUserStore().token ?? null, save)
+      return
+    }
     if (game === SPECTRUM_SLUG && import.meta.client) {
       const userId = useUserStore().authenticatedUserId
       const owner = userId ? String(userId) : 'guest'
@@ -710,6 +800,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   function loadPreferences(prefersReducedMotion: boolean) {
     mastery.value = readMastery()
     saves.value = readSaves()
+    selectPlumberOwner()
     const prefs = readPrefs()
     rainbowHangars.value = Array.from(
       { length: RAINBOW_SLOT_COUNT },
@@ -1025,6 +1116,9 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     recordSave,
     spectrumCloudStatus,
     syncSuperkateCareer,
+    plumberCloudStatus,
+    syncPlumberCareer,
+    retryPlumberCareer,
     rainbowSlot,
     rainbowSlotSaves,
     eraseRainbowFlightLog,

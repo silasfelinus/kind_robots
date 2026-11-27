@@ -50,6 +50,23 @@
                   : '◈ Device save'
           }}
         </span>
+        <span
+          v-if="props.slug === 'save-the-plumber'"
+          class="text-xs font-medium tracking-wide opacity-80"
+          role="status"
+          aria-live="polite"
+        >
+          {{
+            store.plumberCloudStatus === 'conflict'
+              ? 'Save conflict: device copy kept'
+              : store.plumberCloudStatus === 'synced'
+                ? 'Account save synced'
+                : store.plumberCloudStatus === 'checking' ||
+                    store.plumberCloudStatus === 'saving'
+                  ? 'Syncing account save'
+                  : 'Saved on device'
+          }}
+        </span>
       </div>
 
       <div
@@ -1616,7 +1633,7 @@ let spectrumRunOwner: number | null = null
 /** Keep a long game's progress (a real game's only; demos never save). */
 function keepSave(instance: ArcadePlayableInstance | null) {
   if (
-    props.slug === 'superkate-spectrum' &&
+    (props.slug === 'superkate-spectrum' || props.slug === 'save-the-plumber') &&
     spectrumRunOwner !== (useUserStore().authenticatedUserId ?? null)
   )
     return
@@ -2680,6 +2697,7 @@ function onOnline() {
   // Back online: send any scores that are waiting for the global board.
   void store.flushPending()
   if (props.slug === 'superkate-spectrum') void store.syncSuperkateCareer()
+  if (props.slug === 'save-the-plumber') store.retryPlumberCareer()
 }
 
 function releaseInterruptedInput() {
@@ -2784,6 +2802,7 @@ async function boot() {
   machine = initialArcadeState()
   phase.value = machine.phase
   if (info.slug === 'superkate-spectrum') await store.syncSuperkateCareer()
+  if (info.slug === 'save-the-plumber') await store.syncPlumberCareer()
   if (generation !== bootGeneration) return
   if (titleArt) {
     titleArtReady = false
@@ -2849,12 +2868,18 @@ const userForArcade = useUserStore()
 watch(
   () => [userForArcade.authenticatedUserId, userForArcade.token] as const,
   ([owner], [previousOwner]) => {
-    if (props.slug !== 'superkate-spectrum') return
+    if (
+      props.slug !== 'superkate-spectrum' &&
+      props.slug !== 'save-the-plumber'
+    )
+      return
     if (owner !== previousOwner) {
       releaseInterruptedInput()
       void boot()
-    } else {
+    } else if (props.slug === 'superkate-spectrum') {
       void store.syncSuperkateCareer()
+    } else {
+      store.retryPlumberCareer()
     }
   },
 )

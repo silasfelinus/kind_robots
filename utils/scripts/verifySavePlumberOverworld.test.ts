@@ -5,6 +5,7 @@
 // slots keyed by node, and every older save carried forward.
 import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
+import { PlumberCloud } from '../../stores/helpers/plumberCloud'
 import { emptyInput } from '../arcade/types'
 import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
 import {
@@ -948,3 +949,65 @@ assert.equal(castle.stage.code, '2-1')
 console.log(
   'Save the Plumber Gen-2 overworld: the GEN2-WORLDS graph (8 painted worlds + the Upstream Sky) validated, paths opened by clears, unbuilt nodes never block, castle roads, three node-keyed save files with v1/v2 migration, erase, deaths and time remembered',
 )
+
+
+async function verifyAccountSync() {
+  type File = ReturnType<typeof readPlumberFile>
+  const cache = new Map<string, unknown>()
+  const remote = new Map<string, { save: File; revision: number }>()
+  let displayed = readPlumberFile(null)
+  let status = ''
+  const cloud = new PlumberCloud({
+    read: (owner) => cache.get(owner),
+    write: (owner, entry) => void cache.set(owner, entry),
+    get: async (token) => remote.get(token) ?? null,
+    put: async (token, save, revision) => {
+      const old = remote.get(token)
+      if ((old?.revision ?? null) !== revision)
+        throw { statusCode: 409 }
+      const next = (old?.revision ?? -1) + 1
+      remote.set(token, { save, revision: next })
+      return next
+    },
+    changed: (save, next) => {
+      displayed = save
+      status = next
+    },
+  })
+  const first = readPlumberFile({
+    v: 3,
+    active: 0,
+    slots: [{ heroine: 3, stage: 0, score: 12, lives: 3, tokens: 0 }],
+  })
+  cloud.select('guest', first)
+  assert.equal(displayed.slots[0]?.score, 12)
+  await cloud.sync('41', '41', first)
+  assert.equal(displayed.slots[0], null, 'guest progress stays private')
+  cloud.record('41', '41', first)
+  await cloud.sync('41', '41', first)
+  assert.equal(remote.get('41')?.save.slots[0]?.score, 12)
+  await cloud.sync('42', '42', first)
+  assert.equal(displayed.slots[0], null, 'second account cannot see first')
+  cloud.record('41', '41', first)
+  assert.equal(displayed.slots[0], null, 'old cabinet cannot write new owner')
+  await cloud.sync('41', '41', first)
+  assert.equal(displayed.slots[0]?.score, 12)
+  const before = remote.get('41')!
+  const other = readPlumberFile({
+    ...before.save,
+    slots: [{ ...before.save.slots[0], score: 99 }, null, null],
+  })
+  remote.set('41', { save: other, revision: before.revision + 1 })
+  const local = readPlumberFile({
+    ...before.save,
+    slots: [{ ...before.save.slots[0], score: 24 }, null, null],
+  })
+  cloud.record('41', '41', local)
+  await cloud.sync('41', '41', first)
+  assert.equal(status, 'conflict')
+  assert.equal(displayed.slots[0]?.score, 24, 'local conflicting run survives')
+  assert.equal(remote.get('41')?.save.slots[0]?.score, 99)
+  cloud.select('guest', null)
+  assert.equal(displayed.slots[0]?.score, 12, 'guest save survives sign-in')
+}
+await verifyAccountSync()

@@ -11,6 +11,18 @@
               plumber.chosen ? 'SAVE ' + plumber.percent + '%' : 'NEW ADVENTURE'
             }}
           </span>
+          <span class="plumber-progress" aria-live="polite">
+            {{
+              arcade.plumberCloudStatus === 'conflict'
+                ? 'SAVE CONFLICT: DEVICE COPY KEPT'
+                : arcade.plumberCloudStatus === 'synced'
+                  ? 'ACCOUNT SYNCED'
+                  : arcade.plumberCloudStatus === 'checking' ||
+                      arcade.plumberCloudStatus === 'saving'
+                    ? 'SYNCING'
+                    : 'DEVICE SAVE'
+            }}
+          </span>
         </div>
       </header-page-bar>
       <page-help label="Save the Plumber controls" @open="go('guide')" />
@@ -622,6 +634,7 @@ const shareCode = computed(() =>
 const screen = ref<Screen>(shareCode.value ? 'maker' : 'title')
 const plumber = useSavePlumberStore()
 const arcade = useArcadeStore()
+const saveOwner = useUserStore()
 const plumberLaunch = ref<'new' | 'continue'>()
 const hasSavedFile = computed(() => plumber.file.slots.some(Boolean))
 const hasEmptyFile = computed(() => plumber.file.slots.some((slot) => !slot))
@@ -807,8 +820,15 @@ onMounted(() => {
     '(prefers-reduced-motion: reduce)',
   ).matches
   arcade.loadPreferences(reducedMotion.value)
+  void arcade.syncPlumberCareer()
   window.addEventListener('keydown', onEscape)
 })
+watch(
+  () => [saveOwner.authenticatedUserId, saveOwner.token] as const,
+  () => {
+    if (screen.value !== 'play') void arcade.syncPlumberCareer()
+  },
+)
 onUnmounted(() => window.removeEventListener('keydown', onEscape))
 useSeoMeta(
   gameLinkPreviewMeta(

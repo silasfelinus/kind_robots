@@ -776,6 +776,106 @@ async function auditRulerOpening(page, vp) {
     await stage('chronicle', chronicle)
     await chronicle.getByRole('button', { name: 'Royal Scrapbook' }).click()
     await stage('in-game-scrapbook', chronicle)
+    async function quizReign(subject, mode) {
+      await page
+        .getByRole('button', { name: 'Royal menu', exact: true })
+        .click()
+      await page.getByRole('menuitem', { name: 'Saves & new reign' }).click()
+      const newReign = title.getByRole('button', { name: 'Begin a new reign' })
+      if (await newReign.isVisible()) await newReign.click()
+      await title.getByLabel('Your name', { exact: true }).fill('Audit ' + mode)
+      await title.getByRole('button', { name: 'Begin your reign' }).click()
+      await opening.getByRole('button', { name: 'Next', exact: true }).click()
+      await opening.getByRole('button', { name: 'Next', exact: true }).click()
+      await opening.getByRole('button', { name: 'Take up the rod' }).click()
+      await crier.getByRole('button', { name: 'Hear, hear!' }).click()
+      await page
+        .getByRole('button', { name: 'Royal menu', exact: true })
+        .click()
+      await page.getByRole('menuitem', { name: 'Fishing settings' }).click()
+      const fishingSettings = page.getByLabel('Fishing settings', {
+        exact: true,
+      })
+      await fishingSettings.locator('input[value="quiz"]').check()
+      const modules = fishingSettings.getByRole('group', {
+        name: 'Subjects in the mix',
+      })
+      await modules.getByRole('checkbox', { name: subject }).check()
+      for (const other of [
+        /Countries & flags/,
+        /US states & capitals/,
+        /Mandarin/,
+      ]) {
+        if (other.source !== subject.source)
+          await modules.getByRole('checkbox', { name: other }).uncheck()
+      }
+      if (mode === 'mandarin') {
+        await fishingSettings
+          .getByRole('group', { name: 'Mandarin topics' })
+          .getByRole('button', { name: /Animals/ })
+          .click()
+        await fishingSettings
+          .getByRole('button', { name: /Study every time/ })
+          .click()
+      }
+      await stage(mode + '-settings', fishingSettings)
+      await page.getByTestId('rh-tab-lake').click()
+      await lake.getByRole('button', { name: /Cast a line/ }).click()
+      const quiz = lake.getByLabel('Learn to catch', { exact: true })
+      const prompt = quiz.locator('.rh-quiz__prompt')
+      const choices = quiz.locator('button[data-testid^="ruler-quiz-choice-"]')
+      const guide = quiz.getByLabel(
+        mode === 'mandarin' ? 'Mandarin answer reference' : 'Geography lesson',
+        { exact: true },
+      )
+      if (mode === 'mandarin') {
+        await stage(mode + '-introduction', guide)
+        await quiz.getByRole('button', { name: 'Ready to answer' }).click()
+      }
+      await stage(mode + '-question', prompt)
+      async function questionSnapshot() {
+        return {
+          fish: await quiz.locator('h2').textContent(),
+          prompt: await prompt.textContent(),
+          hero: await quiz.locator('.rh-quiz__symbol').textContent(),
+          choices: await choices.evaluateAll((nodes) =>
+            nodes.map((node) => node.getAttribute('data-testid')),
+          ),
+        }
+      }
+      const before = await questionSnapshot()
+      if (before.choices.length < 2)
+        throw new Error(mode + ': fewer than two quiz choices')
+      await page.reload({ waitUntil: 'load', timeout: NAVIGATION_MS })
+      await prompt.waitFor({ state: 'visible', timeout: 15000 })
+      if (JSON.stringify(await questionSnapshot()) !== JSON.stringify(before))
+        throw new Error(mode + ': quiz question changed after reload')
+      await stage(mode + '-question-restored', prompt)
+      if (vp.mobile) await choices.first().tap()
+      else if (vp.name === 'short-wide') await choices.first().click()
+      else await choices.first().press('Enter')
+      await guide.or(lake.locator('.rh-reveal')).waitFor({
+        state: 'visible',
+        timeout: 15000,
+      })
+      if (await guide.isVisible()) {
+        await stage(mode + '-answer-guide', guide)
+        const answer = await guide.locator('h3').textContent()
+        await page.reload({ waitUntil: 'load', timeout: NAVIGATION_MS })
+        await guide.waitFor({ state: 'visible', timeout: 15000 })
+        if ((await guide.locator('h3').textContent()) !== answer)
+          throw new Error(mode + ': answer guide changed after reload')
+        await stage(mode + '-answer-guide-restored', guide)
+        await guide
+          .getByRole('button', { name: /Try another (question|word)/ })
+          .click()
+        await prompt.or(guide).waitFor({ state: 'visible', timeout: 15000 })
+      } else {
+        await stage(mode + '-catch', lake.locator('.rh-reveal'))
+      }
+    }
+    await quizReign(/US states & capitals/, 'learning')
+    await quizReign(/Mandarin/, 'mandarin')
   } catch (error) {
     failures += 1
     console.log(`${label} ❌ opening flow: ${error.message}`)

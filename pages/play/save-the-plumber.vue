@@ -712,7 +712,7 @@ const controls = [
     keyboard: 'SHIFT',
     pad: 'B',
     label: 'SPRINT / SLIDE',
-    does: 'Hold while moving to run; hold still to duck',
+    does: 'Hold while moving to run; hold still to duck. With Tidecoat, press underwater for a kick burst.',
   },
   {
     keyboard: 'E / C',

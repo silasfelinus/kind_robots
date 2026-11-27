@@ -261,6 +261,10 @@ console.log(
   assert.equal(artJobOutputKind(still, 'video'), 'video')
   assert.equal(artJobOutputKind(still, 'audio'), 'audio')
   assert.equal(artJobOutputKind(still, 'unknown'), 'image')
+  const animation = { id: 3, payload: { media: 'video' } }
+  assert.equal(artJobOutputKind(animation), 'video')
+  assert.equal(artJobOutputKind(animation, 'video'), 'video')
+  assert.equal(artJobOutputKind(animation, 'image'), 'image')
   assert.equal(artJobOutputKind({ id: 3 }), 'image')
 }
 console.log('✅ ArtJob output kind: songs play as audio, public or private')

@@ -777,7 +777,9 @@ async function auditRulerOpening(page, vp) {
     await chronicle.getByRole('button', { name: 'Royal Scrapbook' }).click()
     await stage('in-game-scrapbook', chronicle)
     async function quizReign(subject, mode) {
-      await page.getByRole('button', { name: 'Royal menu', exact: true }).click()
+      await page
+        .getByRole('button', { name: 'Royal menu', exact: true })
+        .click()
       await page.getByRole('menuitem', { name: 'Saves & new reign' }).click()
       const newReign = title.getByRole('button', { name: 'Begin a new reign' })
       if (await newReign.isVisible()) await newReign.click()
@@ -787,7 +789,9 @@ async function auditRulerOpening(page, vp) {
       await opening.getByRole('button', { name: 'Next', exact: true }).click()
       await opening.getByRole('button', { name: 'Take up the rod' }).click()
       await crier.getByRole('button', { name: 'Hear, hear!' }).click()
-      await page.getByRole('button', { name: 'Royal menu', exact: true }).click()
+      await page
+        .getByRole('button', { name: 'Royal menu', exact: true })
+        .click()
       await page.getByRole('menuitem', { name: 'Fishing settings' }).click()
       const fishingSettings = page.getByLabel('Fishing settings', {
         exact: true,

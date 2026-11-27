@@ -9,7 +9,7 @@ subtitle: Five-alley CLASH against a real rival
 description: Challenge a friend or an open rival to a turn-by-turn Slime City CLASH. Each player moves on their own time; the duel waits for you.
 summary: Two-player Slime City CLASH duels.
 icon: kind-icon:swords
-image: /images/channels/arcade/slime-city.webp
+image: /api/art/images/272640/file
 route: /play/slime-city-pvp
 sort: 146
 requiredPermission: authenticated

@@ -157,11 +157,7 @@
             <button type="button" class="rh-btn rh-btn--gold" @click="dismiss">
               {{ revealActionLabel }}
             </button>
-            <button
-              type="button"
-              class="rh-btn"
-              @click="viewFishopedia"
-            >
+            <button type="button" class="rh-btn" @click="viewFishopedia">
               Fishopedia
             </button>
           </div>

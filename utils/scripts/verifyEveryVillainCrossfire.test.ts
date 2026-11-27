@@ -895,7 +895,7 @@ for (const perspective of ['hero', 'villain'] as const)
 
 // Each authored origin identity has independently authored playable
 // hero and villain scenes. The actual squad member speaks, not a stale slot.
-assert.equal(Object.keys(PERSONAL_CAMPAIGNS).length, 16)
+assert.equal(Object.keys(PERSONAL_CAMPAIGNS).length, 24)
 for (const [signature, campaign] of Object.entries(PERSONAL_CAMPAIGNS)) {
   assert.ok(IDENTITY_ARCS.some((entry) => entry.signature === signature))
   assert.equal(campaign.chapters.length, 6)
@@ -906,7 +906,8 @@ const campaignPassages = new Set<string>()
 for (const person of IDENTITY_ARCS.filter(
   (entry) =>
     entry.signature.startsWith('accident-') ||
-    entry.signature.startsWith('magic-'),
+    entry.signature.startsWith('magic-') ||
+    entry.signature.startsWith('tech-'),
 )) {
   for (const perspective of ['hero', 'villain'] as const) {
     for (let chapter = 0; chapter < 6; chapter++) {
@@ -967,12 +968,13 @@ for (const person of IDENTITY_ARCS.filter(
     }
   }
 }
-assert.equal(campaignPassages.size, 544)
+assert.equal(campaignPassages.size, 816)
 const personalFinales = new Set<string>()
 for (const person of IDENTITY_ARCS.filter(
   (entry) =>
     entry.signature.startsWith('accident-') ||
-    entry.signature.startsWith('magic-'),
+    entry.signature.startsWith('magic-') ||
+    entry.signature.startsWith('tech-'),
 )) {
   for (const [index, [rescues, evidence, shelter, path]] of [
     [[0, 1, 2], [], true, 'open-doors'],
@@ -999,7 +1001,7 @@ for (const person of IDENTITY_ARCS.filter(
     personalFinales.add(authored)
   }
 }
-assert.equal(personalFinales.size, 64)
+assert.equal(personalFinales.size, 96)
 
 const personalScenes = new Set<string>()
 for (const person of IDENTITY_ARCS) {

@@ -1754,21 +1754,18 @@ export function rivalRetreatDestination(state: TrainingState, enemy: Unit) {
     state.phase !== 'active'
   )
     return null
-  const opponents = state.units.filter(
-    (unit) => unit.team !== enemy.team && unit.hp > 0,
-  )
-  const exposure = (point: Point) =>
-    Math.max(
-      0,
-      ...opponents.map(
-        (unit) => chanceFrom(state.map, unit, { ...enemy, ...point }).hit,
-      ),
-    )
-  const current = exposure(enemy)
+  const current = rivalExposure(state, enemy, enemy).incoming
   if (current < 45) return null
   const destination = reachableCells(state.map, state.units, enemy)
     .filter((point) => !rivalHazardAt(state, point))
-    .map((point) => ({ point, exposure: exposure(point) }))
+    .map((point) => {
+      const risk = rivalExposure(state, enemy, point)
+      // At one HP, even a single reaction can end the retreat. Account for
+      // immediate overwatch as well as the strongest subsequent shot.
+      const exposure =
+        risk.incoming + ((100 - risk.incoming) * risk.reaction) / 100
+      return { point, exposure }
+    })
     .filter((candidate) => current - candidate.exposure >= 25)
     .sort(
       (a, b) =>

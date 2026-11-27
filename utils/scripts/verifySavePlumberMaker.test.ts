@@ -93,12 +93,30 @@ assert.equal((initial.rows.join('').match(/G/g) ?? []).length, 1)
 assert.deepEqual(validateMakerLevel(initial), initial)
 
 const brushCases = [
-  [{ x: 2, y: 5 }, { x: 17, y: 5 }],
-  [{ x: 17, y: 5 }, { x: 2, y: 5 }],
-  [{ x: 8, y: 2 }, { x: 8, y: 19 }],
-  [{ x: 4, y: 4 }, { x: 18, y: 11 }],
-  [{ x: 18, y: 11 }, { x: 4, y: 4 }],
-  [{ x: 8, y: 8 }, { x: 8, y: 8 }],
+  [
+    { x: 2, y: 5 },
+    { x: 17, y: 5 },
+  ],
+  [
+    { x: 17, y: 5 },
+    { x: 2, y: 5 },
+  ],
+  [
+    { x: 8, y: 2 },
+    { x: 8, y: 19 },
+  ],
+  [
+    { x: 4, y: 4 },
+    { x: 18, y: 11 },
+  ],
+  [
+    { x: 18, y: 11 },
+    { x: 4, y: 4 },
+  ],
+  [
+    { x: 8, y: 8 },
+    { x: 8, y: 8 },
+  ],
 ] as const
 for (const [from, to] of brushCases) {
   const cells = makerBrushCells(from, to)

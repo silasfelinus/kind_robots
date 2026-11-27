@@ -723,9 +723,9 @@
                       />
                     </span>
                     <b>{{ deck.ally ? deck.name : teamName(deck.general) }}</b>
-                    <small
-                      >{{ deck.ally ? 'ALLIANCE · STARTER' : 'FACTION · CLASSIC' }}</small
-                    >
+                    <small>{{
+                      deck.ally ? 'ALLIANCE · STARTER' : 'FACTION · CLASSIC'
+                    }}</small>
                   </button>
                 </div>
               </details>

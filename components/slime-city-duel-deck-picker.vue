@@ -81,9 +81,7 @@ watch(
   },
   { immediate: true },
 )
-const setup = computed(() =>
-  lab.duelDeck(props.team, mode.value, deckId.value),
-)
+const setup = computed(() => lab.duelDeck(props.team, mode.value, deckId.value))
 const hint = computed(() => {
   switch (mode.value) {
     case 'faction-classic':

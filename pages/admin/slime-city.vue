@@ -1569,7 +1569,8 @@ const filterCards = (cards: Card[]): Card[] =>
   )
 const galleryCards = computed(() =>
   CARDS.filter(
-    (card) => byFilter(card) && (showLocked.value || lab.isCardUnlocked(card.id)),
+    (card) =>
+      byFilter(card) && (showLocked.value || lab.isCardUnlocked(card.id)),
   ),
 )
 const lockedCount = computed(

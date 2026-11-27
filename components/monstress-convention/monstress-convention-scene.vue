@@ -3,6 +3,8 @@
     class="mc-console @container flex h-full min-h-0 w-full flex-col overflow-hidden text-white"
     data-testid="monstrexx-point-click"
     @keydown.esc="closeOverlay"
+    @pointerdown.capture="sound.unlock()"
+    @keydown.capture="sound.unlock()"
   >
     <div
       v-if="screen === 'title'"
@@ -752,6 +754,9 @@ import {
   type MonstriqueCharacterId,
 } from '~/utils/monstrique/characterModels'
 import { coldOpen } from '~/utils/monstrique/cutscenes'
+import { useMonstriqueSoundStore } from '~/stores/monstriqueSoundStore'
+import { usePlaybookKitStore } from '~/stores/playbookKitStore'
+import { monstriqueCuesFor, monstriqueMoodFor } from '~/utils/monstrique/sound'
 
 const props = defineProps<{
   entry?: 'new' | 'continue'
@@ -915,6 +920,37 @@ onMounted(() => {
   else if (story.value.state.transcript.length > 1) screen.value = 'stage'
 })
 onBeforeUnmount(stopWalking)
+
+const sound = useMonstriqueSoundStore()
+const kit = usePlaybookKitStore()
+watch(
+  () =>
+    monstriqueMoodFor(
+      story.value.activeCutscene ? null : story.value.state,
+      screen.value === 'stage',
+    ),
+  (mood) => sound.setMood(mood),
+  { immediate: true },
+)
+watch(
+  () => story.value.state,
+  (next, previous) => {
+    if (previous && next !== previous)
+      sound.play(monstriqueCuesFor(previous, next))
+  },
+)
+watch(
+  () => kit.settings.sound,
+  (setting) => sound.setEnabled(setting !== 'off'),
+  { immediate: true },
+)
+function onVisibility(): void {
+  sound.setHidden(document.visibilityState === 'hidden')
+}
+onMounted(() => document.addEventListener('visibilitychange', onVisibility))
+onBeforeUnmount(() =>
+  document.removeEventListener('visibilitychange', onVisibility),
+)
 
 function begin(): void {
   story.value.begin()

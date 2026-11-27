@@ -38,9 +38,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useMonstriquePublicStore } from '~/stores/monstriquePublicStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
+import { useMonstriqueSoundStore } from '~/stores/monstriqueSoundStore'
 import { useUserStore } from '~/stores/userStore'
 import { MONSTRIQUE_GENERAL_SPEC } from '~/utils/monstressConvention/edition'
 import { MONSTRESS_CONVENTION } from '~/utils/playbookKit/games/monstressConvention'
@@ -63,6 +64,9 @@ const ownedSpec = computed(() => ({
     : MONSTRIQUE_GENERAL_SPEC),
   id: 'monstrique-' + game.audience + '-' + (user.user?.id ?? 'guest'),
 }))
+
+const sound = useMonstriqueSoundStore()
+onBeforeUnmount(() => sound.stop())
 
 onMounted(() => {
   game.initialize()

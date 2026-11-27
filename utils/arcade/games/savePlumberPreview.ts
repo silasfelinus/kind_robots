@@ -2027,11 +2027,24 @@ export class PlumberRun implements ArcadeGameInstance {
     return true
   }
 
+  private get gurgleSurface(): number | null {
+    if (!this.mounted) return null
+    const col = Math.floor(this.hero.x / TILE)
+    const feet = this.hero.y + TALL
+    let row = Math.floor((feet + 2) / TILE)
+    if (this.solidAt(col, row) !== SOLID_WATER) {
+      row = Math.floor((feet - 6) / TILE)
+      if (this.solidAt(col, row) !== SOLID_WATER) return null
+    }
+    while (row > 0 && this.solidAt(col, row - 1) === SOLID_WATER) row--
+    return row * TILE
+  }
+
   private get swimming(): boolean {
     return (
       !this.stage.space &&
-      (this.power === 'tidecoat' || this.mounted) &&
-      this.waterAt(this.hero.y + TALL - 6)
+      (this.gurgleSurface !== null ||
+        (this.power === 'tidecoat' && this.waterAt(this.hero.y + TALL - 6)))
     )
   }
 
@@ -2041,12 +2054,16 @@ export class PlumberRun implements ArcadeGameInstance {
     const down = keys.held.down
     const surface = !this.waterAt(hero.y + 2)
     const mount = this.mounted ? this.gurgle! : null
-    const target = mount
-      ? up && !down && surface
+    const waterline = this.gurgleSurface
+    const launch =
+      mount &&
+      waterline !== null &&
+      Math.abs(hero.y + TALL - waterline) <= 3 &&
+      (keys.pressed.a || keys.pressed.up)
+    const target = mount && waterline !== null
+      ? launch
         ? -6.5
-        : surface
-          ? 0
-          : -2.8
+        : Math.max(-4, Math.min(3, waterline - hero.y - TALL))
       : up && !down
         ? surface
           ? -6.5
@@ -2070,7 +2087,9 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.tideKick) this.tideKick--
     else hero.vx += (move * (mount ? 3.2 : 2.8) - hero.vx) * 0.25
     hero.vy =
-      surface && up && !down ? target : hero.vy + (target - hero.vy) * 0.3
+      mount || (surface && up && !down)
+        ? target
+        : hero.vy + (target - hero.vy) * 0.3
     if (move) this.facing = move > 0 ? 1 : -1
     this.ground = false
     this.riding = null

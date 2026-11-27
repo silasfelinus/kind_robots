@@ -15,6 +15,8 @@
     "audit:workflow-budget": "node utils/scripts/auditWorkflowBudget.mjs",
     "test:workflow-budget": "node utils/scripts/auditWorkflowBudget.mjs --self-test && node utils/scripts/auditWorkflowBudget.mjs --check",
     "audit:icons": "tsx utils/scripts/auditIcons.ts",
+    "audit:arcade-art": "tsx utils/scripts/auditArcadeArt.ts",
+    "test:arcade-art-audit": "tsx utils/scripts/verifyCabinetArtAudit.test.ts",
     "test:icons-selftest": "tsx utils/scripts/auditIcons.ts --self-test",
     "audit:mandarin-provenance": "tsx utils/scripts/auditMandarinCatalog.ts",
     "test:mandarin-content-audit": "tsx utils/scripts/auditMandarinCatalog.ts --self-test",

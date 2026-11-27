@@ -3,6 +3,7 @@
 // extra player-controlled starting roles, and no phantom actions by fallen NPCs.
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import type { ChoiceEffect } from './firstBellStory'
+import { personalSupportVoice } from './personalSupportVoices'
 import type { TrainingState, Unit } from './training'
 
 export type SupportBeat = 'alarm' | 'reckoning'
@@ -61,12 +62,17 @@ export function supportPlan(
   for (const actor of candidates) {
     // Dr. Frog analyzes while the lead rescues; Groundswell protects even
     // under pressure. Future bespoke companions inherit a tactical fallback.
+    const personal = state.crossfireCast
+      ? personalSupportVoice(actor.identity)
+      : undefined
     const analytical =
       actor.identity === 'tech-genius' ||
       (actor.identity !== 'mutant-earth' &&
         (actor.role === 'sniper' || actor.role === 'skirmisher'))
     const prefersMark =
-      !refusal && analytical && (order === 'rescue' || order === 'spare')
+      !refusal &&
+      (personal ? personal.preference === 'mark' : analytical) &&
+      (order === 'rescue' || order === 'spare')
     const allies = squad
       .filter((unit) => !unit.statuses.includes('guarded'))
       .sort(
@@ -86,7 +92,7 @@ export function supportPlan(
     const target = prefersMark ? (rivals[0] ?? allies[0]) : allies[0]
     if (!target) continue
     const effect = target.team === 'rival' ? 'marked' : 'guarded'
-    const voice = VOICES[actor.identity]
+    const voice = personal ?? VOICES[actor.identity]
     const line = refusal
       ? (voice?.refuse ?? 'I am staying with the crew rather than pursuing.')
       : effect === 'marked'
@@ -122,6 +128,7 @@ export function supportReport(state: TrainingState, action: SupportAction) {
 export function applySupport(
   state: TrainingState,
   action: SupportAction,
+  plannedText?: string,
 ): boolean {
   const actor = state.units.find((unit) => unit.id === action.actor)
   const target = state.units.find((unit) => unit.id === action.target)
@@ -138,7 +145,8 @@ export function applySupport(
     return false
   target.statuses.push(action.effect)
   const report = supportReport(state, action)!
-  const message = report.speaker + ': ' + report.text
+  const message =
+    report.speaker + ': ' + (state.crossfireCast && plannedText ? plannedText : report.text)
   state.log = message
   state.events = [message, ...state.events].slice(0, 6)
   return true

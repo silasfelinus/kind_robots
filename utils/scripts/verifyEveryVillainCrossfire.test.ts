@@ -21,6 +21,8 @@ import {
   personalCastFor,
 } from '../everyVillainTactics/personalCasts'
 import { IDENTITY_ARCS, identityFor } from '../cometAcademy/identityArcs'
+import { PERSONAL_SUPPORT_VOICES, personalSupportVoice } from '../everyVillainTactics/personalSupportVoices'
+import { applySupport, supportPlan } from '../everyVillainTactics/supportAgency'
 import {
   crossfireChapterBeat,
   PERSONAL_CAMPAIGNS,
@@ -1358,3 +1360,46 @@ assert.ok(page.includes('@click="store.replayBattle()"'))
 console.log(
   'Crossfire: six ordered chapters, independent save key, First Bell story bridge, verified victory/defeat transitions, checkpoint restoration, anti-forgery and UI wiring checked.',
 )
+
+// All canonical identities have authored support motives and legal actions.
+assert.deepEqual(
+  Object.keys(PERSONAL_SUPPORT_VOICES).sort(),
+  IDENTITY_ARCS.map((person) => person.signature).sort(),
+)
+const supportLines = new Set<string>()
+for (const person of IDENTITY_ARCS) {
+  const voice = personalSupportVoice(person.signature)!
+  assert.ok(voice)
+  for (const line of [voice.mark, voice.guard, voice.refuse]) {
+    assert.ok(!supportLines.has(line))
+    supportLines.add(line)
+  }
+  const lead = person.signature === 'accident-fire' ? 'accident-air' : 'accident-fire'
+  const state = trainingState(41, undefined, { lead })
+  state.crossfireCast = 1
+  const actor = state.units.find((unit) => unit.id === 'priya')!
+  actor.identity = person.signature
+  state.units.find((unit) => unit.id === 'hattie')!.hp = 0
+  const before = JSON.stringify(state)
+  const plan = supportPlan(state, 'alarm', 'rescue')!
+  assert.ok(plan)
+  assert.equal(plan.action.actor, actor.id)
+  assert.equal(plan.action.effect, voice.preference === 'mark' ? 'marked' : 'guarded')
+  assert.ok(plan.text.startsWith(voice[voice.preference]))
+  assert.equal(JSON.stringify(state), before)
+  assert.ok(applySupport(state, plan.action, plan.text))
+  assert.ok(state.events[0]?.includes(plan.text))
+  assert.ok(state.units.find((unit) => unit.id === plan.action.target)?.statuses.includes(plan.action.effect))
+  for (const unit of state.units)
+    unit.statuses = unit.statuses.filter((status) => status !== 'guarded')
+  const refusal = supportPlan(state, 'reckoning', 'press')!
+  assert.ok(refusal)
+  assert.equal(refusal.action.effect, 'guarded')
+  assert.ok(refusal.text.startsWith(voice.refuse))
+  assert.ok(applySupport(state, refusal.action, refusal.text))
+  assert.ok(state.events[0]?.includes(voice.refuse))
+  actor.hp = 0
+  assert.equal(supportPlan(state, 'alarm', 'rescue'), null)
+}
+assert.equal(supportLines.size, 144)
+assert.equal(personalSupportVoice('constructor'), undefined)

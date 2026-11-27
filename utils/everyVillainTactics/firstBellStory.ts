@@ -728,7 +728,7 @@ export function applyChoice(
   } else if (beat === 'victory' || beat === 'defeat') {
     run.completed = true
   }
-  if (support && applySupport(state, support.action))
+  if (support && applySupport(state, support.action, support.text))
     (run.supportActions ??= []).push(support.action)
   run.decisions.push(effect)
   run.seen.push(beat)

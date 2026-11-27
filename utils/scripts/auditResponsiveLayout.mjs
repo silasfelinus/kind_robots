@@ -557,7 +557,30 @@ async function auditRulerOpening(page, vp) {
     }
     await stage('title', title)
     await title.getByRole('button', { name: 'Settings', exact: true }).click()
-    await stage('settings', title.getByLabel('Game settings', { exact: true }))
+    const settings = title.getByLabel('Game settings', { exact: true })
+    await stage('settings', settings)
+    const consoleSurface = page.locator('.rh-console:not(.rh-console--loading)')
+    await settings.getByLabel('Story text size').selectOption('extra-large')
+    await settings.getByLabel('High-contrast reading panels').check()
+    await settings.getByLabel('Reduce decorative motion').check()
+    await settings.getByLabel('Mute all game audio').check()
+    await stage('accessible-settings', settings)
+    await page.reload({ waitUntil: 'load', timeout: NAVIGATION_MS })
+    await title.getByRole('button', { name: 'Settings', exact: true }).click()
+    if (
+      (await consoleSurface.getAttribute('data-reading-size')) !==
+        'extra-large' ||
+      (await consoleSurface.getAttribute('data-high-contrast')) !== 'true' ||
+      (await consoleSurface.getAttribute('data-reduced-motion')) !== 'true' ||
+      !(await settings.getByLabel('Mute all game audio').isChecked())
+    ) {
+      throw new Error('Display or audio preferences did not survive reload')
+    }
+    await stage('accessible-settings-restored', settings)
+    await settings
+      .getByRole('button', { name: 'Restore display defaults' })
+      .click()
+    await settings.getByLabel('Mute all game audio').uncheck()
     await title
       .getByRole('button', { name: 'Return to reign selection', exact: true })
       .click()
@@ -584,7 +607,9 @@ async function auditRulerOpening(page, vp) {
     await stage('coronation', opening)
     await opening.getByRole('button', { name: 'Next', exact: true }).click()
     await stage('coronation-next', opening)
-    await opening.getByRole('button', { name: 'Skip', exact: true }).click()
+    await opening.getByRole('button', { name: 'Next', exact: true }).click()
+    await stage('coronation-advisor', opening)
+    await opening.getByRole('button', { name: 'Take up the rod' }).click()
     const crier = page.locator('.rh-crier')
     await stage('crier', crier)
     await crier.getByRole('button', { name: 'Hear, hear!' }).click()
@@ -600,11 +625,26 @@ async function auditRulerOpening(page, vp) {
     const beat = lake.locator('.rh-fishing__beat')
     const reveal = lake.locator('.rh-reveal, .rh-callout').filter({
       has: page.getByRole('button', {
-        name: /^(Cast again|Try again|Answer the court)$/,
+        name: /^(Cast again|Try again|Answer the court|Consider the finale)$/,
       }),
     })
     let caught = false
     let petitionSeen = false
+    let checkpointChecked = false
+    let finaleSeen = false
+    const court = page.getByLabel('Royal Court', { exact: true })
+    async function handleFinale() {
+      const conclude = court.getByRole('button', {
+        name: 'Conclude this reign',
+      })
+      if (!(await conclude.isVisible())) return
+      await stage('finale-offer', court.locator('.rh-ending'))
+      finaleSeen = true
+      await court.getByRole('button', { name: 'Continue this reign' }).click()
+      await lake.locator('.rh-cast').waitFor({ state: 'visible' })
+      if (await reveal.isVisible())
+        throw new Error('Dismissed fishing result returned after finale')
+    }
     for (
       let attempt = 0;
       attempt < 6 && (!caught || !petitionSeen);
@@ -649,6 +689,30 @@ async function auditRulerOpening(page, vp) {
           { timeout: 5000 },
         )
         console.log(`${label} fishing attempt ${attempt + 1}, beat ${previous}`)
+        if (!checkpointChecked && (await playfield.isVisible())) {
+          const fish = await lake.locator('#rh-fishing-title').textContent()
+          const nextBeat = await beat.textContent()
+          const progress = lake.getByRole('progressbar', {
+            name: 'Fish caught progress',
+          })
+          const tension = lake.getByRole('progressbar', {
+            name: 'Line tension',
+          })
+          const progressBefore = await progress.getAttribute('aria-valuenow')
+          const tensionBefore = await tension.getAttribute('aria-valuenow')
+          await page.reload({ waitUntil: 'load', timeout: NAVIGATION_MS })
+          await playfield.waitFor({ state: 'visible', timeout: 15000 })
+          if (
+            (await lake.locator('#rh-fishing-title').textContent()) !== fish ||
+            (await beat.textContent()) !== nextBeat ||
+            (await progress.getAttribute('aria-valuenow')) !== progressBefore ||
+            (await tension.getAttribute('aria-valuenow')) !== tensionBefore
+          ) {
+            throw new Error('Classic fishing checkpoint changed after reload')
+          }
+          checkpointChecked = true
+          await stage('fishing-restored', playfield)
+        }
       }
       await reveal.waitFor({ state: 'visible', timeout: 15000 })
       const landed = await lake.locator('.rh-reveal').isVisible()
@@ -657,7 +721,6 @@ async function auditRulerOpening(page, vp) {
       const answer = reveal.getByRole('button', { name: 'Answer the court' })
       if (await answer.isVisible()) {
         await answer.click()
-        const court = page.getByLabel('Royal Court', { exact: true })
         await stage('petition', court.getByTestId('rh-edict'))
         petitionSeen = true
         const choices = court.locator('button[data-testid^="rh-choice-"]')
@@ -667,10 +730,23 @@ async function auditRulerOpening(page, vp) {
           timeout: 15000,
         })
         await stage('decree-resolved', court)
+        await handleFinale()
         await page.getByTestId('rh-tab-lake').click()
         if (await reveal.isVisible())
           throw new Error('Dismissed fishing result returned after the decree')
         if (caught) break
+      } else if (
+        await reveal
+          .getByRole('button', { name: 'Consider the finale' })
+          .isVisible()
+      ) {
+        await reveal
+          .getByRole('button', { name: 'Consider the finale' })
+          .click()
+        await court
+          .getByRole('button', { name: 'Conclude this reign' })
+          .waitFor({ state: 'visible' })
+        await handleFinale()
       } else {
         await reveal
           .getByRole('button', { name: /^(Cast again|Try again)$/ })
@@ -680,6 +756,10 @@ async function auditRulerOpening(page, vp) {
     if (!caught) throw new Error('No landed catch after six guided attempts')
     if (!petitionSeen)
       throw new Error('No court petition witnessed after six attempts')
+    if (!checkpointChecked)
+      throw new Error('No nonterminal fishing beat available for reload audit')
+    if (!finaleSeen)
+      console.log(`${label} finale not reached in bounded opening flow`)
 
     async function tab(id, label, name = id) {
       await page.getByTestId(`rh-tab-${id}`).click()

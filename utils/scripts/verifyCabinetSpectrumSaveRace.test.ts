@@ -66,6 +66,7 @@ type Pending = {
 const puts: Pending[] = []
 const context = vm.createContext({
   SPECTRUM_SLUG: slug,
+  PLUMBER_SLUG: 'save-the-plumber',
   SPECTRUM_OWNER: 'owner',
   SPECTRUM_SCOPED: (id: string) => 'scope-' + id,
   RAINBOW_SAVE_GAME: 'rainbow',

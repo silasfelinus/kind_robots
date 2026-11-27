@@ -1388,20 +1388,8 @@ for (let seed = 1; seed <= 12; seed++) {
       3,
       0,
     ],
-    [
-      'plot-warning-leave',
-      'plot-suspicion-cover',
-      'plot-betrayal-hear',
-      2,
-      0,
-    ],
-    [
-      'plot-warning-leave',
-      'plot-suspicion-open',
-      'plot-betrayal-hear',
-      2,
-      -1,
-    ],
+    ['plot-warning-leave', 'plot-suspicion-cover', 'plot-betrayal-hear', 2, 0],
+    ['plot-warning-leave', 'plot-suspicion-open', 'plot-betrayal-hear', 2, -1],
   ] as const
   for (const [warning, suspicion, response, influence, danger] of trails) {
     let run = choose(start, 8, warning)

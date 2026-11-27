@@ -153,6 +153,7 @@ export const RAINBOW_IDLE_ATLASES: Readonly<Record<string, number>> = {
   'pickups/comet-cadet-pod': 8,
   'pickups/coral-choir-pod': 8,
   'pickups/power': 8,
+  'ships/halo-fin': 8,
 }
 /** Idle atlases play at four frames a second, like the enemy cycles. */
 export const RAINBOW_IDLE_FPS = 4

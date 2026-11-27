@@ -106,12 +106,30 @@ export async function setSlimeCityTurnPreference(
 export async function notifySlimeCityTurn(userId: number, duelId: string) {
   try {
     const recipient = await verifiedRecipient(userId)
-    if (!recipient) return
+    if (!recipient) {
+      console.info('[slime-city] turn email ineligible', { userId, duelId })
+      return
+    }
     const row = await prisma.slimeCityAccount.findUnique({ where: { userId } })
-    if (!optedIn(row?.data)) return
-    await sendSlimeCityTurnEmail(recipient.email, recipient.name, duelId)
+    if (!optedIn(row?.data)) {
+      console.info('[slime-city] turn email disabled', { userId, duelId })
+      return
+    }
+    const result = await sendSlimeCityTurnEmail(
+      recipient.email,
+      recipient.name,
+      duelId,
+    )
+    if (result.sent)
+      console.info('[slime-city] turn email accepted', { userId, duelId })
+    else
+      console.warn('[slime-city] turn email not accepted', {
+        userId,
+        duelId,
+        skipped: !!result.skipped,
+      })
   } catch {
-    console.warn('[slime-city] turn email unavailable')
+    console.warn('[slime-city] turn email unavailable', { userId, duelId })
   }
 }
 

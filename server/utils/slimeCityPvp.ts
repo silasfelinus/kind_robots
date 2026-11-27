@@ -460,7 +460,7 @@ export async function joinSlimeCityDuel(
 ) {
   if (!isPvpTeam(team)) return fail(400, 'Choose a Slime City crew.')
   const setup = await validateDuelDeck(userId, team, rawDeck)
-  return prisma.$transaction(async (tx) => {
+  const outcome = await prisma.$transaction(async (tx) => {
     if (!validId(id)) return fail(404, 'Duel not found.')
     await tx.$queryRaw`SELECT id FROM SlimeCityMatch WHERE id = ${id} FOR UPDATE`
     const { row, record } = activeRow(
@@ -473,7 +473,8 @@ export async function joinSlimeCityDuel(
       return fail(403, 'This challenge was sent to another player.')
     if (record.guestId !== null && record.guestId !== userId)
       return fail(409, 'This duel already has two fighters.')
-    if (record.guestId === userId) return snapshot(row, record, userId)
+    if (record.guestId === userId)
+      return { duel: snapshot(row, record, userId), firstTurnUserId: null }
     const next: PvpRecord = {
       ...record,
       guestId: userId,
@@ -485,8 +486,18 @@ export async function joinSlimeCityDuel(
       where: { id },
       data: { foeId: team, commands: asJson(next) },
     })
-    return snapshot(updated, next, userId)
+    const duel = snapshot(updated, next, userId)
+    return {
+      duel,
+      firstTurnUserId:
+        duel.stage === 'battle' && duel.board?.active === 'player'
+          ? row.userId
+          : null,
+    }
   })
+  if (outcome.firstTurnUserId !== null)
+    await notifySlimeCityTurn(outcome.firstTurnUserId, id)
+  return outcome.duel
 }
 
 type DuelTransaction = Parameters<Parameters<typeof prisma.$transaction>[0]>[0]

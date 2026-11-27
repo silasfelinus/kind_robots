@@ -3,6 +3,7 @@ import {
   crewPatrolNetwork,
   patrolCrewFor,
 } from './patrolCrews'
+import { patrolIdentityAftermath } from './patrolIdentityAftermath'
 import {
   ALL_PATROL_STORIES,
   fillStoryText,
@@ -2841,6 +2842,10 @@ export function nextSchoolDay(current: AcademyRun): AcademyRun {
           storyNames(run),
         )
       : ''
+  const identityMorning =
+    storyMorning && lastPatrol?.outcome && run.flowVersion === 3
+      ? patrolIdentityAftermath(run.signature, lastPatrol.outcome)
+      : ''
   return {
     ...run,
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'map' : 'dispatch',
@@ -2852,7 +2857,7 @@ export function nextSchoolDay(current: AcademyRun): AcademyRun {
     reports: [],
     scene:
       (storyMorning
-        ? `The next bell rings. ${storyMorning}`
+        ? `The next bell rings. ${[storyMorning, identityMorning].filter(Boolean).join(' ')}`
         : morningMemory
           ? `The next bell rings. ${morningMemory} Last night, the outcome was recorded as ${morningReport!.names === UNANSWERED_NAMES ? 'unanswered' : morningReport!.grade}.`
           : run.patrolHistory?.at(-1)?.day === run.day

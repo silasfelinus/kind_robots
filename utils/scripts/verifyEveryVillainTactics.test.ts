@@ -14,6 +14,7 @@ import {
   lineClear,
   moveSelected,
   previewShot,
+  rivalRetreatDestination,
   terrainAt,
   trainingState,
   walkDistance,
@@ -115,6 +116,90 @@ assert.equal(initial.turn, oldTurn + 1)
 assert.equal(before.fired, false)
 assert.equal(before.moved, false)
 assert.ok(initial.events.length <= 6)
+
+// Directional cover, not merely a cover-shaped tile, must drive retreat.
+const retreatScenario = (seed: number) => {
+  const run = trainingState(seed)
+  const squad = run.units.find((unit) => unit.team === 'squad')!
+  const rival = run.units.find((unit) => unit.team === 'rival')!
+  Object.assign(squad, {
+    x: 0,
+    y: 0,
+    aim: 85,
+    weapon: 'mid',
+    reach: 0,
+    statuses: [],
+    overwatch: false,
+  })
+  Object.assign(rival, {
+    x: 2,
+    y: 0,
+    hp: 1,
+    maxHp: 4,
+    ap: 2,
+    mobility: 3,
+    defense: 0,
+    statuses: [],
+    moved: false,
+    fired: false,
+  })
+  run.units = [squad, rival]
+  run.map = {
+    width: 6,
+    height: 1,
+    tiles: { '4,0': { elevation: 0, cover: { west: 'full' } } },
+  }
+  return { run, squad, rival }
+}
+for (const seed of [1, 41, 219, 997]) {
+  const { run, rival } = retreatScenario(seed)
+  const before = JSON.stringify(run)
+  assert.deepEqual(rivalRetreatDestination(run, rival), {
+    x: 4,
+    y: 0,
+    steps: 2,
+    cost: 1,
+  })
+  assert.equal(JSON.stringify(run), before, 'planning must not consume RNG')
+  endTurn(run)
+  assert.equal(rival.x, 4)
+  assert.equal(rival.y, 0)
+  assert.equal(rival.hp, 1)
+  assert.equal(rival.ap, 0)
+  assert.ok(rival.statuses.includes('guarded'))
+  assert.ok(run.events.some((line) => line.includes('falls back')))
+}
+const healthyRival = retreatScenario(41)
+healthyRival.rival.hp = 2
+assert.equal(
+  rivalRetreatDestination(healthyRival.run, healthyRival.rival),
+  null,
+)
+const oneHitRival = retreatScenario(41)
+oneHitRival.rival.maxHp = 1
+assert.equal(rivalRetreatDestination(oneHitRival.run, oneHitRival.rival), null)
+const wrongFacing = retreatScenario(41)
+wrongFacing.run.map.tiles = {
+  '4,0': { elevation: 0, cover: { east: 'full' } },
+}
+assert.equal(rivalRetreatDestination(wrongFacing.run, wrongFacing.rival), null)
+const noMovement = retreatScenario(41)
+noMovement.rival.moved = true
+assert.equal(rivalRetreatDestination(noMovement.run, noMovement.rival), null)
+const burningCover = retreatScenario(41)
+burningCover.run.field = {
+  props: [],
+  fire: [{ x: 4, y: 0 }],
+  fireNext: null,
+  collapsed: [],
+  reinforced: [],
+  sealed: [],
+  held: 0,
+}
+assert.equal(
+  rivalRetreatDestination(burningCover.run, burningCover.rival),
+  null,
+)
 
 const page = readFileSync(
   new URL('../../pages/admin/every-villain-tactics.vue', import.meta.url),

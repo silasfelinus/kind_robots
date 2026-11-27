@@ -1578,6 +1578,68 @@ function aiPower(
   updateOutcome(state)
   return true
 }
+/** Critical-health rivals seek real directional cover or blocked sightlines
+ * rather than charging a fresh squad. One-hit crews keep their authored AI. */
+export function rivalRetreatDestination(state: TrainingState, enemy: Unit) {
+  if (
+    enemy.team !== 'rival' ||
+    enemy.hp !== 1 ||
+    enemy.maxHp <= 1 ||
+    state.phase !== 'active'
+  )
+    return null
+  const opponents = state.units.filter(
+    (unit) => unit.team !== enemy.team && unit.hp > 0,
+  )
+  const exposure = (point: Point) =>
+    Math.max(
+      0,
+      ...opponents.map(
+        (unit) => chanceFrom(state.map, unit, { ...enemy, ...point }).hit,
+      ),
+    )
+  const current = exposure(enemy)
+  if (current < 45) return null
+  const dangerous = (point: Point) =>
+    state.field?.fire.some((fire) => cellKey(fire) === cellKey(point)) ||
+    state.rules?.hazards.some(
+      (hazard) =>
+        cellKey(hazard) === cellKey(point) &&
+        ((hazard.kind === 'water' && isWaterLive(state.turn)) ||
+          (hazard.kind === 'collapse' && hazard.round === state.turn)),
+    )
+  const destination = reachableCells(state.map, state.units, enemy)
+    .filter((point) => !dangerous(point))
+    .map((point) => ({ point, exposure: exposure(point) }))
+    .filter((candidate) => current - candidate.exposure >= 25)
+    .sort(
+      (a, b) =>
+        a.exposure - b.exposure ||
+        a.point.cost - b.point.cost ||
+        a.point.steps - b.point.steps ||
+        a.point.y - b.point.y ||
+        a.point.x - b.point.x,
+    )[0]
+  return destination?.point ?? null
+}
+
+function retreatRival(state: TrainingState, enemy: Unit): boolean {
+  const destination = rivalRetreatDestination(state, enemy)
+  if (!destination) return false
+  enemy.x = destination.x
+  enemy.y = destination.y
+  enemy.ap -= destination.cost
+  enemy.moved = true
+  note(state, aliasFor(enemy) + ' falls back to a less exposed position.')
+  triggerReactions(state, enemy)
+  if (enemy.hp > 0 && state.phase === 'active' && enemy.ap > 0) {
+    if (bestShot(state, enemy)) takeCover(enemy)
+    else prepareOverwatch(enemy)
+  }
+  updateOutcome(state)
+  return true
+}
+
 function enemyPlan(state: TrainingState, enemy: Unit) {
   if (
     signatureLieutenantPlan(state, enemy) ||
@@ -1587,6 +1649,7 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
     windupPlan(state, enemy)
   )
     return
+  if (retreatRival(state, enemy)) return
   let shot = bestShot(state, enemy)
   if (aiPower(state, enemy, shot)) {
     if (enemy.hp <= 0 || state.phase !== 'active') return

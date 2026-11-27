@@ -32,6 +32,11 @@ import {
   personalScienceNode,
 } from '../everyVillainTactics/personalScienceScenes'
 import { SCIENCE_WING_SCRIPT } from '../everyVillainTactics/scienceWingScript'
+import { ROOFTOP_BROADCAST_SCRIPT } from '../everyVillainTactics/rooftopBroadcastScript'
+import {
+  PERSONAL_ROOFTOP_LINES,
+  personalRooftopNode,
+} from '../everyVillainTactics/personalRooftopScenes'
 import {
   PERSONAL_SUPPORT_VOICES,
   personalSupportVoice,
@@ -1524,3 +1529,75 @@ for (const lead of Object.keys(PERSONAL_SCIENCE_LINES)) {
 }
 assert.equal(scienceVoices.size, 528)
 assert.ok(store.includes('personalScienceNode('))
+
+const roofNodes = ROOFTOP_BROADCAST_SCRIPT.scenes.flatMap(
+  (scene) => scene.nodes,
+)
+const roofVoices = new Set<string>()
+assert.deepEqual(
+  Object.keys(PERSONAL_ROOFTOP_LINES).sort(),
+  IDENTITY_ARCS.filter((identity) =>
+    identity.signature.startsWith('accident-'),
+  )
+    .map((identity) => identity.signature)
+    .sort(),
+)
+for (const lead of Object.keys(PERSONAL_ROOFTOP_LINES)) {
+  for (const perspective of ['hero', 'villain'] as const) {
+    const state = trainingState(41, clonePreset('rooftop-broadcast'), {
+      lead,
+      foil: personalCastFor(lead)!.foil,
+      crossfireCast: 2,
+    })
+    const arrival = walkScene(ROOFTOP_BROADCAST_SCRIPT.scenes[0]!, [], {
+      state,
+      perspective,
+    })
+    assert.ok(arrival?.nodes.some((node) =>
+      node.id === (perspective === 'hero' ? 'oh' : 'ov'),
+    ))
+    const before = JSON.stringify(state)
+    let changed = 0
+    for (const node of roofNodes) {
+      const line = personalRooftopNode(
+        node, lead, 'rooftop-broadcast', true, state,
+      )
+      assert.deepEqual(line.choices, node.choices)
+      assert.deepEqual(line.branch, node.branch)
+      assert.equal(line.next, node.next)
+      assert.equal(line.id, node.id)
+      if (line !== node) {
+        changed++
+        assert.ok(line.text.length > 10 && line.text.length <= 400)
+        assert.notEqual(line.text, node.text)
+        assert.ok(
+          state.units.some((u) => u.id === line.speaker && u.team === 'squad'),
+        )
+        roofVoices.add(line.text)
+      }
+      assert.equal(
+        personalRooftopNode(node, lead, 'rooftop-broadcast', false, state),
+        node,
+      )
+      assert.equal(
+        personalRooftopNode(node, lead, 'science-lab', true, state),
+        node,
+      )
+      assert.equal(
+        personalRooftopNode(node, 'constructor', 'rooftop-broadcast', true, state),
+        node,
+      )
+      assert.equal(
+        personalRooftopNode(node, lead, 'rooftop-broadcast', true, {
+          ...state,
+          crossfireCast: 1,
+        }),
+        node,
+      )
+    }
+    assert.equal(changed, 15)
+    assert.equal(JSON.stringify(state), before)
+  }
+}
+assert.equal(roofVoices.size, 120)
+assert.ok(store.includes('personalRooftopNode('))

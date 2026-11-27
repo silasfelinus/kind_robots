@@ -667,8 +667,10 @@ async function auditRulerOpening(page, vp) {
           timeout: 15000,
         })
         await stage('decree-resolved', court)
-        if (caught) break
         await page.getByTestId('rh-tab-lake').click()
+        if (await reveal.isVisible())
+          throw new Error('Dismissed fishing result returned after the decree')
+        if (caught) break
       } else {
         await reveal
           .getByRole('button', { name: /^(Cast again|Try again)$/ })

@@ -3473,7 +3473,9 @@ assert.equal(Object.keys(RETURN_VISITS).length, CITY_SITES.length)
   for (const separated of ['imani', 'nix'] as const) {
     const before = JSON.stringify(committed)
     const interrupted = socialFinaleText(committed, names, separated)
-    assert.ok(interrupted.includes('The three-way commitment cannot simply resume'))
+    assert.ok(
+      interrupted.includes('The three-way commitment cannot simply resume'),
+    )
     assert.ok(!interrupted.includes('leave the wreckage'))
     assert.ok(!interrupted.includes('Sunday check-in'))
     assert.ok(!interrupted.includes('meets you after the alarms'))

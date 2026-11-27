@@ -112,6 +112,9 @@ jobs:
       - name: Memory Dungeon Dark Briar playable slice and save contract
         run: npx tsx utils/scripts/verifyMemoryDarkBriar.test.ts
 
+      - name: Memory Dungeon reading and comfort settings
+        run: npx tsx utils/scripts/verifyMemoryDisplaySettings.test.ts
+
       - name: Memory Dungeon first-map 60 plus 4 cross-world seal recovery and migrations
         run: npx tsx utils/scripts/verifyMemoryCrossMapSeals.test.ts
 

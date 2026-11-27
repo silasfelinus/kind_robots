@@ -1,89 +1,58 @@
 <template>
-  <div v-if="accountId" class="sc-turn-email">
-    <label>
+  <div v-if="pvp.emailAccountId" class="sc-turn-email">
+    <b>EMAIL NOTIFICATIONS</b>
+    <label v-for="option in options" :key="option.field">
       <input
         type="checkbox"
-        :checked="preference?.enabled ?? false"
+        :checked="pvp.emailPreference?.[option.field] ?? false"
         :disabled="
-          busy || !preference || (!preference.eligible && !preference.enabled)
+          pvp.emailBusy ||
+          !pvp.emailPreference ||
+          (!pvp.emailPreference.eligible && !pvp.emailPreference[option.field])
         "
-        data-testid="slime-turn-email-opt-in"
-        @change="change"
+        :data-testid="option.testId"
+        @change="change(option.field, $event)"
       />
-      <b>Email me when it's my turn</b>
+      <span>{{ option.label }}</span>
     </label>
-    <small v-if="message" role="status">{{ message }}</small>
-    <small v-else-if="preference && !preference.eligible">
-      <NuxtLink to="/account">Verify your email</NuxtLink> to enable turn
-      emails.
+    <small v-if="pvp.emailMessage" role="status">{{ pvp.emailMessage }}</small>
+    <small v-else-if="pvp.emailPreference && !pvp.emailPreference.eligible">
+      <NuxtLink to="/account">Verify your email</NuxtLink> to enable
+      notifications.
     </small>
-    <small v-else
-      >Optional · one email when your rival hands over the turn.</small
-    >
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { performFetch } from '~/stores/utils'
-import { useUserStore } from '~/stores/userStore'
+import { watch } from 'vue'
+import { useSlimeCityPvpStore } from '~/stores/slimeCityPvp'
 
-type Preference = { enabled: boolean; eligible: boolean }
-const user = useUserStore()
-const accountId = computed(() =>
-  user.isLoggedIn && !user.isGuest ? user.userId : null,
-)
-const preference = ref<Preference | null>(null)
-const busy = ref(false)
-const message = ref('')
-const path = '/api/slime-city/pvp/turn-email'
-watch(
-  accountId,
-  async (id) => {
-    preference.value = null
-    message.value = ''
-    busy.value = false
-    if (!id) return
-    busy.value = true
-    try {
-      const result = await performFetch<Preference>(path)
-      if (accountId.value !== id) return
-      if (!result.success || !result.data)
-        throw new Error('Could not load email settings.')
-      preference.value = result.data
-    } catch {
-      if (accountId.value === id)
-        message.value = 'Could not load email settings.'
-    } finally {
-      if (accountId.value === id) busy.value = false
-    }
+const pvp = useSlimeCityPvpStore()
+const options = [
+  {
+    field: 'enabled',
+    label: "It's my turn",
+    testId: 'slime-turn-email-opt-in',
   },
-  { immediate: true },
+  {
+    field: 'challengeEnabled',
+    label: 'A friend challenges me',
+    testId: 'slime-challenge-email-opt-in',
+  },
+] as const
+
+watch(
+  () => pvp.emailAccountId,
+  () => pvp.loadEmailPreference(),
+  {
+    immediate: true,
+  },
 )
 
-async function change(event: Event) {
+async function change(field: 'enabled' | 'challengeEnabled', event: Event) {
   const input = event.target as HTMLInputElement
-  const id = accountId.value
-  if (!id || busy.value || !preference.value) return
-  busy.value = true
-  message.value = ''
-  try {
-    const result = await performFetch<Preference>(path, {
-      method: 'PATCH',
-      body: JSON.stringify({ enabled: input.checked }),
-    })
-    if (accountId.value !== id) return
-    if (!result.success || !result.data)
-      throw new Error('Could not save email settings.')
-    preference.value = result.data
-  } catch {
-    if (accountId.value === id) {
-      input.checked = preference.value?.enabled ?? false
-      message.value = 'Could not save email settings. Try again.'
-    }
-  } finally {
-    if (accountId.value === id) busy.value = false
-  }
+  await pvp.saveEmailPreference(field, input.checked)
+  input.checked = pvp.emailPreference?.[field] ?? false
 }
 </script>
 

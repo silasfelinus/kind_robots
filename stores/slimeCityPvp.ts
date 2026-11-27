@@ -35,6 +35,12 @@ export interface PvpOpenDuel {
   hostName: string
 }
 
+type EmailPreference = {
+  enabled: boolean
+  challengeEnabled: boolean
+  eligible: boolean
+}
+
 export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   const duel = ref<PvpSnapshot | null>(null)
   /** The VS hub's list of this player's games against other players. */
@@ -46,6 +52,63 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   const accountId = computed(() =>
     userStore.isLoggedIn ? userStore.userId : null,
   )
+  const emailPreference = ref<EmailPreference | null>(null)
+  const emailBusy = ref(false)
+  const emailMessage = ref('')
+  const emailAccountId = computed(() =>
+    userStore.isLoggedIn && !userStore.isGuest ? userStore.userId : null,
+  )
+  const emailPath = '/api/slime-city/pvp/turn-email'
+  async function loadEmailPreference(): Promise<void> {
+    const id = emailAccountId.value
+    emailPreference.value = null
+    emailMessage.value = ''
+    emailBusy.value = false
+    if (!id) return
+    emailBusy.value = true
+    try {
+      const result = await performFetch<EmailPreference>(emailPath)
+      if (emailAccountId.value !== id) return
+      if (!result.success || !result.data)
+        throw new Error('Could not load email settings.')
+      emailPreference.value = result.data
+    } catch {
+      if (emailAccountId.value === id)
+        emailMessage.value = 'Could not load email settings.'
+    } finally {
+      if (emailAccountId.value === id) emailBusy.value = false
+    }
+  }
+
+  async function saveEmailPreference(
+    field: 'enabled' | 'challengeEnabled',
+    enabled: boolean,
+  ): Promise<void> {
+    const id = emailAccountId.value
+    if (!id || emailBusy.value || !emailPreference.value) return
+    emailBusy.value = true
+    emailMessage.value = ''
+    try {
+      const result = await performFetch<EmailPreference>(
+        emailPath,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ [field]: enabled }),
+        },
+        1,
+      )
+      if (emailAccountId.value !== id) return
+      if (!result.success || !result.data)
+        throw new Error('Could not save email settings.')
+      emailPreference.value = result.data
+    } catch {
+      if (emailAccountId.value === id)
+        emailMessage.value = 'Could not save email settings. Try again.'
+    } finally {
+      if (emailAccountId.value === id) emailBusy.value = false
+    }
+  }
+
   const pendingTurns = computed(() =>
     accountId.value !== null &&
     gamesAccountId.value === accountId.value &&
@@ -405,6 +468,12 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     gamesLoaded,
     gamesError,
     pendingTurns,
+    emailAccountId,
+    emailPreference,
+    emailBusy,
+    emailMessage,
+    loadEmailPreference,
+    saveEmailPreference,
     loadGames,
     friends,
     friendsLoaded,

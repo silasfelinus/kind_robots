@@ -465,5 +465,14 @@ export function accountWithStory(raw: unknown, progression: object): object {
   const story = savedStory(raw)
   const turnEmail =
     record(raw) && raw.pvpTurnEmail === true ? { pvpTurnEmail: true } : {}
-  return { ...progression, ...turnEmail, ...(story ? { story } : {}) }
+  const challengeEmail =
+    record(raw) && raw.pvpChallengeEmail === true
+      ? { pvpChallengeEmail: true }
+      : {}
+  return {
+    ...progression,
+    ...turnEmail,
+    ...challengeEmail,
+    ...(story ? { story } : {}),
+  }
 }

@@ -4,9 +4,16 @@ import { setSlimeCityTurnPreference } from '~/server/utils/slimeCityTurnEmail'
 
 export default defineEventHandler(async (event) => {
   const auth = await requireSlimeCityPlayer(event)
-  const body = await readBody<{ enabled?: unknown }>(event)
+  const body = await readBody<{
+    enabled?: unknown
+    challengeEnabled?: unknown
+  }>(event)
   return {
     success: true,
-    data: await setSlimeCityTurnPreference(auth.user.id, body?.enabled),
+    data: await setSlimeCityTurnPreference(
+      auth.user.id,
+      body?.enabled,
+      body?.challengeEnabled,
+    ),
   }
 })

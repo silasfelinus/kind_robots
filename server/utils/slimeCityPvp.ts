@@ -3,7 +3,10 @@ import { createError } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { createNotification } from '~/server/utils/notify'
-import { notifySlimeCityTurn } from '~/server/utils/slimeCityTurnEmail'
+import {
+  notifySlimeCityChallenge,
+  notifySlimeCityTurn,
+} from '~/server/utils/slimeCityTurnEmail'
 import {
   PVP_MAX_COMMANDS,
   PVP_MODE,
@@ -278,6 +281,11 @@ export async function createSlimeCityDuel(
       linkPath: '/play/slime-city-pvp?duel=' + row.id,
       actorId: userId,
     })
+    await notifySlimeCityChallenge(
+      invitedId,
+      row.id,
+      host?.username ?? 'A friend',
+    )
   }
   return snapshot(row, parsePvpRecord(row.commands)!, userId)
 }

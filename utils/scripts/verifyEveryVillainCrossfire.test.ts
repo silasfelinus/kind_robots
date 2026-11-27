@@ -903,8 +903,10 @@ for (const [signature, campaign] of Object.entries(PERSONAL_CAMPAIGNS)) {
   assert.equal(campaign.endings.length, 4)
 }
 const campaignPassages = new Set<string>()
-for (const person of IDENTITY_ARCS.filter((entry) =>
-  entry.signature.startsWith('accident-') || entry.signature.startsWith('magic-'),
+for (const person of IDENTITY_ARCS.filter(
+  (entry) =>
+    entry.signature.startsWith('accident-') ||
+    entry.signature.startsWith('magic-'),
 )) {
   for (const perspective of ['hero', 'villain'] as const) {
     for (let chapter = 0; chapter < 6; chapter++) {
@@ -936,13 +938,20 @@ for (const person of IDENTITY_ARCS.filter((entry) =>
               },
             },
             person.signature,
-            person.signature === 'magic-social' ? 'accident-fire' : 'magic-social',
+            person.signature === 'magic-social'
+              ? 'accident-fire'
+              : 'magic-social',
             perspective,
           )
           assert.equal(scene.choice, choice)
-          const authored = PERSONAL_CAMPAIGNS[person.signature]!.chapters[chapter]!
+          const authored =
+            PERSONAL_CAMPAIGNS[person.signature]!.chapters[chapter]!
           assert.ok(scene.title.startsWith(authored[0]))
-          assert.ok(scene.text.startsWith(authored[choice === 'rescue' ? 1 : choice === 'evidence' ? 2 : 3]))
+          assert.ok(
+            scene.text.startsWith(
+              authored[choice === 'rescue' ? 1 : choice === 'evidence' ? 2 : 3],
+            ),
+          )
           assert.ok(scene.text.includes(person.hero.alias))
           assert.ok(
             !campaignPassages.has(scene.text),
@@ -960,8 +969,10 @@ for (const person of IDENTITY_ARCS.filter((entry) =>
 }
 assert.equal(campaignPassages.size, 544)
 const personalFinales = new Set<string>()
-for (const person of IDENTITY_ARCS.filter((entry) =>
-  entry.signature.startsWith('accident-') || entry.signature.startsWith('magic-'),
+for (const person of IDENTITY_ARCS.filter(
+  (entry) =>
+    entry.signature.startsWith('accident-') ||
+    entry.signature.startsWith('magic-'),
 )) {
   for (const [index, [rescues, evidence, shelter, path]] of [
     [[0, 1, 2], [], true, 'open-doors'],

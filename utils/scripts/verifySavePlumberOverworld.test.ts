@@ -955,6 +955,7 @@ async function verifyAccountSync() {
   const cache = new Map<string, unknown>()
   const remote = new Map<string, { save: File; revision: number }>()
   let displayed = readPlumberFile(null)
+  const displayedSlot = () => displayed.slots[0]
   let status = ''
   const cloud = new PlumberCloud({
     read: (owner) => cache.get(owner),
@@ -980,18 +981,18 @@ async function verifyAccountSync() {
     slots: [{ heroine: 3, stage: 0, score: 12, lives: 3, tokens: 0 }],
   })
   cloud.select('guest', first)
-  assert.equal(displayed.slots[0]?.score, 12)
+  assert.equal(displayedSlot()?.score, 12)
   await cloud.sync('41', '41', first)
-  assert.equal(displayed.slots[0], null, 'guest progress stays private')
+  assert.equal(displayedSlot(), null, 'guest progress stays private')
   cloud.record('41', '41', first)
   await cloud.sync('41', '41', first)
   assert.equal(remote.get('41')?.save.slots[0]?.score, 12)
   await cloud.sync('42', '42', first)
-  assert.equal(displayed.slots[0], null, 'second account cannot see first')
+  assert.equal(displayedSlot(), null, 'second account cannot see first')
   cloud.record('41', '41', first)
-  assert.equal(displayed.slots[0], null, 'old cabinet cannot write new owner')
+  assert.equal(displayedSlot(), null, 'old cabinet cannot write new owner')
   await cloud.sync('41', '41', first)
-  assert.equal(displayed.slots[0]?.score, 12)
+  assert.equal(displayedSlot()?.score, 12)
   const before = remote.get('41')!
   const other = readPlumberFile({
     ...before.save,
@@ -1005,9 +1006,9 @@ async function verifyAccountSync() {
   cloud.record('41', '41', local)
   await cloud.sync('41', '41', first)
   assert.equal(status, 'conflict')
-  assert.equal(displayed.slots[0]?.score, 24, 'local conflicting run survives')
+  assert.equal(displayedSlot()?.score, 24, 'local conflicting run survives')
   assert.equal(remote.get('41')?.save.slots[0]?.score, 99)
   cloud.select('guest', null)
-  assert.equal(displayed.slots[0]?.score, 12, 'guest save survives sign-in')
+  assert.equal(displayedSlot()?.score, 12, 'guest save survives sign-in')
 }
 await verifyAccountSync()

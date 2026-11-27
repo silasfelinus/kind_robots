@@ -306,10 +306,10 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       }
     },
     async get(token) {
-      const reply = await $fetch<{
-        success: boolean
-        data: PlumberAccountCopy | null
-      }>('/api/arcade/saves/save-the-plumber', {
+      const reply = await $fetch<
+        { success: boolean; data: PlumberAccountCopy | null },
+        string
+      >('/api/arcade/saves/save-the-plumber', {
         headers: { Authorization: `Bearer ${token}` },
         timeout: 4000,
       })
@@ -317,10 +317,10 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       return reply.data
     },
     async put(token, save, expectedRevision) {
-      const reply = await $fetch<{
-        success: boolean
-        data?: { revision: number }
-      }>('/api/arcade/saves/save-the-plumber', {
+      const reply = await $fetch<
+        { success: boolean; data?: { revision: number } },
+        string
+      >('/api/arcade/saves/save-the-plumber', {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
         timeout: 4000,

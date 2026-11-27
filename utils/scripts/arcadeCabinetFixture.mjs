@@ -52,6 +52,7 @@ const stores = {
         difficultyFor(game) { return this.difficulties[game] ?? 'normal' },
         setDifficulty(game, level) { this.difficulties[game] = level },
         rememberInitials() {}, saveFor: () => undefined, recordSave() {},
+        plumberCloudStatus: 'local', syncPlumberCareer: async () => {}, retryPlumberCareer() {},
         rainbowHangarBonuses: () => ({ shield: false, charge: false, life: false }),
         livery: { callSign: '', paints: [0, 0, 0, 0] },
         rainbowLivery() { return this.livery },

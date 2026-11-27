@@ -8,6 +8,7 @@ subtitle: Five-alley card battles
 summary: Card battles, rival crews, city stories.
 description: A five-alley card battler. Play CLASH against the CPU or a friend, follow each of six crews through a five-chapter story, climb the twelve-floor Tower, and build 20-card decks from 300 cards that evolve as you replay them.
 icon: kind-icon:cat
+image: /api/art/images/272640/file
 route: /play/slime-city
 sort: 145
 requiredPermission: authenticated

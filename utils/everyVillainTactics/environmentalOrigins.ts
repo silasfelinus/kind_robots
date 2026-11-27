@@ -5,13 +5,39 @@ type EnvironmentalOrigin = {
   flag: string
   target: Point
   range: number
-  family: 'undertow' | 'strike' | 'analyze' | 'blaze'
+  family: 'undertow' | 'strike' | 'analyze' | 'blaze' | 'bulwark'
   even: boolean
   fire: boolean
   msg: string
 }
 
 const ORIGINS: Readonly<Record<string, EnvironmentalOrigin>> = {
+  'orchard-under-asphalt': {
+    lead: 'magic-earth',
+    flag: 'orchard-arch-stitched',
+    target: {
+      x: 4,
+      y: 2,
+    },
+    range: 0,
+    family: 'bulwark',
+    even: false,
+    fire: false,
+    msg: 'Granny Mayhem stitches the roots into a shelter arch. The trapped gardeners can now leave.',
+  },
+  'future-in-the-glass': {
+    lead: 'magic-water',
+    flag: 'glass-future-reframed',
+    target: {
+      x: 5,
+      y: 3,
+    },
+    range: 3,
+    family: 'undertow',
+    even: false,
+    fire: true,
+    msg: 'Reflection turns the silver bowl toward an alternate future. The patient and nurse can now evacuate.',
+  },
   'candle-that-wouldnt-die': {
     lead: 'magic-fire',
     flag: 'vigil-flame-bound',

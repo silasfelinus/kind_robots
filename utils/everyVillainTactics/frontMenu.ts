@@ -336,6 +336,8 @@ export const ORIGIN_STAGE_LEADS: Readonly<Record<string, string>> = {
   'clocktower-collapse': 'accident-discipline',
   'equation-that-escaped': 'accident-genius',
   'candle-that-wouldnt-die': 'magic-fire',
+  'orchard-under-asphalt': 'magic-earth',
+  'future-in-the-glass': 'magic-water',
 }
 export const canStartOneShot = (stageId: string, lead: string): boolean =>
   !ORIGIN_STAGE_LEADS[stageId] || ORIGIN_STAGE_LEADS[stageId] === lead
@@ -390,6 +392,16 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     id: 'candle-that-wouldnt-die',
     art: 'districts/student-commons',
     tag: 'Lanternwitch origin · bind the candle and rescue two mourners',
+  },
+  {
+    id: 'orchard-under-asphalt',
+    art: 'districts/botanical-conservatory',
+    tag: 'Granny Mayhem origin · stitch a shelter arch and rescue gardeners',
+  },
+  {
+    id: 'future-in-the-glass',
+    art: 'districts/botanical-conservatory',
+    tag: 'Reflection origin · reframe the vision and evacuate the rooftop',
   },
   {
     id: 'college-quad',

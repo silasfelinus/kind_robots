@@ -214,7 +214,7 @@ const claims = clonePreset('college-quad')
 claims.encounter = 'claim-cinders'
 assert.deepEqual(stageProblems(claims), [])
 function claimBattle() {
-  const state = trainingState(31, claims)
+  const state = trainingState(31, claims, { lead: 'magic-fire' })
   const clerk = state.units.find((u) => u.team === 'rival')!
   const hero = state.units.find((u) => u.id === 'backdraft')!
   clerk.x = 3
@@ -231,6 +231,7 @@ assert.equal(insured.clerk.identity, 'accident-fire')
 assert.equal(insured.clerk.hp, 1)
 assert.equal(insured.clerk.power, undefined)
 assert.ok(insured.state.events.some((line) => line.includes('receipts')))
+assert.match(insured.state.log, /receipts/)
 const hpBefore = insured.hero.hp
 endTurn(insured.state)
 assert.deepEqual(insured.clerk.cinderTarget, { x: 2, y: 1 })
@@ -238,7 +239,7 @@ assert.equal(insured.hero.hp, hpBefore, 'warning does not deal damage')
 const stampSave = createSave({
   slot: 'slot-1',
   perspective: 'hero',
-  leadSignature: 'accident-fire',
+  leadSignature: 'magic-fire',
   stage: claims,
   state: insured.state,
   story: { ...createStory(), current: null },

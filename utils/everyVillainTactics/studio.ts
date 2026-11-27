@@ -31,6 +31,10 @@ import {
   EQUATION_ESCAPED_SCRIPT,
 } from './finalAccidentScripts'
 import { CANDLE_VIGIL_SCRIPT } from './candleVigilScript'
+import {
+  ORCHARD_ORIGIN_SCRIPT,
+  GLASS_ORIGIN_SCRIPT,
+} from './gardenGlassScripts'
 import { ROOFTOP_BROADCAST_SCRIPT } from './rooftopBroadcastScript'
 import { UNDER_COMET_BREACH_SCRIPT } from './underCometBreachScript'
 import { PROM_NIGHT_FINALE_SCRIPT } from './promNightFinaleScript'
@@ -559,6 +563,116 @@ export const STAGE_PRESETS: StageDraft[] = [
     ],
     victory: { kind: 'rescue', count: 2 },
     script: CANDLE_VIGIL_SCRIPT,
+  },
+  {
+    version: 1,
+    id: 'orchard-under-asphalt',
+    title: 'The Orchard Under Asphalt',
+    venue: 'Schoolyard community garden at demolition hour',
+    objective:
+      'Stand on the exposed root at column 5, row 3 with both AP free. Stitch the protective arch, then evacuate both gardeners.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls(
+          [2, 0],
+          [2, 1],
+          [2, 3],
+          [2, 4],
+          [5, 0],
+          [5, 1],
+          [6, 4],
+          [6, 5],
+        ),
+        '3,2': tile(0, false, { west: 'half' }),
+        '4,2': tile(0),
+        '4,3': tile(1),
+        '5,3': tile(1, false, { east: 'half' }),
+        '7,2': tile(0, false, { south: 'half' }),
+      },
+    },
+    spawns: [
+      { id: 'backdraft', x: 0, y: 2 },
+      { id: 'priya', x: 1, y: 1 },
+      { id: 'hattie', x: 1, y: 5 },
+      { id: 'pip', x: 8, y: 0 },
+      { id: 'vee', x: 8, y: 3 },
+      { id: 'remy', x: 8, y: 5 },
+    ],
+    secrets: [{ x: 3, y: 5 }],
+    hazards: [{ x: 4, y: 2 }],
+    turnLimit: 10,
+    civilians: [
+      { id: 'orchard-child', name: 'Garden pupil', x: 6, y: 2 },
+      { id: 'orchard-steward', name: 'Garden steward', x: 7, y: 4 },
+    ],
+    props: [
+      { id: 'seedling-box', x: 3, y: 1, cover: 'half', hp: 2 },
+      { id: 'demolition-barrier', x: 5, y: 4, cover: 'full', hp: 3 },
+    ],
+    activeHazards: [
+      { id: 'orchard-cracked-paving', kind: 'collapse', x: 4, y: 4, round: 4 },
+      { id: 'orchard-burst-pipe', kind: 'water', x: 5, y: 2 },
+      { id: 'orchard-falling-curb', kind: 'collapse', x: 6, y: 3, round: 7 },
+    ],
+    victory: { kind: 'rescue', count: 2 },
+    script: ORCHARD_ORIGIN_SCRIPT,
+  },
+  {
+    version: 1,
+    id: 'future-in-the-glass',
+    title: 'The Future in the Glass',
+    venue: 'Hospital rooftop greenhouse surrounded by reflecting panes',
+    objective:
+      'With both AP free and a clear sightline within three tiles of the silver bowl at column 6, row 4, reframe the vision, then evacuate the patient and nurse.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls(
+          [3, 0],
+          [3, 1],
+          [3, 2],
+          [3, 4],
+          [6, 0],
+          [6, 1],
+          [6, 5],
+          [4, 5],
+        ),
+        '3,3': tile(1),
+        '4,3': tile(1, false, { west: 'half' }),
+        '5,3': tile(1),
+        '6,3': tile(1),
+        '7,2': tile(0, false, { east: 'half' }),
+      },
+    },
+    spawns: [
+      { id: 'backdraft', x: 0, y: 3 },
+      { id: 'priya', x: 1, y: 0 },
+      { id: 'hattie', x: 1, y: 5 },
+      { id: 'pip', x: 8, y: 0 },
+      { id: 'vee', x: 8, y: 3 },
+      { id: 'remy', x: 8, y: 5 },
+    ],
+    secrets: [{ x: 4, y: 0 }],
+    hazards: [{ x: 5, y: 3 }],
+    turnLimit: 10,
+    civilians: [
+      { id: 'glass-patient', name: 'Patient', x: 7, y: 1 },
+      { id: 'glass-nurse', name: 'Night nurse', x: 7, y: 4 },
+    ],
+    props: [
+      { id: 'greenhouse-bench', x: 4, y: 1, cover: 'half', hp: 2 },
+      { id: 'planter-screen', x: 6, y: 2, cover: 'full', hp: 3 },
+    ],
+    activeHazards: [
+      { id: 'glass-irrigation', kind: 'water', x: 4, y: 2 },
+      { id: 'glass-cracked-pane', kind: 'collapse', x: 5, y: 2, round: 5 },
+      { id: 'glass-roof-edge', kind: 'collapse', x: 5, y: 4, round: 7 },
+    ],
+    victory: { kind: 'rescue', count: 2 },
+    script: GLASS_ORIGIN_SCRIPT,
   },
   {
     version: 1,

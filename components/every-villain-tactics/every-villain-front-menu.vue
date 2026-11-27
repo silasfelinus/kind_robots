@@ -577,6 +577,35 @@
             </button>
           </div>
         </div>
+        <div
+          v-for="stage in additionalOriginStages"
+          :key="stage.id"
+          class="evf-origin-battle"
+          :data-testid="'front-origin-' + stage.id + '-section'"
+        >
+          <h3 class="evf-label">YOUR POWER ORIGIN / {{ stage.title }}</h3>
+          <div class="evf-stages">
+            <button
+              type="button"
+              class="evf-stage"
+              :data-testid="'front-origin-' + stage.id"
+              @click="store.startOneShot(stage.id, pickedLead, pickedView)"
+            >
+              <img
+                v-if="oneShotArtwork(stage)"
+                :src="oneShotArtwork(stage)!"
+                alt=""
+                loading="lazy"
+              />
+              <span v-else class="evf-art-fallback" aria-hidden="true">✦</span>
+              <span class="evf-stage-text">
+                <small class="evf-kicker">{{ stage.tag }}</small>
+                <strong>{{ stage.title }}</strong>
+                <span>{{ stage.objective }}</span>
+              </span>
+            </button>
+          </div>
+        </div>
         <template v-if="store.screen === 'oneshot'">
           <h3 class="evf-label">04 / Pick a battlefield</h3>
           <div class="evf-stages">
@@ -969,6 +998,11 @@ const confirming = ref<'defaults' | 'erase' | null>(null)
 const oneShots = computed(() =>
   oneShotStages().filter((stage) =>
     canStartOneShot(stage.id, pickedLead.value),
+  ),
+)
+const additionalOriginStages = computed(() =>
+  oneShots.value.filter((stage) =>
+    ['orchard-under-asphalt', 'future-in-the-glass'].includes(stage.id),
   ),
 )
 const art = (key: string) => promArt(key)

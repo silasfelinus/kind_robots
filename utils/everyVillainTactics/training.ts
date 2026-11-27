@@ -406,6 +406,12 @@ export function trainingState(
   if (options.roles !== false)
     for (const unit of state.units)
       if (!unit.henchmanName && !unit.lieutenantName) applyTacticalProfile(unit)
+  if (stage?.encounter === 'claim-cinders') {
+    const captain = henchmanForVillain('accident-fire').captain
+    state.events.unshift(
+      captain + ': I keep the receipts that prove who started the fires.',
+    )
+  }
   return state
 }
 /** First Bell's default rival lead. */
@@ -478,11 +484,8 @@ function fieldLackeyCrew(state: TrainingState, stage?: StageDraft) {
       species.captain +
       ' leads the ' +
       species.name +
-      '. Each INSURED stamp burns its marked tile next turn. Step away, soak the mark in water, or disarm the clerk.'
-    state.events = [
-      species.captain +
-        ': I keep every receipt. Including the ones that prove who started the fires.',
-    ]
+      '. Ash keeps the receipts that prove who started the fires. Each INSURED stamp burns its marked tile next turn. Step away, use wet ground, or disarm the clerk.'
+    state.events = []
     return
   }
   state.log =

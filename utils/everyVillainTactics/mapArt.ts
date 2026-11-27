@@ -37,6 +37,8 @@ export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   'clocktower-collapse': 265015,
   'equation-that-escaped': 265017,
   'candle-that-wouldnt-die': 265015,
+  'orchard-under-asphalt': 265015,
+  'future-in-the-glass': 265017,
   ...verifiedArenaImageIds,
 }
 

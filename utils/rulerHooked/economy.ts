@@ -213,9 +213,27 @@ export function purchaseGearFor(save: RunSave, itemId: string): RunSave {
   return next
 }
 
+export function kingdomInvestmentGains(
+  save: RunSave | null,
+  item: KingdomItem,
+): { key: AxisKey; value: number }[] {
+  if (!save) return []
+  return (Object.entries(item.sliders) as [AxisKey, number][])
+    .map(([key, value]) => ({
+      key,
+      value: Math.max(0, Math.min(value, 100 - save.kingdomHealth[key])),
+    }))
+    .filter((gain) => gain.value > 0)
+}
+
 export function purchaseKingdomFor(save: RunSave, itemId: string): RunSave {
   const item = KINGDOM_CATALOG.find((work) => work.id === itemId)
-  if (!shopAvailable(save, false) || !item || !canAfford(save, item.cost))
+  if (
+    !shopAvailable(save, false) ||
+    !item ||
+    !canAfford(save, item.cost) ||
+    !kingdomInvestmentGains(save, item).length
+  )
     return save
 
   const next = cloneSave(save)

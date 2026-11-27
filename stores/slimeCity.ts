@@ -1807,12 +1807,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   )
   function duelDeck(
     team: TeamId,
-    mode:
-      | 'faction-classic'
-      | 'faction-constructed'
-      | 'alliance-classic'
-      | 'alliance-constructed',
-    ally?: TeamId,
+    mode: 'faction-classic' | 'faction-constructed' | 'alliance',
     deckId?: string,
   ): ClashRewardSetup | null {
     if (mode === 'faction-classic')
@@ -1825,10 +1820,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         ? { format: 'solo', cards: [...cards] }
         : null
     }
-    if (mode === 'alliance-classic')
-      return ally && ally !== team
-        ? { format: 'alliance', deck: allianceStarter(team, ally) }
+    const starter = starterDecks.value.find(
+      (item) => item.id === deckId && item.general === team && item.ally,
+    )
+    if (starter?.ally) {
+      const deck = allianceStarter(team, starter.ally)
+      return !allianceProblems(deck).length && deck.cards.every(isCardUnlocked)
+        ? { format: 'alliance', deck }
         : null
+    }
     const entry = library.value.find(
       (item) =>
         item.id === deckId &&

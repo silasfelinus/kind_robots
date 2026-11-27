@@ -169,4 +169,6 @@ assert.equal(walledSupply.power, null, 'wall occludes pickup slurp')
 assert.equal(walledSupply.gurgle?.water, false, 'wall occludes water slurp')
 assert.equal(walledSupply.pickups[0]!.taken, false)
 
-console.log('Save the Plumber Gurgle mount, surface swim, spit and supplies: OK')
+console.log(
+  'Save the Plumber Gurgle mount, surface swim, spit and supplies: OK',
+)

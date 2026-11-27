@@ -141,15 +141,13 @@ const MISRENDERED = new Set(['character-steward-quill'])
 
 export function characterCandidates(
   slug: string | undefined,
-  mood?: CharacterExpressionKey,
+  mood: CharacterExpressionKey = 'neutral',
 ): string[] {
   if (!slug) return []
-  const expressions = mood
-    ? [
-        art(`character-${slug}-${mood}`),
-        ...(mood === 'neutral' ? [] : [art(`character-${slug}-neutral`)]),
-      ]
-    : []
+  const expressions = [
+    art(`character-${slug}-${mood}`),
+    ...(mood === 'neutral' ? [] : [art(`character-${slug}-neutral`)]),
+  ]
   return [
     ...expressions,
     ...[`characters/${slug}`, `character-${slug}`]

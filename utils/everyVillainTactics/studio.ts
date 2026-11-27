@@ -31,7 +31,10 @@ import {
   EQUATION_ESCAPED_SCRIPT,
 } from './finalAccidentScripts'
 import { CANDLE_VIGIL_SCRIPT } from './candleVigilScript'
-import { ORCHARD_ORIGIN_SCRIPT, GLASS_ORIGIN_SCRIPT } from './gardenGlassScripts'
+import {
+  ORCHARD_ORIGIN_SCRIPT,
+  GLASS_ORIGIN_SCRIPT,
+} from './gardenGlassScripts'
 import { ROOFTOP_BROADCAST_SCRIPT } from './rooftopBroadcastScript'
 import { UNDER_COMET_BREACH_SCRIPT } from './underCometBreachScript'
 import { PROM_NIGHT_FINALE_SCRIPT } from './promNightFinaleScript'
@@ -567,7 +570,16 @@ export const STAGE_PRESETS: StageDraft[] = [
       width: 9,
       height: 6,
       tiles: {
-        ...walls([2, 0], [2, 1], [2, 3], [2, 4], [5, 0], [5, 1], [6, 4], [6, 5]),
+        ...walls(
+          [2, 0],
+          [2, 1],
+          [2, 3],
+          [2, 4],
+          [5, 0],
+          [5, 1],
+          [6, 4],
+          [6, 5],
+        ),
         '3,2': tile(0, false, { west: 'half' }),
         '4,2': tile(0),
         '4,3': tile(1),
@@ -613,7 +625,16 @@ export const STAGE_PRESETS: StageDraft[] = [
       width: 9,
       height: 6,
       tiles: {
-        ...walls([3, 0], [3, 1], [3, 2], [3, 4], [6, 0], [6, 1], [6, 5], [4, 5]),
+        ...walls(
+          [3, 0],
+          [3, 1],
+          [3, 2],
+          [3, 4],
+          [6, 0],
+          [6, 1],
+          [6, 5],
+          [4, 5],
+        ),
         '3,3': tile(1),
         '4,3': tile(1, false, { west: 'half' }),
         '5,3': tile(1),

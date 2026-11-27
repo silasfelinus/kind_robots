@@ -146,7 +146,8 @@ for (const [stageId, lead, prefix, flagA, flagB] of [
       else
         assert.ok(
           battle.units.some(
-            (unit) => unit.team === 'rival' && unit.statuses.includes('suppressed'),
+            (unit) =>
+              unit.team === 'rival' && unit.statuses.includes('suppressed'),
           ),
         )
       battle.phase = 'victory'

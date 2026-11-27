@@ -112,8 +112,9 @@ export const useRulerHookedAccountStore = defineStore(
           result.data.revision < 0
         ) {
           archive.value = null
-          message.value =
-            result.message || 'Backup failed. Read the archive again.'
+          message.value = result.success
+            ? 'Invalid archive revision. Read the archive again.'
+            : result.message || 'Backup failed. Read the archive again.'
           return
         }
         archive.value = { save: merged, revision: result.data.revision }

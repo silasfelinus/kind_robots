@@ -367,6 +367,57 @@ assert.equal(hidden.stage.code, '1-3')
 assert.equal(hidden.mode, 'play')
 assert.ok(SECRET_EXITS_READY.has('1-3'))
 assert.ok(!nodeReachable('1-c', hidden.progress))
+const meterRoom = parseStage(CAMPAIGN.find((stage) => stage.code === '1-3')!)
+assert.equal(meterRoom.doors.length, 2)
+assert.deepEqual(meterRoom.doors, [
+  { col: 9, row: 21, to: 1 },
+  { col: 38, row: 4, to: 0 },
+])
+for (let row = 4; row <= 8; row++)
+  assert.equal(hidden.solidAt(45, row), SOLID_LADDER)
+
+function walkMeterTo(col: number) {
+  const target = col * TILE + TILE / 2
+  for (
+    let frame = 0;
+    frame < 180 && Math.abs(hidden.hero.x - target) > 3;
+    frame++
+  ) {
+    const movement = emptyInput()
+    if (hidden.hero.x < target) movement.held.right = true
+    else movement.held.left = true
+    hidden.update(movement)
+    assert.equal(hidden.mode, 'play')
+  }
+  assert.ok(Math.abs(hidden.hero.x - target) <= 3, 'meter route is reachable')
+}
+
+walkMeterTo(9)
+assert.ok(hidden.ground)
+press(hidden, 'down')
+assert.equal(hidden.hero.x, 38 * TILE + TILE / 2)
+assert.ok(hidden.activePipeRoom)
+const meterTokens = hidden.tokens
+walkMeterTo(55)
+for (let i = 0; i < 20; i++) hidden.update(emptyInput())
+assert.equal(hidden.hero.y + 20, 9 * TILE, 'descent reaches the meter floor')
+assert.equal(hidden.tokens, meterTokens + 2)
+walkMeterTo(45)
+const climbInput = emptyInput()
+climbInput.held.up = true
+hidden.update(climbInput)
+assert.ok(hidden.climbing, 'the shaft ladder is reachable from below')
+for (let i = 0; i < 100 && hidden.climbing; i++) hidden.update(climbInput)
+assert.ok(hidden.ground)
+assert.equal(hidden.hero.y + 20, 4 * TILE)
+walkMeterTo(38)
+press(hidden, 'down')
+assert.equal(hidden.hero.x, 9 * TILE + TILE / 2)
+assert.equal(hidden.activePipeRoom, undefined)
+assert.equal(hidden.deaths, 0)
+assert.equal(hidden.mode, 'play')
+assert.ok(!nodeReachable('1-c', hidden.progress))
+
 const exit = hidden.secretGoal!
 hidden.foes.length = 0
 hidden.hero = { x: exit.x, y: exit.y - 64, vx: 0, vy: 0 }

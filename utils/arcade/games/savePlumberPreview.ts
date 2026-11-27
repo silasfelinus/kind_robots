@@ -108,6 +108,7 @@ import {
   PLUMBER_JUMP_NOTES,
   PLUMBER_LAND_NOTES,
   PLUMBER_WORLD_MUSIC,
+  PLUMBER_WILDWATER_MUSIC,
   playPlumberCue,
 } from './savePlumberMusic'
 import {
@@ -658,6 +659,11 @@ export class PlumberRun implements ArcadeGameInstance {
   gear: { x: number; y: number; taken: boolean } | null = null
   gears = new Set<string>()
   gearFlash = 0
+  pearls = new Set<string>()
+  wildwaterActive = false
+  private wildwaterSpent = false
+  private wildwater: StageDef['wildwater']
+  private wildwaterCells = new Set<number>()
   /** The boss's latest line, shown under the HUD bar until its timer runs out. */
   bossLine: { words: string; timer: number } | null = null
   /** The power the heroine carries; a hit costs it instead of a heart. */
@@ -756,6 +762,8 @@ export class PlumberRun implements ArcadeGameInstance {
     )
       return null
     if (this.musicScene === 'boss') return PLUMBER_BOSS_MUSIC
+    if (this.wildwaterActive && this.mode === 'play')
+      return PLUMBER_WILDWATER_MUSIC
     const world = this.stage ? this.world : 1
     return PLUMBER_WORLD_MUSIC[world - 1] ?? PLUMBER_WORLD_MUSIC[0]!
   }
@@ -778,6 +786,7 @@ export class PlumberRun implements ArcadeGameInstance {
       this.file.album.done.length > 0 ||
       this.file.album.secrets.length > 0 ||
       this.file.album.gears.length > 0 ||
+      (this.file.album.pearls?.length ?? 0) > 0 ||
       this.file.album.heroines.length > 0 ||
       this.file.album.endings.length > 0
     return empty && !this.file.endlessBest && !hasSouvenirs ? null : this.file
@@ -806,6 +815,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.reserve =
       this.customLevel || this.autopilot ? null : (slot?.reserve ?? null)
     this.gears = new Set(slot?.gears ?? [])
+    this.pearls = new Set(slot?.pearls ?? [])
     this.done = new Set(slot?.done ?? [])
     this.secrets = new Set(slot?.secrets ?? [])
     this.deaths = slot?.deaths ?? 0
@@ -851,6 +861,7 @@ export class PlumberRun implements ArcadeGameInstance {
       tokens: this.tokens,
       cleared: this.slot?.cleared === true,
       gears: [...this.gears],
+      ...(this.pearls.size ? { pearls: [...this.pearls] } : {}),
       deaths: this.deaths,
       time: this.timeBase + Math.floor(this.playFrames / 60),
       ...(this.heroName ? { name: this.heroName } : {}),
@@ -1353,6 +1364,11 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     this.autoScroll = def.autoScroll
     this.solid = stage.solid.slice()
+    this.wildwater =
+      this.autopilot || this.demo || this.endless ? undefined : def.wildwater
+    this.wildwaterActive = false
+    this.wildwaterSpent = false
+    this.wildwaterCells.clear()
     this.inactiveSwitchBlocks.clear()
     if (!this.customLevel && !this.endless && !this.autopilot) {
       for (const block of def.switchBlocks ?? []) {
@@ -2390,8 +2406,16 @@ export class PlumberRun implements ArcadeGameInstance {
       this.tryDoor()
       if (this.mode !== 'play') return
     }
-    if (!usedMount && !this.stage.space && keys.pressed.x && !this.cooldown)
+    const usedTap = keys.pressed.x && this.turnWildTap()
+    if (
+      !usedMount &&
+      !usedTap &&
+      !this.stage.space &&
+      keys.pressed.x &&
+      !this.cooldown
+    )
       this.useTool(keys.held.down)
+    this.collectWildPearl()
     this.collectTokens()
     this.collectPickups()
     this.updateKeys()
@@ -3370,6 +3394,52 @@ export class PlumberRun implements ArcadeGameInstance {
       falling: RESERVE_DROP_FRAMES,
     })
     this.reserve = null
+  }
+
+  private turnWildTap(): boolean {
+    const wild = this.wildwater
+    if (!wild || this.wildwaterActive || this.wildwaterSpent || !this.ground)
+      return false
+    const x = wild.tap.col * TILE + TILE / 2
+    const y = wild.tap.row * TILE
+    if (Math.abs(this.hero.x - x) > 12 || Math.abs(this.hero.y + TALL - y) > 3)
+      return false
+    this.wildwaterActive = true
+    for (const step of wild.steps) {
+      for (let col = step.from; col <= step.to; col++) {
+        if (this.solidAt(col, step.row)) continue
+        this.setSolid(col, step.row, SOLID_LEDGE)
+        this.wildwaterCells.add(step.row * this.stage.cols + col)
+      }
+    }
+    playPlumberCue(this.sound, 'portal')
+    return true
+  }
+
+  private stopWildwater() {
+    for (const cell of this.wildwaterCells) this.solid[cell] = 0
+    this.wildwaterCells.clear()
+    this.wildwaterActive = false
+  }
+
+  private collectWildPearl() {
+    const wild = this.wildwater
+    if (!wild || !this.wildwaterActive) return
+    const x = wild.pearl.col * TILE + TILE / 2
+    const y = wild.pearl.row * TILE - 10
+    if (
+      Math.abs(this.hero.x - x) > 12 ||
+      Math.abs(this.hero.y + TALL / 2 - y) > 18
+    )
+      return
+    this.stopWildwater()
+    this.wildwaterSpent = true
+    if (!this.pearls.has(this.stage.code)) {
+      this.pearls.add(this.stage.code)
+      this.score += 1000
+      if (!this.customLevel && !this.endless) this.remember()
+    }
+    playPlumberCue(this.sound, 'gear')
   }
 
   private collectPickups() {
@@ -4495,6 +4565,7 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   private die() {
+    this.stopWildwater()
     this.stageHits++
     this.climbing = false
     this.specialTimer = 0
@@ -6245,6 +6316,7 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.highContrast) this.renderContrastEdges(g)
     if (this.stage.space) this.renderSpaceFeatures(g)
     this.renderThings(g)
+    this.renderWildwater(g)
     this.renderHushDoors(g)
     this.renderWinterHazards(g)
     this.renderFoes(g)
@@ -6691,6 +6763,13 @@ export class PlumberRun implements ArcadeGameInstance {
             g.fillRect(x + 1, y, TILE - 2, 2)
           }
         } else if (s === SOLID_LEDGE) {
+          if (this.wildwaterCells.has(row * this.stage.cols + col)) {
+            g.fillStyle = '#8deeff'
+            g.fillRect(x, y, TILE, 4)
+            g.fillStyle = '#e6fbff'
+            g.fillRect(x + 2, y + 1, TILE - 4, 1)
+            continue
+          }
           g.fillStyle = ledge ?? '#c99a52'
           g.fillRect(x, y, TILE, 7)
           g.fillStyle = '#7a5a2f'
@@ -7046,6 +7125,25 @@ export class PlumberRun implements ArcadeGameInstance {
     g.fillStyle = ghost ? 'rgba(27, 52, 64, 0.4)' : '#8a5a12'
     g.fill()
     g.restore()
+  }
+
+  private renderWildwater(g: CanvasRenderingContext2D) {
+    const wild = this.wildwater
+    if (!wild || this.wildwaterSpent) return
+    if (!this.wildwaterActive) {
+      const x = wild.tap.col * TILE + TILE / 2
+      const y = wild.tap.row * TILE
+      drawSprite(g, PLUMBER_ART.prop('valve-switch'), x, y, 24)
+      this.text(g, 'WILD TAP · X', x, y - 30, 10, '#99f5ff')
+      return
+    }
+    const x = wild.pearl.col * TILE + TILE / 2
+    const y = wild.pearl.row * TILE - 10
+    g.fillStyle = '#e8fbff'
+    g.beginPath()
+    g.arc(x, y, 6, 0, Math.PI * 2)
+    g.fill()
+    this.text(g, 'WILD PEARL', x, y - 13, 10, '#99f5ff')
   }
 
   private renderGear(g: CanvasRenderingContext2D) {
@@ -7704,6 +7802,8 @@ export class PlumberRun implements ArcadeGameInstance {
     // Endless zones hide no Golden Gear.
     if (!this.endless) this.drawCog(g, 244, 12, 6, 0, !this.gear?.taken)
     if (this.gearFlash) this.text(g, 'GOLDEN GEAR!', W / 2, 46, 18, '#ffd98a')
+    else if (this.wildwaterActive && this.wildwater)
+      this.text(g, this.wildwater.name.toUpperCase(), W / 2, 46, 15, '#99f5ff')
     if (this.bossLine && this.boss) {
       // The boss's line: a dark speech plate below the bar, under any gear flash.
       const top = this.gearFlash ? 56 : 30

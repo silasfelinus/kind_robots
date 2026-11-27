@@ -1,6 +1,9 @@
 import { createError } from 'h3'
 import prisma from '~/server/utils/prisma'
-import { sendSlimeCityTurnEmail } from '~/server/utils/email'
+import {
+  sendSlimeCityChallengeEmail,
+  sendSlimeCityTurnEmail,
+} from '~/server/utils/email'
 import { newProgression } from '~/utils/slimeCity/progression'
 
 function optedIn(raw: unknown): boolean {
@@ -9,6 +12,15 @@ function optedIn(raw: unknown): boolean {
     typeof raw === 'object' &&
     'pvpTurnEmail' in raw &&
     raw.pvpTurnEmail === true
+  )
+}
+
+function challengeOptedIn(raw: unknown): boolean {
+  return (
+    !!raw &&
+    typeof raw === 'object' &&
+    'pvpChallengeEmail' in raw &&
+    raw.pvpChallengeEmail === true
   )
 }
 
@@ -31,22 +43,31 @@ async function verifiedRecipient(userId: number) {
 export async function getSlimeCityTurnPreference(userId: number) {
   const recipient = await verifiedRecipient(userId)
   const row = await prisma.slimeCityAccount.findUnique({ where: { userId } })
-  return { enabled: optedIn(row?.data), eligible: !!recipient }
+  return {
+    enabled: optedIn(row?.data),
+    challengeEnabled: challengeOptedIn(row?.data),
+    eligible: !!recipient,
+  }
 }
 
 export async function setSlimeCityTurnPreference(
   userId: number,
   enabled: unknown,
+  challengeEnabled?: unknown,
 ) {
-  if (typeof enabled !== 'boolean')
+  if (
+    (enabled === undefined && challengeEnabled === undefined) ||
+    (enabled !== undefined && typeof enabled !== 'boolean') ||
+    (challengeEnabled !== undefined && typeof challengeEnabled !== 'boolean')
+  )
     throw createError({ statusCode: 400, message: 'Choose on or off.' })
   const recipient = await verifiedRecipient(userId)
-  if (enabled && !recipient)
+  if ((enabled === true || challengeEnabled === true) && !recipient)
     throw createError({
       statusCode: 403,
       message: 'Verify your account email first.',
     })
-  await prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx) => {
     const row = await tx.slimeCityAccount.upsert({
       where: { userId },
       update: {},
@@ -54,12 +75,17 @@ export async function setSlimeCityTurnPreference(
     })
     const data =
       row.data && typeof row.data === 'object' && !Array.isArray(row.data)
-        ? { ...row.data, pvpTurnEmail: enabled }
-        : { ...newProgression(), pvpTurnEmail: enabled }
+        ? { ...row.data }
+        : { ...newProgression() }
+    const preferences = {
+      ...data,
+      pvpTurnEmail: enabled ?? optedIn(row.data),
+      pvpChallengeEmail: challengeEnabled ?? challengeOptedIn(row.data),
+    }
     const result = await tx.slimeCityAccount.updateMany({
       where: { userId, version: row.version },
       data: {
-        data: JSON.parse(JSON.stringify(data)),
+        data: JSON.parse(JSON.stringify(preferences)),
         version: { increment: 1 },
       },
     })
@@ -68,8 +94,12 @@ export async function setSlimeCityTurnPreference(
         statusCode: 409,
         message: 'Settings changed. Retry.',
       })
+    return {
+      enabled: preferences.pvpTurnEmail === true,
+      challengeEnabled: preferences.pvpChallengeEmail === true,
+      eligible: !!recipient,
+    }
   })
-  return { enabled, eligible: !!recipient }
 }
 
 /** Called only after a committed, live turn handoff. Failures never undo play. */
@@ -82,5 +112,26 @@ export async function notifySlimeCityTurn(userId: number, duelId: string) {
     await sendSlimeCityTurnEmail(recipient.email, recipient.name, duelId)
   } catch {
     console.warn('[slime-city] turn email unavailable')
+  }
+}
+
+export async function notifySlimeCityChallenge(
+  userId: number,
+  duelId: string,
+  challenger: string,
+) {
+  try {
+    const recipient = await verifiedRecipient(userId)
+    if (!recipient) return
+    const row = await prisma.slimeCityAccount.findUnique({ where: { userId } })
+    if (!challengeOptedIn(row?.data)) return
+    await sendSlimeCityChallengeEmail(
+      recipient.email,
+      recipient.name,
+      duelId,
+      challenger,
+    )
+  } catch {
+    console.warn('[slime-city] challenge email unavailable')
   }
 }

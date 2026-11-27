@@ -284,6 +284,27 @@ export function sendSlimeCityTurnEmail(
   })
 }
 
+export function sendSlimeCityChallengeEmail(
+  to: string,
+  name: string,
+  duelId: string,
+  challenger: string,
+) {
+  const url =
+    appBaseUrl() + '/play/slime-city-pvp?duel=' + encodeURIComponent(duelId)
+  const settings = appBaseUrl() + '/play/slime-city?vs=1'
+  return sendTransactionalEmail({
+    to,
+    toName: name,
+    subject: 'Slime City: a friend challenged you!',
+    html: shell(
+      'You have a new challenge',
+      `<p>${escapeHtml(challenger)} challenged you to a Slime City duel. Pick your crew and answer when you're ready.</p>${button(url, 'View challenge')}<p>You opted into Slime City challenge emails. <a href="${settings}">Change notification preferences in VS</a>.</p>`,
+    ),
+    text: `${challenger} challenged you to Slime City. View challenge: ${url}\nChange notification preferences: ${settings}`,
+  })
+}
+
 function escapeHtml(v: string): string {
   return String(v || '')
     .replace(/&/g, '&amp;')

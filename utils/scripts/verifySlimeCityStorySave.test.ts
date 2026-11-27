@@ -228,3 +228,38 @@ assert.doesNotMatch(store, /localStorage|sessionStorage/)
 console.log(
   'Slime City story saves: account isolation, validation, version CAS and wallet preservation PASS',
 )
+
+for (const turn of [true, false]) {
+  for (const challenge of [true, false]) {
+    assert.deepEqual(
+      accountWithStory(
+        { ...savedAccount, pvpTurnEmail: turn, pvpChallengeEmail: challenge },
+        { ...wallet, meat: 300 },
+      ),
+      {
+        ...wallet,
+        meat: 300,
+        ...(turn ? { pvpTurnEmail: true } : {}),
+        ...(challenge ? { pvpChallengeEmail: true } : {}),
+        story: savedAccount.story,
+      },
+    )
+  }
+}
+
+const challengeService = readFileSync('server/utils/slimeCityPvp.ts', 'utf8')
+const emailService = readFileSync('server/utils/slimeCityTurnEmail.ts', 'utf8')
+const preferenceUi = readFileSync(
+  'components/slime-city-turn-email-preference.vue',
+  'utf8',
+)
+assert.match(
+  challengeService,
+  /if \(invitedId\) \{[\s\S]*?await notifySlimeCityChallenge\(\s*invitedId,\s*row\.id,/,
+)
+assert.match(emailService, /raw\.pvpChallengeEmail === true/)
+assert.match(emailService, /if \(!challengeOptedIn\(row\?\.data\)\) return/)
+assert.match(emailService, /challengeEnabled \?\? challengeOptedIn\(row\.data\)/)
+assert.match(emailService, /enabled \?\? optedIn\(row\.data\)/)
+assert.match(preferenceUi, /slime-challenge-email-opt-in/)
+assert.match(preferenceUi, /slime-turn-email-opt-in/)

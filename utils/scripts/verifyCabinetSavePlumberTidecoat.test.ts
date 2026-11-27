@@ -155,4 +155,59 @@ for (const speedRoute of [false, true]) {
   assert.equal(inWater(run), false, label)
 }
 
+// A kick is an underwater, edge-triggered burst, never a land special.
+for (const index of PLUMBER_ROSTER.keys()) {
+  for (const direction of ['left', 'right'] as const) {
+    const run = start(index)
+    const control = start(index)
+    const sign = direction === 'right' ? 1 : -1
+    const x = run.hero.x
+    const input = emptyInput()
+    input.held[direction] = true
+    input.held.b = true
+    input.pressed.b = true
+    run.update(input)
+    assert.ok(run.hero.vx * sign >= 5)
+    assert.ok(run.tideKickCooldown > 0)
+    step(run, 7, [direction, 'b'], 'kick burst')
+    step(control, 8, [direction], 'ordinary swimming')
+    assert.ok(
+      (run.hero.x - x) * sign > (control.hero.x - x) * sign + 15,
+      'kick provides useful burst distance',
+    )
+    const cooldown = run.tideKickCooldown
+    run.update(input)
+    assert.equal(run.tideKickCooldown, cooldown - 1)
+    assert.equal(run.tideKick, 0)
+    assertSafe(run, 'kick cooldown')
+    for (let tick = 0; tick < 40; tick++)
+      run.update(emptyInput())
+    assert.equal(run.tideKickCooldown, 0)
+  }
+}
+
+const reverse = start(0)
+const rightKick = emptyInput()
+rightKick.held.right = rightKick.held.b = rightKick.pressed.b = true
+reverse.update(rightKick)
+step(reverse, 1, ['left'], 'reverse kick')
+assert.equal(reverse.tideKick, 0, 'counter-steering cancels the burst')
+
+const wall = start(0)
+const wallCol = 27
+for (let row = 18; row < 23; row++)
+  wall.solid[row * wall.stage.cols + wallCol] = SOLID_GROUND
+wall.update(rightKick)
+step(wall, 8, ['right'], 'kick into wall')
+assert.ok(wall.hero.x + HERO_HALF <= wallCol * TILE + 0.01)
+assert.equal(wall.tideKick, 0)
+assertSafe(wall, 'kick cannot tunnel through a wall')
+
+const land = start(0)
+land.hero = { x: 10 * TILE, y: floor - HERO_TALL, vx: 0, vy: 0 }
+land.ground = true
+land.update(rightKick)
+assert.equal(land.tideKick, 0)
+assert.equal(land.tideKickCooldown, 0)
+
 console.log('Save the Plumber Tidecoat: eight heroines and both pilots passed')

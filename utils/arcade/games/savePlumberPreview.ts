@@ -135,6 +135,9 @@ const SAIL_FALL = 1.8
 const SAIL_DRAG = 0.99
 /** Ballast Boots: a fall at least this fast with Down held lands hard. */
 const BALLAST_SLAM = 5
+const TIDE_KICK_SPEED = 5.4
+const TIDE_KICK_TICKS = 8
+const TIDE_KICK_COOLDOWN = 36
 const SPRING = -12.2
 const RUN = 2.85
 /** Campaign top speed while B is held with a direction. */
@@ -566,6 +569,8 @@ export class PlumberRun implements ArcadeGameInstance {
   /** Feedback on jet-operated valve sequences; no impact on campaign controls. */
   airlockFlash = 0
   airCooldown = 0
+  tideKick = 0
+  tideKickCooldown = 0
   /** Compressed propellant is a pacing resource, never an oxygen/death timer. */
   airPressure = AIR_PRESSURE_CAPACITY
   airCanisters: { x: number; y: number; taken: boolean }[] = []
@@ -1349,6 +1354,8 @@ export class PlumberRun implements ArcadeGameInstance {
     this.airPlume = 0
     this.airlockFlash = 0
     this.airCooldown = 0
+    this.tideKick = 0
+    this.tideKickCooldown = 0
     this.airPressure = AIR_PRESSURE_CAPACITY
     this.airCanisters = []
     this.airDocks = []
@@ -1959,7 +1966,16 @@ export class PlumberRun implements ArcadeGameInstance {
     const surface = !this.waterAt(hero.y + 2)
     const target =
       up && !down ? (surface ? -6.5 : -2.8) : down && !up ? 2 : -0.55
-    hero.vx += (move * 2.8 - hero.vx) * 0.25
+    if (keys.pressed.b && !surface && !this.tideKickCooldown) {
+      const direction = move || this.facing
+      hero.vx = direction * TIDE_KICK_SPEED
+      this.tideKick = TIDE_KICK_TICKS
+      this.tideKickCooldown = TIDE_KICK_COOLDOWN
+      this.sound.play('blip')
+    }
+    if (this.tideKick && move && move * hero.vx < 0) this.tideKick = 0
+    if (this.tideKick) this.tideKick--
+    else hero.vx += (move * 2.8 - hero.vx) * 0.25
     hero.vy =
       surface && up && !down ? target : hero.vy + (target - hero.vy) * 0.3
     if (move) this.facing = move > 0 ? 1 : -1
@@ -1973,7 +1989,10 @@ export class PlumberRun implements ArcadeGameInstance {
     this.specialTimer = 0
     this.floating = false
     this.airSpecial = false
-    if (this.heroMoveX(hero.vx)) hero.vx = 0
+    if (this.heroMoveX(hero.vx)) {
+      hero.vx = 0
+      this.tideKick = 0
+    }
     const hit = this.heroMoveY(hero.vy)
     if (hit) {
       hero.vy = 0
@@ -1999,6 +2018,8 @@ export class PlumberRun implements ArcadeGameInstance {
         ? 1
         : Number(keys.held.right) - Number(keys.held.left)
     const swimming = this.swimming
+    if (this.tideKickCooldown) this.tideKickCooldown--
+    if (!swimming) this.tideKick = 0
     const climbed = !swimming && this.updateClimb(keys, move)
     if (this.stage.space || climbed || swimming) {
       this.duckHeld = false

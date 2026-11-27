@@ -78,6 +78,10 @@ const fresh = (seed = 'console-seed'): RunSave =>
       id: 'test-controller',
       mapping: 'standard',
       timestamp: 0,
+      vibrationActuator: {
+        playEffect: async () => 'complete' as const,
+        reset: async () => 'complete' as const,
+      },
       buttons: Array.from({ length: 16 }, (_, i) => ({
         pressed: buttons.includes(i),
         touched: buttons.includes(i),

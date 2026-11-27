@@ -144,6 +144,7 @@ export const RAINBOW_IDLE_ATLASES: Readonly<Record<string, number>> = {
   'enemies/guardian-herald': 8,
   'enemies/guardian-mirror': 8,
   'enemies/guardian-pearl-warden': 8,
+  'enemies/guardian-salvager': 8,
   'enemies/guardian-shoal-koi': 8,
   'enemies/hammerhead': 8,
   'enemies/mirror': 8,

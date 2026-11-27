@@ -45,6 +45,11 @@ export const MAKER_GROUPS: MakerGroup[] = [
       { key: 'c', icon: '▤', label: 'Movable crate' },
       { key: 'g', icon: '▥', label: 'Valve gate' },
       { key: '[', icon: '⊡', label: 'Padlocked bolt · opens with a brass key' },
+      {
+        key: 'Z',
+        icon: '⊟',
+        label: 'Sluice gate · lifts while every scale plate is down',
+      },
     ],
   },
   {
@@ -67,6 +72,11 @@ export const MAKER_GROUPS: MakerGroup[] = [
         label: 'Brass key · carry it to a padlocked bolt',
       },
       { key: '^', icon: '♨', label: 'Steam vent' },
+      {
+        key: '_',
+        icon: '▁',
+        label: 'Scale plate · Ballast Boots or a parked Gurgle',
+      },
     ],
   },
   {

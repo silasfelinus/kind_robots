@@ -28,6 +28,7 @@ import {
   SOLID_LEDGE,
   SOLID_LOCK,
   SOLID_SLOPE_UP,
+  SOLID_SLUICE,
   SOLID_PIPE,
   SOLID_WATER,
   SOLID_ICE,
@@ -466,6 +467,7 @@ const isWall = (s: number) =>
   s === SOLID_BLOCK ||
   s === SOLID_GATE ||
   s === SOLID_LOCK ||
+  s === SOLID_SLUICE ||
   s === SOLID_PIPE ||
   s === SOLID_CRATE ||
   s === SOLID_BELT_LEFT ||
@@ -633,6 +635,10 @@ export class PlumberRun implements ArcadeGameInstance {
   secretGoal: { x: number; y: number } | null = null
   private clearExit: 'normal' | 'secret' = 'normal'
   valves: { x: number; y: number; open: boolean }[] = []
+  /** Scale plates: each is down while Ballast Boots or a parked Gurgle rests on it. */
+  plates: { x: number; y: number; down: boolean }[] = []
+  /** Sluice gates lift while every scale plate is down (and stay up over the heroine). */
+  sluiceOpen = false
   boss: Boss | null = null
   waves: Wave[] = []
   cargo: Cargo[] = []
@@ -1396,6 +1402,8 @@ export class PlumberRun implements ArcadeGameInstance {
     this.tokensOnMap = []
     this.checkpoints = []
     this.valves = []
+    this.plates = []
+    this.sluiceOpen = false
     this.waves = []
     this.cargo = []
     this.soot = []
@@ -1639,6 +1647,9 @@ export class PlumberRun implements ArcadeGameInstance {
         case 'valve':
           this.valves.push({ x: cx, y: bottom, open: false })
           break
+        case 'scale-plate':
+          this.plates.push({ x: cx, y: bottom, down: false })
+          break
         case 'boss': {
           const world = stageWorld(stage.code)
           const foreman = stage.code === '1-f'
@@ -1705,6 +1716,7 @@ export class PlumberRun implements ArcadeGameInstance {
     if (row < 0 || row >= this.stage.rows) return 0
     const s = this.solid[row * this.stage.cols + col]!
     if (s === SOLID_BRIDGE && !this.bridgeLit(this.clock ?? this.tick)) return 0
+    if (s === SOLID_SLUICE && this.sluiceOpen) return 0
     return s
   }
 
@@ -1994,6 +2006,57 @@ export class PlumberRun implements ArcadeGameInstance {
     )
   }
 
+  /**
+   * Scale plates (GEN2-WORLDS.md: Ballast Boots hold them down; Gurgle can be
+   * parked on one while she goes on alone). Light feet do nothing. Sluice gates
+   * lift while every plate is down and never drop onto the heroine.
+   */
+  private weighPlates() {
+    if (!this.plates.length) return
+    const hero = this.hero
+    const feet = hero.y + TALL
+    const gurgle = this.gurgle
+    let all = true
+    for (const plate of this.plates) {
+      const was = plate.down
+      plate.down =
+        (this.ground &&
+          this.power === 'ballast' &&
+          Math.abs(hero.x - plate.x) < TILE * 0.75 &&
+          Math.abs(feet - plate.y) < 4) ||
+        (gurgle?.state === 'parked' &&
+          Math.abs(gurgle.x - plate.x) < TILE * 0.75 &&
+          Math.abs(gurgle.y - plate.y) < 4)
+      if (plate.down && !was) this.sound.play('pickup')
+      if (!plate.down) all = false
+    }
+    if (all) {
+      if (!this.sluiceOpen) this.sound.play('extra')
+      this.sluiceOpen = true
+    } else if (this.sluiceOpen && !this.overlapsSluice()) {
+      this.sluiceOpen = false
+    }
+  }
+
+  private overlapsSluice(): boolean {
+    const hero = this.hero
+    const left = Math.floor((hero.x - HALF) / TILE)
+    const right = Math.floor((hero.x + HALF - 1) / TILE)
+    const top = Math.floor(hero.y / TILE)
+    const bottom = Math.floor((hero.y + TALL - 1) / TILE)
+    for (let row = top; row <= bottom; row++)
+      for (let col = left; col <= right; col++)
+        if (
+          col >= 0 &&
+          col < this.stage.cols &&
+          row >= 0 &&
+          row < this.stage.rows &&
+          this.solid[row * this.stage.cols + col] === SOLID_SLUICE
+        )
+          return true
+    return false
+  }
+
   private get mounted(): boolean {
     return this.gurgle?.state === 'mounted'
   }
@@ -2136,6 +2199,7 @@ export class PlumberRun implements ArcadeGameInstance {
       hero.y += this.riding.dy
     }
     const usedMount = this.updateGurgle(keys)
+    this.weighPlates()
     const runner = this.runnerOn
     const move = this.stage.space
       ? 0
@@ -6583,6 +6647,19 @@ export class PlumberRun implements ArcadeGameInstance {
             g.fillStyle = '#5a93a0'
             g.fillRect(x + 2, y + 2, TILE - 4, 3)
           }
+        } else if (s === SOLID_SLUICE) {
+          if (this.sluiceOpen) {
+            g.fillStyle = 'rgba(92, 120, 140, 0.35)'
+            g.fillRect(x + 1, y, TILE - 2, 3)
+          } else {
+            g.fillStyle = '#3f5868'
+            g.fillRect(x, y, TILE, TILE)
+            g.fillStyle = '#7fa3b8'
+            g.fillRect(x + 3, y, 2, TILE)
+            g.fillRect(x + TILE - 5, y, 2, TILE)
+            g.fillStyle = '#26363f'
+            g.fillRect(x, y + TILE - 2, TILE, 2)
+          }
         } else if (s === SOLID_LOCK) {
           g.fillStyle = '#4a3b52'
           g.fillRect(x, y, TILE, TILE)
@@ -6806,6 +6883,13 @@ export class PlumberRun implements ArcadeGameInstance {
           g.fill()
         }
       }
+    }
+    for (const plate of this.plates) {
+      const sink = plate.down ? 2 : 0
+      g.fillStyle = '#2a3238'
+      g.fillRect(plate.x - 8, plate.y - 2, 16, 2)
+      g.fillStyle = plate.down ? '#8ad66b' : '#d9a640'
+      g.fillRect(plate.x - 7, plate.y - 5 + sink, 14, 3)
     }
     for (const valve of this.valves) {
       const turn = valve.open ? 0.8 : 0

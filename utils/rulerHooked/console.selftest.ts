@@ -8,6 +8,7 @@ import assert from 'node:assert/strict'
 import { newRoyalPadMemory, readRoyalPad } from '~/utils/rulerHooked/gamepad'
 import {
   mergeRoyalBackups,
+  nextRoyalArchiveRetryDelay,
   parseRoyalBackup,
   royalBackup,
 } from '~/utils/rulerHooked/accountBackup'
@@ -109,6 +110,13 @@ const fresh = (seed = 'console-seed'): RunSave =>
   assert.deepEqual(readRoyalPad(pad([0], 1), memory, 176, true), [])
   assert.deepEqual(readRoyalPad(pad([], 1), memory, 192, true), [])
   assert.deepEqual(readRoyalPad(pad([0], 1), memory, 208, true), ['confirm'])
+}
+
+{
+  assert.equal(nextRoyalArchiveRetryDelay(0), 1500)
+  assert.equal(nextRoyalArchiveRetryDelay(1), 31_000)
+  assert.equal(nextRoyalArchiveRetryDelay(2), undefined)
+  assert.equal(nextRoyalArchiveRetryDelay(100), undefined)
 }
 
 // --- daily proclamations ----------------------------------------------------

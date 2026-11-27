@@ -7,6 +7,11 @@ import { isFishingRegion } from './fishingLocations'
 export const ROYAL_BACKUP_KIND = 'kind-robots-ruler-hooked'
 const MAX_BYTES = 2 * 1024 * 1024
 
+export function nextRoyalArchiveRetryDelay(retries: number): number | undefined {
+  // The final retry outlasts the shared transport's 30-second circuit breaker.
+  return [1500, 31_000][retries]
+}
+
 export interface RoyalBackup {
   kind: typeof ROYAL_BACKUP_KIND
   version: 1

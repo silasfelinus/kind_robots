@@ -67,7 +67,8 @@ export type Unit = Fighter & {
   team: Team
   maxHp: number
   henchmanName?: string
-  henchmanType?: 'burrow' | 'phase' | 'windup'
+  henchmanType?: 'burrow' | 'phase' | 'windup' | 'cinder'
+  cinderTarget?: Cell | null
   burrowTarget?: Cell | null
   /** Clock-face exit a teleporting ronin will phase into next turn. */
   phaseTarget?: Cell | null
@@ -192,6 +193,11 @@ export const HENCHMAN_TELLS: Record<
     label: 'TELEPORTER',
     tell: 'Marks a clock-face exit on the side a hero’s cover misses, then phases through it. Stand on the exit to jam it.',
   },
+  cinder: {
+    crest: '!',
+    label: 'CLAIM CINDER',
+    tell: 'Stamps an INSURED tile within three tiles and sight. It ignites on the next enemy turn. Leave the tile, find water, or disarm the one-hit clerk.',
+  },
   windup: {
     crest: '⚙',
     label: 'WIND-UP TOY',
@@ -255,6 +261,7 @@ export function exposureAt(
         u.team !== unit.team &&
         u.hp > 0 &&
         u.henchmanType !== 'windup' &&
+        u.henchmanType !== 'cinder' &&
         !u.lieutenantName &&
         !u.signatureBoss,
     )
@@ -425,13 +432,18 @@ export function scriptedFoilFor(lead: string): string {
 const LACKEY_CREWS: Partial<
   Record<
     NonNullable<StageDraft['encounter']>,
-    { signature: SignaturePowerId; type: 'phase' | 'windup'; ranks: string[] }
+    { signature: SignaturePowerId; type: 'phase' | 'windup' | 'cinder'; ranks: string[] }
   >
 > = {
   'wombat-ronin': {
     signature: 'alien-discipline',
     type: 'phase',
     ranks: ['Ronin Apprentice', 'Ronin Initiate'],
+  },
+  'claim-cinders': {
+    signature: 'accident-fire',
+    type: 'cinder',
+    ranks: ['Claims Adjuster', 'Policy Clerk'],
   },
   'licensed-legends': {
     signature: 'accident-birthright',
@@ -454,8 +466,21 @@ function fieldLackeyCrew(state: TrainingState, stage?: StageDraft) {
     if (crew.type === 'phase') {
       unit.phaseTarget = null
       unit.phaseVictim = null
-    } else unit.windupRewinding = false
+    } else if (crew.type === 'cinder') unit.cinderTarget = null
+    else unit.windupRewinding = false
   })
+  if (crew.type === 'cinder') {
+    state.log =
+      species.captain +
+      ' leads the ' +
+      species.name +
+      '. Each INSURED stamp burns its marked tile next turn. Step away, soak the mark in water, or disarm the clerk.'
+    state.events = [
+      species.captain +
+        ': I keep every receipt. Including the ones that prove who started the fires.',
+    ]
+    return
+  }
   state.log =
     crew.type === 'phase'
       ? species.captain +
@@ -1794,13 +1819,94 @@ function retreatRival(state: TrainingState, enemy: Unit): boolean {
   return true
 }
 
+/** A one-hit clerk warns for an entire player round before the insured tile
+ * burns. The receipt does not follow a moving hero or retarget after reload. */
+export function cinderPlan(state: TrainingState, enemy: Unit): boolean {
+  if (enemy.henchmanType !== 'cinder') return false
+  if (enemy.hp <= 0) return true
+  const insured = enemy.cinderTarget
+  const wet = (p: Cell) =>
+    !!state.rules?.hazards.some(
+      (h) => h.kind === 'water' && h.x === p.x && h.y === p.y,
+    )
+  if (insured) {
+    enemy.cinderTarget = null
+    enemy.ap = 0
+    if (wet(insured) || tileAt(state.map, insured).wall) {
+      note(state, aliasFor(enemy) + ' loses the claim: the stamp fizzles.')
+      return true
+    }
+    const victim = actorAt(state, insured)
+    if (victim?.team === 'squad') {
+      hurtUnit(state, victim, 1)
+      recordImpact(state, enemy, victim, true)
+      note(state, aliasFor(enemy) + ' ignites the insured tile!')
+    } else note(state, aliasFor(enemy) + ' burns an empty claim.')
+    updateOutcome(state)
+    return true
+  }
+  const targets = state.units.filter(
+    (u) => u.team === 'squad' && u.hp > 0,
+  )
+  const reserved = state.units
+    .filter((u) => u.hp > 0 && u.cinderTarget)
+    .map((u) => u.cinderTarget!)
+  const available = targets
+    .filter(
+      (u) =>
+        !wet(u) &&
+        !reserved.some((p) => gridDistance(p, u) === 0) &&
+        gridDistance(enemy, u) <= 3 &&
+        lineOfSight(state.map, enemy, u),
+    )
+    .sort(
+      (a, b) =>
+        gridDistance(enemy, a) - gridDistance(enemy, b) ||
+        a.id.localeCompare(b.id),
+    )[0]
+  if (available) {
+    enemy.cinderTarget = { x: available.x, y: available.y }
+    note(
+      state,
+      aliasFor(enemy) +
+        ' stamps INSURED at column ' +
+        (available.x + 1) +
+        ', row ' +
+        (available.y + 1) +
+        '. That tile ignites next enemy turn.',
+    )
+  } else if (targets.length) {
+    const distance = (p: Cell) =>
+      Math.min(...targets.map((u) => gridDistance(p, u)))
+    const move = reachableCells(state.map, state.units, enemy)
+      .filter((p) => !rivalHazardAt(state, p))
+      .sort(
+        (a, b) =>
+          distance(a) - distance(b) ||
+          a.cost - b.cost ||
+          a.y - b.y ||
+          a.x - b.x,
+      )[0]
+    if (move && distance(move) < distance(enemy)) {
+      enemy.x = move.x
+      enemy.y = move.y
+      enemy.ap -= move.cost
+      enemy.moved = true
+      triggerReactions(state, enemy)
+    }
+  }
+  enemy.ap = 0
+  return true
+}
+
 function enemyPlan(state: TrainingState, enemy: Unit) {
   if (
     signatureLieutenantPlan(state, enemy) ||
     lieutenantPlan(state, enemy) ||
     burrowPlan(state, enemy) ||
     phasePlan(state, enemy) ||
-    windupPlan(state, enemy)
+    windupPlan(state, enemy) ||
+    cinderPlan(state, enemy)
   )
     return
   if (retreatRival(state, enemy)) return

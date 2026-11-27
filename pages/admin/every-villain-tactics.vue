@@ -182,6 +182,13 @@
                     >◷</span
                   >
                   <span
+                    v-if="store.isCinderWarning(cell)"
+                    class="evt-cinder-stamp"
+                    data-testid="tactics-cinder-warning"
+                    aria-hidden="true"
+                    >INSURED</span
+                  >
+                  <span
                     v-if="store.isBurrowWarning(cell)"
                     class="evt-burrow-ring"
                     data-testid="tactics-burrow-warning"
@@ -1236,6 +1243,14 @@
                 ONE-HIT WIND-UP TOYS · Sir Cap-Permission's mascots swarm and
                 block lanes. Starting a turn beside a hero, they stamp a seal
                 that locks that hero's signature power for a turn.
+              </small>
+              <small
+                v-else-if="store.draft.encounter === 'claim-cinders'"
+                data-testid="studio-encounter"
+              >
+                ONE-HIT CLAIM CLERKS · Ash Invoice stamps an INSURED tile
+                that ignites next enemy turn. Vacate the tile or disarm the
+                clerk; water prevents ignition.
               </small>
               <small
                 v-else-if="store.draft.encounter === 'warren-wreckers'"
@@ -2451,6 +2466,15 @@ function baseCellDescription(cell: Cell) {
       (cell.y + 1) +
       (unit ? '. Occupied by ' + unitName(unit) + '.' : '.')
     )
+  if (store.isCinderWarning(cell))
+    return (
+      'INSURED, column ' +
+      (cell.x + 1) +
+      ', row ' +
+      (cell.y + 1) +
+      '. This tile burns next enemy turn. Move away or disarm the clerk.' +
+      (unit ? ' Occupied by ' + unitName(unit) + '.' : '')
+    )
   if (store.isPhaseWarning(cell))
     return (
       'PORTAL EXIT, column ' +
@@ -2675,6 +2699,20 @@ onBeforeUnmount(() => {
     transparent 70%
   );
 }
+.evt-cinder-stamp {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  z-index: 8;
+  color: #fff;
+  background: #9a3412;
+  font-size: clamp(6px, 1vw, 10px);
+  font-weight: 900;
+  text-align: center;
+  pointer-events: none;
+}
+.evt-tile.cinder-warning,
 .evt-tile.fire-next {
   box-shadow: inset 0 0 0 2px rgb(249 115 22 / 0.8);
 }

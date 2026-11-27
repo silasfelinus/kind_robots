@@ -282,6 +282,7 @@ const MUTABLE = new Set<string>([
   'overwatch',
   'statuses',
   'burrowTarget',
+  'cinderTarget',
   'phaseTarget',
   'phaseVictim',
   'windupRewinding',
@@ -662,6 +663,17 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
       return reject(unit.id + ' portal victim is invalid.')
     if (unit.windupRewinding !== undefined && !isBool(unit.windupRewinding))
       return reject(unit.id + ' wind-up state is invalid.')
+    if (
+      unit.cinderTarget !== undefined &&
+      (unit.henchmanType !== 'cinder' ||
+        (unit.cinderTarget !== null &&
+          !(
+            Number.isInteger(unit.cinderTarget.x) &&
+            Number.isInteger(unit.cinderTarget.y) &&
+            inside(state.map, unit.cinderTarget)
+          )))
+    )
+      return reject(unit.id + ' insured tile is invalid.')
     for (const point of [
       unit.phaseTarget,
       unit.burrowTarget,

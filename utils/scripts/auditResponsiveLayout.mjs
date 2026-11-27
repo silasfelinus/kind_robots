@@ -488,18 +488,36 @@ async function auditRulerOpening(page, vp) {
       )
       .catch(() => {})
     const metrics = await page.evaluate(collect, MIN_FLEX_WIDTH)
+    const visibleArt = await page.locator('.rh-art:visible').evaluateAll((nodes) =>
+      nodes.flatMap((node) => {
+        const bounds = node.getBoundingClientRect()
+        if (
+          bounds.bottom <= 0 ||
+          bounds.top >= window.innerHeight ||
+          bounds.right <= 0 ||
+          bounds.left >= window.innerWidth
+        ) return []
+        const img = node.querySelector('img')
+        return [{
+          source: img?.currentSrc ?? null,
+          alt: img?.alt ?? '',
+          width: img?.naturalWidth ?? 0,
+          height: img?.naturalHeight ?? 0,
+          fallback: !!node.querySelector('.rh-art__wash'),
+        }]
+      }),
+    )
+    const unpainted = visibleArt.filter(
+      (art) => art.fallback || !art.width || !art.height,
+    )
     viewportReadings.push({
       route: '/play/ruler-hooked',
       breakpoint: vp.name,
       stage: name,
       loaded: true,
       ...metrics.viewportOwnership,
-      visibleArt: await page.locator('.rh-art:visible').evaluateAll((nodes) =>
-        nodes.map((node) => ({
-          source: node.querySelector('img')?.currentSrc ?? null,
-          fallback: !!node.querySelector('.rh-art__wash'),
-        })),
-      ),
+      visibleArt,
+      unpainted,
     })
     if (SHOTS) {
       await page.screenshot({
@@ -510,7 +528,8 @@ async function auditRulerOpening(page, vp) {
       metrics.horizontalScroll ||
       metrics.spill.length ||
       metrics.crushed.length ||
-      metrics.brokenArtTotal
+      metrics.brokenArtTotal ||
+      unpainted.length
     ) {
       failures += 1
       console.log(
@@ -519,6 +538,7 @@ async function auditRulerOpening(page, vp) {
           spill: metrics.spill,
           crushed: metrics.crushed,
           brokenArt: metrics.brokenArt,
+          unpainted,
         })}`,
       )
     } else {

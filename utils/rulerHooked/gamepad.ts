@@ -52,7 +52,9 @@ export function runRoyalQuizPad(
   )
     return
 
-  const buttons = [...root.querySelectorAll<HTMLButtonElement>('button')].filter(
+  const buttons = [
+    ...root.querySelectorAll<HTMLButtonElement>('button'),
+  ].filter(
     (button) =>
       !button.disabled &&
       button.getAttribute('aria-disabled') !== 'true' &&

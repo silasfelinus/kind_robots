@@ -57,6 +57,28 @@
             :aria-label="`Generated audio for ArtJob ${job.id}`"
           />
         </div>
+        <div
+          v-else-if="jobImageKind === 'video'"
+          class="flex h-full w-full flex-col"
+        >
+          <video
+            :src="jobImageSrc"
+            class="min-h-0 w-full flex-1 object-contain"
+            controls
+            muted
+            playsinline
+            preload="metadata"
+            :aria-label="`Generated video for ArtJob ${job.id}`"
+          />
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm mx-auto my-1"
+            :disabled="openingArtCard"
+            @click="openArtCard"
+          >
+            Open art card
+          </button>
+        </div>
         <button
           v-else
           type="button"
@@ -66,16 +88,7 @@
           :disabled="openingArtCard"
           @click="openArtCard"
         >
-          <video
-            v-if="jobImageKind === 'video'"
-            :src="jobImageSrc"
-            class="h-full w-full object-contain"
-            muted
-            playsinline
-            preload="metadata"
-          />
           <img
-            v-else
             :src="jobImageSrc"
             alt="Generated ArtJob output"
             class="h-full w-full object-contain"

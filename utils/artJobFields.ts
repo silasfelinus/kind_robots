@@ -265,20 +265,16 @@ export function artJobPublicImageSrc(job: ArtJobFieldsSource): string {
 
 export type ArtJobOutputKind = 'image' | 'video' | 'audio'
 
-/**
- * What kind of file a finished job produced, for choosing <img>, <video> or
- * <audio>. The engine wins: an acestep job is a song (music-video/t-010), and
- * a PUBLIC song never goes through the protected-preview loader that fills
- * cachedKind, so without this it rendered as a broken <img>. Otherwise trust
- * the kind the preview loader resolved from the stored file, else assume an
- * image -- every other engine still produces stills or clips that resolve.
- */
+/** Prefer the stored preview kind, with job metadata for public file URLs. */
 export function artJobOutputKind(
   job: ArtJobFieldsSource,
   cachedKind?: string | null,
 ): ArtJobOutputKind {
   if (job.engine === 'acestep') return 'audio'
   if (cachedKind === 'video' || cachedKind === 'audio') return cachedKind
+  if (cachedKind === 'image') return 'image'
+  const media = directPayloadScalar(job, ['media']).toLowerCase()
+  if (media === 'video' || media === 'video-restyle-vace') return 'video'
   return 'image'
 }
 

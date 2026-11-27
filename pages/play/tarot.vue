@@ -237,7 +237,7 @@ onBeforeUnmount(() => {
     >
       <div class="flex flex-wrap items-center gap-2">
         <div
-          class="kr-scroll flex min-w-0 flex-1 basis-full gap-2 overflow-x-auto sm:basis-0 pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0"
+          class="flex min-w-0 flex-1 basis-full gap-2 overflow-x-auto sm:basis-0 pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0"
         >
           <button
             v-for="entry in store.readings"
@@ -286,10 +286,10 @@ onBeforeUnmount(() => {
 
       <div
         v-if="reading"
-        class="grid min-h-0 grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(300px,34%)]"
+        class="kr-panes grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(300px,34%)]"
       >
         <div
-          class="tarot-table kr-scroll min-h-0 overflow-y-auto rounded-2xl border border-base-content/10 p-3 sm:p-5"
+          class="tarot-table kr-pane-scroll rounded-2xl border border-base-content/10 p-3 sm:p-5"
         >
           <p
             class="mb-3 text-center text-xs uppercase tracking-widest opacity-70"
@@ -299,7 +299,7 @@ onBeforeUnmount(() => {
           <tarot-spread-stage :reading="reading.reading" />
         </div>
         <article
-          class="kr-scroll min-h-0 overflow-y-auto rounded-2xl border border-base-content/10 bg-base-200/70 p-4 text-sm leading-relaxed"
+          class="kr-pane-scroll rounded-2xl border border-base-content/10 bg-base-200/70 p-4 text-sm leading-relaxed"
           aria-live="polite"
         >
           <p class="mb-3 italic opacity-80">{{ reading.reading.opening }}</p>
@@ -348,11 +348,11 @@ onBeforeUnmount(() => {
 
     <section
       v-else-if="view === 'horoscope'"
-      class="grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-hidden p-2 sm:p-3 lg:grid-cols-[minmax(280px,32%)_minmax(0,1fr)]"
+      class="kr-panes grid-cols-1 gap-2 p-2 sm:p-3 lg:grid-cols-[minmax(280px,32%)_minmax(0,1fr)]"
       aria-label="Horoscope"
     >
       <aside
-        class="kr-scroll min-h-0 overflow-y-auto rounded-2xl border border-base-content/10 bg-base-200/70 p-3"
+        class="kr-pane-scroll rounded-2xl border border-base-content/10 bg-base-200/70 p-3"
       >
         <div class="mb-2 flex flex-wrap gap-1">
           <button
@@ -422,7 +422,7 @@ onBeforeUnmount(() => {
       </aside>
 
       <div
-        class="kr-scroll min-h-0 overflow-y-auto rounded-2xl border border-base-content/10 p-3 sm:p-4"
+        class="kr-pane-scroll rounded-2xl border border-base-content/10 p-3 sm:p-4"
       >
         <div
           v-if="!store.natalChart"
@@ -491,7 +491,7 @@ onBeforeUnmount(() => {
 
     <section
       v-else-if="view === 'chart'"
-      class="grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-hidden p-2 sm:p-3 lg:grid-cols-[minmax(0,1fr)_minmax(320px,40%)]"
+      class="kr-panes grid-cols-1 gap-2 p-2 sm:p-3 lg:grid-cols-[minmax(0,1fr)_minmax(320px,40%)]"
       aria-label="Birth chart"
     >
       <div
@@ -517,7 +517,7 @@ onBeforeUnmount(() => {
           />
         </div>
         <div
-          class="flex min-h-0 flex-col rounded-2xl border border-base-content/10 bg-base-200/70"
+          class="kr-pane rounded-2xl border border-base-content/10 bg-base-200/70"
         >
           <div class="join p-2" role="tablist" aria-label="Chart analysis">
             <button
@@ -533,9 +533,7 @@ onBeforeUnmount(() => {
               {{ pane }}
             </button>
           </div>
-          <div
-            class="kr-scroll min-h-0 flex-1 overflow-y-auto px-3 pb-3 text-sm"
-          >
+          <div class="kr-pane-scroll px-3 pb-3 text-sm">
             <template v-if="chartPane === 'placements'">
               <p class="mb-2 text-xs opacity-70">
                 {{
@@ -598,12 +596,10 @@ onBeforeUnmount(() => {
 
     <section
       v-else
-      class="grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-hidden p-2 sm:p-3 lg:grid-cols-[minmax(0,1fr)_minmax(280px,30%)]"
+      class="kr-panes grid-cols-1 gap-2 p-2 sm:p-3 lg:grid-cols-[minmax(0,1fr)_minmax(280px,30%)]"
       aria-label="The full deck"
     >
-      <div
-        class="kr-scroll min-h-0 overflow-y-auto rounded-2xl border border-base-content/10 p-2"
-      >
+      <div class="kr-pane-scroll rounded-2xl border border-base-content/10 p-2">
         <div class="grid grid-cols-3 gap-2 sm:grid-cols-5 xl:grid-cols-8">
           <button
             v-for="card in store.activeDeck.cards"
@@ -625,7 +621,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
       <aside
-        class="kr-scroll min-h-0 overflow-y-auto rounded-2xl border border-base-content/10 bg-base-200/70 p-3 text-sm"
+        class="kr-pane-scroll rounded-2xl border border-base-content/10 bg-base-200/70 p-3 text-sm"
       >
         <template v-if="focusedCard">
           <h2 class="text-lg font-black">{{ focusedCard.card.title }}</h2>

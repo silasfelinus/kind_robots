@@ -72,7 +72,13 @@
             @click="kit.showMoment(moment.id)"
           >
             <PlaybookKitArt
-              :art="moment.art"
+              :art="
+                discoveryArt(
+                  spec,
+                  moment.art,
+                  kit.isUnlocked('moments', moment.id),
+                )
+              "
               :tone="MOMENT_TONES[moment.kind]"
               icon="kind-icon:camera"
               class="absolute inset-0 transition-transform duration-500 group-enabled:group-hover:scale-105"
@@ -116,6 +122,7 @@ import {
   MOMENT_KIND_LABELS,
   MOMENT_TONES,
   visibleMoments,
+  discoveryArt,
 } from '~/utils/playbookKit/view'
 import type { KitMomentKind, PlaybookKitSpec } from '~/utils/playbookKit/types'
 

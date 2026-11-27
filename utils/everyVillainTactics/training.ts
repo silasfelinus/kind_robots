@@ -905,7 +905,9 @@ export function selectedPowerTargets(state: TrainingState): Cell[] {
   if (!unit || state.phase !== 'active') return []
   const mission = environmentalMission(state, unit)
   if (mission)
-    return environmentalPreview(state, unit, mission.target) ? [{ ...mission.target }] : []
+    return environmentalPreview(state, unit, mission.target)
+      ? [{ ...mission.target }]
+      : []
   return powerTargets(state, unit).filter(
     (target) =>
       valcourtRescueTarget(state, unit, target) &&

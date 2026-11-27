@@ -651,8 +651,18 @@ assert.ok(
 
 // Final two Accident origins: timed melee intervention versus remote analysis.
 for (const [stageId, lead, target, flag] of [
-  ['clocktower-collapse', 'accident-discipline', { x: 4, y: 3 }, 'clock-lift-caught'],
-  ['equation-that-escaped', 'accident-genius', { x: 5, y: 2 }, 'equation-drone-rewritten'],
+  [
+    'clocktower-collapse',
+    'accident-discipline',
+    { x: 4, y: 3 },
+    'clock-lift-caught',
+  ],
+  [
+    'equation-that-escaped',
+    'accident-genius',
+    { x: 5, y: 2 },
+    'equation-drone-rewritten',
+  ],
 ] as const) {
   const stage = clonePreset(stageId)
   assert.deepEqual(stageProblems(stage), [])
@@ -668,21 +678,34 @@ for (const [stageId, lead, target, flag] of [
     actor.x = stageId === 'clocktower-collapse' ? 3 : 1
     actor.y = stageId === 'clocktower-collapse' ? 3 : 2
     if (stageId === 'clocktower-collapse') {
-      assert.equal(useSelectedPower(state, target), false, 'odd round is not the safe gear alignment')
+      assert.equal(
+        useSelectedPower(state, target),
+        false,
+        'odd round is not the safe gear alignment',
+      )
       state.turn = 2
     }
-    assert.ok(selectedPowerTargets(state).some((point) => point.x === target.x && point.y === target.y))
+    assert.ok(
+      selectedPowerTargets(state).some(
+        (point) => point.x === target.x && point.y === target.y,
+      ),
+    )
     assert.equal(useSelectedPower(state, target), true)
     assert.ok(state.flags?.includes(flag))
     assert.equal(actor.powerSpent, true)
     assert.deepEqual(selectedPowerTargets(state), [])
     const checkpoint = createSave({
-      slot: 'slot-2', perspective, leadSignature: lead, stage, state,
+      slot: 'slot-2',
+      perspective,
+      leadSignature: lead,
+      stage,
+      state,
       story: { ...createStory(), current: null },
     })
     assert.ok(loadSave(JSON.stringify(checkpoint)).ok)
     const forged = createSave({
-      ...checkpoint, state: { ...state, flags: [] },
+      ...checkpoint,
+      state: { ...state, flags: [] },
     })
     assert.equal(loadSave(JSON.stringify(forged)).ok, false)
     for (const civilian of stage.civilians!) {
@@ -694,10 +717,16 @@ for (const [stageId, lead, target, flag] of [
     assert.equal(state.phase, 'victory')
   }
 }
-const blockedDrone = trainingState(41, clonePreset('equation-that-escaped'), { lead: 'accident-genius' })
+const blockedDrone = trainingState(41, clonePreset('equation-that-escaped'), {
+  lead: 'accident-genius',
+})
 blockedDrone.units[0]!.x = 2
 blockedDrone.units[0]!.y = 1
-assert.equal(useSelectedPower(blockedDrone, { x: 5, y: 2 }), false, 'wall blocks remote proof rewrite')
+assert.equal(
+  useSelectedPower(blockedDrone, { x: 5, y: 2 }),
+  false,
+  'wall blocks remote proof rewrite',
+)
 
 // Identity-locked rescue scenarios cannot strand someone without the needed
 // power, even if a saved menu or scripted call bypasses the visual filter.

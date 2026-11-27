@@ -472,13 +472,30 @@
               type="button"
               class="evf-stage"
               data-testid="front-origin-clocktower-collapse"
-              @click="store.startOneShot('clocktower-collapse', pickedLead, pickedView)"
+              @click="
+                store.startOneShot(
+                  'clocktower-collapse',
+                  pickedLead,
+                  pickedView,
+                )
+              "
             >
-              <img v-if="art('districts/student-commons')" :src="art('districts/student-commons')!" alt="" loading="lazy" />
+              <img
+                v-if="art('districts/student-commons')"
+                :src="art('districts/student-commons')!"
+                alt=""
+                loading="lazy"
+              />
               <span class="evf-stage-text">
-                <small class="evf-kicker">THE SECOND HAND / ORIGIN BATTLE</small>
+                <small class="evf-kicker"
+                  >THE SECOND HAND / ORIGIN BATTLE</small
+                >
                 <strong>The Clocktower Collapse</strong>
-                <span>Reach the escapement at column 5, row 4 on an even round. Catch the lift with your signature, then evacuate the technician.</span>
+                <span
+                  >Reach the escapement at column 5, row 4 on an even round.
+                  Catch the lift with your signature, then evacuate the
+                  technician.</span
+                >
               </span>
             </button>
           </div>
@@ -488,19 +505,36 @@
           class="evf-origin-battle"
           data-testid="front-origin-equation-that-escaped-section"
         >
-          <h3 class="evf-label">YOUR POWER ORIGIN / THE EQUATION THAT ESCAPED</h3>
+          <h3 class="evf-label">
+            YOUR POWER ORIGIN / THE EQUATION THAT ESCAPED
+          </h3>
           <div class="evf-stages">
             <button
               type="button"
               class="evf-stage"
               data-testid="front-origin-equation-that-escaped"
-              @click="store.startOneShot('equation-that-escaped', pickedLead, pickedView)"
+              @click="
+                store.startOneShot(
+                  'equation-that-escaped',
+                  pickedLead,
+                  pickedView,
+                )
+              "
             >
-              <img v-if="art('districts/engineering-workshop')" :src="art('districts/engineering-workshop')!" alt="" loading="lazy" />
+              <img
+                v-if="art('districts/engineering-workshop')"
+                :src="art('districts/engineering-workshop')!"
+                alt=""
+                loading="lazy"
+              />
               <span class="evf-stage-text">
                 <small class="evf-kicker">EUREKA / ORIGIN BATTLE</small>
                 <strong>The Equation That Escaped</strong>
-                <span>Get a clear line of sight within four tiles of the faulty drone at column 6, row 3. Rewrite its proof with your signature, then evacuate both witnesses.</span>
+                <span
+                  >Get a clear line of sight within four tiles of the faulty
+                  drone at column 6, row 3. Rewrite its proof with your
+                  signature, then evacuate both witnesses.</span
+                >
               </span>
             </button>
           </div>

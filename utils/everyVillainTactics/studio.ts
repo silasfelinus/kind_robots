@@ -26,7 +26,10 @@ import { SUNKEN_STREET_SCRIPT } from './sunkenStreetScript'
 import { UNLICENSED_RESCUE_SCRIPT } from './unlicensedRescueScript'
 import { CHORUS_RADIO_SCRIPT } from './chorusRadioScript'
 import { HYDRANT_BLUE_SCRIPT } from './hydrantBlueScript'
-import { CLOCKTOWER_COLLAPSE_SCRIPT, EQUATION_ESCAPED_SCRIPT } from './finalAccidentScripts'
+import {
+  CLOCKTOWER_COLLAPSE_SCRIPT,
+  EQUATION_ESCAPED_SCRIPT,
+} from './finalAccidentScripts'
 import { ROOFTOP_BROADCAST_SCRIPT } from './rooftopBroadcastScript'
 import { UNDER_COMET_BREACH_SCRIPT } from './underCometBreachScript'
 import { PROM_NIGHT_FINALE_SCRIPT } from './promNightFinaleScript'
@@ -421,7 +424,8 @@ export const STAGE_PRESETS: StageDraft[] = [
     id: 'clocktower-collapse',
     title: 'The Clocktower Collapse',
     venue: 'School clocktower at graduation',
-    objective: 'Reach the escapement at column 5, row 4 on an even round. Catch the lift with your signature, then evacuate the technician.',
+    objective:
+      'Reach the escapement at column 5, row 4 on an even round. Catch the lift with your signature, then evacuate the technician.',
     map: {
       width: 9,
       height: 6,
@@ -442,12 +446,20 @@ export const STAGE_PRESETS: StageDraft[] = [
       { id: 'vee', x: 8, y: 2 },
       { id: 'remy', x: 8, y: 4 },
     ],
-    secrets: [{"x":5,"y":1}],
-    hazards: [{"x":4,"y":3}],
+    secrets: [{ x: 5, y: 1 }],
+    hazards: [{ x: 4, y: 3 }],
     turnLimit: 8,
-    civilians: [{"id":"clock-technician","name":"Lift technician","x":6,"y":3}],
-    props: [{"id":"gear-housing","x":5,"y":2,"cover":"full","hp":3},{"id":"banner-crate","x":2,"y":4,"cover":"half","hp":2}],
-    activeHazards: [{"id":"falling-platform","kind":"collapse","x":5,"y":4,"round":4},{"id":"loose-clock-floor","kind":"collapse","x":3,"y":2,"round":6}],
+    civilians: [
+      { id: 'clock-technician', name: 'Lift technician', x: 6, y: 3 },
+    ],
+    props: [
+      { id: 'gear-housing', x: 5, y: 2, cover: 'full', hp: 3 },
+      { id: 'banner-crate', x: 2, y: 4, cover: 'half', hp: 2 },
+    ],
+    activeHazards: [
+      { id: 'falling-platform', kind: 'collapse', x: 5, y: 4, round: 4 },
+      { id: 'loose-clock-floor', kind: 'collapse', x: 3, y: 2, round: 6 },
+    ],
     victory: { kind: 'rescue', count: 1 },
     script: CLOCKTOWER_COLLAPSE_SCRIPT,
   },
@@ -456,7 +468,8 @@ export const STAGE_PRESETS: StageDraft[] = [
     id: 'equation-that-escaped',
     title: 'The Equation That Escaped',
     venue: 'Academy student science fair',
-    objective: 'Get a clear line of sight within four tiles of the faulty drone at column 6, row 3. Rewrite its proof with your signature, then evacuate both witnesses.',
+    objective:
+      'Get a clear line of sight within four tiles of the faulty drone at column 6, row 3. Rewrite its proof with your signature, then evacuate both witnesses.',
     map: {
       width: 9,
       height: 6,
@@ -477,12 +490,21 @@ export const STAGE_PRESETS: StageDraft[] = [
       { id: 'vee', x: 8, y: 3 },
       { id: 'remy', x: 8, y: 5 },
     ],
-    secrets: [{"x":2,"y":5}],
-    hazards: [{"x":5,"y":2}],
+    secrets: [{ x: 2, y: 5 }],
+    hazards: [{ x: 5, y: 2 }],
     turnLimit: 9,
-    civilians: [{"id":"equation-student","name":"Science fair student","x":7,"y":1},{"id":"equation-judge","name":"Visiting judge","x":7,"y":4}],
-    props: [{"id":"display-board","x":4,"y":1,"cover":"full","hp":2},{"id":"printer","x":5,"y":4,"cover":"half","hp":3}],
-    activeHazards: [{"id":"capacitor-fire","kind":"fire","x":6,"y":3},{"id":"loose-motor-cable","kind":"water","x":4,"y":4}],
+    civilians: [
+      { id: 'equation-student', name: 'Science fair student', x: 7, y: 1 },
+      { id: 'equation-judge', name: 'Visiting judge', x: 7, y: 4 },
+    ],
+    props: [
+      { id: 'display-board', x: 4, y: 1, cover: 'full', hp: 2 },
+      { id: 'printer', x: 5, y: 4, cover: 'half', hp: 3 },
+    ],
+    activeHazards: [
+      { id: 'capacitor-fire', kind: 'fire', x: 6, y: 3 },
+      { id: 'loose-motor-cable', kind: 'water', x: 4, y: 4 },
+    ],
     victory: { kind: 'rescue', count: 2 },
     script: EQUATION_ESCAPED_SCRIPT,
   },

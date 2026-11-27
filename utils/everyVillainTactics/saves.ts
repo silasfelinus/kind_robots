@@ -490,8 +490,15 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
     flagsAllowed.add(mission.flag)
     const completed = state.flags?.includes(mission.flag) === true
     if (
-      (!completed && state.civilians?.some((civilian) => civilian.status === 'rescued')) ||
-      completed !== state.units.some((unit) => unit.id === 'backdraft' && unit.identity === mission.lead && unit.powerSpent)
+      (!completed &&
+        state.civilians?.some((civilian) => civilian.status === 'rescued')) ||
+      completed !==
+        state.units.some(
+          (unit) =>
+            unit.id === 'backdraft' &&
+            unit.identity === mission.lead &&
+            unit.powerSpent,
+        )
     )
       return reject('Origin rescue requires a genuine signature intervention.')
   }

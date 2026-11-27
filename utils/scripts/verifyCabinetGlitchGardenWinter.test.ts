@@ -261,7 +261,7 @@ assert.ok(SNOWBALL_HILL.waves.every((w) => w.snowballs > 0))
   assert.equal(g.frostSpriteTimer, FROST_SPRITE_EVERY)
   assert.equal(g.hitFrostSprite(x, y), false, 'one sprite pays only once')
 
-  const [hc, hr] = layoutCells(FROST_FRAME_GREENHOUSE, LAYOUT_HEATER)[0]!
+  const [hc, hr] = layoutCells(FROST_FRAME_GREENHOUSE, LAYOUT_HEATER)[1]!
   g.thawHeater(hc, hr)
   const heated = g.grid.findIndex((lamp, i) => {
     const c = i % COLS

@@ -229,6 +229,7 @@ import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
 import { useIntroStore } from '@/stores/introStore'
 import { retireBootCover } from '@/utils/startupLaunch'
+import { watchLayoutViewportWidth } from '@/utils/layoutViewport'
 import {
   SITE_NAME,
   siteTabTitle,
@@ -325,6 +326,7 @@ const isXl = ref(false)
 
 let mdMedia: MediaQueryList | null = null
 let xlMedia: MediaQueryList | null = null
+let stopLayoutViewport: (() => void) | undefined
 
 /*
  * The narrator is no longer part of the global chrome. It used to render on
@@ -496,6 +498,7 @@ useSeoMeta({
 })
 
 onMounted(async () => {
+  stopLayoutViewport = watchLayoutViewportWidth(window)
   pageStore.initialize()
   await navStore.initialize()
 
@@ -515,6 +518,7 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  stopLayoutViewport?.()
   mdMedia?.removeEventListener('change', syncBreakpoints)
   xlMedia?.removeEventListener('change', syncBreakpoints)
 
@@ -527,8 +531,13 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .kr-shell {
-  width: 100vw;
-  width: 100dvw;
+  width: var(--kr-layout-width, 100vw);
+}
+
+@supports (width: 100dvw) {
+  .kr-shell {
+    width: var(--kr-layout-width, 100dvw);
+  }
 }
 
 .kr-main {

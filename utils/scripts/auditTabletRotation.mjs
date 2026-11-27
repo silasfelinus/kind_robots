@@ -122,6 +122,24 @@ async function main() {
         )
         .catch(() => {})
       await page.waitForTimeout(500)
+      if (viewport.name === 'landscape') {
+        await page.evaluate(() => {
+          document.documentElement.style.setProperty(
+            '--kr-layout-width',
+            '834px',
+          )
+          window.dispatchEvent(new Event('resize'))
+        })
+        await page.waitForFunction(
+          (width) =>
+            Math.abs(
+              (document.querySelector('.kr-shell')?.getBoundingClientRect()
+                .width ?? 0) - width,
+            ) <= 2,
+          viewport.width,
+          { timeout: 5000 },
+        )
+      }
       const metrics = await page.evaluate(measure)
       if (viewport.name === 'portrait') portraitColumns = metrics.columns
       const problems = rotationProblems(metrics, viewport, portraitColumns)

@@ -14,6 +14,7 @@ import {
   KINGDOM_CATALOG,
   TREASURE_BY_RARITY,
   gearBonusFromFlags,
+  kingdomInvestmentGains,
   ownsGear,
   purchaseGearFor,
   purchaseKingdomFor,
@@ -268,6 +269,49 @@ const fresh = (id = 'sv_econ'): RunSave =>
       assert.equal(save.counters.coins, startingCoins - spent)
     }
   }
+}
+
+// A saturated realm must not charge for an investment that does nothing.
+// The preview must match the actual clamped reducer at every health value.
+for (const item of KINGDOM_CATALOG) {
+  for (let health = 0; health <= 100; health++) {
+    const save = fresh()
+    save.counters.coins = item.cost
+    for (const key of Object.keys(item.sliders))
+      save.kingdomHealth[key as keyof RunSave['kingdomHealth']] = health
+    const gains = kingdomInvestmentGains(save, item)
+    const next = purchaseKingdomFor(save, item.id)
+    if (health === 100) {
+      assert.deepEqual(gains, [])
+      assert.equal(next, save)
+      assert.equal(next.counters.coins, item.cost)
+    } else {
+      assert.equal(next.counters.coins, 0)
+      for (const gain of gains) {
+        assert.equal(
+          next.kingdomHealth[gain.key] - save.kingdomHealth[gain.key],
+          gain.value,
+        )
+        assert.equal(save.kingdomHealth[gain.key], health)
+      }
+    }
+  }
+}
+
+{
+  const shrine = KINGDOM_CATALOG.find((item) => item.id === 'lakeside-shrine')!
+  const save = fresh()
+  save.counters.coins = shrine.cost * 2
+  save.kingdomHealth.nature = 100
+  save.kingdomHealth.joy = 99
+  assert.deepEqual(kingdomInvestmentGains(save, shrine), [
+    { key: 'joy', value: 1 },
+  ])
+  const next = purchaseKingdomFor(save, shrine.id)
+  assert.equal(next.kingdomHealth.joy, 100)
+  assert.equal(next.counters.coins, shrine.cost)
+  for (let i = 0; i < 100; i++)
+    assert.equal(purchaseKingdomFor(next, shrine.id), next)
 }
 
 console.log('economy.selftest.ts: all assertions passed')

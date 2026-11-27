@@ -70,12 +70,18 @@
             class="rh-btn"
             :class="{
               'rh-btn--gold':
-                store.canShop && !item.owned && coins >= item.cost,
+                store.canShop &&
+                !item.owned &&
+                !item.atLimit &&
+                coins >= item.cost,
             }"
-            :disabled="!store.canShop || item.owned || coins < item.cost"
+            :disabled="
+              !store.canShop || item.owned || item.atLimit || coins < item.cost
+            "
             @click="buy(item.id)"
           >
             <template v-if="item.owned">Owned</template>
+            <template v-else-if="item.atLimit">At maximum</template>
             <template v-else
               ><RulerHookedGlyph name="coin" />{{ item.cost }}</template
             >
@@ -92,6 +98,7 @@ import { BACKDROPS, shopCandidates } from '~/utils/rulerHooked/artLibrary'
 import {
   GEAR_CATALOG,
   KINGDOM_CATALOG,
+  kingdomInvestmentGains,
   ownsGear,
 } from '~/utils/rulerHooked/economy'
 import type { AxisKey } from '~/types/ruler-hooked'
@@ -108,19 +115,21 @@ const items = computed(() =>
         description: g.description,
         cost: g.cost,
         owned: ownsGear(store.save?.flags ?? {}, g.id),
+        atLimit: false,
         effects: [] as { key: AxisKey; value: number }[],
       }))
-    : KINGDOM_CATALOG.map((k) => ({
-        id: k.id,
-        name: k.name,
-        description: k.description,
-        cost: k.cost,
-        owned: false,
-        effects: Object.entries(k.sliders).map(([key, value]) => ({
-          key: key as AxisKey,
-          value: value ?? 0,
-        })),
-      })),
+    : KINGDOM_CATALOG.map((k) => {
+        const effects = kingdomInvestmentGains(store.save, k)
+        return {
+          id: k.id,
+          name: k.name,
+          description: k.description,
+          cost: k.cost,
+          owned: false,
+          atLimit: effects.length === 0,
+          effects,
+        }
+      }),
 )
 
 function buy(id: string) {

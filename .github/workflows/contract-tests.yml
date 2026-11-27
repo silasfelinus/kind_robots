@@ -567,6 +567,13 @@ jobs:
       - name: Monstrique walk paths, map shortcuts, compact clue and reload repair
         run: npx tsx utils/scripts/verifyMonstriqueNavigation.test.ts
 
+      # Imports the real server maturity predicate; the Prisma client is only
+      # constructed, so a placeholder DATABASE_URL is enough.
+      - name: Monstrique mature and CHILD security matrix
+        run: npx tsx utils/scripts/verifyMonstriqueSecurity.test.ts
+        env:
+          DATABASE_URL: 'mysql://monstrique:monstrique@127.0.0.1:3306/monstrique'
+
   contract_2:
     name: Contract shard 2/4
     runs-on: ubuntu-latest

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
 import { personalCastFor } from '~/utils/everyVillainTactics/personalCasts'
+import { personalScienceNode } from '~/utils/everyVillainTactics/personalScienceScenes'
 import {
   actorAt,
   aliasFor,
@@ -815,11 +816,20 @@ export const useEveryVillainTacticsStore = defineStore(
       perspective: perspective.value,
     }))
     const sceneLines = computed(() =>
-      (sceneWalk.value?.nodes ?? []).map((node: SceneNode) => ({
-        ...node,
-        name: speakerName(node.speaker, state.value),
-        art: speakerArt(node.speaker, node.emotion, state.value),
-      })),
+      (sceneWalk.value?.nodes ?? []).map((source: SceneNode) => {
+        const node = personalScienceNode(
+          source,
+          leadSignature.value,
+          draft.value.id,
+          crossfireActive.value && !previewSceneId.value,
+          state.value,
+        )
+        return {
+          ...node,
+          name: speakerName(node.speaker, state.value),
+          art: speakerArt(node.speaker, node.emotion, state.value),
+        }
+      }),
     )
     const sceneBlocking = computed(
       () =>

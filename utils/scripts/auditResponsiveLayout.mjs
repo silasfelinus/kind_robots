@@ -488,25 +488,30 @@ async function auditRulerOpening(page, vp) {
       )
       .catch(() => {})
     const metrics = await page.evaluate(collect, MIN_FLEX_WIDTH)
-    const visibleArt = await page.locator('.rh-art:visible').evaluateAll((nodes) =>
-      nodes.flatMap((node) => {
-        const bounds = node.getBoundingClientRect()
-        if (
-          bounds.bottom <= 0 ||
-          bounds.top >= window.innerHeight ||
-          bounds.right <= 0 ||
-          bounds.left >= window.innerWidth
-        ) return []
-        const img = node.querySelector('img')
-        return [{
-          source: img?.currentSrc ?? null,
-          alt: img?.alt ?? '',
-          width: img?.naturalWidth ?? 0,
-          height: img?.naturalHeight ?? 0,
-          fallback: !!node.querySelector('.rh-art__wash'),
-        }]
-      }),
-    )
+    const visibleArt = await page
+      .locator('.rh-art:visible')
+      .evaluateAll((nodes) =>
+        nodes.flatMap((node) => {
+          const bounds = node.getBoundingClientRect()
+          if (
+            bounds.bottom <= 0 ||
+            bounds.top >= window.innerHeight ||
+            bounds.right <= 0 ||
+            bounds.left >= window.innerWidth
+          )
+            return []
+          const img = node.querySelector('img')
+          return [
+            {
+              source: img?.currentSrc ?? null,
+              alt: img?.alt ?? '',
+              width: img?.naturalWidth ?? 0,
+              height: img?.naturalHeight ?? 0,
+              fallback: !!node.querySelector('.rh-art__wash'),
+            },
+          ]
+        }),
+      )
     const unpainted = visibleArt.filter(
       (art) => art.fallback || !art.width || !art.height,
     )
@@ -600,7 +605,11 @@ async function auditRulerOpening(page, vp) {
     })
     let caught = false
     let petitionSeen = false
-    for (let attempt = 0; attempt < 6 && (!caught || !petitionSeen); attempt++) {
+    for (
+      let attempt = 0;
+      attempt < 6 && (!caught || !petitionSeen);
+      attempt++
+    ) {
       if (attempt > 0) {
         const crierButton = page
           .locator('.rh-crier')
@@ -643,10 +652,7 @@ async function auditRulerOpening(page, vp) {
       }
       await reveal.waitFor({ state: 'visible', timeout: 15000 })
       const landed = await lake.locator('.rh-reveal').isVisible()
-      await stage(
-        `${landed ? 'catch' : 'escape'}-${attempt + 1}`,
-        reveal,
-      )
+      await stage(`${landed ? 'catch' : 'escape'}-${attempt + 1}`, reveal)
       caught ||= landed
       const answer = reveal.getByRole('button', { name: 'Answer the court' })
       if (await answer.isVisible()) {
@@ -670,7 +676,8 @@ async function auditRulerOpening(page, vp) {
       }
     }
     if (!caught) throw new Error('No landed catch after six guided attempts')
-    if (!petitionSeen) throw new Error('No court petition witnessed after six attempts')
+    if (!petitionSeen)
+      throw new Error('No court petition witnessed after six attempts')
 
     async function tab(id, label, name = id) {
       await page.getByTestId(`rh-tab-${id}`).click()
@@ -707,7 +714,9 @@ for (const vp of [
   const viewportRoutes =
     vp.name === EXTRA_TABLET_VIEWPORT.name
       ? ROUTES.filter((route) => EXTRA_TABLET_ROUTES.has(route))
-      : [RULER_LANDSCAPE_VIEWPORT.name, RULER_SHORT_VIEWPORT.name].includes(vp.name)
+      : [RULER_LANDSCAPE_VIEWPORT.name, RULER_SHORT_VIEWPORT.name].includes(
+            vp.name,
+          )
         ? ROUTES.filter((route) => route === '/play/ruler-hooked')
         : ROUTES
   if (!viewportRoutes.length) continue

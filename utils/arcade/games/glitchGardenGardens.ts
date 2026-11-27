@@ -82,10 +82,7 @@ export type GardenWave = {
 }
 
 export type BossId =
-  | 'queen-wiggle'
-  | 'mow-bot'
-  | 'gourd-hydra'
-  | 'frost-millipede'
+  'queen-wiggle' | 'mow-bot' | 'gourd-hydra' | 'frost-millipede'
 
 export type Boss = {
   id: BossId

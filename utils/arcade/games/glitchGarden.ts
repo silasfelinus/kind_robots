@@ -2863,8 +2863,7 @@ class GlitchGarden implements ArcadeGameInstance {
     const segment = this.frostMillipede
       .filter((part) => !part.thawed)
       .sort(
-        (a, b) =>
-          Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y),
+        (a, b) => Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y),
       )[0]
     if (!segment) return
     segment.thawed = true
@@ -2874,8 +2873,7 @@ class GlitchGarden implements ArcadeGameInstance {
   }
 
   private hitFrostMillipede(x: number, y: number): boolean {
-    if (this.boss?.id !== 'frost-millipede' || this.boss.defeated)
-      return false
+    if (this.boss?.id !== 'frost-millipede' || this.boss.defeated) return false
     const part = this.frostMillipede.find(
       (segment) => Math.hypot(segment.x - x, segment.y - y) <= 6,
     )
@@ -3417,8 +3415,7 @@ class GlitchGarden implements ArcadeGameInstance {
       const part = this.frostMillipede.find((s) => s.thawed)
       const heater = layoutCells(this.garden, LAYOUT_HEATER)[1]
       if (part) target = part
-      else if (heater)
-        target = { x: heater[0] * CELL + CELL / 2, y: 0 }
+      else if (heater) target = { x: heater[0] * CELL + CELL / 2, y: 0 }
     }
     if (target) {
       if (target.x < this.px - 2) held.left = true

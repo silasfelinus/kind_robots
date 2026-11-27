@@ -604,7 +604,13 @@ console.log(
 
 // Every canonical origin gets a legal full-term patrol trace. No synthetic
 // day, roster, opponent, or grade overrides: begin at the title's new game.
-const identityGrades = ['success', 'mixed', 'failure', 'refusal', 'secret'] as const
+const identityGrades = [
+  'success',
+  'mixed',
+  'failure',
+  'refusal',
+  'secret',
+] as const
 assert.deepEqual(
   Object.keys(PATROL_IDENTITY_AFTERMATH).sort(),
   IDENTITY_ARCS.map((identity) => identity.signature).sort(),
@@ -674,7 +680,10 @@ for (const [index, identity] of IDENTITY_ARCS.entries()) {
     const memory = run.patrolHistory?.at(-1)
     if (day < 29 && memory?.day === day && memory.outcome) {
       const line = patrolIdentityAftermath(signature, memory.outcome)
-      assert.ok(run.scene.includes(line), `${signature} ${memory.outcome} morning`)
+      assert.ok(
+        run.scene.includes(line),
+        `${signature} ${memory.outcome} morning`,
+      )
       witnessedIdentityMornings.add(signature)
       roundTrip(run)
     }

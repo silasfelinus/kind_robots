@@ -22,6 +22,11 @@ import {
 } from '../everyVillainTactics/personalCasts'
 import { IDENTITY_ARCS, identityFor } from '../cometAcademy/identityArcs'
 import {
+  ACCIDENT_SCIENCE_LINES,
+  personalScienceNode,
+} from '../everyVillainTactics/personalScienceScenes'
+import { SCIENCE_WING_SCRIPT } from '../everyVillainTactics/scienceWingScript'
+import {
   PERSONAL_SUPPORT_VOICES,
   personalSupportVoice,
 } from '../everyVillainTactics/personalSupportVoices'
@@ -1437,3 +1442,43 @@ for (const person of IDENTITY_ARCS) {
 }
 assert.equal(supportLines.size, 144)
 assert.equal(personalSupportVoice('constructor'), undefined)
+
+// The personalized dialogue changes presentation, not saved scene graphs or
+// their rescue/evidence decisions. Both allegiances keep the actual cast.
+const scienceNodes = SCIENCE_WING_SCRIPT.scenes.flatMap((scene) => scene.nodes)
+const scienceVoices = new Set<string>()
+assert.equal(Object.keys(ACCIDENT_SCIENCE_LINES).length, 8)
+for (const lead of Object.keys(ACCIDENT_SCIENCE_LINES)) {
+  for (const perspective of ['hero', 'villain'] as const) {
+    const state = trainingState(41, clonePreset('science-lab'), {
+      lead,
+      foil: personalCastFor(lead)!.foil,
+      perspective,
+      crossfireCast: 2,
+    })
+    const before = JSON.stringify(state)
+    let changed = 0
+    for (const node of scienceNodes) {
+      const line = personalScienceNode(node, lead, 'science-lab', true, state)
+      assert.deepEqual(line.choices, node.choices)
+      assert.deepEqual(line.branch, node.branch)
+      assert.equal(line.next, node.next)
+      assert.equal(line.id, node.id)
+      if (line !== node) {
+        changed++
+        assert.ok(line.text.length > 10 && line.text.length <= 400)
+        assert.notEqual(line.text, node.text)
+        assert.ok(state.units.some((u) => u.id === line.speaker && u.team === 'squad'))
+        scienceVoices.add(line.text)
+      }
+      assert.equal(personalScienceNode(node, lead, 'science-lab', false, state), node)
+      assert.equal(personalScienceNode(node, lead, 'crosswalk-crisis', true, state), node)
+      assert.equal(personalScienceNode(node, 'constructor', 'science-lab', true, state), node)
+      assert.equal(personalScienceNode(node, lead, 'science-lab', true, { ...state, crossfireCast: 1 }), node)
+    }
+    assert.equal(changed, 11)
+    assert.equal(JSON.stringify(state), before)
+  }
+}
+assert.equal(scienceVoices.size, 88)
+assert.ok(store.includes('personalScienceNode('))

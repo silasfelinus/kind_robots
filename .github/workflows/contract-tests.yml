@@ -577,6 +577,9 @@ jobs:
       - name: Monstrique account saves, edition slots and sync choice
         run: npx tsx utils/scripts/verifyMonstriqueAccountSave.test.ts
 
+      - name: Monstrique original score, cues and volume controls
+        run: npx tsx utils/scripts/verifyMonstriqueSound.test.ts
+
   contract_2:
     name: Contract shard 2/4
     runs-on: ubuntu-latest

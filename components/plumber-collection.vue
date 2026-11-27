@@ -8,6 +8,7 @@
       <p class="plumber-album-summary">
         {{ clearedNodes.size }} cleared paths · {{ album.gears.length }} /
         {{ GEAR_COURSE_CODES.length }} Golden Gears ·
+        {{ album.pearls?.length ?? 0 }} Wild Pearls ·
         {{ album.heroines.length }} / 8 heroines
       </p>
       <div class="plumber-album-grid" aria-label="World medals">

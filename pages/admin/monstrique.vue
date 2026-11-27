@@ -78,9 +78,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useMonstressConventionStore } from '~/stores/monstressConventionStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
+import { useMonstriqueSoundStore } from '~/stores/monstriqueSoundStore'
 import { useUserStore } from '~/stores/userStore'
 import { monstrexxKitId } from '~/utils/monstressConvention/prologue'
 import { MONSTRESS_CONVENTION } from '~/utils/playbookKit/games/monstressConvention'
@@ -102,6 +103,9 @@ const ownedSpec = computed(() => ({
   ...MONSTRESS_CONVENTION,
   id: monstrexxKitId(user.user?.id ?? 0),
 }))
+
+const sound = useMonstriqueSoundStore()
+onBeforeUnmount(() => sound.stop())
 
 onMounted(() => {
   watch(

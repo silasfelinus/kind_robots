@@ -93,6 +93,13 @@ export const PLUMBER_WORLD_MUSIC: readonly MusicLoop[] = SCORES.map((each) =>
   score(each),
 )
 
+export const PLUMBER_WILDWATER_MUSIC: MusicLoop = score({
+  bpm: 144,
+  melody: 'F#5 A5 B5 A5 F#5 E5 D5 E5 A5 B5 D6 B5 A5 F#5 E5 D5',
+  bass: 'D3 A2 B2 G2',
+  harmony: 'D4 F#4 G4 A4',
+})
+
 export const PLUMBER_BOSS_MUSIC: MusicLoop = score(
   {
     bpm: 164,

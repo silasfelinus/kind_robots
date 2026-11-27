@@ -53,12 +53,20 @@ export type MazeRoom = {
   drip: 'left' | 'right'
 }
 
+export type WildwaterDef = {
+  name: string
+  tap: { col: number; row: number }
+  pearl: { col: number; row: number }
+  steps: { row: number; from: number; to: number }[]
+}
+
 export type StageDef = {
   code: string
   name: string
   rows: string[]
   secretExit?: { col: number; row: number }
   gurgleBarrel?: { col: number; row: number }
+  wildwater?: WildwaterDef
   /** Connected Hush House rooms; their rising drips identify the forward door. */
   mazeRooms?: readonly MazeRoom[]
   /** A forced-scroll stretch, in tile columns, with speed in pixels per tick. */
@@ -76,6 +84,19 @@ export const WORLD_ONE: StageDef[] = [
   {
     code: '1-1',
     name: 'Rainy Courtyard',
+    wildwater: {
+      name: 'Rain Stands Still',
+      tap: { col: 29, row: 8 },
+      pearl: { col: 35, row: 3 },
+      steps: [
+        { row: 18, from: 6, to: 9 },
+        { row: 15, from: 9, to: 12 },
+        { row: 12, from: 12, to: 15 },
+        { row: 9, from: 15, to: 18 },
+        { row: 6, from: 18, to: 21 },
+        { row: 3, from: 21, to: 23 },
+      ],
+    },
     switchBlocks: [
       { chapel: '1-c', row: 18, from: 10, to: 13 },
       { chapel: '1-c', row: 15, from: 19, to: 23 },

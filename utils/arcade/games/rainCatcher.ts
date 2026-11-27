@@ -1715,4 +1715,3 @@ const rainCatcher: ArcadeGameModule = {
 
 export const create = rainCatcher.create
 export default rainCatcher
-

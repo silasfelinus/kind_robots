@@ -190,11 +190,14 @@ for (const seed of [5, 15, 42]) {
     if (input.pressed.a) shots++
     game.update(input)
   }
-  assert.equal(game.level, 6, `seed ${seed}: clear all five Orchard Hills waves`)
+  assert.equal(
+    game.level,
+    6,
+    `seed ${seed}: clear all five Orchard Hills waves`,
+  )
   assert.ok(shots > 0 && game.score > 0, `seed ${seed}: active scoring run`)
 }
 
 console.log(
   'Rain Catcher: bed growth, barrels, petal chains, snowballs and pilot',
 )
-

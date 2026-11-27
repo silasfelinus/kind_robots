@@ -39,4 +39,3 @@ assert.equal(music.length, 16, 'loop spans two bars')
 assert.ok(music.notes.some((note) => note.steps > 1))
 assert.ok(music.notes.some((note) => note.noise))
 console.log('Rain Catcher: 30 authored forecasts and original loop')
-

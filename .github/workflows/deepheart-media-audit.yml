@@ -1,0 +1,47 @@
+name: Deepheart Live Media Audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deepheart-media-audit.yml'
+      - 'utils/deepheart/renderedArt.ts'
+      - 'utils/scripts/verifyDeepheart.test.ts'
+      - 'server/api/deepheart/art/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deepheart-live-media
+  cancel-in-progress: false
+
+jobs:
+  media:
+    name: Authenticated artwork delivery and privacy
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Confirm production responds
+        run: curl --fail --silent --show-error --max-time 20 https://kindrobots.org/api/health/database > /dev/null
+
+      - name: Verify every mapped normal Deepheart image
+        env:
+          KR_API_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+        run: npx --no-install tsx utils/scripts/verifyDeepheart.test.ts --live-media

@@ -5,10 +5,7 @@
 // library's fallback chains. Run via `npx tsx`, like the other selftests.
 
 import assert from 'node:assert/strict'
-import {
-  newRoyalPadMemory,
-  readRoyalPad,
-} from '~/utils/rulerHooked/gamepad'
+import { newRoyalPadMemory, readRoyalPad } from '~/utils/rulerHooked/gamepad'
 import {
   mergeRoyalBackups,
   parseRoyalBackup,
@@ -106,9 +103,7 @@ const fresh = (seed = 'console-seed'): RunSave =>
   assert.deepEqual(readRoyalPad(pad([0], 1), memory, 160, false), [])
   assert.deepEqual(readRoyalPad(pad([0], 1), memory, 176, true), [])
   assert.deepEqual(readRoyalPad(pad([], 1), memory, 192, true), [])
-  assert.deepEqual(readRoyalPad(pad([0], 1), memory, 208, true), [
-    'confirm',
-  ])
+  assert.deepEqual(readRoyalPad(pad([0], 1), memory, 208, true), ['confirm'])
 }
 
 // --- daily proclamations ----------------------------------------------------

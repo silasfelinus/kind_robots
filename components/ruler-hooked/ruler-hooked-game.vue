@@ -193,10 +193,7 @@ import {
 } from '~/utils/rulerHooked/console'
 import { FIGHT_PROMPT, fightAim } from '~/utils/rulerHooked/timingBar'
 import { isTextEntry, type ConsoleCommand } from '~/utils/consoleInput'
-import {
-  newRoyalPadMemory,
-  readRoyalPad,
-} from '~/utils/rulerHooked/gamepad'
+import { newRoyalPadMemory, readRoyalPad } from '~/utils/rulerHooked/gamepad'
 import {
   currentLesson,
   lessonsRemaining,
@@ -487,8 +484,7 @@ function pollPads(now: number) {
   const gamepad =
     Array.from(navigator.getGamepads?.() ?? []).find((p) => p?.connected) ??
     null
-  const active =
-    !!store.save && screen.value !== 'opening' && !document.hidden
+  const active = !!store.save && screen.value !== 'opening' && !document.hidden
   for (const command of readRoyalPad(gamepad, pad, now, active)) run(command)
   padFrame = requestAnimationFrame(pollPads)
 }

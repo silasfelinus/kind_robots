@@ -542,6 +542,9 @@ class RainCatcher implements ArcadeGameInstance {
   private held = 0
   /** Each bed's health: BED_HEALTH growing, 1 drooping, 0 wilted. */
   private beds: number[] = BEDS.map(() => BED_HEALTH)
+  private barrelSites: readonly number[] = BARRELS
+  private filledBarrels = new Set<number>()
+  private rainIndex = 0
   private barrels = BARRELS.map(() => 0)
   private chain = 0
   private forecast: RainWave = rainWaveForLevel(1)
@@ -594,7 +597,11 @@ class RainCatcher implements ArcadeGameInstance {
     this.level = wave
     this.forecast = rainWaveForLevel(wave)
     this.chain = 0
-    this.barrels = BARRELS.map(() => 0)
+    this.barrelSites =
+      this.forecast.garden === 'Terrace Paddies' ? [70, 140, 250] : BARRELS
+    this.filledBarrels.clear()
+    this.rainIndex = 0
+    this.barrels = this.barrelSites.map(() => 0)
     this.ammo = LAUNCHERS.map((x) => {
       const fruit = BEDS.some(
         (bed, index) =>
@@ -616,11 +623,15 @@ class RainCatcher implements ArcadeGameInstance {
     this.volleyTimer = 30
     this.ready = WAVE_READY_TICKS
     this.banner = {
-      text: `WAVE ${wave}`,
+      text: this.forecast.localWave === 3 ? this.forecast.name : `WAVE ${wave}`,
       sub:
-        this.multiplier > 1
-          ? `${this.multiplier}X POINTS • LET RAIN FALL`
-          : 'CATCH HAIL • LET RAIN FALL',
+        this.forecast.name === 'FIRST BLOOM'
+          ? 'GROW SIX BEDS TO BUD'
+          : this.forecast.name === 'FILL THE PADDIES'
+            ? 'FILL EACH OF THREE BARRELS'
+            : this.multiplier > 1
+              ? `${this.multiplier}X POINTS • LET RAIN FALL`
+              : 'CATCH HAIL • LET RAIN FALL',
       ticks: WAVE_READY_TICKS,
     }
   }
@@ -640,6 +651,20 @@ class RainCatcher implements ArcadeGameInstance {
   }
 
   /** A hailstone (or lightning sprite) falling from (x0, y0) at something on the ground. */
+  private terraceHeight(x: number) {
+    if (this.forecast.garden !== 'Terrace Paddies') return 0
+    const index = BEDS.findIndex((bed) => Math.abs(x - bed) < 14)
+    return index < 0 ? 0 : (1 + Math.floor(index / 2)) * 5
+  }
+
+  private rainTarget() {
+    if (this.forecast.name === 'FIRST BLOOM')
+      return BEDS[this.rainIndex++ % BEDS.length]!
+    if (this.forecast.name === 'FILL THE PADDIES')
+      return this.barrelSites[this.rainIndex++ % this.barrelSites.length]!
+    return BEDS[Math.floor(this.rng() * BEDS.length)]!
+  }
+
   private makeHail(
     x0: number,
     y0: number,
@@ -648,8 +673,9 @@ class RainCatcher implements ArcadeGameInstance {
   ): Hail {
     const t =
       kind === 'rain'
-        ? { x: BEDS[Math.floor(this.rng() * BEDS.length)]!, y: GROUND - 4 }
+        ? { x: this.rainTarget(), y: GROUND - 4 }
         : this.pickTarget()
+    t.y -= this.terraceHeight(t.x)
     const speed =
       levelCurve(this.level, RAIN_CURVES.speed) * (sprite ? 1.25 : 1)
     const dx = t.x - x0
@@ -877,20 +903,22 @@ class RainCatcher implements ArcadeGameInstance {
     if (h.kind === 'rain') {
       h.vx = 0
       h.vy = 0
-      const barrel = BARRELS.findIndex(
+      const barrel = this.barrelSites.findIndex(
         (x) => Math.abs(x - bloom.x) < 18 && bloom.y > GROUND - 55,
       )
       if (barrel >= 0) {
         this.barrels[barrel]!++
         this.floaters.push({
-          x: BARRELS[barrel]!,
+          x: this.barrelSites[barrel]!,
           y: GROUND - 25,
           text: 'BARREL +1',
           life: 50,
         })
         if (this.barrels[barrel]! >= BARREL_CAPACITY) {
           this.barrels[barrel] = 0
-          const launcher = barrel === 0 ? 0 : 2
+          this.filledBarrels.add(barrel)
+          const launcher =
+            this.barrelSites.length === 3 ? barrel : barrel === 0 ? 0 : 2
           this.ammo[launcher] = Math.min(AMMO + 3, this.ammo[launcher]! + 5)
           this.soaked[launcher] = false
           this.sound.play('extra')
@@ -977,7 +1005,7 @@ class RainCatcher implements ArcadeGameInstance {
       if (h.y >= h.ty) {
         if (h.kind === 'sleet' && h.skidTicks === 0) {
           h.skidTicks = 25
-          h.y = GROUND - 5
+          h.y = h.ty - 1
           const nearest = BEDS.reduce((left, right) =>
             Math.abs(left - h.x) < Math.abs(right - h.x) ? left : right,
           )
@@ -1049,7 +1077,15 @@ class RainCatcher implements ArcadeGameInstance {
   private waveClear() {
     const umbrellas = this.ammo.reduce((sum, a) => sum + a, 0)
     const beds = this.lives
-    const bonus = (umbrellas * AMMO_BONUS + beds * BED_BONUS) * this.multiplier
+    const specialClear =
+      (this.forecast.name === 'FIRST BLOOM' &&
+        this.beds.every((stage) => stage >= 3)) ||
+      (this.forecast.name === 'FILL THE PADDIES' &&
+        this.filledBarrels.size === 3)
+    const gardenBonus = specialClear ? 1000 : 0
+    const bonus =
+      gardenBonus +
+      (umbrellas * AMMO_BONUS + beds * BED_BONUS) * this.multiplier
     this.addScore(bonus, W / 2, 120)
     // Growth persists across waves; only earned bonus beds regrow wilted beds.
     let regrown = 0
@@ -1074,7 +1110,7 @@ class RainCatcher implements ArcadeGameInstance {
     })
     this.clear = WAVE_CLEAR_TICKS
     this.banner = {
-      text: 'WAVE CLEAR!',
+      text: specialClear ? this.forecast.name + ' CLEAR!' : 'WAVE CLEAR!',
       sub: regrown ? `BONUS ${bonus}  A BED GROWS BACK` : `BONUS ${bonus}`,
       ticks: WAVE_CLEAR_TICKS,
     }
@@ -1328,8 +1364,20 @@ class RainCatcher implements ArcadeGameInstance {
         bevel(k, x - 3, GROUND + 15, 7, 4, RAMPS.steel, { depth: 1 })
       }
     })
-    BEDS.forEach((x, i) => this.renderBed(g, x, i))
-    BARRELS.forEach((x, i) => this.renderBarrel(g, x, i))
+    BEDS.forEach((x, i) => {
+      const height = this.terraceHeight(x)
+      if (height > 0) {
+        g.fillStyle = RAMPS.earth[2]
+        g.fillRect(x - 15, GROUND - height, 30, height)
+        g.fillStyle = RAMPS.water[3]
+        g.fillRect(x - 15, GROUND - height, 30, 2)
+      }
+      g.save()
+      g.translate(0, -height)
+      this.renderBed(g, x, i)
+      g.restore()
+    })
+    this.barrelSites.forEach((x, i) => this.renderBarrel(g, x, i))
     LAUNCHERS.forEach((x, i) => this.renderLauncher(g, x, i))
   }
 

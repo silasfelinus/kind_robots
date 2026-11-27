@@ -591,6 +591,7 @@ async function auditRulerOpening(page, vp) {
       await playfield.waitFor({ state: 'visible', timeout: 15000 })
       for (let step = 0; step < 40 && (await playfield.isVisible()); step++) {
         const previous = await beat.textContent()
+        await page.waitForTimeout(180)
         // Playwright's real press/tap is scheduled when the displayed marker
         // is within the middle of the target. The game may still escape;
         // retries are bounded and every attempt uses the normal UI.
@@ -610,6 +611,7 @@ async function auditRulerOpening(page, vp) {
           { timeout: 10000, polling: 'raf' },
         )
         if (vp.mobile) await playfield.tap()
+        else if (vp.name === 'short-wide') await playfield.click()
         else await playfield.press('Space')
         await page.waitForFunction(
           (prior) =>
@@ -632,9 +634,20 @@ async function auditRulerOpening(page, vp) {
         const court = page.getByLabel('Royal Court', { exact: true })
         await stage('petition', court.getByTestId('rh-edict'))
         petitionSeen = true
-        break
+        const choices = court.locator('button[data-testid^="rh-choice-"]')
+        await choices.first().click()
+        await court.getByTestId('rh-edict').waitFor({
+          state: 'hidden',
+          timeout: 15000,
+        })
+        await stage('decree-resolved', court)
+        if (caught) break
+        await page.getByTestId('rh-tab-lake').click()
+      } else {
+        await reveal
+          .getByRole('button', { name: /^(Cast again|Try again)$/ })
+          .click()
       }
-      await reveal.getByRole('button', { name: /^(Cast again|Try again)$/ }).click()
     }
     if (!caught) throw new Error('No landed catch after six guided attempts')
     if (!petitionSeen) throw new Error('No court petition witnessed after six attempts')

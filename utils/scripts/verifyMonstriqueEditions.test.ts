@@ -53,8 +53,11 @@ const front = source('components/monstrexx/monstrexx-front.vue')
 const archive = source('components/monstrique/monstrique-album-archive.vue')
 
 assert.match(api, /getOptionalApiUser\(event\)/)
-assert.match(api, /auth\?\.kind === 'jwt'/)
-assert.match(api, /viewerShowsMature\(auth\?\.user\)/)
+assert.match(api, /audience: monstriqueAudienceFor\(auth\)/)
+assert.match(
+  source('server/utils/monstriqueAccess.ts'),
+  /auth\?\.kind === 'jwt' && viewerShowsMature\(auth\.user\)/,
+)
 assert.match(api, /Cache-Control', 'private, no-store'/)
 assert.doesNotMatch(api, /getQuery\(|showMature=true/)
 assert.match(launcher, /channelKey: arcade/)

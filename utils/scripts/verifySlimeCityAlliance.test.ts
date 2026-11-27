@@ -797,3 +797,10 @@ console.log('Slime City ALLIANCE: decks, powers, replay, balance and saves OK')
   )
   assert.match(collection, /\.sc-collection-grid \{\s*isolation: isolate;/)
 }
+
+// Deck editing and browsing the entire collection are distinct, reachable views.
+assert.match(page, /data-testid="slime-collection-deck"/)
+assert.match(page, /data-testid="slime-collection-gallery"/)
+assert.match(page, /data-testid="slime-card-gallery"/)
+assert.match(page, /SELECTED DECK · RENAME/)
+assert.match(page, /grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/)

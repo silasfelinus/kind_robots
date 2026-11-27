@@ -28,7 +28,12 @@ import {
   stepPvp,
 } from '../slimeCity/pvp'
 import { cardById } from '../slimeCity/prototypes'
-import { allianceStarter, soloStarter } from '../slimeCity/alliance'
+import {
+  allianceStarter,
+  soloStarter,
+  STARTER_CARD_IDS,
+  STARTER_MATCHUPS,
+} from '../slimeCity/alliance'
 import {
   CLASH_DECK_SIZE,
   canClashPlay,
@@ -1115,6 +1120,29 @@ assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
   assert.deepEqual(replayPvp('catgirls', 'ironjaw', 42, [], rules), state)
 }
 
+// Every curated Alliance starter is legal for a fresh account and is dealt
+// unchanged into a human duel.
+{
+  assert.equal(STARTER_MATCHUPS.length, 6)
+  assert.equal(new Set(STARTER_MATCHUPS.map(([general]) => general)).size, 6)
+  for (const [general, ally] of STARTER_MATCHUPS) {
+    const deck = allianceStarter(general, ally)
+    assert.equal(deck.cards.length, CLASH_DECK_SIZE)
+    assert.ok(deck.cards.every((id) => STARTER_CARD_IDS.has(id)))
+    const state = newPvpGame(
+      general,
+      ally,
+      42,
+      pvpRules({ deckSetups: { player: { format: 'alliance', deck } } }),
+    )
+    assert.equal(state.allies?.player, ally)
+    assert.deepEqual(
+      [...state.decks.player, ...state.hands.player].sort(),
+      [...deck.cards].sort(),
+    )
+  }
+}
+
 // Every human duel entry point uses the same four-way deck picker.
 {
   const picker = readFileSync(
@@ -1139,6 +1167,10 @@ assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
     /mode === 'faction-classic'\)\s*return \{ format: 'solo', cards: soloStarter\(team\) \}/,
   )
   assert.match(store, /allianceStarter\(team, ally\)/)
+  assert.match(picker, /lab\.starterDecks\.find/)
+  assert.match(picker, /slime-duel-classic-starter/)
+  assert.match(picker, /classicDeck\.value\?\.ally/)
+  assert.match(picker, /deck\.cards\.every\(lab\.isCardUnlocked\)/)
 }
 
 // Turn email is explicit opt-in, authenticated, verified and sent after commit.

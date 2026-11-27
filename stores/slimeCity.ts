@@ -163,6 +163,7 @@ import {
 } from '../utils/slimeCity/previewGate'
 import {
   ALLIANCE_DECK_SIZE,
+  STARTER_MATCHUPS,
   SOLO_DECK_SIZE,
   STARTER_CARD_IDS,
   allianceCardPool,
@@ -289,15 +290,6 @@ function rollSeed(): number {
 }
 
 export type DeckFormat = 'solo' | 'alliance'
-/** Prebuilt Alliance pairings: each crew leads once. */
-export const STARTER_MATCHUPS: [TeamId, TeamId][] = [
-  ['catgirls', 'bloodfairies'],
-  ['bloodfairies', 'riot'],
-  ['ironjaw', 'catgirls'],
-  ['riot', 'ironjaw'],
-  ['undertow', 'exchange'],
-  ['exchange', 'bloodfairies'],
-]
 export type ClashKind =
   'practice' | 'reward' | 'rival' | 'contract' | 'campaign' | 'tower'
 export interface ClashLaunch {
@@ -1703,7 +1695,17 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         ? sameCards(currentSolo.value, soloStarter(activeTeam.value))
           ? 'solo-' + activeTeam.value
           : null
-        : 'mix-' + activeTeam.value + '-' + currentAlliance.value.ally,
+        : STARTER_MATCHUPS.some(
+              ([general, ally]) =>
+                general === activeTeam.value &&
+                ally === currentAlliance.value.ally &&
+                sameCards(
+                  currentAlliance.value.cards,
+                  allianceStarter(general, ally).cards,
+                ),
+            )
+          ? 'mix-' + activeTeam.value + '-' + currentAlliance.value.ally
+          : null,
   )
   /**
    * Silas, 2026-11-11 PT: "Still not seeing how to create/edit solo decks

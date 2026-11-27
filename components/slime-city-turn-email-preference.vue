@@ -20,7 +20,6 @@
       <NuxtLink to="/account">Verify your email</NuxtLink> to enable
       notifications.
     </small>
-    <small v-else>Optional · one email per event.</small>
   </div>
 </template>
 

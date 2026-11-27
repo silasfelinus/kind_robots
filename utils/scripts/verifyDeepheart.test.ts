@@ -76,7 +76,7 @@ import {
   pairKey,
 } from '../deepheart/roster'
 import { DEEPHEART_ART_IDS, deepheartArtSrc } from '../deepheart/renderedArt'
-import { enemyArt } from '../deepheart/art'
+import { encounterArt, enemyArt } from '../deepheart/art'
 import {
   DEEPHEART_APPROVED_ART_MODELS,
   DEEPHEART_STYLE_DESIGNER,
@@ -210,6 +210,16 @@ for (const [enemy, key] of [
   assert.equal(enemyArt(enemy)?.src, deepheartArtSrc(key))
 }
 assert.equal(enemyArt('not-an-enemy'), undefined)
+const nonCourtEvents = [
+  ...EVENTS.filter((event) => !event.id.startsWith('fairy-')),
+  ...UNDERCITY_EVENTS,
+]
+const nonCourtArt = new Map(
+  nonCourtEvents.map((event) => [event.id, encounterArt(event)?.src]),
+)
+assert.equal(nonCourtArt.size, 21)
+assert.ok([...nonCourtArt.values()].every(Boolean))
+assert.equal(new Set(nonCourtArt.values()).size, 21)
 assert.ok(deepheartArtSrc('premise'), 'title art is mapped')
 assert.ok(deepheartArtSrc('room:fight'), 'fight art is mapped')
 assert.ok(deepheartArtSrc('ending:delver'), 'ending art is mapped')

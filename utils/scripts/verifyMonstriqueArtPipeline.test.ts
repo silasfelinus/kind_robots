@@ -296,7 +296,10 @@ const repoFile = (path: string) =>
   readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
 const splashRoute = repoFile('server/api/monstrique/splash.get.ts')
 assert.match(splashRoute, /'Cache-Control', 'private, no-store'/)
-assert.match(splashRoute, /monstriqueAudienceFor\(auth\) === 'mature'/)
+assert.match(
+  splashRoute,
+  /auth\?\.kind === 'jwt' && viewerShowsMature\(auth\?\.user\)/,
+)
 assert.match(splashRoute, /isMature: true/)
 assert.match(
   repoFile('server/utils/monstriqueSplash.ts'),

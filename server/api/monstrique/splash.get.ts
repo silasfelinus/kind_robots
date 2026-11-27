@@ -1,7 +1,7 @@
 import { defineEventHandler, setHeader } from 'h3'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
+import { viewerShowsMature } from '~/server/utils/contentAccess'
 import { errorHandler } from '~/server/utils/error'
-import { monstriqueAudienceFor } from '~/server/utils/monstriqueAccess'
 import { MONSTRIQUE_MATURE_SPLASH } from '~/server/utils/monstriqueSplash'
 import prisma from '~/server/utils/prisma'
 
@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   setHeader(event, 'Vary', 'Authorization')
   try {
     const auth = await getOptionalApiUser(event)
-    const mature = monstriqueAudienceFor(auth) === 'mature'
+    const mature = auth?.kind === 'jwt' && viewerShowsMature(auth?.user)
     const ids = [MONSTRIQUE_MATURE_SPLASH.wide, MONSTRIQUE_MATURE_SPLASH.tall]
     if (!mature || ids.some((id) => id === null))
       return { success: true, data: { splash: null as Splash | null } }

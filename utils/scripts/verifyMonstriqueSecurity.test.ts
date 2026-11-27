@@ -77,19 +77,24 @@ assert.equal(monstriqueAudienceFor(undefined), 'general')
 assert.equal(monstriqueAudienceFor({ kind: 'jwt', user: null }), 'general')
 
 // Public routes: the audience comes only from the verified session, never from
-// the request, and nothing is cached across viewers.
-for (const route of [
-  'server/api/monstrique/audience.get.ts',
-  'server/api/monstrique/splash.get.ts',
-]) {
+// the request, and nothing is cached across viewers. The splash route keeps
+// the content-visibility audit's recognised predicate inline; it must stay the
+// same decision as monstriqueAudienceFor.
+const decisions: Record<string, RegExp> = {
+  'server/api/monstrique/audience.get.ts':
+    /audience: monstriqueAudienceFor\(auth\)/,
+  'server/api/monstrique/splash.get.ts':
+    /const mature = auth\?\.kind === 'jwt' && viewerShowsMature\(auth\?\.user\)/,
+}
+for (const [route, decision] of Object.entries(decisions)) {
   const source = read(route)
   assert.match(source, /getOptionalApiUser\(event\)/, route)
-  assert.match(source, /monstriqueAudienceFor\(auth\)/, route)
+  assert.match(source, decision, route)
   assert.match(source, /'Cache-Control', 'private, no-store'/, route)
   assert.match(source, /'Vary', 'Authorization'/, route)
   assert.doesNotMatch(
     source,
-    /getQuery|readBody|getRouterParam|showMature|viewerShowsMature/,
+    /getQuery|readBody|getRouterParam|showMature\b(?!\()/,
     route + ' cannot be steered by the request',
   )
 }

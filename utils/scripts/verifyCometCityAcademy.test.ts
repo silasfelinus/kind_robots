@@ -1156,6 +1156,33 @@ const finaleSocial = finishAcademy(
 assert.ok(finaleSocial.scene.includes('Nix Venn coordinates the rescue line'))
 assert.ok(finaleSocial.scene.includes('Nix Venn meets you after the alarms'))
 assert.ok(finaleSocial.scene.includes('your sidekick'))
+for (const status of ['active', 'isolated', 'reconciled'] as const) {
+  const bondedFinale: AcademyRun = {
+    ...socialRun,
+    day: 30,
+    phase: 'finale',
+    betrayal: { day: 20, person: 'nix', status },
+  }
+  const before = JSON.stringify(bondedFinale.relationships)
+  const scene = finishAcademy(bondedFinale, 'protect').scene
+  assert.equal(
+    scene.includes('Nix Venn coordinates the rescue line'),
+    status === 'reconciled',
+  )
+  assert.equal(
+    scene.includes('Nix Venn meets you after the alarms'),
+    status === 'reconciled',
+  )
+  assert.equal(
+    scene.includes('Nix Venn carries the agreed signal'),
+    status === 'reconciled',
+  )
+  assert.equal(
+    scene.includes('Your former commitments cannot resume'),
+    status !== 'reconciled',
+  )
+  assert.equal(JSON.stringify(bondedFinale.relationships), before)
+}
 const leaving = socialize(
   { ...socialRun, day: 9, phase: 'map' },
   'nix',
@@ -3443,6 +3470,16 @@ assert.equal(Object.keys(RETURN_VISITS).length, CITY_SITES.length)
   assert.ok(epilogue.includes('Sunday check-in'))
   assert.ok(epilogue.includes('dumplings'))
   assert.ok(epilogue.includes('never needed to ask'))
+  for (const separated of ['imani', 'nix'] as const) {
+    const before = JSON.stringify(committed)
+    const interrupted = socialFinaleText(committed, names, separated)
+    assert.ok(interrupted.includes('The three-way commitment cannot simply resume'))
+    assert.ok(!interrupted.includes('leave the wreckage'))
+    assert.ok(!interrupted.includes('Sunday check-in'))
+    assert.ok(!interrupted.includes('meets you after the alarms'))
+    assert.equal(JSON.stringify(committed), before)
+  }
+  assert.equal(socialFinaleText(committed, names, 'mina'), epilogue)
   assert.ok(
     finishAcademy(
       { ...accord, day: 30, phase: 'finale' },

@@ -1285,14 +1285,15 @@ export function socialMissionBonus(
 export function socialFinaleText(
   state: SocialState | undefined,
   names: Record<StudentId, string>,
+  separated?: StudentId,
 ): string {
   if (!state) return ''
   const messages = []
-  if (state.partner)
+  if (state.partner && state.partner !== separated)
     messages.push(
       `${names[state.partner]} coordinates the rescue line as your chosen field partner.`,
     )
-  if (state.sidekick)
+  if (state.sidekick && state.sidekick !== separated)
     messages.push(
       `${names[state.sidekick]} carries the agreed signal as your sidekick, choosing their own route through the disaster.`,
     )
@@ -1300,7 +1301,14 @@ export function socialFinaleText(
     arc,
     triad: state.triads?.[arc.id],
   })).find(({ triad }) => triad?.status === 'committed')
-  if (triad && state.romance) {
+  const interruptedTriad = Boolean(
+    triad && separated && triad.arc.pair.includes(separated),
+  )
+  if (interruptedTriad) {
+    messages.push(
+      `${names[separated!]} remains apart from the rescue network. The three-way commitment cannot simply resume; each person must decide what comes next.`,
+    )
+  } else if (triad && state.romance) {
     const other = triad.arc.pair.find((id) => id !== state.romance)!
     messages.push(
       fill(triad.arc.epilogue, state.romance, other, names),
@@ -1313,9 +1321,17 @@ export function socialFinaleText(
           : []
       }),
     )
-  } else if (state.romance)
+  } else if (state.romance && state.romance !== separated)
     messages.push(
       `${names[state.romance]} meets you after the alarms, and you both decide what the relationship should become next.`,
+    )
+  if (
+    separated &&
+    !interruptedTriad &&
+    [state.partner, state.sidekick, state.romance].includes(separated)
+  )
+    messages.push(
+      `${names[separated]} remains apart from the rescue network. Your former commitments cannot resume without another conversation.`,
     )
   return messages.join(' ')
 }

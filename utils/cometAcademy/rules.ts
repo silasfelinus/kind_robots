@@ -3007,6 +3007,7 @@ export function finishAcademy(
         StudentId,
         string
       >,
+      run.betrayal && !reconciled ? run.betrayal.person : undefined,
     )
     const cost = shared
       ? 'Independent district shields save neighborhoods but lose precise coordination; some homes suffer damage.'

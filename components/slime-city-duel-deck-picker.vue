@@ -13,30 +13,10 @@
         {{ item.name }}
       </button>
     </div>
-    <div
-      v-if="mode === 'alliance-classic' && classicDeck"
-      class="sc-duel-starter"
-      data-testid="slime-duel-classic-starter"
-    >
-      <SlimeCityArtwork
-        :image-id="slimeArtId('crews', classicDeck.general)"
-        alt=""
-        compact
-      />
-      <SlimeCityArtwork
-        :image-id="slimeArtId('crews', classicDeck.ally ?? classicDeck.general)"
-        alt=""
-        compact
-      />
-      <span>
-        <b>{{ classicDeck.name }}</b>
-        <small>20 cards · Alliance starter</small>
-      </span>
-    </div>
-    <label v-if="mode === 'alliance-constructed'" class="sc-duel-option">
-      Saved alliance deck
+    <label v-if="mode === 'alliance'" class="sc-duel-option">
+      Alliance deck
       <select v-model="deckId" class="select w-full">
-        <option value="">Choose a saved deck</option>
+        <option value="">Choose an Alliance deck</option>
         <option v-for="deck in decks" :key="deck.id" :value="deck.id">
           {{ deck.name }}
         </option>
@@ -44,7 +24,7 @@
     </label>
     <p class="sc-duel-hint">{{ hint }}</p>
     <NuxtLink
-      v-if="mode.endsWith('constructed') && !setup"
+      v-if="mode !== 'faction-classic' && !setup"
       to="/play/slime-city"
       class="link"
     >
@@ -58,7 +38,6 @@ import { computed, ref, watch } from 'vue'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import type { ClashRewardSetup } from '~/utils/slimeCity/clashRewards'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
-import { slimeArtId } from '~/utils/slimeCity/artManifest'
 
 const props = defineProps<{
   team: TeamId
@@ -71,24 +50,26 @@ const lab = useSlimeCityStore()
 const modes = [
   { id: 'faction-classic', name: 'Faction Classic' },
   { id: 'faction-constructed', name: 'Faction Constructed' },
-  { id: 'alliance-classic', name: 'Alliance Classic' },
-  { id: 'alliance-constructed', name: 'Alliance Constructed' },
+  { id: 'alliance', name: 'Alliance' },
 ] as const
-const mode = ref<(typeof modes)[number]['id']>('alliance-classic')
-const classicDeck = computed(() =>
-  lab.starterDecks.find(
-    (deck) => deck.general === props.team && deck.ally !== null,
-  ),
-)
+const mode = ref<(typeof modes)[number]['id']>('alliance')
 const deckId = ref('')
-const decks = computed(() =>
-  lab.library.filter(
+const decks = computed(() => [
+  ...lab.library.filter(
     (deck) =>
       deck.general === props.team &&
       lab.libraryDeckReady(deck.id) &&
       deck.cards.every(lab.isCardUnlocked),
   ),
-)
+  ...lab.starterDecks
+    .filter(
+      (deck) =>
+        deck.general === props.team &&
+        deck.ally &&
+        lab.duelDeck(props.team, 'alliance', deck.id),
+    )
+    .map((deck) => ({ ...deck, name: deck.name + ' · Starter' })),
+])
 watch(
   [decks, () => lab.libraryId],
   ([available, selected]) => {
@@ -100,14 +81,7 @@ watch(
   },
   { immediate: true },
 )
-const setup = computed(() =>
-  lab.duelDeck(
-    props.team,
-    mode.value,
-    classicDeck.value?.ally ?? undefined,
-    deckId.value,
-  ),
-)
+const setup = computed(() => lab.duelDeck(props.team, mode.value, deckId.value))
 const hint = computed(() => {
   switch (mode.value) {
     case 'faction-classic':
@@ -116,12 +90,10 @@ const hint = computed(() => {
       return setup.value
         ? 'Your saved legal faction deck.'
         : 'No legal saved faction deck yet.'
-    case 'alliance-classic':
-      return 'Choose a leading faction above to switch between the six starters.'
-    case 'alliance-constructed':
+    case 'alliance':
       return setup.value
-        ? 'Your selected named Alliance deck.'
-        : 'Choose a legal saved Alliance deck.'
+        ? 'Your selected Alliance deck.'
+        : 'Choose a legal Alliance deck.'
   }
   return ''
 })
@@ -140,7 +112,7 @@ watch(setup, (value) => emit('update:modelValue', value), { immediate: true })
 }
 .sc-duel-modes {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.3rem;
 }
 .sc-duel-modes button {
@@ -152,27 +124,6 @@ watch(setup, (value) => emit('update:modelValue', value), { immediate: true })
 .sc-duel-modes button[aria-pressed='true'] {
   background: #c5ff59;
   color: #12200c;
-}
-.sc-duel-starter {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  border: 1px solid #c5ff59;
-  border-radius: 0.4rem;
-  padding: 0.3rem;
-}
-.sc-duel-starter :deep(.slime-art) {
-  flex: none;
-  width: 3rem;
-  height: 3rem;
-  margin: 0;
-}
-.sc-duel-starter span {
-  display: grid;
-  min-width: 0;
-}
-.sc-duel-starter small {
-  color: #c6dcd4;
 }
 .sc-duel-option {
   display: grid;

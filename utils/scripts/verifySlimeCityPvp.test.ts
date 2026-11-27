@@ -1149,12 +1149,7 @@ assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
     'components/slime-city-duel-deck-picker.vue',
     'utf8',
   )
-  for (const mode of [
-    'faction-classic',
-    'faction-constructed',
-    'alliance-classic',
-    'alliance-constructed',
-  ])
+  for (const mode of ['faction-classic', 'faction-constructed', 'alliance'])
     assert.ok(picker.includes(mode))
   for (const path of [
     'components/slime-city-vs.vue',
@@ -1166,10 +1161,14 @@ assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
     store,
     /mode === 'faction-classic'\)\s*return \{ format: 'solo', cards: soloStarter\(team\) \}/,
   )
-  assert.match(store, /allianceStarter\(team, ally\)/)
-  assert.match(picker, /lab\.starterDecks\.find/)
-  assert.match(picker, /slime-duel-classic-starter/)
-  assert.match(picker, /classicDeck\.value\?\.ally/)
+  assert.doesNotMatch(picker, /alliance-classic|alliance-constructed/)
+  assert.doesNotMatch(store, /alliance-classic|alliance-constructed/)
+  assert.match(picker, /name: 'Alliance'/)
+  assert.match(picker, /\('alliance'\)/)
+  assert.match(picker, /lab\.starterDecks\s*\.filter/)
+  assert.match(picker, /lab\.duelDeck\(props\.team, 'alliance', deck\.id\)/)
+  assert.match(store, /allianceStarter\(team, starter\.ally\)/)
+  assert.match(store, /deck\.cards\.every\(isCardUnlocked\)/)
   assert.match(picker, /deck\.cards\.every\(lab\.isCardUnlocked\)/)
 }
 

@@ -723,9 +723,9 @@
                       />
                     </span>
                     <b>{{ deck.ally ? deck.name : teamName(deck.general) }}</b>
-                    <small
-                      >{{ deck.ally ? 'ALLIANCE' : 'FACTION' }} · CLASSIC</small
-                    >
+                    <small>{{
+                      deck.ally ? 'ALLIANCE · STARTER' : 'FACTION · CLASSIC'
+                    }}</small>
                   </button>
                 </div>
               </details>
@@ -1473,7 +1473,7 @@ async function confirmReset(): Promise<void> {
   if (await lab.resetGuestJourney(resetTyped.value)) resetTyped.value = ''
 }
 /** Phones fold the starter decks behind their label. */
-const classicOpen = ref({ 'faction-classic': false, 'alliance-classic': false })
+const classicOpen = ref({ 'faction-classic': false, alliance: false })
 const classicDeckGroups = computed(() => [
   {
     id: 'faction-classic' as const,
@@ -1481,8 +1481,8 @@ const classicDeckGroups = computed(() => [
     decks: lab.starterDecks.filter((deck) => !deck.ally),
   },
   {
-    id: 'alliance-classic' as const,
-    title: 'ALLIANCE CLASSIC',
+    id: 'alliance' as const,
+    title: 'ALLIANCE',
     decks: lab.starterDecks.filter((deck) => !!deck.ally),
   },
 ])

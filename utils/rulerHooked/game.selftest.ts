@@ -22,6 +22,11 @@ import { geographyQuestion } from '~/utils/rulerHooked/quiz'
 import {
   loadIndex, loadSave, writeSave, renameSlot, deleteSlot, makeSaveId,
   SAVE_SCHEMA_VERSION,
+  deviceRoyalBackup,
+  guestRoyalBackup,
+  loadScrapbook,
+  restoreRoyalBackup,
+  setRoyalSaveScope,
 } from '~/utils/rulerHooked/save'
 import { HERO_RULER_PRESET_ID } from '~/utils/rulerHooked/rulerPresets'
 import type { RunSave } from '~/types/ruler-hooked'
@@ -386,6 +391,58 @@ const fresh = (id = 'sv_a'): RunSave =>
   delete loaded.pendingFinaleKey
   loaded.status = 'COMPLETE'
   assert.equal(readQuizCheckpoint(loaded), null)
+}
+
+// The same browser may host multiple real accounts and an older guest archive.
+// Switching owners must not expose or auto-upload another player's local reign.
+{
+  backingStore.clear()
+  const stamp = '2026-11-26T00:00:00Z'
+  function scopedReign(id: string, name: string): RunSave {
+    const save = fresh(id)
+    save.name = name
+    save.createdAt = stamp
+    writeSave(save, stamp)
+    return save
+  }
+  setRoyalSaveScope(null)
+  scopedReign('sv_legacy', 'Legacy device')
+  assert.equal(loadIndex().activeSaveId, 'sv_legacy')
+  setRoyalSaveScope(123)
+  assert.deepEqual(loadIndex().slots, [])
+  assert.deepEqual(deviceRoyalBackup().reigns, [])
+  scopedReign('sv_same', 'First account')
+  const firstBackup = deviceRoyalBackup()
+  assert.equal(firstBackup.reigns[0]?.name, 'First account')
+
+  setRoyalSaveScope(456)
+  assert.equal(loadSave('sv_same'), null)
+  assert.deepEqual(loadScrapbook(), {})
+  scopedReign('sv_same', 'Second account')
+  assert.equal(deviceRoyalBackup().reigns[0]?.name, 'Second account')
+  assert.equal(guestRoyalBackup().reigns[0]?.name, 'Legacy device')
+  assert.equal(loadSave('sv_same')?.name, 'Second account')
+
+  setRoyalSaveScope(123)
+  assert.equal(loadSave('sv_same')?.name, 'First account')
+  assert.equal(loadIndex().slots.length, 1)
+  restoreRoyalBackup(guestRoyalBackup())
+  assert.equal(loadIndex().slots.length, 2)
+  assert.equal(loadSave('sv_legacy')?.name, 'Legacy device')
+
+  // A new device can restore the private archive without borrowing guest data.
+  setRoyalSaveScope(789)
+  assert.deepEqual(loadIndex().slots, [])
+  restoreRoyalBackup(firstBackup)
+  assert.equal(loadSave('sv_same')?.name, 'First account')
+  assert.equal(loadSave('sv_legacy'), null)
+  assert.deepEqual(deviceRoyalBackup(), firstBackup)
+
+  setRoyalSaveScope(null)
+  assert.equal(loadIndex().slots.length, 1)
+  assert.equal(loadSave('sv_legacy')?.name, 'Legacy device')
+  assert.equal(loadSave('sv_same'), null)
+  backingStore.clear()
 }
 
 console.log('ruler-hooked GAME self-test: ALL PASS')

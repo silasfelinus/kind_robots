@@ -602,9 +602,24 @@ export function storyMoment(
     )
     const rivals = state.units.filter((unit) => unit.team === 'rival')
     const names = (units: typeof state.units) =>
-      units.map((unit) => IDENTITY_ARCS.find((entry) => entry.signature === unit.identity)?.hero.alias ?? unit.id).join(', ')
+      units
+        .map(
+          (unit) =>
+            IDENTITY_ARCS.find((entry) => entry.signature === unit.identity)
+              ?.hero.alias ?? unit.id,
+        )
+        .join(', ')
     lines.push(
-      a('FIELD REPORT', 'With ' + person.hero.alias + ': ' + names(allies) + '. Opposing patrol: ' + names(rivals) + '.'),
+      a(
+        'FIELD REPORT',
+        'With ' +
+          person.hero.alias +
+          ': ' +
+          names(allies) +
+          '. Opposing patrol: ' +
+          names(rivals) +
+          '.',
+      ),
     )
   }
   if (personal && person && beat === 'arrival' && lead !== 'accident-fire') {

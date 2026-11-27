@@ -20,6 +20,12 @@ import {
 } from '~/utils/monstressConvention/prologue'
 import { travelRoute } from '~/utils/monstressConvention/navigation'
 import {
+  chooseSync,
+  mergeKitProgress,
+  parseAccountSave,
+  type MonstriqueAccountSave,
+} from '~/utils/monstressConvention/accountSave'
+import {
   achievementsFor,
   MONSTRIQUE_ENDINGS,
 } from '~/utils/monstressConvention/achievements'
@@ -46,6 +52,21 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
   const matureSplash = ref<{ wide: string; tall: string } | null>(null)
   let accessRequest = 0
   let splashRequest = 0
+  const accountStatus = ref<'local' | 'checking' | 'synced' | 'offline'>(
+    'local',
+  )
+  const revisions: Record<MonstriqueAudience, number | null | undefined> = {
+    general: undefined,
+    mature: undefined,
+  }
+  const syncRequests: Record<MonstriqueAudience, number> = {
+    general: 0,
+    mature: 0,
+  }
+  const saveTimers: Partial<
+    Record<MonstriqueAudience, ReturnType<typeof setTimeout>>
+  > = {}
+  let accountWrites: Promise<void> = Promise.resolve()
 
   const accountId = computed(() =>
     user.isLoggedIn ? (user.user?.id ?? 'guest') : 'guest',
@@ -75,6 +96,171 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
 
   function key(mode: MonstriqueAudience): string {
     return 'kr-monstrique-' + mode + '-v1-' + accountId.value
+  }
+
+  function savedAtKey(mode: MonstriqueAudience): string {
+    return key(mode) + '-saved-at'
+  }
+
+  function readSavedAt(mode: MonstriqueAudience): string | null {
+    try {
+      return localStorage.getItem(savedAtKey(mode))
+    } catch {
+      return null
+    }
+  }
+
+  function kitId(mode: MonstriqueAudience): string {
+    return 'monstrique-' + mode + '-' + accountId.value
+  }
+
+  function syncOwner(): number | null {
+    return import.meta.client &&
+      user.token &&
+      !user.isGuest &&
+      user.authenticatedUserId
+      ? user.authenticatedUserId
+      : null
+  }
+
+  function editionReady(mode: MonstriqueAudience): boolean {
+    return mode === 'general' || audience.value === 'mature'
+  }
+
+  function adoptAccountCopy(
+    mode: MonstriqueAudience,
+    remote: MonstriqueAccountSave,
+  ): void {
+    if (mode === 'mature') {
+      matureState.value = remote.case
+      matureSaved.value = true
+    } else {
+      generalState.value = remote.case
+      generalSaved.value = true
+    }
+    try {
+      localStorage.setItem(key(mode), JSON.stringify(remote.case))
+      localStorage.setItem(savedAtKey(mode), remote.savedAt)
+    } catch {
+      storageWarning.value = 'This browser cannot save progress.'
+    }
+  }
+
+  function mergeAccountKit(
+    mode: MonstriqueAudience,
+    remote: MonstriqueAccountSave | null,
+  ): boolean {
+    if (!remote?.kit) return false
+    const local = kit.accountSnapshot(kitId(mode))
+    if (!local) return false
+    const progress = mergeKitProgress(local.progress, remote.kit.progress)
+    const changed = JSON.stringify(progress) !== JSON.stringify(local.progress)
+    if (changed) kit.restoreAccount(kitId(mode), { ...local, progress })
+    return (
+      JSON.stringify(progress) !== JSON.stringify(remote.kit.progress) ||
+      changed
+    )
+  }
+
+  async function syncAccount(mode: MonstriqueAudience): Promise<void> {
+    const owner = syncOwner()
+    if (!owner || !editionReady(mode)) return
+    const sequence = ++syncRequests[mode]
+    accountStatus.value = 'checking'
+    try {
+      const result = await performFetch<{
+        edition: MonstriqueAudience
+        save: unknown
+        revision: number | null
+      }>('/api/monstrique/account-save', {}, 1)
+      if (
+        sequence !== syncRequests[mode] ||
+        owner !== syncOwner() ||
+        !editionReady(mode)
+      )
+        return
+      if (!result.success || !result.data || result.data.edition !== mode) {
+        accountStatus.value = 'offline'
+        return
+      }
+      const remote = result.data.save
+        ? parseAccountSave(result.data.save, mode)
+        : null
+      revisions[mode] = result.data.revision ?? null
+      const decision = chooseSync(
+        {
+          case: mode === 'mature' ? matureState.value : generalState.value,
+          savedAt: readSavedAt(mode),
+          saved: mode === 'mature' ? matureSaved.value : generalSaved.value,
+        },
+        remote,
+      )
+      if (decision === 'adopt-remote' && remote) adoptAccountCopy(mode, remote)
+      const kitDiffers = mergeAccountKit(mode, remote)
+      accountStatus.value = 'synced'
+      if (
+        decision === 'upload' ||
+        decision === 'keep-local' ||
+        (kitDiffers && decision !== 'adopt-remote')
+      )
+        scheduleAccountSave(mode, 0)
+    } catch {
+      if (sequence === syncRequests[mode]) accountStatus.value = 'offline'
+    }
+  }
+
+  function scheduleAccountSave(mode: MonstriqueAudience, delay = 1200): void {
+    if (!syncOwner() || revisions[mode] === undefined) return
+    if (saveTimers[mode]) clearTimeout(saveTimers[mode])
+    saveTimers[mode] = setTimeout(() => {
+      saveTimers[mode] = undefined
+      pushAccountSave(mode)
+    }, delay)
+  }
+
+  function pushAccountSave(mode: MonstriqueAudience): void {
+    const owner = syncOwner()
+    if (!owner) return
+    accountWrites = accountWrites.then(async () => {
+      if (
+        owner !== syncOwner() ||
+        !editionReady(mode) ||
+        revisions[mode] === undefined
+      )
+        return
+      const save: MonstriqueAccountSave = {
+        version: 1,
+        savedAt: readSavedAt(mode) ?? new Date().toISOString(),
+        case: mode === 'mature' ? matureState.value : generalState.value,
+        kit: kit.accountSnapshot(kitId(mode)),
+      }
+      try {
+        const result = await performFetch<{ revision: number }>(
+          '/api/monstrique/account-save',
+          {
+            method: 'PUT',
+            body: JSON.stringify({
+              edition: mode,
+              save,
+              expectedRevision: revisions[mode],
+            }),
+          },
+          1,
+        )
+        if (owner !== syncOwner()) return
+        if (result.success && result.data) {
+          revisions[mode] = result.data.revision
+          accountStatus.value = 'synced'
+        } else if (result.status === 409) {
+          revisions[mode] = undefined
+          void syncAccount(mode)
+        } else {
+          accountStatus.value = 'offline'
+        }
+      } catch {
+        accountStatus.value = 'offline'
+      }
+    })
   }
 
   function loadMode(mode: MonstriqueAudience): void {
@@ -117,6 +303,9 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     storageWarning.value = ''
     loadMode('general')
     kit.open('monstrique-general-' + accountId.value)
+    revisions.general = undefined
+    revisions.mature = undefined
+    accountStatus.value = 'local'
   }
 
   async function verifyAudience(): Promise<void> {
@@ -128,6 +317,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     verifiedToken = undefined
     feedback.value = ''
     kit.open('monstrique-general-' + accountId.value)
+    void syncAccount('general')
     if (
       !token ||
       !user.isLoggedIn ||
@@ -156,6 +346,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
         verifiedToken = token
         loadMode('mature')
         kit.open('monstrique-mature-' + accountId.value)
+        void syncAccount('mature')
       }
     } catch {
       adultVerified.value = false
@@ -166,13 +357,17 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
 
   function persist(): void {
     if (!import.meta.client || storageWarning.value) return
+    const mode = audience.value
     try {
-      localStorage.setItem(key(audience.value), JSON.stringify(state.value))
-      if (audience.value === 'mature') matureSaved.value = true
+      localStorage.setItem(key(mode), JSON.stringify(state.value))
+      localStorage.setItem(savedAtKey(mode), new Date().toISOString())
+      if (mode === 'mature') matureSaved.value = true
       else generalSaved.value = true
     } catch {
       storageWarning.value = 'This browser cannot save progress.'
+      return
     }
+    scheduleAccountSave(mode)
   }
 
   function commit(result: CaseResult): void {
@@ -225,6 +420,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     const mode = audience.value
     try {
       localStorage.removeItem(key(mode))
+      localStorage.setItem(savedAtKey(mode), new Date().toISOString())
     } catch {
       storageWarning.value = 'Could not erase the case on this device.'
       return false
@@ -239,6 +435,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     feedback.value = ''
     activeCutscene.value = null
     storageWarning.value = ''
+    scheduleAccountSave(mode)
     return true
   }
 
@@ -302,6 +499,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
 
   return {
     audience,
+    accountStatus,
     checking,
     state,
     hasSavedCase,

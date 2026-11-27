@@ -210,6 +210,13 @@
               Make the investigation comfortable. Settings and case progress are
               saved in this browser for the current edition.
             </p>
+            <p
+              v-if="props.publicEdition"
+              class="mx-small-note"
+              data-testid="monstrique-account-sync"
+            >
+              {{ accountSyncNote }}
+            </p>
             <div class="mx-settings-list">
               <div v-for="key in settingKeys" :key="key" class="mx-setting">
                 <span class="font-semibold">{{
@@ -392,6 +399,17 @@ const emit = defineEmits<{
 const adminStory = useMonstressConventionStore()
 const publicStory = useMonstriquePublicStore()
 const story = computed(() => (props.publicEdition ? publicStory : adminStory))
+const accountSyncNote = computed(
+  () =>
+    ({
+      synced:
+        'Signed in: this edition’s case and scrapbook also sync to your account on every device.',
+      checking: 'Checking your account copy of this edition…',
+      offline:
+        'Account sync is unavailable right now. This browser still has your case.',
+      local: 'Sign in to keep this case and scrapbook on every device.',
+    })[publicStory.accountStatus],
+)
 const kit = usePlaybookKitStore()
 const user = useUserStore()
 onMounted(() => {

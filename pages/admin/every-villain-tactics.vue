@@ -1248,9 +1248,9 @@
                 v-else-if="store.draft.encounter === 'claim-cinders'"
                 data-testid="studio-encounter"
               >
-                ONE-HIT CLAIM CLERKS · Ash Invoice stamps an INSURED tile
-                that ignites next enemy turn. Vacate the tile or disarm the
-                clerk; water prevents ignition.
+                ONE-HIT CLAIM CLERKS · Ash Invoice stamps an INSURED tile that
+                ignites next enemy turn. Vacate the tile or disarm the clerk;
+                water prevents ignition.
               </small>
               <small
                 v-else-if="store.draft.encounter === 'warren-wreckers'"

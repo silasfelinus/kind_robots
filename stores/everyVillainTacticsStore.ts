@@ -1077,15 +1077,15 @@ export const useEveryVillainTacticsStore = defineStore(
                     : draft.value.encounter === 'claim-cinders'
                       ? 'Ash Invoice leads the one-hit Claim Cinders. Leave the INSURED tile before the next enemy turn, or disarm the clerk. Water prevents the stamp from burning. '
                       : draft.value.encounter === 'warren-wreckers'
-                      ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. ' +
-                        (draft.value.waves?.length
-                          ? 'More shifts tunnel in on rounds ' +
-                            draft.value.waves
-                              .map((w) => w.round)
-                              .join(' and ') +
-                            ', each molehill marked a round early. Stand on one to cave it in. '
-                          : '')
-                      : '') +
+                        ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. ' +
+                          (draft.value.waves?.length
+                            ? 'More shifts tunnel in on rounds ' +
+                              draft.value.waves
+                                .map((w) => w.round)
+                                .join(' and ') +
+                              ', each molehill marked a round early. Stand on one to cave it in. '
+                            : '')
+                        : '') +
               draft.value.title +
               ' / ' +
               draft.value.venue +

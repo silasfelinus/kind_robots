@@ -432,7 +432,11 @@ export function scriptedFoilFor(lead: string): string {
 const LACKEY_CREWS: Partial<
   Record<
     NonNullable<StageDraft['encounter']>,
-    { signature: SignaturePowerId; type: 'phase' | 'windup' | 'cinder'; ranks: string[] }
+    {
+      signature: SignaturePowerId
+      type: 'phase' | 'windup' | 'cinder'
+      ranks: string[]
+    }
   >
 > = {
   'wombat-ronin': {
@@ -1845,9 +1849,7 @@ export function cinderPlan(state: TrainingState, enemy: Unit): boolean {
     updateOutcome(state)
     return true
   }
-  const targets = state.units.filter(
-    (u) => u.team === 'squad' && u.hp > 0,
-  )
+  const targets = state.units.filter((u) => u.team === 'squad' && u.hp > 0)
   const reserved = state.units
     .filter((u) => u.hp > 0 && u.cinderTarget)
     .map((u) => u.cinderTarget!)

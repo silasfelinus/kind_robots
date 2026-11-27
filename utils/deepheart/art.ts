@@ -86,6 +86,18 @@ export function enemyArt(id: string): KitArt | undefined {
   }
 }
 
+export function bossBattleArt(id: string): KitArt | undefined {
+  const enemy = ENEMIES[id]
+  const src = deepheartArtSrc(`boss-plate:${id}`)
+  if (!enemy || !src) return undefined
+  return {
+    src,
+    alt: `${enemy.name} in its chamber`,
+    brief: `${enemy.name} in its chamber`,
+    prompt: enemy.look,
+  }
+}
+
 export function encounterArt(event: EventDef): KitArt | undefined {
   const src =
     deepheartArtSrc(`encounter:${event.id}`) ??

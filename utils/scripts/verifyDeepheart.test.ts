@@ -76,7 +76,7 @@ import {
   pairKey,
 } from '../deepheart/roster'
 import { DEEPHEART_ART_IDS, deepheartArtSrc } from '../deepheart/renderedArt'
-import { encounterArt, enemyArt } from '../deepheart/art'
+import { bossBattleArt, encounterArt, enemyArt } from '../deepheart/art'
 import {
   DEEPHEART_APPROVED_ART_MODELS,
   DEEPHEART_STYLE_DESIGNER,
@@ -210,6 +210,16 @@ for (const [enemy, key] of [
   assert.equal(enemyArt(enemy)?.src, deepheartArtSrc(key))
 }
 assert.equal(enemyArt('not-an-enemy'), undefined)
+const bestiarySources = Object.keys(ENEMIES).map((id) => enemyArt(id)?.src)
+assert.equal(bestiarySources.length, 40)
+assert.ok(bestiarySources.every(Boolean))
+assert.equal(new Set(bestiarySources).size, 40)
+const guardianPlates = LAYERS.map((layer) => bossBattleArt(layer.boss)?.src)
+assert.equal(guardianPlates.length, 3)
+assert.ok(guardianPlates.every(Boolean))
+assert.equal(new Set(guardianPlates).size, 3)
+assert.ok(guardianPlates.every((src) => !bestiarySources.includes(src)))
+assert.equal(bossBattleArt('mimic'), undefined)
 const nonCourtEvents = [
   ...EVENTS.filter((event) => !event.id.startsWith('fairy-')),
   ...UNDERCITY_EVENTS,

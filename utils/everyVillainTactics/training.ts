@@ -31,6 +31,7 @@ import {
   type TacticalMap,
 } from './combat'
 import type { StageDraft } from './studio'
+import { personalCastFor } from './personalCasts'
 import {
   chooseFireSpread,
   fieldMap,
@@ -123,6 +124,8 @@ export type TrainingState = {
   /** Historical squad HP actually lost, including wounds later healed. Older
    * saves leave this unset and cannot retroactively claim a flawless run. */
   damageTaken?: number
+  /** New Crossfire roster; absent in historical saves and standalone battles. */
+  crossfireCast?: 1
   impact: {
     attacker: string
     target: string
@@ -280,6 +283,7 @@ export type TrainingOptions = {
   /** Apply hero roles and signature powers. Prom of Doom interludes opt out
    * so their saved battles and balance stay exactly as shipped. */
   roles?: boolean
+  crossfireCast?: 1
 }
 export function trainingState(
   seed = 0x53a1b7,
@@ -361,6 +365,32 @@ export function trainingState(
             ),
         )
         if (replacement) other.identity = replacement.signature
+      }
+    }
+  }
+  const cast = personalCastFor(lead.identity)
+  if (
+    options.crossfireCast === 1 &&
+    options.roles !== false &&
+    cast &&
+    options.foil === cast.foil &&
+    (!stage || isCrossfireFoilStage(stage))
+  ) {
+    state.crossfireCast = 1
+    // First Bell has established dialogue and supporting-character voices.
+    // The five follow-on missions use the lead's hand-selected roster.
+    if (stage) {
+      const identities = {
+        priya: cast.allies[0],
+        hattie: cast.allies[1],
+        pip: cast.foil,
+        vee: cast.rivals[0],
+        remy: cast.rivals[1],
+      }
+      for (const unit of state.units) {
+        const identity = identities[unit.id as keyof typeof identities]
+        if (identity && !unit.henchmanName && !unit.lieutenantName)
+          unit.identity = identity
       }
     }
   }

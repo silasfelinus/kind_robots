@@ -16,6 +16,7 @@ import {
   retryCrossfire,
   snapshotCrossfire,
 } from '../everyVillainTactics/crossfireCampaign'
+import { PERSONAL_CASTS, personalCastFor } from '../everyVillainTactics/personalCasts'
 import { IDENTITY_ARCS, identityFor } from '../cometAcademy/identityArcs'
 import {
   crossfireChapterBeat,
@@ -232,6 +233,113 @@ assert.deepEqual(
   mergeBattleResults(recoveredBook, recoveredScores),
   recoveredBook,
   'reopening a completed campaign must not duplicate points',
+)
+
+// A new personal campaign keeps its selected supporting cast across all
+// follow-on chapters, while the legacy journal above retains its old roster.
+assert.deepEqual(
+  Object.keys(PERSONAL_CASTS).sort(),
+  IDENTITY_ARCS.map((person) => person.signature).sort(),
+)
+const castCombinations = new Set<string>()
+for (const person of IDENTITY_ARCS) {
+  const cast = personalCastFor(person.signature)!
+  assert.ok(cast)
+  const expected = [
+    person.signature,
+    ...cast.allies,
+    cast.foil,
+    ...cast.rivals,
+  ]
+  assert.equal(new Set(expected).size, 6)
+  assert.ok(expected.every((id) => identityFor(id)))
+  assert.ok(!castCombinations.has(expected.slice(1).join(',')))
+  castCombinations.add(expected.slice(1).join(','))
+  for (const perspective of ['hero', 'villain'] as const) {
+    const opening = createSave({
+      slot: 'auto',
+      perspective,
+      leadSignature: person.signature,
+      foilSignature: cast.foil,
+      stage: null,
+      state: trainingState(123, undefined, {
+        lead: person.signature,
+        foil: cast.foil,
+        crossfireCast: 1,
+      }),
+      story: createStory(),
+    })
+    let personal = newCrossfireJournal(opening)!
+    assert.ok(personal)
+    assert.equal(personal.active.state.crossfireCast, 1)
+    for (let chapter = 0; chapter < 6; chapter++) {
+      const current = personal.active
+      assert.ok(loadSave(current).ok)
+      assert.equal(current.state.crossfireCast, 1)
+      if (chapter > 0) {
+        assert.deepEqual(
+          current.state.units.map((unit) => unit.identity),
+          expected,
+        )
+        assert.deepEqual(
+          retryCrossfire(personal)?.active.state.units.map(
+            (unit) => unit.identity,
+          ),
+          expected,
+        )
+      }
+      const state = structuredClone(current.state)
+      state.phase = 'victory'
+      const story = structuredClone(current.story)
+      if (chapter === 0) {
+        story.current = null
+        story.seen.push('victory')
+        story.decisions.push('finish')
+        story.completed = true
+        state.fired ??= []
+        state.fired.push('story:victory')
+      }
+      const victory = createSave({
+        slot: 'auto',
+        perspective,
+        leadSignature: person.signature,
+        foilSignature: cast.foil,
+        stage: current.stage,
+        state,
+        story,
+      })
+      const checkpoint = snapshotCrossfire(personal, victory)
+      assert.ok(checkpoint)
+      const next = advanceCrossfire(checkpoint)
+      assert.ok(next)
+      personal = next
+    }
+    assert.ok(personal.finished)
+    assert.ok(readCrossfireJournal(JSON.stringify(personal)))
+  }
+}
+const personalCastStage = clonePreset('science-lab')
+const personalCast = personalCastFor('alien-discipline')!
+const forgedCastState = trainingState(123, personalCastStage, {
+  lead: 'alien-discipline',
+  foil: personalCast.foil,
+  crossfireCast: 1,
+})
+forgedCastState.units[1]!.identity = 'accident-fire'
+assert.equal(
+  loadSave(
+    createSave({
+      slot: 'auto',
+      perspective: 'hero',
+      leadSignature: 'alien-discipline',
+      foilSignature: personalCast.foil,
+      stage: personalCastStage,
+      state: forgedCastState,
+      story: { ...createStory(), current: null },
+    }),
+  ).ok,
+  false,
+  'recalculating a checksum cannot forge a supporting identity',
 )
 
 // Previously the selected foil disappeared after First Bell, letting the

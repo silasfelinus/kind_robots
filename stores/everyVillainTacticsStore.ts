@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
+import { personalCastFor } from '~/utils/everyVillainTactics/personalCasts'
 import {
   actorAt,
   aliasFor,
@@ -490,6 +491,7 @@ export const useEveryVillainTacticsStore = defineStore(
       view: TacticalPerspective,
       lead: string,
       foil: string | null = null,
+      crossfireCast?: 1,
     ) {
       if (!roster.some((u) => u.signature === lead)) return false
       const assignedFoil = foil ?? scriptedFoilFor(lead)
@@ -499,13 +501,14 @@ export const useEveryVillainTacticsStore = defineStore(
       perspective.value = view
       leadSignature.value = lead
       foilSignature.value = assignedFoil
-      reset()
+      resetBattle(crossfireCast)
       openScreen(null)
       return true
     }
     function startCrossfire(view: TacticalPerspective, lead: string) {
       if (!['hero', 'villain'].includes(view)) return false
-      if (!startStory(view, lead)) return false
+      const cast = personalCastFor(lead)
+      if (!cast || !startStory(view, lead, cast.foil, 1)) return false
       const first = createSave({
         slot: 'auto',
         perspective: perspective.value,
@@ -1213,10 +1216,17 @@ export const useEveryVillainTacticsStore = defineStore(
     })
 
     function reset() {
+      resetBattle()
+    }
+    function resetBattle(crossfireCast?: 1) {
       state.value = trainingState(
         0x53a1b7,
         isPlaytest.value ? draft.value : undefined,
-        { lead: leadSignature.value, foil: foilSignature.value ?? undefined },
+        {
+          lead: leadSignature.value,
+          foil: foilSignature.value ?? undefined,
+          crossfireCast,
+        },
       )
       story.value = createStory()
       if (isPlaytest.value) story.value.current = null

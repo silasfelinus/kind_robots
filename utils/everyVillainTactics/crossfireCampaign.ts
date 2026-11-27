@@ -218,6 +218,7 @@ function validChapterSave(
   if (
     save.leadSignature !== journal.lead ||
     save.perspective !== journal.perspective ||
+    save.state.crossfireCast !== journal.active.state.crossfireCast ||
     (save.foilSignature !== undefined && save.foilSignature !== journal.foil)
   )
     return false
@@ -353,6 +354,7 @@ function openingCrossfireSave(
   const state = trainingState(0x53a1b7 + chapter * 997, stage ?? undefined, {
     lead: journal.lead,
     foil: journal.foil ?? undefined,
+    crossfireCast: journal.active.state.crossfireCast,
   })
   const previous = completed[chapter - 1]
   if (previous) applyCrossfireCarryover(state, previous, chapter - 1)

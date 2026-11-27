@@ -1180,7 +1180,20 @@ assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
   assert.match(service, /await notifySlimeCityTurn\(nextTurnUserId, id\)/)
   assert.match(mail, /raw\.pvpTurnEmail === true/)
   assert.match(mail, /user\.emailVerified/)
-  assert.match(mail, /if \(!optedIn\(row\?\.data\)\) return/)
+  assert.match(mail, /if \(!optedIn\(row\?\.data\)\)/)
+  assert.match(mail, /if \(result\.sent\)/)
+  for (const status of ['ineligible', 'disabled', 'accepted', 'not accepted'])
+    assert.ok(mail.includes('turn email ' + status))
+  const join = service.slice(
+    service.indexOf('export async function joinSlimeCityDuel'),
+    service.indexOf('type DuelTransaction'),
+  )
+  assert.match(join, /firstTurnUserId: null/)
+  assert.match(join, /duel\.board\?\.active === 'player'/)
+  assert.match(
+    join,
+    /\}\)\s*if \(outcome\.firstTurnUserId !== null\)\s*await notifySlimeCityTurn\(outcome\.firstTurnUserId, id\)/,
+  )
   assert.match(mail, /version: row\.version/)
   for (const route of ['get', 'patch'])
     assert.match(

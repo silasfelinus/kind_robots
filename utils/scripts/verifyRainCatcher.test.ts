@@ -6,6 +6,7 @@ import { rainWaveForLevel, weatherForVolley } from '../arcade/rainCatcher/waves'
 import type { RainWeather } from '../arcade/rainCatcher/waves'
 
 type Falling = {
+  tx: number
   x: number
   y: number
   vx: number
@@ -40,6 +41,8 @@ type TestGame = {
   demoInput(): ReturnType<typeof emptyInput>
   volleyTimer: number
   toRelease: number
+  banner: { text: string } | null
+  waveClear(): void
   startWave(wave: number): void
   update(input: ReturnType<typeof emptyInput>): void
 }
@@ -166,6 +169,26 @@ function gameFor(seed: number, demo = false): TestGame {
   assert.ok(game.blooms.length > 0, 'umbrella arrives and blooms')
 }
 
+{
+  const game = gameFor(21)
+  game.startWave(3)
+  for (let i = 0; i < 6; i++) {
+    const rain = game.makeHail(100, 20, false, 'rain')
+    rain.x = rain.tx
+    game.land(rain)
+  }
+  game.waveClear()
+  assert.equal(game.banner?.text, 'FIRST BLOOM CLEAR!')
+  game.startWave(8)
+  assert.equal(game.barrels.length, 3)
+  for (let i = 0; i < 9; i++) {
+    const rain = game.makeHail(100, 20, false, 'rain')
+    game.catchHail(rain, { x: rain.tx, y: 180, t: 18 })
+  }
+  game.waveClear()
+  assert.equal(game.banner?.text, 'FILL THE PADDIES CLEAR!')
+}
+
 function pilot(seed: number) {
   const game = gameFor(seed, true)
   for (let tick = 0; tick < 1000 && !game.over; tick++) {
@@ -201,3 +224,4 @@ for (const seed of [5, 15, 42]) {
 console.log(
   'Rain Catcher: bed growth, barrels, petal chains, snowballs and pilot',
 )
+

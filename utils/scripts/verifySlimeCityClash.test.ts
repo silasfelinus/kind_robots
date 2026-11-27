@@ -2918,3 +2918,19 @@ for (const [id, extra] of [
     if (card.effect === 'debt') assert.ok(target.rooted)
   }
 }
+
+{
+  const face = readFileSync(
+    'components/slime-city-clash-card-face.vue',
+    'utf8',
+  )
+  assert.match(face, /v-if="card.kind === 'creature'" class="ccf-fighter-stats"/)
+  assert.match(face, /class="ccf-attack"[^>]*>[\s\S]*?balance\.attack/)
+  assert.match(face, /class="ccf-toughness"[^>]*>[\s\S]*?balance\.hp/)
+  assert.match(face, /class="ccf-armor" :armor="balance\.armor"/)
+  assert.match(face, /\.ccf-attack \{\s*grid-area: 1 \/ 1;/)
+  assert.match(face, /\.ccf-toughness \{\s*grid-area: 1 \/ 2;/)
+  assert.match(face, /\.ccf-armor \{\s*grid-area: 2 \/ 2;/)
+  assert.match(face, /\.ccf-attack,\s*\.ccf-toughness \{[\s\S]*?font-size: 12cqw;/)
+  assert.match(face, /v-else class="ccf-top"/)
+}

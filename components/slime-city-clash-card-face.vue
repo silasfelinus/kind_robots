@@ -22,17 +22,21 @@
       full stage title, each wrapping instead of truncating.
     -->
     <span class="ccf-head">
-      <span class="ccf-top">
+      <span v-if="card.kind === 'creature'" class="ccf-fighter-stats">
+        <b class="ccf-attack" :aria-label="balance.attack + ' power'">
+          ⚔ {{ balance.attack }}
+        </b>
+        <b class="ccf-toughness" :aria-label="balance.hp + ' toughness'">
+          ♥ {{ balance.hp }}
+        </b>
         <b class="ccf-cost">{{ plays }} PLAY{{ plays === 2 ? 'S' : '' }}</b>
-        <span class="ccf-combat">
-          <em class="ccf-badge">{{
-            clashCardBadge(card, level, balanceVersion)
-          }}</em>
-          <SlimeCityArmorStat
-            v-if="card.kind === 'creature'"
-            :armor="balance.armor"
-          />
-        </span>
+        <SlimeCityArmorStat class="ccf-armor" :armor="balance.armor" />
+      </span>
+      <span v-else class="ccf-top">
+        <b class="ccf-cost">{{ plays }} PLAY{{ plays === 2 ? 'S' : '' }}</b>
+        <em class="ccf-badge">{{
+          clashCardBadge(card, level, balanceVersion)
+        }}</em>
       </span>
       <strong class="ccf-name">{{ card.name }}</strong>
       <span class="ccf-level" :aria-label="'Level ' + level + ' of ' + maxLevel"
@@ -320,14 +324,42 @@ const kind = computed(() =>
   flex-wrap: wrap;
   gap: 2cqw;
 }
-.ccf-combat {
-  --sc-armor-size: 10cqw;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+.ccf-fighter-stats {
+  --sc-armor-size: 14cqw;
+  align-self: stretch;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
   gap: 1cqw;
-  min-width: 0;
+}
+.ccf-attack,
+.ccf-toughness {
+  padding: 1cqw 2cqw;
+  border-radius: 2.4cqw;
+  background: #071a20ee;
+  font-size: 12cqw;
+  font-weight: 950;
+  line-height: 1.05;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.ccf-attack {
+  grid-area: 1 / 1;
+  justify-self: start;
+  color: #ffe6a6;
+}
+.ccf-toughness {
+  grid-area: 1 / 2;
+  justify-self: end;
+  color: #ff9ea4;
+}
+.ccf-fighter-stats .ccf-cost {
+  grid-area: 2 / 1;
+  justify-self: start;
+}
+.ccf-armor {
+  grid-area: 2 / 2;
+  justify-self: end;
 }
 .ccf-cost,
 .ccf-badge {

@@ -1319,6 +1319,27 @@ export const SLUICEGATE_STEPS: StageDef = {
       line[50] = 's'
       line[71] = 'G'
     }
+    if (row === 13) line[47] = 'D'
+    // An optional dry inspection room inside the dam, reached from the spillway.
+    if (row === 2 || row === 11) {
+      for (let col = 8; col <= 24; col++) line[col] = 'B'
+    }
+    if (row >= 3 && row <= 10) {
+      line[8] = 'B'
+      line[24] = 'B'
+    }
+    if (row === 5) {
+      for (let col = 9; col <= 14; col++) line[col] = '#'
+      line[10] = 'E'
+    }
+    if (row >= 5 && row <= 9) line[15] = '|'
+    if (row === 10) {
+      for (let col = 9; col <= 23; col++) line[col] = '#'
+    }
+    if (row === 9) {
+      line[19] = 'o'
+      line[22] = 'o'
+    }
     if (row === 9) {
       for (let col = 34; col <= 40; col++) line[col] = '='
       for (let col = 54; col <= 61; col++) line[col] = '='

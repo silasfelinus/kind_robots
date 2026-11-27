@@ -233,7 +233,12 @@ import { computed } from 'vue'
 import { useDeepheartStore } from '~/stores/deepheartStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import { ENEMIES, LAYERS, item } from '~/utils/deepheart/dungeon'
-import { bossBattleArt, encounterArt, enemyArt, ROOM_ART } from '~/utils/deepheart/art'
+import {
+  bossBattleArt,
+  encounterArt,
+  enemyArt,
+  ROOM_ART,
+} from '~/utils/deepheart/art'
 import { DEEPHEART } from '~/utils/playbookKit/games/deepheart'
 import { deepheartArtSrc } from '~/utils/deepheart/renderedArt'
 import * as engine from '~/utils/deepheart/engine'

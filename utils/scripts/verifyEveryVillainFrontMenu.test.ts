@@ -784,6 +784,76 @@ assert.ok(
   ).includes('front-origin-candle-that-wouldnt-die'),
 )
 
+// The orchard requires standing on the root; the greenhouse uses a
+// clear remote sightline. Neither ritual can be repeated or skipped.
+for (const [stageId, lead, target, start, flag] of [
+  [
+    'orchard-under-asphalt',
+    'magic-earth',
+    { x: 4, y: 2 },
+    { x: 4, y: 2 },
+    'orchard-arch-stitched',
+  ],
+  [
+    'future-in-the-glass',
+    'magic-water',
+    { x: 5, y: 3 },
+    { x: 2, y: 3 },
+    'glass-future-reframed',
+  ],
+] as const) {
+  const stage = clonePreset(stageId)
+  assert.deepEqual(stageProblems(stage), [])
+  for (const perspective of ['hero', 'villain'] as const) {
+    const state = trainingState(41, stage, { lead })
+    const actor = state.units[0]!
+    state.selected = actor.id
+    actor.x = stage.civilians![0]!.x
+    actor.y = stage.civilians![0]!.y
+    actor.ap = 2
+    assert.equal(rescueSelected(state), false)
+    actor.x = stageId === 'orchard-under-asphalt' ? 3 : 2
+    actor.y = 2
+    assert.equal(useSelectedPower(state, target), false)
+    actor.x = start.x
+    actor.y = start.y
+    actor.ap = 1
+    assert.equal(useSelectedPower(state, target), false)
+    actor.ap = 2
+    assert.deepEqual(selectedPowerTargets(state), [target])
+    assert.equal(useSelectedPower(state, target), true)
+    assert.equal(actor.ap, 0)
+    assert.equal(actor.powerSpent, true)
+    assert.ok(state.flags?.includes(flag))
+    const checkpoint = createSave({
+      slot: 'slot-2',
+      perspective,
+      leadSignature: lead,
+      stage,
+      state,
+      story: { ...createStory(), current: null },
+    })
+    assert.ok(loadSave(JSON.stringify(checkpoint)).ok)
+    assert.equal(
+      loadSave(
+        JSON.stringify(
+          createSave({ ...checkpoint, state: { ...state, flags: [] } }),
+        ),
+      ).ok,
+      false,
+    )
+    actor.ap = 2
+    assert.deepEqual(selectedPowerTargets(state), [])
+    for (const civilian of stage.civilians!) {
+      actor.x = civilian.x
+      actor.y = civilian.y
+      actor.ap = 2
+      assert.equal(rescueSelected(state), true)
+    }
+    assert.equal(state.phase, 'victory')
+  }
+}
+
 // Identity-locked rescue scenarios cannot strand someone without the needed
 // power, even if a saved menu or scripted call bypasses the visual filter.
 assert.deepEqual(ORIGIN_STAGE_LEADS, {
@@ -796,6 +866,8 @@ assert.deepEqual(ORIGIN_STAGE_LEADS, {
   'clocktower-collapse': 'accident-discipline',
   'equation-that-escaped': 'accident-genius',
   'candle-that-wouldnt-die': 'magic-fire',
+  'orchard-under-asphalt': 'magic-earth',
+  'future-in-the-glass': 'magic-water',
 })
 for (const [stage, signature] of Object.entries(ORIGIN_STAGE_LEADS)) {
   assert.equal(canStartOneShot(stage, signature), true)

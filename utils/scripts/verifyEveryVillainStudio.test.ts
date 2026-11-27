@@ -25,7 +25,7 @@ import {
   walkScene,
 } from '../everyVillainTactics/sceneGraph'
 
-assert.equal(STAGE_PRESETS.length, 22)
+assert.equal(STAGE_PRESETS.length, 24)
 assert.ok(STAGE_PRESETS.some((stage) => stage.id === 'hydrant-blue'))
 assert.ok(
   STAGE_PRESETS.some((stage) => stage.id === 'song-that-stopped'),
@@ -95,6 +95,70 @@ for (const perspective of ['hero', 'villain'] as const) {
         (node) => node.id === (choice === 0 ? 'va' : 'vb'),
       ),
     )
+  }
+}
+
+for (const [stageId, lead, prefix, flagA, flagB] of [
+  [
+    'orchard-under-asphalt',
+    'magic-earth',
+    'orchard',
+    'orchard-preserve',
+    'orchard-remove',
+  ],
+  [
+    'future-in-the-glass',
+    'magic-water',
+    'glass',
+    'glass-withhold',
+    'glass-reveal',
+  ],
+] as const) {
+  for (const perspective of ['hero', 'villain'] as const) {
+    for (const choice of [0, 1]) {
+      const stage = clonePreset(stageId)
+      const script = stage.script!
+      const battle = trainingState(41, stage, { lead })
+      assert.deepEqual(latchScenes(battle, script, stage), [
+        prefix + '-origin-opening',
+      ])
+      const intro = pendingScriptScene(battle, script)!
+      assert.ok(
+        walkScene(intro, [], { state: battle, perspective })!.nodes.some(
+          (node) => node.id === (perspective === 'hero' ? 'oh' : 'ov'),
+        ),
+      )
+      assert.ok(finishScene(battle, intro, [], perspective))
+      battle.turn = 2
+      assert.ok(
+        latchScenes(battle, script, stage).includes(prefix + '-origin-choice'),
+      )
+      const decision = pendingScriptScene(battle, script)!
+      const actor = battle.units[0]!
+      actor.hp = actor.maxHp - 1
+      assert.ok(finishScene(battle, decision, [choice], perspective))
+      assert.equal(
+        finishScene(battle, decision, [1 - choice], perspective),
+        false,
+      )
+      assert.ok(battle.flags?.includes(choice === 0 ? flagA : flagB))
+      if (choice === 0) assert.equal(actor.hp, actor.maxHp)
+      else
+        assert.ok(
+          battle.units.some(
+            (unit) => unit.team === 'rival' && unit.statuses.includes('suppressed'),
+          ),
+        )
+      battle.phase = 'victory'
+      latchScenes(battle, script, stage)
+      const finale = pendingScriptScene(battle, script)!
+      assert.equal(finale.id, prefix + '-origin-victory')
+      assert.ok(
+        walkScene(finale, [], { state: battle, perspective })!.nodes.some(
+          (node) => node.id === (choice === 0 ? 'va' : 'vb'),
+        ),
+      )
+    }
   }
 }
 

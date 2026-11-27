@@ -26,6 +26,7 @@ import {
   makerId,
   newMakerLevel,
   paintMakerTile,
+  makerBrushCells,
   toMakerStage,
   validateMakerLevel,
 } from '../arcade/games/savePlumberMaker'
@@ -90,6 +91,63 @@ assert.equal(initial.rows[0]!.length, 64)
 assert.equal(parseStage(toMakerStage(initial)).start.col, 3)
 assert.equal((initial.rows.join('').match(/G/g) ?? []).length, 1)
 assert.deepEqual(validateMakerLevel(initial), initial)
+
+const brushCases = [
+  [
+    { x: 2, y: 5 },
+    { x: 17, y: 5 },
+  ],
+  [
+    { x: 17, y: 5 },
+    { x: 2, y: 5 },
+  ],
+  [
+    { x: 8, y: 2 },
+    { x: 8, y: 19 },
+  ],
+  [
+    { x: 4, y: 4 },
+    { x: 18, y: 11 },
+  ],
+  [
+    { x: 18, y: 11 },
+    { x: 4, y: 4 },
+  ],
+  [
+    { x: 8, y: 8 },
+    { x: 8, y: 8 },
+  ],
+] as const
+for (const [from, to] of brushCases) {
+  const cells = makerBrushCells(from, to)
+  assert.deepEqual(cells[0], from)
+  assert.deepEqual(cells.at(-1), to)
+  assert.equal(
+    cells.length,
+    Math.max(Math.abs(to.x - from.x), Math.abs(to.y - from.y)) + 1,
+  )
+  for (let i = 1; i < cells.length; i++) {
+    const previous = cells[i - 1]!
+    const current = cells[i]!
+    assert.equal(
+      Math.max(
+        Math.abs(current.x - previous.x),
+        Math.abs(current.y - previous.y),
+      ),
+      1,
+      'fast pointer movement leaves no skipped cells',
+    )
+  }
+}
+let brushLevel = initial
+for (const cell of makerBrushCells({ x: 10, y: 8 }, { x: 25, y: 8 }))
+  brushLevel = paintMakerTile(brushLevel, cell.x, cell.y, '#')
+assert.equal(brushLevel.rows[8]!.slice(10, 26), '#'.repeat(16))
+assert.deepEqual(validateMakerLevel(brushLevel), brushLevel)
+assert.match(
+  source('../../components/arcade/plumber-level-maker.vue'),
+  /makerBrushCells\(dragStart \?\? next, next\)/,
+)
 
 for (const cols of [32, 33, 64, MAKER_MAX_COLS]) {
   const level = newMakerLevel(cols)

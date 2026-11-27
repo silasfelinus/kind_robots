@@ -1367,6 +1367,81 @@ for (let seed = 1; seed <= 8; seed++) {
     null,
   )
 }
+// Earlier decisions change the actual day-24 restitution cost without
+// preventing the mandatory day-20 turn or forcing reinstatement.
+for (let seed = 1; seed <= 12; seed++) {
+  const start = startFullAcademy('kinetic', seed)
+  const choose = (run: typeof start, day: number, id: string) =>
+    chooseEncounter({ ...run, day, phase: 'campus' }, id)
+  const trails = [
+    [
+      'plot-warning-question',
+      'plot-suspicion-open',
+      'plot-betrayal-expose',
+      3,
+      -2,
+    ],
+    [
+      'plot-warning-question',
+      'plot-suspicion-cover',
+      'plot-betrayal-hear',
+      3,
+      0,
+    ],
+    ['plot-warning-leave', 'plot-suspicion-cover', 'plot-betrayal-hear', 2, 0],
+    ['plot-warning-leave', 'plot-suspicion-open', 'plot-betrayal-hear', 2, -1],
+  ] as const
+  for (const [warning, suspicion, response, influence, danger] of trails) {
+    let run = choose(start, 8, warning)
+    run = choose(run, 15, suspicion)
+    run = choose(run, 20, response)
+    assert.equal(run.betrayal?.status, 'active')
+    assert.equal(studentAvailable(run, campaignBetrayer(seed)), false)
+    assert.deepEqual(run.betrayalTrail, [
+      { day: 8, choice: warning },
+      { day: 15, choice: suspicion },
+      { day: 20, choice: response },
+    ])
+    assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(run))), run)
+    const campus = { ...run, day: 24, phase: 'campus' as const, danger: 5 }
+    const event = encounterFor(campus)
+    const option = event.options.find(
+      (item) => item.id === 'plot-return-accountable',
+    )!
+    assert.equal(option.influence, influence)
+    assert.equal(option.danger, danger)
+    const returned = chooseEncounter(campus, option.id)
+    assert.equal(returned.influence - campus.influence, influence)
+    assert.equal(returned.danger - campus.danger, danger)
+    assert.equal(returned.betrayal?.status, 'reconciled')
+    assert.equal(studentAvailable(returned, campaignBetrayer(seed)), true)
+    const separate = chooseEncounter(campus, 'plot-return-separate')
+    assert.equal(separate.betrayal?.status, 'isolated')
+    assert.equal(studentAvailable(separate, campaignBetrayer(seed)), false)
+    assert.equal(
+      restoreAcademy({
+        ...run,
+        betrayalTrail: [...run.betrayalTrail!, run.betrayalTrail![0]!],
+      }),
+      null,
+    )
+    assert.equal(
+      restoreAcademy({ ...run, betrayalTrail: [{ day: 8, choice: response }] }),
+      null,
+    )
+    const legacy = { ...run }
+    delete legacy.betrayalTrail
+    assert.deepEqual(restoreAcademy(legacy), legacy)
+  }
+}
+const unresolvedWarning = {
+  ...startFullAcademy('kinetic', 1),
+  day: 8,
+  phase: 'campus' as const,
+  betrayalTrail: [{ day: 8, choice: 'plot-warning-question' }],
+}
+assert.equal(restoreAcademy(unresolvedWarning), null)
+
 const formerFourSeed = {
   ...startFullAcademy('kinetic', 4),
   mastermind: 'the-architect',

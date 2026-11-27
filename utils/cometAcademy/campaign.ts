@@ -424,11 +424,85 @@ export function campaignAccomplice(villain: VillainPlan, index: number) {
 
 // Hand-authored story gates. The day-20 betrayal cannot be avoided by a random
 // draw; day 24 allows reconciliation but never erases the original betrayal.
+export type BetrayalMemory =
+  | { day: 8; choice: 'plot-warning-question' | 'plot-warning-leave' }
+  | { day: 15; choice: 'plot-suspicion-open' | 'plot-suspicion-cover' }
+  | { day: 20; choice: 'plot-betrayal-expose' | 'plot-betrayal-hear' }
+
+export function betrayalMemory(
+  day: number,
+  choice: string,
+): BetrayalMemory | undefined {
+  if (
+    day === 8 &&
+    (choice === 'plot-warning-question' || choice === 'plot-warning-leave')
+  )
+    return { day, choice }
+  if (
+    day === 15 &&
+    (choice === 'plot-suspicion-open' || choice === 'plot-suspicion-cover')
+  )
+    return { day, choice }
+  if (
+    day === 20 &&
+    (choice === 'plot-betrayal-expose' || choice === 'plot-betrayal-hear')
+  )
+    return { day, choice }
+  return undefined
+}
+
+export function validBetrayalTrail(raw: unknown, lastDay: number): boolean {
+  if (!Array.isArray(raw) || raw.length > 3) return false
+  let previousDay = 0
+  for (const entry of raw) {
+    if (
+      !entry ||
+      !betrayalMemory(entry.day, entry.choice) ||
+      entry.day <= previousDay ||
+      entry.day > lastDay
+    )
+      return false
+    previousDay = entry.day
+  }
+  return true
+}
+
+function restitutionEvidence(trail: readonly BetrayalMemory[]) {
+  const choices = new Set(trail.map((entry) => entry.choice))
+  const asked = choices.has('plot-warning-question')
+  const witnessed = choices.has('plot-suspicion-open')
+  const covered = choices.has('plot-suspicion-cover')
+  const exposed = choices.has('plot-betrayal-expose')
+  const heard = choices.has('plot-betrayal-hear')
+  const strongRecord = witnessed && exposed
+  const tracedThreat = asked && heard
+  const missingRecord = covered && heard
+  const lines: string[] = []
+  if (strongRecord)
+    lines.push(
+      'The earlier witness statement and the public rescue report independently corroborate the confession.',
+    )
+  if (tracedThreat)
+    lines.push(
+      'The confidence you earned at the lockers gives the threatened contact a way to confirm the coercion privately.',
+    )
+  if (missingRecord)
+    lines.push(
+      'The workshop report was suppressed and the gate testimony was private. The oversight team must rebuild the missing record before it can safely delegate rescue keys.',
+    )
+  return {
+    detail: lines.length ? ' ' + lines.join(' ') : '',
+    influence: strongRecord || tracedThreat ? 3 : 2,
+    danger: strongRecord ? -2 : missingRecord ? 0 : -1,
+  }
+}
+
 export function campaignPlotEvent(
   seed: number,
   savedId: string | undefined,
   day: number,
   betrayerName: string,
+  trail: readonly BetrayalMemory[] = [],
 ) {
   const villain = campaignVillain(seed, savedId)
   const vignette = BETRAYER_VIGNETTES[campaignBetrayer(seed)]
@@ -522,18 +596,19 @@ export function campaignPlotEvent(
         },
       ],
     }
-  if (day === 24)
+  if (day === 24) {
+    const evidence = restitutionEvidence(trail)
     return {
       title: 'The Price of Coming Back',
       location: 'Academy / Student Council',
-      scene: `${betrayerName} offers to return with a signed confession and the villain's relay codes. The people they abandoned deserve a hearing, not a convenient reset. ${vignette.repair} Any reconciliation requires public accountability and cannot erase the day-20 betrayal.`,
+      scene: `${betrayerName} offers to return with a signed confession and the villain's relay codes. The people they abandoned deserve a hearing, not a convenient reset. ${vignette.repair} Any reconciliation requires public accountability and cannot erase the day-20 betrayal.${evidence.detail}`,
       options: [
         {
           id: 'plot-return-accountable',
           label: 'Offer a supervised return and restitution',
-          text: `${betrayerName} gives the neighborhood rescuers the relay codes, accepts community oversight, and rejoins the roster under clear conditions. ${vignette.repair} Their betrayal remains in the chronicle.`,
-          influence: 2,
-          danger: -1,
+          text: `${betrayerName} gives the neighborhood rescuers the relay codes, accepts community oversight, and rejoins the roster under clear conditions. ${vignette.repair} Their betrayal remains in the chronicle.${evidence.detail}`,
+          influence: evidence.influence,
+          danger: evidence.danger,
         },
         {
           id: 'plot-return-separate',
@@ -544,6 +619,7 @@ export function campaignPlotEvent(
         },
       ],
     }
+  }
   return undefined
 }
 

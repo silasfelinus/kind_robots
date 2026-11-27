@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { CITY_SITES } from '../cometAcademy/cityMap'
+import { fieldFor, IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import { scrapbookMoments } from '../cometAcademy/consoleScreens'
 import {
   EXPANDED_MISSIONS,
@@ -95,7 +96,12 @@ const arrest = patrolStoryById('story-last-stop')!.choices[0]!.outcomes.success!
 assert.ok(arrest.standing < 0 && arrest.influence > 0)
 
 // --------------------------------------------- from-start play helpers
-type Plan = { zone?: PatrolZoneId; pick?: number; site?: string }
+type Plan = {
+  zone?: PatrolZoneId
+  pick?: number
+  site?: string
+  onDebrief?: (run: AcademyRun) => void
+}
 
 function dayPlan(run: AcademyRun, plan: Plan = {}): AcademyRun {
   assert.equal(run.phase, 'map', `day ${run.day} starts in daylight`)
@@ -130,6 +136,7 @@ function dayPlan(run: AcademyRun, plan: Plan = {}): AcademyRun {
   next = resolveDispatch(next)
   assert.equal(next.phase, 'debrief')
   roundTrip(next)
+  plan.onDebrief?.(next)
   return nextSchoolDay(next)
 }
 
@@ -589,4 +596,79 @@ assert.ok(page.includes('patrolEncounterFor(run.value, patrolZone.value)'))
 
 console.log(
   `Prom of Doom patrol stories: 3 commissioned stories with every branch, secret, refusal, callback and later-night effect; ${matchups.length} hidden matchups; ${clueThreads.size + storyThreads.length} multi-day threads; ${SEEDS.length} seeds from New Game to the prom (calls ${mean(phases.early).toFixed(1)} → ${mean(phases.mid).toFixed(1)} → ${mean(phases.late).toFixed(1)}).`,
+)
+
+// Every canonical origin gets a legal full-term patrol trace. No synthetic
+// day, roster, opponent, or grade overrides: begin at the title's new game.
+const canonicalRuns = new Set<string>()
+const witnessedCases = new Set<string>()
+const witnessedGrades = new Set<string>()
+const walkedZones = new Set<PatrolZoneId>()
+const deckIds = new Set(COMPLETE_NIGHT_DECK.map((incident) => incident.id))
+let witnessedNights = 0
+for (const [index, identity] of IDENTITY_ARCS.entries()) {
+  const signature = identity.signature
+  let run = startFullAcademy(fieldFor(signature), 4181 + index, signature)
+  assert.equal(run.signature, signature)
+  assert.equal(knownContacts(run).length, 0)
+  assert.notEqual(run.opponentSignature, signature)
+  for (let day = 1; day <= 29; day++) {
+    const zone =
+      day >= 4 && day < 29 && (day + index) % 3 !== 0
+        ? PATROL_ZONES[(day + index) % PATROL_ZONES.length]!.id
+        : undefined
+    const count = run.patrolHistory?.length ?? 0
+    run = dayPlan(run, {
+      zone,
+      pick: day + index,
+      onDebrief: (done) => {
+        assert.equal(done.signature, signature)
+        assert.equal(done.day, day)
+        assert.ok(done.reports.length > 0)
+        const cases = done.reports.filter((report) =>
+          deckIds.has(report.caseId),
+        )
+        assert.equal(
+          new Set(cases.map((report) => report.caseId)).size,
+          cases.length,
+        )
+        for (const report of cases) {
+          assert.ok(report.text.trim())
+          witnessedCases.add(report.caseId)
+          witnessedGrades.add(report.grade)
+        }
+        if (zone) {
+          assert.equal(done.patrolHistory?.length, count + 1)
+          assert.equal(done.patrolHistory?.at(-1)?.zone, zone)
+          assert.ok(
+            done.reports.some(
+              (report) => report.caseId === `patrol-${day}-${zone}`,
+            ),
+          )
+          walkedZones.add(zone)
+        }
+        witnessedNights++
+      },
+    })
+    assert.equal(run.signature, signature)
+    assert.equal(run.phase, day === 29 ? 'finale' : 'map')
+  }
+  roundTrip(run)
+  canonicalRuns.add(signature)
+}
+assert.equal(canonicalRuns.size, 48)
+assert.equal(witnessedNights, 48 * 29)
+assert.equal(walkedZones.size, PATROL_ZONES.length)
+assert.ok(
+  witnessedCases.size >= 36,
+  `only ${witnessedCases.size} playable calls`,
+)
+assert.deepEqual([...witnessedGrades].sort(), [
+  'failed',
+  'honors',
+  'partial',
+  'pass',
+])
+console.log(
+  `Canonical patrol acceptance: ${canonicalRuns.size} identities, ${witnessedNights} nights, ${witnessedCases.size} resolved case IDs and all four grades; each run reaches prom.`,
 )

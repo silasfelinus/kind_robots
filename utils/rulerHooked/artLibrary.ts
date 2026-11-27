@@ -18,6 +18,7 @@ import type {
 } from '~/types/ruler-hooked'
 
 import type { CharacterExpressionKey } from '~/utils/rulerHooked/characterArt'
+import { RULER_HOOKED_CONTENT } from '~/utils/rulerHooked/content'
 
 export const ART_ROOT = '/images/ruler-hooked'
 
@@ -40,15 +41,15 @@ export function vistaCandidates(
   state: string | undefined,
   time: TimeKey,
 ): string[] {
-  const out: string[] = []
-  if (state) {
-    const painted = paintedTime(time)
-    out.push(art(`${region}-${state}-${painted}`))
-    if (painted === 'golden')
-      out.push(art(`${region}-${state}-${dayOrNight(time)}`))
-    out.push(art(`${region}-${state}-day`))
-  }
-  return [...new Set(out)]
+  if (!state || region === 'ruler') return []
+  const times = RULER_HOOKED_CONTENT.regions.regions[region]?.times
+  const base = `${region}-${state}`
+  if (!times?.length) return [art(base)]
+
+  const ordered = [paintedTime(time), dayOrNight(time), 'day'] as const
+  return [...new Set(ordered)]
+    .filter((candidate) => times.includes(candidate))
+    .map((candidate) => art(`${base}-${candidate}`))
 }
 
 /**

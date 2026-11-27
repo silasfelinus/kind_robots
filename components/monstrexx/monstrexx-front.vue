@@ -4,6 +4,8 @@
     data-testid="monstrexx-front-page"
     aria-label="Monstrique main menu"
     @keydown.esc="closePanel"
+    @pointerdown.capture="sound.unlock()"
+    @keydown.capture="sound.unlock()"
   >
     <div
       class="mx-painting pointer-events-none absolute inset-0"
@@ -234,6 +236,46 @@
                 </div>
               </div>
             </div>
+            <div class="mx-volume" data-testid="monstrique-volume">
+              <h3 class="mx-volume-title">Sound and music</h3>
+              <label
+                v-for="channel in volumeChannels"
+                :key="channel.key"
+                class="mx-volume-row"
+              >
+                <span class="font-semibold">{{ channel.label }}</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  :value="Math.round(sound.mix[channel.key] * 100)"
+                  :aria-label="channel.label + ' volume'"
+                  :disabled="sound.mix.muted"
+                  @input="setVolume(channel.key, $event)"
+                />
+                <span class="mx-volume-value"
+                  >{{ Math.round(sound.mix[channel.key] * 100) }}%</span
+                >
+              </label>
+              <label class="mx-volume-row">
+                <span class="font-semibold">Mute everything</span>
+                <input
+                  type="checkbox"
+                  :checked="sound.mix.muted"
+                  @change="
+                    sound.setMix({
+                      muted: ($event.target as HTMLInputElement).checked,
+                    })
+                  "
+                />
+              </label>
+              <p class="mx-small-note">
+                Original surf-noir score, rain and comic cues. Music starts
+                after your first tap or key press; Sound off in the list above
+                silences it too.
+              </p>
+            </div>
             <p class="mx-small-note">
               {{
                 audience === 'mature'
@@ -372,6 +414,7 @@ import { useMonstressConventionStore } from '~/stores/monstressConventionStore'
 import { useMonstriquePublicStore } from '~/stores/monstriquePublicStore'
 import { MONSTRIQUE_GENERAL_SPEC } from '~/utils/monstressConvention/edition'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
+import { useMonstriqueSoundStore } from '~/stores/monstriqueSoundStore'
 import { HOTEL_ROOMS } from '~/utils/monstressConvention/prologue'
 import { MONSTRESS_CONVENTION } from '~/utils/playbookKit/games/monstressConvention'
 import { achievementsForGame } from '~/utils/achievements/gameAchievements'
@@ -394,7 +437,29 @@ const publicStory = useMonstriquePublicStore()
 const story = computed(() => (props.publicEdition ? publicStory : adminStory))
 const kit = usePlaybookKitStore()
 const user = useUserStore()
+const sound = useMonstriqueSoundStore()
+const volumeChannels = [
+  { key: 'master', label: 'Master' },
+  { key: 'music', label: 'Music' },
+  { key: 'effects', label: 'Effects' },
+] as const
+
+function setVolume(
+  channel: 'master' | 'music' | 'effects',
+  event: Event,
+): void {
+  const value = Number((event.target as HTMLInputElement).value)
+  if (Number.isFinite(value)) sound.setMix({ [channel]: value / 100 })
+}
+
 onMounted(() => {
+  sound.loadMix()
+  sound.setMood('title')
+  watch(
+    () => kit.settings.sound,
+    (setting) => sound.setEnabled(setting !== 'off'),
+    { immediate: true },
+  )
   watch(
     () => [
       user.token,
@@ -944,5 +1009,41 @@ function stepSetting(key: KitSettingKey, direction: number): void {
   .mx-choice {
     transition: none;
   }
+}
+.mx-volume {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  background: rgb(0 0 0 / 0.2);
+}
+.mx-volume-title {
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.mx-volume-row {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr) 3rem;
+  align-items: center;
+  gap: 0.6rem;
+}
+.mx-volume-row input[type='range'] {
+  width: 100%;
+  accent-color: #ffd84d;
+}
+.mx-volume-row input[type='checkbox'] {
+  justify-self: start;
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: #ffd84d;
+}
+.mx-volume-value {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  opacity: 0.8;
 }
 </style>

@@ -574,6 +574,9 @@ jobs:
         env:
           DATABASE_URL: 'mysql://monstrique:monstrique@127.0.0.1:3306/monstrique'
 
+      - name: Monstrique original score, cues and volume controls
+        run: npx tsx utils/scripts/verifyMonstriqueSound.test.ts
+
   contract_2:
     name: Contract shard 2/4
     runs-on: ubuntu-latest

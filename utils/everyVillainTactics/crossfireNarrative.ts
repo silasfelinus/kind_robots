@@ -3,8 +3,14 @@ import type { SignaturePowerId } from '../cometAcademy/specialPowers'
 import type { CrossfireJournal } from './crossfireCampaign'
 import { CROSSFIRE_CHAPTERS, crossfireFinaleNetwork } from './crossfireCampaign'
 import { ACCIDENT_CAMPAIGNS } from './personalAccidentCampaigns'
+import { MAGIC_CAMPAIGNS } from './personalMagicCampaigns'
 import type { StoryRun } from './firstBellStory'
 import type { TrainingState } from './training'
+
+export const PERSONAL_CAMPAIGNS = {
+  ...ACCIDENT_CAMPAIGNS,
+  ...MAGIC_CAMPAIGNS,
+}
 
 type BattleEvidence = {
   state: Pick<TrainingState, 'phase' | 'flags'>
@@ -110,7 +116,7 @@ export function crossfireChapterBeat(
   const chapter = CROSSFIRE_CHAPTERS[index]
   const speaker = identityFor(lead).hero.alias
   const opponent = foil ? identityFor(foil).hero.alias : 'the rival patrol'
-  const personal = ACCIDENT_CAMPAIGNS[lead]?.chapters[index]
+  const personal = PERSONAL_CAMPAIGNS[lead]?.chapters[index]
   const reported = personal
     ? personal[choice === 'rescue' ? 1 : choice === 'evidence' ? 2 : 3]
     : (AFTERMATH[index]?.[choice] ?? '')
@@ -149,7 +155,7 @@ export function crossfireFinale(
   const opponent = journal.foil
     ? identityFor(journal.foil).hero.alias
     : 'the rival leader'
-  const personal = ACCIDENT_CAMPAIGNS[journal.lead]?.endings
+  const personal = PERSONAL_CAMPAIGNS[journal.lead]?.endings
   const close = (index: number, text: string) =>
     personal ? text + ' ' + personal[index] : text
   if (last === 'rescue' && network.squadGuarded)

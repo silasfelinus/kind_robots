@@ -45,6 +45,7 @@ import {
 import {
   readPlumberFile,
   readPlumberSave,
+  validPlumberCloudSave,
 } from '../arcade/games/savePlumberSave'
 
 // --- The graph (conductor validate_gen2_worlds.py, ported) ----------------------
@@ -218,6 +219,57 @@ assert.deepEqual(
   },
   'junk reads as an empty file',
 )
+
+// Cloud storage accepts the same canonical file as the cabinet, never junk
+// that would silently normalize into an empty adventure.
+const cloud = readPlumberFile(v2)
+assert.ok(validPlumberCloudSave(cloud))
+assert.ok(validPlumberCloudSave(readPlumberFile(null)))
+assert.ok(
+  validPlumberCloudSave({
+    album: cloud.album,
+    endlessBest: cloud.endlessBest,
+    slots: cloud.slots,
+    active: cloud.active,
+    v: cloud.v,
+  }),
+  'JSON property order is not part of the save format',
+)
+assert.ok(!validPlumberCloudSave(v1), 'migrate before writing to cloud')
+assert.ok(!validPlumberCloudSave({ ...cloud, active: 3 }))
+assert.ok(!validPlumberCloudSave({ ...cloud, slots: [null] }))
+assert.ok(!validPlumberCloudSave({ ...cloud, userId: 10 }))
+assert.ok(!validPlumberCloudSave({ ...cloud, endlessBest: -1 }))
+assert.ok(
+  !validPlumberCloudSave({
+    ...cloud,
+    album: { ...cloud.album, done: ['nonexistent-node'] },
+  }),
+)
+assert.ok(
+  !validPlumberCloudSave({
+    ...cloud,
+    slots: [null, { ...cloud.slots[1], lives: 0 }, null],
+  }),
+)
+assert.ok(
+  !validPlumberCloudSave({
+    ...cloud,
+    slots: [null, { ...cloud.slots[1], power: 'unknown-power' }, null],
+  }),
+)
+assert.ok(
+  !validPlumberCloudSave({
+    ...cloud,
+    album: { ...cloud.album, gears: Array(9000).fill('1-1') },
+  }),
+)
+const erasedSlot = readPlumberFile({
+  ...cloud,
+  slots: [null, null, null],
+})
+assert.ok(validPlumberCloudSave(erasedSlot))
+assert.deepEqual(erasedSlot.album, cloud.album, 'album survives slot erasure')
 
 const options = (resume?: unknown) => ({
   rng: () => 0.5,

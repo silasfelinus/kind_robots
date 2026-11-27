@@ -15,6 +15,7 @@
  * slots, and a version-1 save (one resume point) lands in slot 1 with every
  * stage before its resume point cleared. Nobody loses a run to the upgrade.
  */
+import { MAX_SAVE_BYTES, serializedSaveBytes } from '../saves'
 import { CAMPAIGN } from './savePlumberLevels'
 import {
   SECRET_EXITS_READY,
@@ -412,6 +413,43 @@ export function readPlumberFile(raw: unknown): PlumberFile {
     endlessBest: best(r.endlessBest),
     album: mergePlumberAlbum(null, [slot, null, null]),
   }
+}
+
+function matchesCanonicalSave(expected: unknown, actual: unknown): boolean {
+  if (expected === actual) return true
+  if (Array.isArray(expected)) {
+    return (
+      Array.isArray(actual) &&
+      expected.length === actual.length &&
+      expected.every((value, i) => matchesCanonicalSave(value, actual[i]))
+    )
+  }
+  if (
+    !expected ||
+    !actual ||
+    typeof expected !== 'object' ||
+    typeof actual !== 'object' ||
+    Array.isArray(actual)
+  )
+    return false
+  const fields = Object.entries(expected)
+  const value = actual as Record<string, unknown>
+  return (
+    Object.keys(value).length === fields.length &&
+    fields.every(
+      ([key, field]) =>
+        Object.hasOwn(value, key) && matchesCanonicalSave(field, value[key]),
+    )
+  )
+}
+
+/** Account writes require canonical v3 files, not silently repaired input. */
+export function validPlumberCloudSave(raw: unknown): raw is PlumberFile {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return false
+  if ((raw as Record<string, unknown>).v !== 3) return false
+  const bytes = serializedSaveBytes(raw)
+  if (bytes === null || bytes > MAX_SAVE_BYTES) return false
+  return matchesCanonicalSave(readPlumberFile(raw), raw)
 }
 
 /** The active slot, in the shape the front page reads, or null before the first game. */

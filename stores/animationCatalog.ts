@@ -1292,6 +1292,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'sea-glass-swash',
+    label: 'Sea Glass Swash',
+    reveal: 'Waves race up a sunny beach and tumble frosted sea glass',
+    icon: 'kind-icon:gem',
+    tooltip:
+      'Lacy swash fronts run up the sand, tumble sea-glass pebbles and drain back 🌊 walk the pointer across dry sand to leave footprints, click to call a bigger wave',
+    color: '#76c49c',
+    releasedAt: '2026-11-27T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

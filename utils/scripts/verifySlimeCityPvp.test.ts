@@ -1135,7 +1135,7 @@ assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
       42,
       pvpRules({ deckSetups: { player: { format: 'alliance', deck } } }),
     )
-    assert.equal(state.allies.player, ally)
+    assert.equal(state.allies?.player, ally)
     assert.deepEqual(
       [...state.decks.player, ...state.hands.player].sort(),
       [...deck.cards].sort(),

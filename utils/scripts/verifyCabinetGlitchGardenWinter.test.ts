@@ -6,6 +6,7 @@ import type { InputFrame } from '../arcade/types'
 import {
   FROST_HP,
   FROST_SPREAD_TICKS,
+  FROST_SPRITE_EVERY,
   HEATER_RADIUS,
   SNOWBALL_HP,
   MOLE_TELL_TICKS,
@@ -38,6 +39,8 @@ type Probe = {
   grid: Obstacle[]
   wave: { objective?: { kind: string } }
   frostTimer: number
+  frostSprite: { x: number; y: number; vx: number } | null
+  frostSpriteTimer: number
   snowballs: Snowball[]
   snowballsFixed: number
   objectiveDone: boolean
@@ -54,6 +57,8 @@ type Probe = {
   stepBeam(beam: unknown): boolean
   thawHeater(col: number, row: number): void
   updateFrost(): void
+  updateFrostSprite(): void
+  hitFrostSprite(x: number, y: number): boolean
   updateMole(): void
   hitMole(x: number, y: number): boolean
   checkHits(): void
@@ -231,6 +236,50 @@ assert.ok(SNOWBALL_HILL.waves.every((w) => w.snowballs > 0))
     for (let i = 0; i < SNOWBALL_HP; i++)
       assert.ok(g.hitSnowball(ball.x, ball.y))
   assert.equal(g.objectiveDone, true, 'respawn cannot strand Snow Day reward')
+}
+
+{
+  const g = make(41)
+  g.beginStep(gardenStart(6), 0, 34)
+  g.frostSpriteTimer = 1
+  g.updateFrostSprite()
+  assert.ok(g.frostSprite, 'a seeded frost sprite crosses the greenhouse')
+  const index = g.grid.findIndex(
+    (lamp) => lamp?.kind === 'lamp' && !lamp.frosted,
+  )
+  assert.ok(index >= 0)
+  const col = index % COLS
+  const row = Math.floor(index / COLS)
+  const x = col * CELL + 4
+  const y = HUD + row * CELL + 4
+  g.frostSprite = { x: x - 1, y, vx: 1 }
+  g.updateFrostSprite()
+  assert.equal(at(g, col, row)?.frosted, true)
+  assert.equal(at(g, col, row)?.hp, FROST_HP)
+  assert.ok(g.hitFrostSprite(x, y), 'spray fixes the moving frost source')
+  assert.equal(g.frostSprite, null)
+  assert.equal(g.frostSpriteTimer, FROST_SPRITE_EVERY)
+  assert.equal(g.hitFrostSprite(x, y), false, 'one sprite pays only once')
+
+  const [hc, hr] = layoutCells(FROST_FRAME_GREENHOUSE, LAYOUT_HEATER)[1]!
+  g.thawHeater(hc, hr)
+  const heated = g.grid.findIndex((lamp, i) => {
+    const c = i % COLS
+    const r = Math.floor(i / COLS)
+    return lamp?.kind === 'lamp' && Math.hypot(c - hc, r - hr) <= HEATER_RADIUS
+  })
+  assert.ok(heated >= 0, 'a lamp lies in the heater radius')
+  const hx = (heated % COLS) * CELL + 4
+  const hy = HUD + Math.floor(heated / COLS) * CELL + 4
+  g.frostSprite = { x: hx - 1, y: hy, vx: 1 }
+  g.updateFrostSprite()
+  assert.notEqual(g.grid[heated]?.frosted, true, 'lit heat protects lamps')
+  g.afterDeath()
+  assert.equal(g.frostSprite, null, 'respawn clears the crossing threat')
+  g.beginStep(gardenStart(7), 0, 40)
+  g.frostSpriteTimer = 1
+  g.updateFrostSprite()
+  assert.equal(g.frostSprite, null, 'sprite does not leak into Snowball Hill')
 }
 
 console.log('glitch garden winter mechanics: ok')

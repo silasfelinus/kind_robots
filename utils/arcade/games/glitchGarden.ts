@@ -188,6 +188,8 @@ export const ROLLER_HP = 4
 export const INCHWORM_SLOW_TICKS = 300
 export const FROST_HP = 8
 export const FROST_SPREAD_TICKS = 180
+export const FROST_SPRITE_EVERY = 240
+export const FROST_SPRITE_POINTS = 600
 export const HEATER_RADIUS = 3
 export const ICE_ACCEL = 0.45
 export const ICE_DRAG = 0.92
@@ -385,6 +387,7 @@ type Pumpkin = {
 }
 type Inchworm = { x: number; y: number; vx: number }
 type Snowball = { x: number; y: number; hp: number; vy: number }
+type FrostSprite = { x: number; y: number; vx: number }
 type MoleBot = { x: number; y: number; phase: 'tell' | 'up'; ticks: number }
 type Snail = { x: number; y: number; vx: number }
 type Beetle = { x: number; y: number; vx: number; vy: number; turn: number }
@@ -826,6 +829,8 @@ class GlitchGarden implements ArcadeGameInstance {
   private inchworms: Inchworm[] = []
   private slowTicks = 0
   private frostTimer = FROST_SPREAD_TICKS
+  private frostSprite: FrostSprite | null = null
+  private frostSpriteTimer = FROST_SPRITE_EVERY
   private glideX = 0
   private glideY = 0
   private snowballs: Snowball[] = []
@@ -1102,6 +1107,58 @@ class GlitchGarden implements ArcadeGameInstance {
         frosted++
       }
     this.frostTimer = FROST_SPREAD_TICKS
+    this.frostSprite = null
+    this.frostSpriteTimer = FROST_SPRITE_EVERY
+  }
+
+  private updateFrostSprite() {
+    if (this.wave.frost === 0) return
+    if (!this.frostSprite) {
+      if (--this.frostSpriteTimer > 0) return
+      this.frostSpriteTimer = FROST_SPRITE_EVERY
+      const rows: number[] = []
+      for (let row = 0; row < BED_TOP; row++) {
+        for (let col = 0; col < COLS; col++) {
+          const lamp = this.at(col, row)
+          if (lamp?.kind !== 'lamp' || lamp.frosted || this.inHeat(col, row))
+            continue
+          rows.push(row)
+          break
+        }
+      }
+      if (!rows.length) return
+      const row = rows[Math.floor(this.rng() * rows.length)]!
+      const vx = this.rng() < 0.5 ? -1 : 1
+      this.frostSprite = {
+        x: vx > 0 ? -8 : W + 8,
+        y: HUD + row * CELL + 4,
+        vx,
+      }
+      this.sound.play('warn')
+    }
+    const sprite = this.frostSprite
+    sprite.x += sprite.vx
+    const col = Math.floor(sprite.x / CELL)
+    const row = Math.floor((sprite.y - HUD) / CELL)
+    const lamp = this.at(col, row)
+    if (lamp?.kind === 'lamp' && !lamp.frosted && !this.inHeat(col, row)) {
+      lamp.frosted = true
+      lamp.hp = Math.max(lamp.hp, FROST_HP)
+    }
+    if (sprite.x < -10 || sprite.x > W + 10) this.frostSprite = null
+  }
+
+  private hitFrostSprite(x: number, y: number): boolean {
+    const sprite = this.frostSprite
+    if (!sprite || Math.abs(sprite.x - x) > 7 || Math.abs(sprite.y - y) > 6)
+      return false
+    this.frostSprite = null
+    this.frostSpriteTimer = FROST_SPRITE_EVERY
+    this.registerHit()
+    this.addScore(FROST_SPRITE_POINTS * this.multiplier, x, y)
+    this.burst(x, y, 12, RAMPS.sky[4])
+    this.sound.play('extra')
+    return true
   }
 
   private updateFrost() {
@@ -1680,6 +1737,7 @@ class GlitchGarden implements ArcadeGameInstance {
     this.updateBeams()
     this.updateLeaves()
     this.updateFrost()
+    this.updateFrostSprite()
     this.updateSnowballs()
     this.updateMole()
     this.moveWorms()
@@ -1902,6 +1960,7 @@ class GlitchGarden implements ArcadeGameInstance {
       if (this.hitPumpkin(beam.x, beam.y)) return false
       if (this.hitInchworm(beam.x, beam.y)) return false
       if (this.hitSnowball(beam.x, beam.y)) return false
+      if (this.hitFrostSprite(beam.x, beam.y)) return false
       if (this.hitMole(beam.x, beam.y)) return false
       if (this.hitLeaf(col, row)) return false
       // A bee bot in the way soaks up the spray (and the wave's Kind bonus with it).
@@ -3105,6 +3164,8 @@ class GlitchGarden implements ArcadeGameInstance {
     this.snail = null
     this.dragonflies = []
     this.bees = []
+    this.frostSprite = null
+    this.frostSpriteTimer = FROST_SPRITE_EVERY
     this.plantSnowballs(
       Math.max(0, this.wave.snowballs - this.snowballsFixed),
       true,
@@ -3255,6 +3316,7 @@ class GlitchGarden implements ArcadeGameInstance {
     const hydraHead = this.pumpkins.find((p) => p.hydra && p.lit)
     if (hydraHead) target = hydraHead
     if (this.snowballs.length) target = this.snowballs[0]!
+    if (this.frostSprite) target = this.frostSprite
     if (target) {
       if (target.x < this.px - 2) held.left = true
       if (target.x > this.px + 2) held.right = true
@@ -3339,6 +3401,7 @@ class GlitchGarden implements ArcadeGameInstance {
     this.renderPumpkins(g)
     this.renderInchworms(g)
     this.renderSnowballs(g)
+    this.renderFrostSprite(g)
     this.renderMole(g)
     for (const w of this.worms) this.renderWorm(g, w)
     if (this.beetle) this.renderBeetle(g, this.beetle)
@@ -3516,6 +3579,19 @@ class GlitchGarden implements ArcadeGameInstance {
       g.fillStyle = RAMPS.gold[4]
       g.fillRect(x - 1, y - 2, 3, 3)
     }
+  }
+
+  private renderFrostSprite(g: CanvasRenderingContext2D) {
+    const sprite = this.frostSprite
+    if (!sprite) return
+    glow(g, sprite.x, sprite.y, 13, RAMPS.sky[3], 0.65)
+    const frame = Math.floor(this.tick / 8) % 2
+    drawHd(g, DRAGONFLY_SPRITES[frame]!, sprite.x, sprite.y, {
+      flipX: sprite.vx < 0,
+      alpha: 0.8,
+    })
+    g.fillStyle = RAMPS.sky[4]
+    g.fillRect(sprite.x - 2, sprite.y - 2, 4, 4)
   }
 
   private renderSnowballs(g: CanvasRenderingContext2D) {

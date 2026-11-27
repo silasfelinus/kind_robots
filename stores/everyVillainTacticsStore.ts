@@ -1037,6 +1037,15 @@ export const useEveryVillainTacticsStore = defineStore(
           unit.phaseTarget?.y === point.y,
       )
     }
+    function isCinderWarning(point: Cell) {
+      return state.value.units.some(
+        (unit) =>
+          unit.hp > 0 &&
+          unit.henchmanType === 'cinder' &&
+          unit.cinderTarget?.x === point.x &&
+          unit.cinderTarget?.y === point.y,
+      )
+    }
     function isBurrowWarning(point: Cell) {
       return state.value.units.some(
         (unit) =>
@@ -1065,16 +1074,18 @@ export const useEveryVillainTacticsStore = defineStore(
                   ? 'Lieutenant Teakettle’s Clockwork Wombat Ronin are one-hit teleporters. Each marks a clock-face exit beside a hero, on the side their cover misses, then phases through it next turn. Stand on the exit to jam it. '
                   : draft.value.encounter === 'licensed-legends'
                     ? 'Sir Cap-Permission’s Licensed Legends are one-hit wind-up mascots that swarm and block. One that starts its turn beside a hero stamps a seal that locks their signature power for a turn. '
-                    : draft.value.encounter === 'warren-wreckers'
-                      ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. ' +
-                        (draft.value.waves?.length
-                          ? 'More shifts tunnel in on rounds ' +
-                            draft.value.waves
-                              .map((w) => w.round)
-                              .join(' and ') +
-                            ', each molehill marked a round early. Stand on one to cave it in. '
-                          : '')
-                      : '') +
+                    : draft.value.encounter === 'claim-cinders'
+                      ? 'Ash Invoice leads the one-hit Claim Cinders. Leave the INSURED tile before the next enemy turn, or disarm the clerk. Water prevents the stamp from burning. '
+                      : draft.value.encounter === 'warren-wreckers'
+                        ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. ' +
+                          (draft.value.waves?.length
+                            ? 'More shifts tunnel in on rounds ' +
+                              draft.value.waves
+                                .map((w) => w.round)
+                                .join(' and ') +
+                              ', each molehill marked a round early. Stand on one to cave it in. '
+                            : '')
+                        : '') +
               draft.value.title +
               ' / ' +
               draft.value.venue +
@@ -1427,6 +1438,7 @@ export const useEveryVillainTacticsStore = defineStore(
         'seismic-warning': isSeismicWarning(point),
         exposed: threatAt(point) > 0,
         ...fieldClasses(point),
+        'cinder-warning': isCinderWarning(point),
         elevated: heightAt(point) > 0,
       }
     }
@@ -1446,6 +1458,7 @@ export const useEveryVillainTacticsStore = defineStore(
       heightAt,
       isBurrowWarning,
       isPhaseWarning,
+      isCinderWarning,
       oneShotScene,
       civilianCounts,
       canRescue,

@@ -15,6 +15,7 @@ import {
   stageProblems,
 } from '../everyVillainTactics/studio'
 import {
+  cinderPlan,
   endTurn,
   fireSelected,
   selectedPowerTargets,
@@ -29,6 +30,7 @@ assert.deepEqual(
     'warren-wreckers',
     'wombat-ronin',
     'licensed-legends',
+    'claim-cinders',
     'quarry-lieutenant',
   ],
 )
@@ -206,11 +208,90 @@ assert.equal(
 )
 assert.equal(squadHp(), startHp, 'wind-up toys never deal damage')
 
+// Claim Cinders field their canonical one-hit captain and a fixed warning.
+// The same saved tile is resolved after the intervening player phase.
+const claims = clonePreset('college-quad')
+claims.encounter = 'claim-cinders'
+assert.deepEqual(stageProblems(claims), [])
+function claimBattle() {
+  const state = trainingState(31, claims, { lead: 'magic-fire' })
+  const clerk = state.units.find((u) => u.team === 'rival')!
+  const hero = state.units.find((u) => u.id === 'backdraft')!
+  clerk.x = 3
+  clerk.y = 1
+  hero.x = 2
+  hero.y = 1
+  for (const u of state.units)
+    if (u.team === 'rival' && u.id !== clerk.id) u.hp = 0
+  return { state, clerk, hero }
+}
+const insured = claimBattle()
+assert.equal(insured.clerk.henchmanName, 'Ash Invoice')
+assert.equal(insured.clerk.identity, 'accident-fire')
+assert.equal(insured.clerk.hp, 1)
+assert.equal(insured.clerk.power, undefined)
+assert.ok(insured.state.events.some((line) => line.includes('receipts')))
+assert.match(insured.state.log, /receipts/)
+const hpBefore = insured.hero.hp
+endTurn(insured.state)
+assert.deepEqual(insured.clerk.cinderTarget, { x: 2, y: 1 })
+assert.equal(insured.hero.hp, hpBefore, 'warning does not deal damage')
+const stampSave = createSave({
+  slot: 'slot-1',
+  perspective: 'hero',
+  leadSignature: 'magic-fire',
+  stage: claims,
+  state: insured.state,
+  story: { ...createStory(), current: null },
+})
+const stampLoad = loadSave(serializeSave(stampSave))
+assert.ok(stampLoad.ok, stampLoad.ok ? '' : stampLoad.reason)
+assert.deepEqual(
+  stampLoad.save.state.units.find((u) => u.id === insured.clerk.id)
+    ?.cinderTarget,
+  { x: 2, y: 1 },
+)
+endTurn(insured.state)
+assert.equal(insured.hero.hp, hpBefore - 1)
+assert.equal(insured.clerk.cinderTarget, null)
+const dodge = claimBattle()
+endTurn(dodge.state)
+dodge.hero.y = 0
+const dodgeHp = dodge.hero.hp
+endTurn(dodge.state)
+assert.equal(dodge.hero.hp, dodgeHp, 'the warning does not follow its victim')
+const wet = claimBattle()
+wet.clerk.cinderTarget = { x: 2, y: 1 }
+wet.state.rules = {
+  props: [],
+  hazards: [{ id: 'wet', kind: 'water', x: 2, y: 1 }],
+  waves: [],
+  victory: { kind: 'defeat-all' },
+}
+const wetHp = wet.hero.hp
+assert.equal(cinderPlan(wet.state, wet.clerk), true)
+assert.equal(wet.hero.hp, wetHp, 'water douses a stamped tile')
+const disarmed = claimBattle()
+endTurn(disarmed.state)
+disarmed.clerk.hp = 0
+const safeHp = disarmed.hero.hp
+assert.equal(cinderPlan(disarmed.state, disarmed.clerk), true)
+assert.equal(disarmed.hero.hp, safeHp)
+const falseStamp = structuredClone(stampSave)
+falseStamp.state.units.find((u) => u.id === 'backdraft')!.cinderTarget = {
+  x: 2,
+  y: 1,
+}
+const { checksum: _stamp, ...falseStampPayload } = falseStamp
+falseStamp.checksum = saveChecksum(falseStampPayload)
+assert.equal(loadSave(serializeSave(falseStamp)).ok, false)
+
 const page = readFileSync(
   new URL('../../pages/admin/every-villain-tactics.vue', import.meta.url),
   'utf8',
 )
 assert.match(page, /data-testid="tactics-phase-warning"/)
+assert.match(page, /data-testid="tactics-cinder-warning"/)
 assert.match(page, /data-testid="studio-encounter-select"/)
 console.log(
   'Every Villain lackeys: teleporting Wombat Ronin exits and jams, wind-up Licensed Legends swarm and seals, one-hit SPECIES crews, saves and studio line-ups verified.',

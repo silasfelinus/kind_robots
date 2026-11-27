@@ -79,10 +79,20 @@ assert.match(picnic.objective, /rounds 3 and 5/)
 
 // ---- One-hit tiers read distinctly on the card ------------------------------
 const crests = Object.values(HENCHMAN_TELLS).map((tell) => tell.crest)
-assert.equal(new Set(crests).size, 3, 'each tier has its own crest')
+assert.deepEqual(Object.keys(HENCHMAN_TELLS).sort(), [
+  'burrow',
+  'cinder',
+  'phase',
+  'windup',
+])
+assert.equal(new Set(crests).size, 4, 'each tier has its own crest')
 assert.ok(!crests.includes('✦') && !crests.includes('◆'), 'never hero/boss')
 for (const tell of Object.values(HENCHMAN_TELLS))
-  assert.match(tell.tell, /Stand on|step away/, 'every tier names its counter')
+  assert.match(
+    tell.tell,
+    /stand on|step away|leave the tile/i,
+    'every tier names its counter',
+  )
 
 const crewStages: Array<[string, Unit['henchmanType']]> = [
   ['picnic-plaza', 'burrow'],
@@ -718,7 +728,7 @@ assert.match(page, /henchmanTell\(/)
 assert.match(page, /One-hit ' \+ tell\.label/)
 
 console.log(
-  'Henchmen and Picnic Panic: three one-hit tiers with distinct crests and counters drop to any landed hit; burrowers target the picnic with a full-turn telegraph; shifts arrive on rounds 3 and 5 via whistled molehills that a boot seals; ' +
+  'Henchmen and Picnic Panic: four one-hit tiers with distinct crests and counters; original crews drop to any landed hit; burrowers target the picnic with a full-turn telegraph; shifts arrive on rounds 3 and 5 via whistled molehills that a boot seals; ' +
     SEEDS * POLICIES.length +
     ' seeded runs across canonical leads kept sane state, saved and loaded every round, and finished (' +
     JSON.stringify(tally) +

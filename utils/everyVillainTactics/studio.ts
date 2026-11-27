@@ -98,7 +98,11 @@ export const BYSTANDER_NAMES = [
 /** Rival line-ups the studio can field. Crews are canonical one-hit SPECIES
  * from villainHenchmen.json, each with its own telegraphed mechanic. */
 export type StageEncounter =
-  'warren-wreckers' | 'quarry-lieutenant' | 'wombat-ronin' | 'licensed-legends'
+  | 'warren-wreckers'
+  | 'quarry-lieutenant'
+  | 'wombat-ronin'
+  | 'licensed-legends'
+  | 'claim-cinders'
 export const STAGE_ENCOUNTERS: ReadonlyArray<{
   id: StageEncounter | null
   label: string
@@ -107,6 +111,7 @@ export const STAGE_ENCOUNTERS: ReadonlyArray<{
   { id: 'warren-wreckers', label: 'Warren Wreckers · burrowing' },
   { id: 'wombat-ronin', label: 'Clockwork Wombat Ronin · teleporting' },
   { id: 'licensed-legends', label: 'Licensed Legends · wind-up toys' },
+  { id: 'claim-cinders', label: 'Claim Cinders · delayed fire' },
   { id: 'quarry-lieutenant', label: 'Mags Hardpan · lieutenant' },
 ]
 

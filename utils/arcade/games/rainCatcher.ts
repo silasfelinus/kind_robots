@@ -646,6 +646,12 @@ class RainCatcher implements ArcadeGameInstance {
   }
 
   /** A hailstone (or lightning sprite) falling from (x0, y0) at something on the ground. */
+  private terraceHeight(x: number) {
+    if (this.forecast.garden !== 'Terrace Paddies') return 0
+    const index = BEDS.findIndex((bed) => Math.abs(x - bed) < 14)
+    return index < 0 ? 0 : (1 + Math.floor(index / 2)) * 5
+  }
+
   private rainTarget() {
     if (this.forecast.name === 'FIRST BLOOM') return BEDS[this.rainIndex++ % BEDS.length]!
     if (this.forecast.name === 'FILL THE PADDIES') return this.barrelSites[this.rainIndex++ % this.barrelSites.length]!
@@ -662,6 +668,7 @@ class RainCatcher implements ArcadeGameInstance {
       kind === 'rain'
         ? { x: this.rainTarget(), y: GROUND - 4 }
         : this.pickTarget()
+    t.y -= this.terraceHeight(t.x)
     const speed =
       levelCurve(this.level, RAIN_CURVES.speed) * (sprite ? 1.25 : 1)
     const dx = t.x - x0
@@ -990,7 +997,7 @@ class RainCatcher implements ArcadeGameInstance {
       if (h.y >= h.ty) {
         if (h.kind === 'sleet' && h.skidTicks === 0) {
           h.skidTicks = 25
-          h.y = GROUND - 5
+          h.y = h.ty - 1
           const nearest = BEDS.reduce((left, right) =>
             Math.abs(left - h.x) < Math.abs(right - h.x) ? left : right,
           )
@@ -1345,7 +1352,19 @@ class RainCatcher implements ArcadeGameInstance {
         bevel(k, x - 3, GROUND + 15, 7, 4, RAMPS.steel, { depth: 1 })
       }
     })
-    BEDS.forEach((x, i) => this.renderBed(g, x, i))
+    BEDS.forEach((x, i) => {
+      const height = this.terraceHeight(x)
+      if (height > 0) {
+        g.fillStyle = RAMPS.earth[2]
+        g.fillRect(x - 15, GROUND - height, 30, height)
+        g.fillStyle = RAMPS.water[3]
+        g.fillRect(x - 15, GROUND - height, 30, 2)
+      }
+      g.save()
+      g.translate(0, -height)
+      this.renderBed(g, x, i)
+      g.restore()
+    })
     this.barrelSites.forEach((x, i) => this.renderBarrel(g, x, i))
     LAUNCHERS.forEach((x, i) => this.renderLauncher(g, x, i))
   }

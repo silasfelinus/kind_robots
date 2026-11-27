@@ -881,7 +881,9 @@ for (const signature of personalEvolutionLeads) {
       assert.notEqual(event.scene, other.scene)
       personalEvolutionScenes.add(event.scene)
       for (const choice of event.options) {
-        const baseChoice = other.options.find((option) => option.id === choice.id)!
+        const baseChoice = other.options.find(
+          (option) => option.id === choice.id,
+        )!
         assert.equal(choice.influence, baseChoice.influence)
         assert.equal(choice.danger, baseChoice.danger)
         assert.ok(choice.text.length > baseChoice.text.length / 2)

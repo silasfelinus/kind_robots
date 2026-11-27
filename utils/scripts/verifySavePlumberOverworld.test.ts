@@ -735,8 +735,8 @@ for (let i = 0; i < 200 && !sluice.checkpoints[0]!.reached; i++)
 assert.ok(sluice.checkpoints[0]!.reached)
 const damRoom = parseStage(SLUICEGATE_STEPS)
 assert.deepEqual(damRoom.doors, [
-  { col: 10, row: 5, to: 1 },
-  { col: 47, row: 13, to: 0 },
+  { col: 47, row: 13, to: 1 },
+  { col: 10, row: 5, to: 0 },
 ])
 
 function walkDamTo(col: number) {

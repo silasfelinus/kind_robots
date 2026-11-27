@@ -328,12 +328,27 @@ const fresh = (seed = 'console-seed'): RunSave =>
     authoredReactions.some((choice) => choice.reactionMood === 'concerned'),
   )
   assert.deepEqual(characterCandidates('bard-fen'), [
+    '/images/ruler-hooked/character-bard-fen-neutral.webp',
     '/images/ruler-hooked/characters/bard-fen.webp',
     '/images/ruler-hooked/character-bard-fen.webp',
   ])
+  assert.deepEqual(characterCandidates('steward-quill'), [
+    '/images/ruler-hooked/character-steward-quill-neutral.webp',
+    '/images/ruler-hooked/characters/steward-quill.webp',
+  ])
+  for (const person of C.characters) {
+    assert.deepEqual(
+      characterCandidates(person.slug),
+      characterCandidates(person.slug, 'neutral'),
+    )
+  }
   const card = cardCandidates({ art: 'card-tax-season' }, 'taxman-gristle')
   assert.equal(card[0], '/images/ruler-hooked/card-tax-season.webp')
-  assert.equal(card[1], '/images/ruler-hooked/characters/taxman-gristle.webp')
+  assert.equal(
+    card[1],
+    '/images/ruler-hooked/character-taxman-gristle-neutral.webp',
+  )
+  assert.equal(card[2], '/images/ruler-hooked/characters/taxman-gristle.webp')
 }
 
 // --- original score and accessible audio preferences ------------------------

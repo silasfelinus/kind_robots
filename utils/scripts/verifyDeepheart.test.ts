@@ -76,7 +76,7 @@ import {
   pairKey,
 } from '../deepheart/roster'
 import { DEEPHEART_ART_IDS, deepheartArtSrc } from '../deepheart/renderedArt'
-import { encounterArt, enemyArt } from '../deepheart/art'
+import { bossBattleArt, encounterArt, enemyArt } from '../deepheart/art'
 import {
   DEEPHEART_APPROVED_ART_MODELS,
   DEEPHEART_STYLE_DESIGNER,
@@ -210,6 +210,16 @@ for (const [enemy, key] of [
   assert.equal(enemyArt(enemy)?.src, deepheartArtSrc(key))
 }
 assert.equal(enemyArt('not-an-enemy'), undefined)
+const bestiarySources = Object.keys(ENEMIES).map((id) => enemyArt(id)?.src)
+assert.equal(bestiarySources.length, 40)
+assert.ok(bestiarySources.every(Boolean))
+assert.equal(new Set(bestiarySources).size, 40)
+const guardianPlates = LAYERS.map((layer) => bossBattleArt(layer.boss)?.src)
+assert.equal(guardianPlates.length, 3)
+assert.ok(guardianPlates.every(Boolean))
+assert.equal(new Set(guardianPlates).size, 3)
+assert.ok(guardianPlates.every((src) => !bestiarySources.includes(src)))
+assert.equal(bossBattleArt('mimic'), undefined)
 const nonCourtEvents = [
   ...EVENTS.filter((event) => !event.id.startsWith('fairy-')),
   ...UNDERCITY_EVENTS,
@@ -222,13 +232,23 @@ assert.ok([...nonCourtArt.values()].every(Boolean))
 assert.equal(new Set(nonCourtArt.values()).size, 21)
 assert.ok(deepheartArtSrc('premise'), 'title art is mapped')
 assert.ok(deepheartArtSrc('room:fight'), 'fight art is mapped')
-assert.ok(deepheartArtSrc('ending:delver'), 'ending art is mapped')
+const endingArt = DEEPHEART.endings.map((ending) => ending.art.src)
+assert.ok(endingArt.every(Boolean))
+assert.equal(new Set(endingArt).size, DEEPHEART.endings.length)
+assert.ok(DEEPHEART.cast.every((member) => member.portrait.src))
 for (const id of ['hollow-king', 'bone-warden', 'mother-brine', 'vesper']) {
   const member = DEEPHEART.cast.find((entry) => entry.id === id)
   assert.ok(member?.portrait.src, `boss portrait ${id} is wired`)
   assert.equal(member.portrait.src, deepheartArtSrc(`cast:${id}`))
 }
-for (const id of ['drowned-crown', 'lantern-seed', 'keystone']) {
+for (const id of [
+  'drowned-crown',
+  'lantern-seed',
+  'keystone',
+  'duo',
+  'warden-falls',
+  'brine-falls',
+]) {
   const moment = DEEPHEART.moments.find((entry) => entry.id === id)
   assert.ok(moment?.art.src, `scrapbook plate ${id} is wired`)
   assert.equal(moment.art.src, deepheartArtSrc(`moment:${id}`))

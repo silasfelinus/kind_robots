@@ -182,6 +182,7 @@ export class RoyalSound {
 
   async unlock(): Promise<boolean> {
     try {
+      if (this.context?.state === 'closed') this.dispose()
       if (!this.context) {
         if (typeof AudioContext === 'undefined') return false
         const ctx = new AudioContext()
@@ -193,7 +194,7 @@ export class RoyalSound {
         this.applyLevels()
       }
       const ctx = this.context
-      if (ctx.state === 'suspended') await ctx.resume()
+      if (ctx.state !== 'running') await ctx.resume()
       if (ctx !== this.context || ctx.state !== 'running') return false
       if (this.timer === null) {
         this.nextAt = ctx.currentTime

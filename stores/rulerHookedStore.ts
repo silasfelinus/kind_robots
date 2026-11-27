@@ -124,6 +124,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   const activeClassicFishing = ref<FishingEncounter | null>(null)
   const lastCatch = ref<CatchResult | null>(null)
   const lastEscape = ref<{ fishName: string; cue: string } | null>(null)
+  const fishingRevealPending = ref(false)
   const slots = ref<SaveSlotMeta[]>([])
   const scrapbook = ref<RoyalScrapbook>({})
 
@@ -169,7 +170,12 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     scrapbook.value = loadScrapbook()
   }
 
+  function dismissFishingReveal() {
+    fishingRevealPending.value = false
+  }
+
   function clearTransientPlayState() {
+    dismissFishingReveal()
     activeCard.value = null
     activeArcId.value = null
     pendingEnding.value = null
@@ -325,6 +331,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     if (!save.value || !canFish.value || !canFishAt(save.value, region))
       return false
     save.value.fishingRegion = region
+    dismissFishingReveal()
     lastCatch.value = null
     lastEscape.value = null
     persist()
@@ -334,6 +341,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   function startFishing(mode: 'classic' | 'quiz' = 'classic') {
     if (!save.value || !canFish.value) return
     save.value.fishingRegion = currentFishingRegion(save.value)
+    dismissFishingReveal()
     lastCatch.value = null
     lastEscape.value = null
     activeFishing.value = startSimpleFishing(save.value)
@@ -420,6 +428,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     if (!save.value) return
     activeFishing.value = nextEncounter
     if (!simpleFishingFinished(nextEncounter)) return
+    fishingRevealPending.value = true
     const narrativeRng = makeRng(`${save.value.seed}:${save.value.turnCount}`)
     if (nextEncounter.stage === 'LANDED') {
       const before = save.value
@@ -640,6 +649,8 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     activeClassicFishing,
     lastCatch,
     lastEscape,
+    fishingRevealPending,
+    dismissFishingReveal,
     slots,
     scrapbook,
     scene,

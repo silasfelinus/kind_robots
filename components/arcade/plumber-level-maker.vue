@@ -345,6 +345,7 @@ import {
   validateMakerLevel,
   toMakerStage,
   makerId,
+  makerBrushCells,
 } from '~/utils/arcade/games/savePlumberMaker'
 import {
   createSavePlumberPreview,
@@ -623,6 +624,7 @@ function beginPaint(event: PointerEvent) {
     editorCanvas.value?.setPointerCapture(event.pointerId)
     if (maker.tool === 'brush') {
       maker.beginStroke()
+      dragStart = { x, y }
       placeAt(x, y)
     } else {
       dragStart = { x, y }
@@ -635,8 +637,18 @@ function dragPaint(event: PointerEvent) {
   if (!painting) return
   const cell = cellFromPointer(event)
   const { x, y } = clampToGrid(cell.x, cell.y)
-  if (maker.tool === 'brush') placeAt(x, y)
-  else if (dragStart) {
+  if (maker.tool === 'brush') {
+    const next = { x, y }
+    if (maker.selectedTile === '@' || maker.selectedTile === 'G') {
+      placeAt(x, y)
+    } else {
+      for (const cell of makerBrushCells(dragStart ?? next, next))
+        maker.paint(cell.x, cell.y)
+      cursor.value = next
+      drawEditor()
+    }
+    dragStart = next
+  } else if (dragStart) {
     maker.selection = { x1: dragStart.x, y1: dragStart.y, x2: x, y2: y }
     cursor.value = { x, y }
     drawEditor()

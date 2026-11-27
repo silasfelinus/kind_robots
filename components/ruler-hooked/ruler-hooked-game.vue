@@ -432,7 +432,7 @@ function onKey(event: KeyboardEvent) {
 }
 
 function unlockAudio() {
-  if (!audio.enabled) void audio.unlock()
+  void audio.unlock()
 }
 
 function syncAudioVisibility() {

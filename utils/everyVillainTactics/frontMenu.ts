@@ -333,6 +333,9 @@ export const ORIGIN_STAGE_LEADS: Readonly<Record<string, string>> = {
   'unlicensed-rescue': 'accident-birthright',
   'song-that-stopped': 'accident-social',
   'hydrant-blue': 'accident-water',
+  'clocktower-collapse': 'accident-discipline',
+  'equation-that-escaped': 'accident-genius',
+  'candle-that-wouldnt-die': 'magic-fire',
 }
 export const canStartOneShot = (stageId: string, lead: string): boolean =>
   !ORIGIN_STAGE_LEADS[stageId] || ORIGIN_STAGE_LEADS[stageId] === lead
@@ -372,6 +375,21 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     id: 'hydrant-blue',
     art: 'districts/industrial-foundry',
     tag: 'Tidewarden origin · restore the main and rescue both crews',
+  },
+  {
+    id: 'clocktower-collapse',
+    art: 'districts/student-commons',
+    tag: 'The Second Hand origin · catch the lift on an even round',
+  },
+  {
+    id: 'equation-that-escaped',
+    art: 'districts/engineering-workshop',
+    tag: 'Eureka origin · rewrite the faulty drone from a clear sightline',
+  },
+  {
+    id: 'candle-that-wouldnt-die',
+    art: 'districts/student-commons',
+    tag: 'Lanternwitch origin · bind the candle and rescue two mourners',
   },
   {
     id: 'college-quad',

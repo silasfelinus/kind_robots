@@ -45,6 +45,8 @@ import {
 import {
   readPlumberFile,
   readPlumberSave,
+  validPlumberCloudSave,
+  reconcilePlumberSaves,
 } from '../arcade/games/savePlumberSave'
 
 // --- The graph (conductor validate_gen2_worlds.py, ported) ----------------------
@@ -219,6 +221,101 @@ assert.deepEqual(
   'junk reads as an empty file',
 )
 
+// Cloud storage accepts the same canonical file as the cabinet, never junk
+// that would silently normalize into an empty adventure.
+const cloud = readPlumberFile(v2)
+assert.ok(validPlumberCloudSave(cloud))
+assert.ok(validPlumberCloudSave(readPlumberFile(null)))
+assert.ok(
+  validPlumberCloudSave({
+    album: cloud.album,
+    endlessBest: cloud.endlessBest,
+    slots: cloud.slots,
+    active: cloud.active,
+    v: cloud.v,
+  }),
+  'JSON property order is not part of the save format',
+)
+assert.ok(!validPlumberCloudSave(v1), 'migrate before writing to cloud')
+assert.ok(!validPlumberCloudSave({ ...cloud, active: 3 }))
+assert.ok(!validPlumberCloudSave({ ...cloud, slots: [null] }))
+assert.ok(!validPlumberCloudSave({ ...cloud, userId: 10 }))
+assert.ok(!validPlumberCloudSave({ ...cloud, endlessBest: -1 }))
+assert.ok(
+  !validPlumberCloudSave({
+    ...cloud,
+    album: { ...cloud.album, done: ['nonexistent-node'] },
+  }),
+)
+assert.ok(
+  !validPlumberCloudSave({
+    ...cloud,
+    slots: [null, { ...cloud.slots[1], lives: 0 }, null],
+  }),
+)
+assert.ok(
+  !validPlumberCloudSave({
+    ...cloud,
+    slots: [null, { ...cloud.slots[1], power: 'unknown-power' }, null],
+  }),
+)
+assert.ok(
+  !validPlumberCloudSave({
+    ...cloud,
+    album: { ...cloud.album, gears: Array(9000).fill('1-1') },
+  }),
+)
+const erasedSlot = readPlumberFile({
+  ...cloud,
+  slots: [null, null, null],
+})
+assert.ok(validPlumberCloudSave(erasedSlot))
+assert.deepEqual(erasedSlot.album, cloud.album, 'album survives slot erasure')
+
+const otherDevice = readPlumberFile({
+  ...cloud,
+  slots: [migrated.slots[0], cloud.slots[1], null],
+  endlessBest: 85,
+})
+const independent = reconcilePlumberSaves(erasedSlot, otherDevice, cloud)
+assert.equal(independent.status, 'merged')
+if (independent.status === 'merged') {
+  assert.deepEqual(independent.save.slots, [migrated.slots[0], null, null])
+  assert.equal(independent.save.endlessBest, 85)
+  assert.ok(independent.save.album.gears.includes('1-1'))
+  assert.ok(independent.save.album.gears.includes('1-4'))
+  assert.ok(validPlumberCloudSave(independent.save))
+}
+const progressed = readPlumberFile({
+  ...cloud,
+  slots: [null, { ...cloud.slots[1], score: 500 }, null],
+})
+assert.deepEqual(reconcilePlumberSaves(erasedSlot, progressed, cloud), {
+  status: 'conflict',
+  slots: [1],
+})
+assert.deepEqual(reconcilePlumberSaves(cloud, progressed, null), {
+  status: 'conflict',
+  slots: [1],
+})
+const firstSync = reconcilePlumberSaves(migrated, cloud, null)
+assert.equal(firstSync.status, 'merged')
+if (firstSync.status === 'merged') {
+  assert.deepEqual(firstSync.save.slots, [
+    migrated.slots[0],
+    cloud.slots[1],
+    null,
+  ])
+  assert.ok(validPlumberCloudSave(firstSync.save))
+}
+const sameReset = reconcilePlumberSaves(erasedSlot, erasedSlot, cloud)
+assert.equal(sameReset.status, 'merged')
+if (sameReset.status === 'merged') assert.deepEqual(sameReset.save, erasedSlot)
+const remoteOnly = reconcilePlumberSaves(cloud, progressed, cloud)
+assert.equal(remoteOnly.status, 'merged')
+if (remoteOnly.status === 'merged')
+  assert.deepEqual(remoteOnly.save, progressed)
+
 const options = (resume?: unknown) => ({
   rng: () => 0.5,
   sound: { play() {} },
@@ -367,6 +464,57 @@ assert.equal(hidden.stage.code, '1-3')
 assert.equal(hidden.mode, 'play')
 assert.ok(SECRET_EXITS_READY.has('1-3'))
 assert.ok(!nodeReachable('1-c', hidden.progress))
+const meterRoom = parseStage(CAMPAIGN.find((stage) => stage.code === '1-3')!)
+assert.equal(meterRoom.doors.length, 2)
+assert.deepEqual(meterRoom.doors, [
+  { col: 9, row: 21, to: 1 },
+  { col: 38, row: 4, to: 0 },
+])
+for (let row = 4; row <= 8; row++)
+  assert.equal(hidden.solidAt(45, row), SOLID_LADDER)
+
+function walkMeterTo(col: number) {
+  const target = col * TILE + TILE / 2
+  for (
+    let frame = 0;
+    frame < 180 && Math.abs(hidden.hero.x - target) > 3;
+    frame++
+  ) {
+    const movement = emptyInput()
+    if (hidden.hero.x < target) movement.held.right = true
+    else movement.held.left = true
+    hidden.update(movement)
+    assert.equal(hidden.mode, 'play')
+  }
+  assert.ok(Math.abs(hidden.hero.x - target) <= 3, 'meter route is reachable')
+}
+
+walkMeterTo(9)
+assert.ok(hidden.ground)
+press(hidden, 'down')
+assert.equal(hidden.hero.x, 38 * TILE + TILE / 2)
+assert.ok(hidden.activePipeRoom)
+const meterTokens = hidden.tokens
+walkMeterTo(55)
+for (let i = 0; i < 20; i++) hidden.update(emptyInput())
+assert.equal(hidden.hero.y + 20, 9 * TILE, 'descent reaches the meter floor')
+assert.equal(hidden.tokens, meterTokens + 2)
+walkMeterTo(45)
+const climbInput = emptyInput()
+climbInput.held.up = true
+hidden.update(climbInput)
+assert.ok(hidden.climbing, 'the shaft ladder is reachable from below')
+for (let i = 0; i < 100 && hidden.climbing; i++) hidden.update(climbInput)
+assert.ok(hidden.ground)
+assert.equal(hidden.hero.y + 20, 4 * TILE)
+walkMeterTo(38)
+press(hidden, 'down')
+assert.equal(hidden.hero.x, 9 * TILE + TILE / 2)
+assert.equal(hidden.activePipeRoom, undefined)
+assert.equal(hidden.deaths, 0)
+assert.equal(hidden.mode, 'play')
+assert.ok(!nodeReachable('1-c', hidden.progress))
+
 const exit = hidden.secretGoal!
 hidden.foes.length = 0
 hidden.hero = { x: exit.x, y: exit.y - 64, vx: 0, vy: 0 }
@@ -682,6 +830,49 @@ damInput.held.right = true
 for (let i = 0; i < 200 && !sluice.checkpoints[0]!.reached; i++)
   sluice.update(damInput)
 assert.ok(sluice.checkpoints[0]!.reached)
+const damRoom = parseStage(SLUICEGATE_STEPS)
+assert.deepEqual(damRoom.doors, [
+  { col: 47, row: 13, to: 1 },
+  { col: 10, row: 5, to: 0 },
+])
+
+function walkDamTo(col: number) {
+  const target = col * TILE + TILE / 2
+  for (
+    let frame = 0;
+    frame < 180 && Math.abs(sluice.hero.x - target) > 3;
+    frame++
+  ) {
+    const movement = emptyInput()
+    if (sluice.hero.x < target) movement.held.right = true
+    else movement.held.left = true
+    sluice.update(movement)
+    assert.equal(sluice.mode, 'play')
+  }
+  assert.ok(Math.abs(sluice.hero.x - target) <= 3)
+}
+
+walkDamTo(47)
+press(sluice, 'down')
+assert.equal(sluice.hero.x, 10 * TILE + TILE / 2)
+assert.ok(sluice.activePipeRoom)
+const inspectionTokens = sluice.tokens
+walkDamTo(22)
+for (let i = 0; i < 20; i++) sluice.update(emptyInput())
+assert.equal(sluice.hero.y + 20, 10 * TILE)
+assert.equal(sluice.tokens, inspectionTokens + 2)
+walkDamTo(15)
+const damClimb = emptyInput()
+damClimb.held.up = true
+sluice.update(damClimb)
+assert.ok(sluice.climbing)
+for (let i = 0; i < 100 && sluice.climbing; i++) sluice.update(damClimb)
+assert.ok(sluice.ground)
+walkDamTo(10)
+press(sluice, 'down')
+assert.equal(sluice.hero.x, 47 * TILE + TILE / 2)
+assert.equal(sluice.activePipeRoom, undefined)
+assert.equal(sluice.deaths, 0)
 const damLives = sluice.lives
 sluice.hero.y = sluice.stage.rows * TILE + 60
 for (let i = 0; i < 600 && sluice.lives === damLives; i++) sluice.update(input)

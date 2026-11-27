@@ -723,13 +723,27 @@ assert.ok(!/<SlimeCityCard[\s/>]/.test(page), 'no legacy card faces left')
 for (const id of [
   'clash-format-solo',
   'clash-format-alliance',
-  'clash-power',
-  'clash-rival-power',
+  'clash-power-portrait-',
   'clash-kind',
   'clash-back',
   'clash-reward-note',
 ])
   assert.ok(view.includes(id), id)
+const powerPopup = readFileSync(
+  'components/slime-city-faction-power-popup.vue',
+  'utf8',
+)
+const pvpPowerView = readFileSync('components/slime-city-pvp-game.vue', 'utf8')
+for (const surface of [view, pvpPowerView]) {
+  assert.match(surface, /<SlimeCityFactionPowerPopup/)
+  assert.match(surface, /@click="powerSide = side"/)
+  assert.match(surface, /@activate="activatePortraitPower"/)
+  assert.doesNotMatch(surface, /@click="firePower\(team\)"/)
+}
+assert.match(powerPopup, /clashPowers\(props.game, props.side\)/)
+assert.match(powerPopup, /clashPowerSpent\(props.game, props.side, team\)/)
+assert.match(powerPopup, /factionPower\(team\).text/)
+assert.match(powerPopup, /:disabled="!ready\(team\)"/)
 // Legacy formats are gone from the game: no LEGACY menu, arena or alleys view.
 for (const gone of [
   'slime-legacy-toggle',

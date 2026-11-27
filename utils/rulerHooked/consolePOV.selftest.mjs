@@ -163,6 +163,26 @@ assert.match(
   /applyFishingStop\(activeClassicFishing\.value, position\)/,
 )
 
+assert.match(lake, /store\.lastCatch && store\.fishingRevealPending/)
+assert.match(lake, /store\.lastEscape && store\.fishingRevealPending/)
+assert.match(lake, /if \(store\.fishingRevealPending\) return dismiss\(\)/)
+assert.match(lake, /if \(store\.pendingEnding\) return 'Consider the finale'/)
+assert.match(lake, /function dismiss\(\) \{\s*store\.dismissFishingReveal\(\)/)
+assert.match(
+  lake,
+  /function viewFishopedia\(\) \{\s*store\.dismissFishingReveal\(\)/,
+)
+assert.match(fishingStore, /const fishingRevealPending = ref\(false\)/)
+assert.match(
+  fishingStore,
+  /function dismissFishingReveal\(\) \{\s*fishingRevealPending\.value = false/,
+)
+assert.match(
+  fishingStore,
+  /if \(!simpleFishingFinished\(nextEncounter\)\) return\s*fishingRevealPending\.value = true/,
+)
+assert.doesNotMatch(lake, /const showReveal = ref/)
+
 // Ordinary healthy kingdom sliders must not put a game-over choice at the
 // end of every day. A genuine finale explains the save closure, and deferring
 // it is an explicit one-time decision.

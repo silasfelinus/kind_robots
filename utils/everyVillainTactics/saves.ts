@@ -9,6 +9,7 @@
 // rejected when an immutable field (identity, max HP, role stats, power) or a
 // rule invariant (bounds, walls, overlaps, cooldown range) does not hold.
 import { personalCastFor } from './personalCasts'
+import { environmentalOrigin } from './environmentalOrigins'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import type { SignaturePowerId } from '../cometAcademy/specialPowers'
 import { FIRST_BELL_MAP, inside, tileAt, type Point } from './combat'
@@ -482,27 +483,25 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
     save.leadSignature === 'accident-social'
   )
     flagsAllowed.add('radio-counter-melody')
-  if (
-    save.stage?.id === 'hydrant-blue' &&
-    save.leadSignature === 'accident-water'
-  )
-    flagsAllowed.add('hydrant-main-flowing')
-  if (
-    save.stage?.id === 'hydrant-blue' &&
-    (save.leadSignature !== 'accident-water' ||
-      (state.flags?.includes('hydrant-main-flowing') !== true &&
+  const mission = environmentalOrigin(save.stage?.id)
+  if (mission) {
+    if (save.leadSignature !== mission.lead)
+      return reject('This origin requires its canonical lead.')
+    flagsAllowed.add(mission.flag)
+    const completed = state.flags?.includes(mission.flag) === true
+    if (
+      (!completed &&
         state.civilians?.some((civilian) => civilian.status === 'rescued')) ||
-      (state.flags?.includes('hydrant-main-flowing') === true &&
-        !state.units.some(
+      completed !==
+        state.units.some(
           (unit) =>
             unit.id === 'backdraft' &&
-            unit.identity === 'accident-water' &&
+            unit.identity === mission.lead &&
             unit.powerSpent,
-        )))
-  )
-    return reject(
-      'Hydrant Blue requires Tidewarden and a genuine restored main.',
+        )
     )
+      return reject('Origin rescue requires a genuine signature intervention.')
+  }
   if (
     Array.isArray(state.flags) &&
     state.flags.includes('diner-hood-vented') &&
@@ -598,7 +597,7 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
     return reject('Rival foil is not a valid canonical opponent.')
   if (
     state.crossfireCast !== undefined &&
-    (state.crossfireCast !== 1 ||
+    ((state.crossfireCast !== 1 && state.crossfireCast !== 2) ||
       legacy ||
       personalCastFor(save.leadSignature)?.foil !== save.foilSignature ||
       (save.stage && !isCrossfireFoilStage(save.stage)))
@@ -679,7 +678,16 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
     if (power) {
       if (!isInt(unit.powerCooldown, 0, power.cooldown))
         return reject(unit.id + ' power recharge is invalid.')
-      if (!isBool(unit.powerSpent) || (unit.powerSpent && power.cooldown !== 0))
+      const ritualSpent =
+        mission &&
+        unit.id === 'backdraft' &&
+        unit.identity === mission.lead &&
+        state.flags?.includes(mission.flag) &&
+        unit.powerCooldown === 0
+      if (
+        !isBool(unit.powerSpent) ||
+        (unit.powerSpent && power.cooldown !== 0 && !ritualSpent)
+      )
         return reject(unit.id + ' power use is invalid.')
     } else if (
       unit.powerCooldown !== undefined ||

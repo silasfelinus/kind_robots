@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
 import { personalCastFor } from '~/utils/everyVillainTactics/personalCasts'
+import { personalScienceNode } from '~/utils/everyVillainTactics/personalScienceScenes'
 import {
   actorAt,
   aliasFor,
@@ -491,7 +492,7 @@ export const useEveryVillainTacticsStore = defineStore(
       view: TacticalPerspective,
       lead: string,
       foil: string | null = null,
-      crossfireCast?: 1,
+      crossfireCast?: 1 | 2,
     ) {
       if (!roster.some((u) => u.signature === lead)) return false
       const assignedFoil = foil ?? scriptedFoilFor(lead)
@@ -508,7 +509,7 @@ export const useEveryVillainTacticsStore = defineStore(
     function startCrossfire(view: TacticalPerspective, lead: string) {
       if (!['hero', 'villain'].includes(view)) return false
       const cast = personalCastFor(lead)
-      if (!cast || !startStory(view, lead, cast.foil, 1)) return false
+      if (!cast || !startStory(view, lead, cast.foil, 2)) return false
       const first = createSave({
         slot: 'auto',
         perspective: perspective.value,
@@ -815,11 +816,20 @@ export const useEveryVillainTacticsStore = defineStore(
       perspective: perspective.value,
     }))
     const sceneLines = computed(() =>
-      (sceneWalk.value?.nodes ?? []).map((node: SceneNode) => ({
-        ...node,
-        name: speakerName(node.speaker, state.value),
-        art: speakerArt(node.speaker, node.emotion, state.value),
-      })),
+      (sceneWalk.value?.nodes ?? []).map((source: SceneNode) => {
+        const node = personalScienceNode(
+          source,
+          leadSignature.value,
+          draft.value.id,
+          crossfireActive.value && !previewSceneId.value,
+          state.value,
+        )
+        return {
+          ...node,
+          name: speakerName(node.speaker, state.value),
+          art: speakerArt(node.speaker, node.emotion, state.value),
+        }
+      }),
     )
     const sceneBlocking = computed(
       () =>
@@ -1218,7 +1228,7 @@ export const useEveryVillainTacticsStore = defineStore(
     function reset() {
       resetBattle()
     }
-    function resetBattle(crossfireCast?: 1) {
+    function resetBattle(crossfireCast?: 1 | 2) {
       state.value = trainingState(
         0x53a1b7,
         isPlaytest.value ? draft.value : undefined,

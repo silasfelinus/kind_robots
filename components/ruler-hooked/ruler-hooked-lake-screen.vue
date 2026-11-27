@@ -122,7 +122,7 @@
       />
 
       <div
-        v-else-if="store.lastCatch && showReveal"
+        v-else-if="store.lastCatch && store.fishingRevealPending"
         class="rh-parchment rh-reveal"
         role="status"
       >
@@ -155,13 +155,9 @@
           <p class="rh-reveal__note">{{ store.lastCatch.fishopediaNote }}</p>
           <div class="rh-actions">
             <button type="button" class="rh-btn rh-btn--gold" @click="dismiss">
-              {{ store.activeCard ? 'Answer the court' : 'Cast again' }}
+              {{ revealActionLabel }}
             </button>
-            <button
-              type="button"
-              class="rh-btn"
-              @click="emit('navigate', 'fishopedia')"
-            >
+            <button type="button" class="rh-btn" @click="viewFishopedia">
               Fishopedia
             </button>
           </div>
@@ -169,7 +165,7 @@
       </div>
 
       <div
-        v-else-if="store.lastEscape && showReveal"
+        v-else-if="store.lastEscape && store.fishingRevealPending"
         class="rh-parchment rh-callout"
         role="status"
       >
@@ -177,7 +173,7 @@
         <h2 class="rh-title">{{ store.lastEscape.fishName }}</h2>
         <p>{{ store.lastEscape.cue }}</p>
         <button type="button" class="rh-btn rh-btn--gold" @click="dismiss">
-          {{ store.activeCard ? 'Answer the court' : 'Try again' }}
+          {{ revealActionLabel }}
         </button>
       </div>
 
@@ -307,17 +303,18 @@ const backdrop = computed(() => {
 })
 const fishing = computed(() => !!store.activeFishing)
 
-// The catch/escape reveal shows once per landing; dismissing it returns to the rod.
-const showReveal = ref(true)
-watch(
-  () => [store.lastCatch, store.lastEscape],
-  () => {
-    showReveal.value = true
-  },
-)
+const revealActionLabel = computed(() => {
+  if (store.activeCard) return 'Answer the court'
+  if (store.pendingEnding) return 'Consider the finale'
+  return store.lastCatch ? 'Cast again' : 'Try again'
+})
 function dismiss() {
-  showReveal.value = false
+  store.dismissFishingReveal()
   if (store.activeCard || store.pendingEnding) emit('navigate', 'court')
+}
+function viewFishopedia() {
+  store.dismissFishingReveal()
+  emit('navigate', 'fishopedia')
 }
 
 const CAST_HINTS = [
@@ -335,8 +332,7 @@ const encounterEl = ref<{ stop: () => void } | null>(null)
 function press() {
   if (store.activeClassicFishing) return encounterEl.value?.stop()
   if (store.activeFishing) return
-  if ((store.lastCatch || store.lastEscape) && showReveal.value)
-    return dismiss()
+  if (store.fishingRevealPending) return dismiss()
   if (store.activeCard || store.pendingEnding) return emit('navigate', 'court')
   if (store.canFish) return store.startFishing(quiz.mode)
   if (store.save?.status === 'COMPLETE') emit('navigate', 'saves')

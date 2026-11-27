@@ -595,6 +595,33 @@ export function storyMoment(
         }
       : base
   const lines = [...scene.lines]
+  const fullCast = state?.crossfireCast === 2 && personal && person
+  if (fullCast && state && person && beat === 'arrival') {
+    const allies = state.units.filter(
+      (unit) => unit.team === 'squad' && unit.id !== 'backdraft',
+    )
+    const rivals = state.units.filter((unit) => unit.team === 'rival')
+    const names = (units: typeof state.units) =>
+      units
+        .map(
+          (unit) =>
+            IDENTITY_ARCS.find((entry) => entry.signature === unit.identity)
+              ?.hero.alias ?? unit.id,
+        )
+        .join(', ')
+    lines.push(
+      a(
+        'FIELD REPORT',
+        'With ' +
+          person.hero.alias +
+          ': ' +
+          names(allies) +
+          '. Opposing patrol: ' +
+          names(rivals) +
+          '.',
+      ),
+    )
+  }
   if (personal && person && beat === 'arrival' && lead !== 'accident-fire') {
     lines.push(
       a(
@@ -608,7 +635,14 @@ export function storyMoment(
   if (beat === 'arrival' && lead === 'accident-fire') {
     if (personal && person) {
       lines.push(
-        PERSONAL_ROUTE[role],
+        fullCast
+          ? a(
+              person.hero.alias,
+              role === 'hero'
+                ? 'Strangers ran toward the fire that changed my life. Our crew can do that for someone else.'
+                : 'The city calls me an accident waiting to happen. This crew knows why I agreed to guard the seal.',
+            )
+          : PERSONAL_ROUTE[role],
         a(
           supporter.hero.alias,
           role === 'hero'
@@ -728,7 +762,7 @@ export function applyChoice(
   } else if (beat === 'victory' || beat === 'defeat') {
     run.completed = true
   }
-  if (support && applySupport(state, support.action))
+  if (support && applySupport(state, support.action, support.text))
     (run.supportActions ??= []).push(support.action)
   run.decisions.push(effect)
   run.seen.push(beat)

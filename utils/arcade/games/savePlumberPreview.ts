@@ -2014,6 +2014,10 @@ export class PlumberRun implements ArcadeGameInstance {
     if (!this.ground || !keys.pressed.x || !keys.held.down) return false
     if (this.mounted) {
       if (this.waterAt(feet + 2)) return false
+      if (this.heldRoller) {
+        this.sound.play('warn')
+        return true
+      }
       gurgle.state = 'parked'
       gurgle.x = this.hero.x
       gurgle.y = feet
@@ -3054,6 +3058,9 @@ export class PlumberRun implements ArcadeGameInstance {
       this.kick(roller, this.facing)
       return
     }
+    if (!grab && this.mounted && !this.carrying) {
+      if (this.grabRoller(true) || this.slurpSupply()) return
+    }
     if (grab && !this.carrying && this.grabRoller()) return
     if (this.carrying) {
       this.carrying = false
@@ -3083,6 +3090,7 @@ export class PlumberRun implements ArcadeGameInstance {
     for (const foe of this.foes) {
       if (foe.state === 'gone' || foe.fade) continue
       if (!inBox(foe.x, foe.y - 8)) continue
+      if (this.mounted && !this.toolPathClear(foe.x, foe.y - 8)) continue
       if (foe.kind === 'minnow' && foe.y >= foe.homeY) continue
       struck = true
       this.strikeFoe(foe)
@@ -3133,13 +3141,61 @@ export class PlumberRun implements ArcadeGameInstance {
     playPlumberCue(this.sound, struck ? 'strike' : 'wrench')
   }
 
-  private grabRoller(): boolean {
+  private toolPathClear(x: number, y: number): boolean {
+    const startY = this.hero.y + TALL - 10
+    const dx = x - this.hero.x
+    const dy = y - startY
+    const steps = Math.ceil(Math.max(Math.abs(dx), Math.abs(dy)) / 4)
+    for (let i = 1; i <= steps; i++) {
+      const col = Math.floor((this.hero.x + (dx * i) / steps) / TILE)
+      const row = Math.floor((startY + (dy * i) / steps) / TILE)
+      if (isWall(this.solidAt(col, row))) return false
+    }
+    return true
+  }
+
+  private slurpSupply(): boolean {
+    const gurgle = this.gurgle!
+    const hero = this.hero
+    const pickup = this.pickups.find((item) => {
+      const dx = (item.x - hero.x) * this.facing
+      return (
+        !item.taken &&
+        dx >= 0 &&
+        dx <= 42 &&
+        Math.abs(item.y - hero.y - TALL / 2) <= 20 &&
+        this.toolPathClear(item.x, item.y)
+      )
+    })
+    if (pickup) {
+      pickup.x = hero.x
+      pickup.y = hero.y + TALL / 2
+      return true
+    }
+    if (gurgle.water) return false
+    const row = Math.floor((hero.y + TALL + 2) / TILE)
+    for (let distance = TILE; distance <= 42; distance += TILE) {
+      const col = Math.floor((hero.x + distance * this.facing) / TILE)
+      const x = col * TILE + TILE / 2
+      const y = row * TILE + TILE / 2
+      if (this.solidAt(col, row) === SOLID_WATER && this.toolPathClear(x, y)) {
+        gurgle.water = true
+        this.sound.play('pickup')
+        return true
+      }
+    }
+    return false
+  }
+
+  private grabRoller(allowLive = false): boolean {
     const hero = this.hero
     const index = this.foes.findIndex((foe) => {
       const dx = (foe.x - hero.x) * this.facing
       return (
         foe.kind === 'rivet-roller' &&
-        foe.state === 'stunned' &&
+        (foe.state === 'stunned' ||
+          (allowLive && (foe.state === 'walk' || foe.state === 'idle'))) &&
+        (!this.mounted || this.toolPathClear(foe.x, foe.y - 8)) &&
         !foe.giant &&
         !foe.glide &&
         !foe.fade &&

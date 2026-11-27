@@ -649,6 +649,141 @@ assert.ok(
   ).includes('front-origin-hydrant-blue'),
 )
 
+// Final two Accident origins: timed melee intervention versus remote analysis.
+for (const [stageId, lead, target, flag] of [
+  [
+    'clocktower-collapse',
+    'accident-discipline',
+    { x: 4, y: 3 },
+    'clock-lift-caught',
+  ],
+  [
+    'equation-that-escaped',
+    'accident-genius',
+    { x: 5, y: 2 },
+    'equation-drone-rewritten',
+  ],
+] as const) {
+  const stage = clonePreset(stageId)
+  assert.deepEqual(stageProblems(stage), [])
+  for (const perspective of ['hero', 'villain'] as const) {
+    const state = trainingState(41, stage, { lead })
+    const actor = state.units[0]!
+    state.selected = actor.id
+    const first = stage.civilians![0]!
+    actor.x = first.x - 1
+    actor.y = first.y
+    actor.ap = 2
+    assert.equal(rescueSelected(state), false)
+    actor.x = stageId === 'clocktower-collapse' ? 3 : 1
+    actor.y = stageId === 'clocktower-collapse' ? 3 : 2
+    if (stageId === 'clocktower-collapse') {
+      assert.equal(
+        useSelectedPower(state, target),
+        false,
+        'odd round is not the safe gear alignment',
+      )
+      state.turn = 2
+    }
+    assert.ok(
+      selectedPowerTargets(state).some(
+        (point) => point.x === target.x && point.y === target.y,
+      ),
+    )
+    assert.equal(useSelectedPower(state, target), true)
+    assert.ok(state.flags?.includes(flag))
+    assert.equal(actor.powerSpent, true)
+    assert.deepEqual(selectedPowerTargets(state), [])
+    const checkpoint = createSave({
+      slot: 'slot-2',
+      perspective,
+      leadSignature: lead,
+      stage,
+      state,
+      story: { ...createStory(), current: null },
+    })
+    assert.ok(loadSave(JSON.stringify(checkpoint)).ok)
+    const forged = createSave({
+      ...checkpoint,
+      state: { ...state, flags: [] },
+    })
+    assert.equal(loadSave(JSON.stringify(forged)).ok, false)
+    for (const civilian of stage.civilians!) {
+      actor.x = civilian.x
+      actor.y = civilian.y
+      actor.ap = 2
+      assert.equal(rescueSelected(state), true)
+    }
+    assert.equal(state.phase, 'victory')
+  }
+}
+const blockedDrone = trainingState(41, clonePreset('equation-that-escaped'), {
+  lead: 'accident-genius',
+})
+blockedDrone.units[0]!.x = 2
+blockedDrone.units[0]!.y = 1
+assert.equal(
+  useSelectedPower(blockedDrone, { x: 5, y: 2 }),
+  false,
+  'wall blocks remote proof rewrite',
+)
+
+// Lanternwitch's ritual uses both AP and binds a normally rechargeable power
+// for this origin only. Check the saved receipt and ordinary power rejection.
+for (const perspective of ['hero', 'villain'] as const) {
+  const stage = clonePreset('candle-that-wouldnt-die')
+  assert.deepEqual(stageProblems(stage), [])
+  const state = trainingState(41, stage, { lead: 'magic-fire' })
+  const actor = state.units[0]!
+  state.selected = actor.id
+  actor.x = 5
+  actor.y = 2
+  actor.ap = 2
+  assert.equal(rescueSelected(state), false)
+  actor.x = 3
+  actor.y = 3
+  actor.ap = 1
+  assert.equal(useSelectedPower(state, { x: 4, y: 3 }), false)
+  actor.ap = 2
+  assert.deepEqual(selectedPowerTargets(state), [{ x: 4, y: 3 }])
+  assert.equal(useSelectedPower(state, { x: 4, y: 3 }), true)
+  assert.equal(actor.ap, 0)
+  assert.ok(state.flags?.includes('vigil-flame-bound'))
+  assert.equal(actor.powerSpent, true)
+  const checkpoint = createSave({
+    slot: 'slot-2',
+    perspective,
+    leadSignature: 'magic-fire',
+    stage,
+    state,
+    story: { ...createStory(), current: null },
+  })
+  assert.ok(loadSave(JSON.stringify(checkpoint)).ok)
+  assert.equal(
+    loadSave(
+      JSON.stringify(
+        createSave({ ...checkpoint, state: { ...state, flags: [] } }),
+      ),
+    ).ok,
+    false,
+  )
+  actor.ap = 2
+  assert.deepEqual(selectedPowerTargets(state), [])
+  for (const civilian of stage.civilians!) {
+    actor.x = civilian.x
+    actor.y = civilian.y
+    actor.ap = 2
+    assert.equal(rescueSelected(state), true)
+  }
+  assert.equal(state.phase, 'victory')
+}
+assert.ok(
+  readFileSync(
+    'components/every-villain-tactics/every-villain-front-menu.vue',
+    'utf8',
+  ).includes('front-origin-candle-that-wouldnt-die'),
+)
+
 // Identity-locked rescue scenarios cannot strand someone without the needed
 // power, even if a saved menu or scripted call bypasses the visual filter.
 assert.deepEqual(ORIGIN_STAGE_LEADS, {
@@ -658,6 +793,9 @@ assert.deepEqual(ORIGIN_STAGE_LEADS, {
   'unlicensed-rescue': 'accident-birthright',
   'song-that-stopped': 'accident-social',
   'hydrant-blue': 'accident-water',
+  'clocktower-collapse': 'accident-discipline',
+  'equation-that-escaped': 'accident-genius',
+  'candle-that-wouldnt-die': 'magic-fire',
 })
 for (const [stage, signature] of Object.entries(ORIGIN_STAGE_LEADS)) {
   assert.equal(canStartOneShot(stage, signature), true)

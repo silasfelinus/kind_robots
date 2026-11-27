@@ -22,6 +22,19 @@ import {
 } from '../everyVillainTactics/personalCasts'
 import { IDENTITY_ARCS, identityFor } from '../cometAcademy/identityArcs'
 import {
+  ACCIDENT_SCIENCE_LINES,
+  MAGIC_SCIENCE_LINES,
+  TECH_SCIENCE_LINES,
+  PERSONAL_SCIENCE_LINES,
+  personalScienceNode,
+} from '../everyVillainTactics/personalScienceScenes'
+import { SCIENCE_WING_SCRIPT } from '../everyVillainTactics/scienceWingScript'
+import {
+  PERSONAL_SUPPORT_VOICES,
+  personalSupportVoice,
+} from '../everyVillainTactics/personalSupportVoices'
+import { applySupport, supportPlan } from '../everyVillainTactics/supportAgency'
+import {
   crossfireChapterBeat,
   PERSONAL_CAMPAIGNS,
   crossfireCurrentChapter,
@@ -253,67 +266,90 @@ for (const person of IDENTITY_ARCS) {
   assert.ok(expected.every((id) => identityFor(id)))
   assert.ok(!castCombinations.has(expected.slice(1).join(',')))
   castCombinations.add(expected.slice(1).join(','))
-  for (const perspective of ['hero', 'villain'] as const) {
-    const opening = createSave({
-      slot: 'auto',
-      perspective,
-      leadSignature: person.signature,
-      foilSignature: cast.foil,
-      stage: null,
-      state: trainingState(123, undefined, {
-        lead: person.signature,
-        foil: cast.foil,
-        crossfireCast: 1,
-      }),
-      story: createStory(),
-    })
-    let personal = newCrossfireJournal(opening)!
-    assert.ok(personal)
-    assert.equal(personal.active.state.crossfireCast, 1)
-    for (let chapter = 0; chapter < 6; chapter++) {
-      const current = personal.active
-      assert.ok(loadSave(current).ok)
-      assert.equal(current.state.crossfireCast, 1)
-      if (chapter > 0) {
-        assert.deepEqual(
-          current.state.units.map((unit) => unit.identity),
-          expected,
-        )
-        assert.deepEqual(
-          retryCrossfire(personal)?.active.state.units.map(
-            (unit) => unit.identity,
-          ),
-          expected,
-        )
-      }
-      const state = structuredClone(current.state)
-      state.phase = 'victory'
-      const story = structuredClone(current.story)
-      if (chapter === 0) {
-        story.current = null
-        story.seen.push('victory')
-        story.decisions.push('finish')
-        story.completed = true
-        state.fired ??= []
-        state.fired.push('story:victory')
-      }
-      const victory = createSave({
+  for (const version of [1, 2] as const) {
+    for (const perspective of ['hero', 'villain'] as const) {
+      const opening = createSave({
         slot: 'auto',
         perspective,
         leadSignature: person.signature,
         foilSignature: cast.foil,
-        stage: current.stage,
-        state,
-        story,
+        stage: null,
+        state: trainingState(123, undefined, {
+          lead: person.signature,
+          foil: cast.foil,
+          crossfireCast: version,
+        }),
+        story: createStory(),
       })
-      const checkpoint = snapshotCrossfire(personal, victory)
-      assert.ok(checkpoint)
-      const next = advanceCrossfire(checkpoint)
-      assert.ok(next)
-      personal = next
+      let personal = newCrossfireJournal(opening)!
+      assert.ok(personal)
+      assert.equal(personal.active.state.crossfireCast, version)
+      for (let chapter = 0; chapter < 6; chapter++) {
+        const current = personal.active
+        assert.ok(loadSave(current).ok)
+        assert.equal(current.state.crossfireCast, version)
+        if (chapter > 0 || version === 2) {
+          assert.deepEqual(
+            current.state.units.map((unit) => unit.identity),
+            expected,
+          )
+          assert.deepEqual(
+            retryCrossfire(personal)?.active.state.units.map(
+              (unit) => unit.identity,
+            ),
+            expected,
+          )
+        }
+        if (chapter === 0 && version === 2) {
+          const arrival = storyMoment(
+            perspective,
+            'arrival',
+            person.signature,
+            current.story,
+            current.state,
+          )
+          const roster = arrival.lines.find(
+            (line) =>
+              line.speaker === 'FIELD REPORT' &&
+              line.text.includes('Opposing patrol:'),
+          )
+          assert.ok(roster)
+          for (const id of expected)
+            assert.ok(roster.text.includes(identityFor(id).hero.alias))
+          assert.equal(
+            arrival.lines[1]?.speaker,
+            identityFor(cast.allies[0]).hero.alias,
+          )
+        }
+        const state = structuredClone(current.state)
+        state.phase = 'victory'
+        const story = structuredClone(current.story)
+        if (chapter === 0) {
+          story.current = null
+          story.seen.push('victory')
+          story.decisions.push('finish')
+          story.completed = true
+          state.fired ??= []
+          state.fired.push('story:victory')
+        }
+        const victory = createSave({
+          slot: 'auto',
+          perspective,
+          leadSignature: person.signature,
+          foilSignature: cast.foil,
+          stage: current.stage,
+          state,
+          story,
+        })
+        const checkpoint = snapshotCrossfire(personal, victory)
+        assert.ok(checkpoint)
+        const next = advanceCrossfire(checkpoint)
+        assert.ok(next)
+        personal = next
+      }
+      assert.ok(personal.finished)
+      assert.ok(readCrossfireJournal(JSON.stringify(personal)))
     }
-    assert.ok(personal.finished)
-    assert.ok(readCrossfireJournal(JSON.stringify(personal)))
   }
 }
 const personalCastStage = clonePreset('science-lab')
@@ -1358,3 +1394,123 @@ assert.ok(page.includes('@click="store.replayBattle()"'))
 console.log(
   'Crossfire: six ordered chapters, independent save key, First Bell story bridge, verified victory/defeat transitions, checkpoint restoration, anti-forgery and UI wiring checked.',
 )
+
+// All canonical identities have authored support motives and legal actions.
+assert.deepEqual(
+  Object.keys(PERSONAL_SUPPORT_VOICES).sort(),
+  IDENTITY_ARCS.map((person) => person.signature).sort(),
+)
+const supportLines = new Set<string>()
+for (const person of IDENTITY_ARCS) {
+  const voice = personalSupportVoice(person.signature)!
+  assert.ok(voice)
+  for (const line of [voice.mark, voice.guard, voice.refuse]) {
+    assert.ok(!supportLines.has(line))
+    supportLines.add(line)
+  }
+  const lead =
+    person.signature === 'accident-fire' ? 'accident-air' : 'accident-fire'
+  const state = trainingState(41, undefined, { lead })
+  state.crossfireCast = 1
+  const actor = state.units.find((unit) => unit.id === 'priya')!
+  actor.identity = person.signature
+  state.units.find((unit) => unit.id === 'hattie')!.hp = 0
+  const before = JSON.stringify(state)
+  const plan = supportPlan(state, 'alarm', 'rescue')!
+  assert.ok(plan)
+  assert.equal(plan.action.actor, actor.id)
+  assert.equal(
+    plan.action.effect,
+    voice.preference === 'mark' ? 'marked' : 'guarded',
+  )
+  assert.ok(plan.text.startsWith(voice[voice.preference]))
+  assert.equal(JSON.stringify(state), before)
+  assert.ok(applySupport(state, plan.action, plan.text))
+  assert.ok(state.events[0]?.includes(plan.text))
+  assert.ok(
+    state.units
+      .find((unit) => unit.id === plan.action.target)
+      ?.statuses.includes(plan.action.effect),
+  )
+  for (const unit of state.units)
+    unit.statuses = unit.statuses.filter((status) => status !== 'guarded')
+  const refusal = supportPlan(state, 'reckoning', 'press')!
+  assert.ok(refusal)
+  assert.equal(refusal.action.effect, 'guarded')
+  assert.ok(refusal.text.startsWith(voice.refuse))
+  assert.ok(applySupport(state, refusal.action, refusal.text))
+  assert.ok(state.events[0]?.includes(voice.refuse))
+  actor.hp = 0
+  assert.equal(supportPlan(state, 'alarm', 'rescue'), null)
+}
+assert.equal(supportLines.size, 144)
+assert.equal(personalSupportVoice('constructor'), undefined)
+
+// The personalized dialogue changes presentation, not saved scene graphs or
+// their rescue/evidence decisions. Both allegiances keep the actual cast.
+const scienceNodes = SCIENCE_WING_SCRIPT.scenes.flatMap((scene) => scene.nodes)
+const scienceVoices = new Set<string>()
+assert.equal(Object.keys(ACCIDENT_SCIENCE_LINES).length, 8)
+assert.equal(Object.keys(MAGIC_SCIENCE_LINES).length, 8)
+assert.equal(Object.keys(TECH_SCIENCE_LINES).length, 8)
+assert.equal(Object.keys(PERSONAL_SCIENCE_LINES).length, 24)
+for (const lead of Object.keys(PERSONAL_SCIENCE_LINES)) {
+  for (const perspective of ['hero', 'villain'] as const) {
+    const state = trainingState(41, clonePreset('science-lab'), {
+      lead,
+      foil: personalCastFor(lead)!.foil,
+      crossfireCast: 2,
+    })
+    const arrival = walkScene(SCIENCE_WING_SCRIPT.scenes[0]!, [], {
+      state,
+      perspective,
+    })
+    assert.ok(arrival)
+    assert.ok(
+      arrival.nodes.some(
+        (node) => node.id === (perspective === 'hero' ? 'sh' : 'sv'),
+      ),
+    )
+    const before = JSON.stringify(state)
+    let changed = 0
+    for (const node of scienceNodes) {
+      const line = personalScienceNode(node, lead, 'science-lab', true, state)
+      assert.deepEqual(line.choices, node.choices)
+      assert.deepEqual(line.branch, node.branch)
+      assert.equal(line.next, node.next)
+      assert.equal(line.id, node.id)
+      if (line !== node) {
+        changed++
+        assert.ok(line.text.length > 10 && line.text.length <= 400)
+        assert.notEqual(line.text, node.text)
+        assert.ok(
+          state.units.some((u) => u.id === line.speaker && u.team === 'squad'),
+        )
+        scienceVoices.add(line.text)
+      }
+      assert.equal(
+        personalScienceNode(node, lead, 'science-lab', false, state),
+        node,
+      )
+      assert.equal(
+        personalScienceNode(node, lead, 'crosswalk-crisis', true, state),
+        node,
+      )
+      assert.equal(
+        personalScienceNode(node, 'constructor', 'science-lab', true, state),
+        node,
+      )
+      assert.equal(
+        personalScienceNode(node, lead, 'science-lab', true, {
+          ...state,
+          crossfireCast: 1,
+        }),
+        node,
+      )
+    }
+    assert.equal(changed, 11)
+    assert.equal(JSON.stringify(state), before)
+  }
+}
+assert.equal(scienceVoices.size, 264)
+assert.ok(store.includes('personalScienceNode('))

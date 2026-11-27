@@ -222,7 +222,14 @@
           ]"
           :data-testid="'clash-boss-' + side"
         >
-          <div class="clash-portrait">
+          <button
+            type="button"
+            class="clash-portrait"
+            :aria-label="'Inspect ' + teamOf(side).name + ' faction powers'"
+            aria-haspopup="dialog"
+            :data-testid="'clash-power-portrait-' + side"
+            @click="powerSide = side"
+          >
             <SlimeCityArtwork
               :key="side + mood(side)"
               :image-id="
@@ -248,7 +255,7 @@
               class="clash-float is-boss"
               >-{{ impact!.dealt }}</span
             >
-          </div>
+          </button>
           <div class="clash-boss-info">
             <small
               >{{ side === 'enemy' ? 'RIVAL BOSS' : 'YOUR BOSS'
@@ -280,57 +287,18 @@
                 />PLAYS</span
               >
             </span>
-            <span v-if="side === 'enemy'" class="clash-powers">
-              <span
-                v-for="team in clashPowers(game, 'enemy')"
-                :key="'rival-power-' + team"
-                class="clash-power-chip"
-                :class="{
-                  spent: clashPowerSpent(game, 'enemy', team),
-                  charged: rivalCharged,
-                }"
-                :title="powerTitle(team)"
-                data-testid="clash-rival-power"
-                >{{ factionPower(team).symbol
-                }}<span class="clash-power-name">
-                  {{ factionPower(team).name
-                  }}{{
-                    clashPowerSpent(game, 'enemy', team) ? ' · USED' : ''
-                  }}</span
-                ></span
-              >
-            </span>
-            <span v-else class="clash-powers">
-              <button
-                v-for="(team, i) in clashPowers(game, 'player')"
-                :key="'power-' + team"
-                type="button"
-                class="clash-power"
-                :class="{
-                  armed: powerArmed === team,
-                  spent: clashPowerSpent(game, 'player', team),
-                  charged: myCharged && !clashPowerSpent(game, 'player', team),
-                }"
-                :data-testid="i === 0 ? 'clash-power' : 'clash-power-ally'"
-                :aria-pressed="powerArmed === team"
-                :title="powerTitle(team)"
-                :disabled="!powerReady(team)"
-                @click="firePower(team)"
-              >
-                {{ factionPower(team).symbol
-                }}<span class="clash-power-name">
-                  {{
-                    clashPowerSpent(game, 'player', team)
-                      ? factionPower(team).name + ' · USED'
-                      : powerArmed === team
-                        ? 'PICK A TARGET'
-                        : (myCharged ? '⚡ ' : '') + factionPower(team).name
-                  }}</span
-                >
-              </button>
-            </span>
           </div>
         </div>
+
+        <SlimeCityFactionPowerPopup
+          v-if="powerSide !== null"
+          :game="game"
+          :side="powerSide"
+          :own="powerSide === 'player'"
+          :ready="powerReady"
+          @close="powerSide = null"
+          @activate="activatePortraitPower"
+        />
 
         <div class="clash-vs-mid">
           <button
@@ -564,9 +532,6 @@ import {
   canClashPower,
   canClashActivate,
   activateClash,
-  clashOvercharged,
-  clashPowers,
-  clashPowerSpent,
   useClashPower,
   clashPlayLimit,
   canClashPlay,
@@ -598,7 +563,7 @@ import {
   clashSoundView,
 } from '~/utils/slimeCity/sound'
 import { bossQuip, type BossMood } from '~/utils/slimeCity/bossReactions'
-import { OVERCHARGE_RULE, factionPower } from '~/utils/slimeCity/factionPowers'
+import { factionPower } from '~/utils/slimeCity/factionPowers'
 import {
   clashEvolutionChoice,
   clashEvolutionStage,
@@ -724,20 +689,7 @@ const rewardNote = computed(() =>
 const alliance = computed(() => game.value.format === 'alliance')
 /** Silas, 2026-11-10 PT: one power in SOLO, both crews' powers in ALLIANCE. */
 const powerArmed = ref<TeamId | null>(null)
-const myCharged = computed(() => clashOvercharged(game.value, 'player'))
-const rivalCharged = computed(() => clashOvercharged(game.value, 'enemy'))
-function powerTitle(team: TeamId): string {
-  const power = factionPower(team)
-  return (
-    power.name +
-    ': ' +
-    power.text +
-    ' One use per match. ' +
-    OVERCHARGE_RULE +
-    ' Overcharged: ' +
-    power.overcharge
-  )
-}
+const powerSide = ref<Side | null>(null)
 const heldIndex = ref<number | null>(null)
 const selectedUnit = ref<number | null>(null)
 const lunge = ref<{ side: Side; lane: number } | null>(null)
@@ -1172,6 +1124,11 @@ function powerReady(team: TeamId): boolean {
     !busy.value &&
     lanes.some((lane) => canClashPower(game.value, 'player', lane, team))
   )
+}
+function activatePortraitPower(team: TeamId): void {
+  if (!powerReady(team)) return
+  powerSide.value = null
+  firePower(team)
 }
 function firePower(team: TeamId): void {
   if (!powerReady(team)) return
@@ -1751,6 +1708,10 @@ function forecast(lane: number): string {
   order: 5;
 }
 .clash-portrait {
+  cursor: pointer;
+  padding: 0;
+  border: 0;
+  background: transparent;
   position: relative;
   flex: 1 1 auto;
   min-height: 3rem;

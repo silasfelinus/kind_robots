@@ -32,6 +32,7 @@ import {
 } from './combat'
 import type { StageDraft } from './studio'
 import { personalCastFor } from './personalCasts'
+import { environmentalOrigin } from './environmentalOrigins'
 import {
   chooseFireSpread,
   fieldMap,
@@ -126,7 +127,7 @@ export type TrainingState = {
    * saves leave this unset and cannot retroactively claim a flawless run. */
   damageTaken?: number
   /** New Crossfire roster; absent in historical saves and standalone battles. */
-  crossfireCast?: 1
+  crossfireCast?: 1 | 2
   impact: {
     attacker: string
     target: string
@@ -284,7 +285,7 @@ export type TrainingOptions = {
   /** Apply hero roles and signature powers. Prom of Doom interludes opt out
    * so their saved battles and balance stay exactly as shipped. */
   roles?: boolean
-  crossfireCast?: 1
+  crossfireCast?: 1 | 2
 }
 export function trainingState(
   seed = 0x53a1b7,
@@ -371,16 +372,16 @@ export function trainingState(
   }
   const cast = personalCastFor(lead.identity)
   if (
-    options.crossfireCast === 1 &&
+    (options.crossfireCast === 1 || options.crossfireCast === 2) &&
     options.roles !== false &&
     cast &&
     options.foil === cast.foil &&
     (!stage || isCrossfireFoilStage(stage))
   ) {
-    state.crossfireCast = 1
-    // First Bell has established dialogue and supporting-character voices.
-    // The five follow-on missions use the lead's hand-selected roster.
-    if (stage) {
+    state.crossfireCast = options.crossfireCast
+    // Version 1 preserves the original First Bell roster for existing saves.
+    // Version 2 fields the personal cast from the first battle onward.
+    if (stage || options.crossfireCast === 2) {
       const identities = {
         priya: cast.allies[0],
         hattie: cast.allies[1],
@@ -862,38 +863,37 @@ export function useAlliedSignature(state: TrainingState): boolean {
   return true
 }
 
-function hydrantValveMission(state: TrainingState, unit: Unit): boolean {
-  return (
-    state.stageId === 'hydrant-blue' &&
-    unit.id === 'backdraft' &&
-    unit.identity === 'accident-water'
-  )
+function environmentalMission(state: TrainingState, unit: Unit) {
+  const mission = environmentalOrigin(state.stageId)
+  return mission && unit.id === 'backdraft' && unit.identity === mission.lead
+    ? mission
+    : undefined
 }
 
-/** An environmental use of the same one-shot signature: the broken main
- * is a target even when the rivals have been defeated. */
-function hydrantValvePreview(
+function environmentalPreview(
   state: TrainingState,
   unit: Unit,
   target: Cell,
 ): PowerPreview | null {
-  const valve = { x: 4, y: 2 }
+  const mission = environmentalMission(state, unit)
   if (
-    !hydrantValveMission(state, unit) ||
+    !mission ||
     powerBlocker(unit) ||
-    target.x !== valve.x ||
-    target.y !== valve.y ||
-    gridDistance(unit, valve) > 1 ||
-    (state.flags ?? []).includes('hydrant-main-flowing')
+    target.x !== mission.target.x ||
+    target.y !== mission.target.y ||
+    gridDistance(unit, target) > mission.range ||
+    (mission.even && state.turn % 2 !== 0) ||
+    (mission.range > 1 && !lineOfSight(state.map, unit, target)) ||
+    (state.flags ?? []).includes(mission.flag)
   )
     return null
   const power = powerFor(unit)
-  if (!power || power.family !== 'undertow' || power.cooldown !== 0) return null
+  if (!power || power.family !== mission.family) return null
   return {
     power,
     user: unit.id,
-    target: valve,
-    cells: [valve],
+    target: { ...mission.target },
+    cells: [{ ...mission.target }],
     chance: null,
     effects: [],
   }
@@ -902,10 +902,11 @@ function hydrantValvePreview(
 export function selectedPowerTargets(state: TrainingState): Cell[] {
   const unit = selectedUnit(state)
   if (!unit || state.phase !== 'active') return []
-  if (hydrantValveMission(state, unit)) {
-    const valve = { x: 4, y: 2 }
-    return hydrantValvePreview(state, unit, valve) ? [valve] : []
-  }
+  const mission = environmentalMission(state, unit)
+  if (mission)
+    return environmentalPreview(state, unit, mission.target)
+      ? [{ ...mission.target }]
+      : []
   return powerTargets(state, unit).filter(
     (target) =>
       valcourtRescueTarget(state, unit, target) &&
@@ -918,8 +919,8 @@ export function previewSelectedPower(
 ): PowerPreview | null {
   const unit = selectedUnit(state)
   if (!unit || state.phase !== 'active') return null
-  if (hydrantValveMission(state, unit))
-    return hydrantValvePreview(state, unit, target)
+  if (environmentalMission(state, unit))
+    return environmentalPreview(state, unit, target)
   if (
     !valcourtRescueTarget(state, unit, target) ||
     !chorusBroadcastTarget(state, unit, target)
@@ -1006,18 +1007,16 @@ function narratePower(
 export function useSelectedPower(state: TrainingState, target: Cell): boolean {
   const unit = selectedUnit(state)
   if (!unit || state.phase !== 'active') return false
-  if (hydrantValveMission(state, unit)) {
-    const preview = hydrantValvePreview(state, unit, target)
+  const mission = environmentalMission(state, unit)
+  if (mission) {
+    const preview = environmentalPreview(state, unit, target)
     if (!preview) return false
     unit.ap -= preview.power.ap
     unit.powerSpent = true
-    unit.fired = true
+    if (mission.fire) unit.fired = true
     state.flags ??= []
-    state.flags.push('hydrant-main-flowing')
-    note(
-      state,
-      'Tidewarden redirects the broken water main. Both crews can now evacuate.',
-    )
+    state.flags.push(mission.flag)
+    note(state, mission.msg)
     state.mode = 'move'
     updateOutcome(state)
     return true
@@ -1150,12 +1149,10 @@ export function rescueTargets(state: TrainingState): Civilian[] {
         !['radio-listeners', 'radio-volunteers'].includes(c.id) ||
         (state.flags ?? []).includes('radio-counter-melody'),
     )
-    .filter(
-      (c) =>
-        state.stageId !== 'hydrant-blue' ||
-        !c.id.startsWith('hydrant-') ||
-        (state.flags ?? []).includes('hydrant-main-flowing'),
-    )
+    .filter(() => {
+      const mission = environmentalOrigin(state.stageId)
+      return !mission || (state.flags ?? []).includes(mission.flag)
+    })
     .filter((c) => gridDistance(unit, c) <= 1)
     .sort((a, b) => a.id.localeCompare(b.id))
 }
@@ -1756,21 +1753,18 @@ export function rivalRetreatDestination(state: TrainingState, enemy: Unit) {
     state.phase !== 'active'
   )
     return null
-  const opponents = state.units.filter(
-    (unit) => unit.team !== enemy.team && unit.hp > 0,
-  )
-  const exposure = (point: Point) =>
-    Math.max(
-      0,
-      ...opponents.map(
-        (unit) => chanceFrom(state.map, unit, { ...enemy, ...point }).hit,
-      ),
-    )
-  const current = exposure(enemy)
+  const current = rivalExposure(state, enemy, enemy).incoming
   if (current < 45) return null
   const destination = reachableCells(state.map, state.units, enemy)
     .filter((point) => !rivalHazardAt(state, point))
-    .map((point) => ({ point, exposure: exposure(point) }))
+    .map((point) => {
+      const risk = rivalExposure(state, enemy, point)
+      // At one HP, even a single reaction can end the retreat. Account for
+      // immediate overwatch as well as the strongest subsequent shot.
+      const exposure =
+        risk.incoming + ((100 - risk.incoming) * risk.reaction) / 100
+      return { point, exposure }
+    })
     .filter((candidate) => current - candidate.exposure >= 25)
     .sort(
       (a, b) =>

@@ -733,6 +733,49 @@ damInput.held.right = true
 for (let i = 0; i < 200 && !sluice.checkpoints[0]!.reached; i++)
   sluice.update(damInput)
 assert.ok(sluice.checkpoints[0]!.reached)
+const damRoom = parseStage(SLUICEGATE_STEPS)
+assert.deepEqual(damRoom.doors, [
+  { col: 10, row: 5, to: 1 },
+  { col: 47, row: 13, to: 0 },
+])
+
+function walkDamTo(col: number) {
+  const target = col * TILE + TILE / 2
+  for (
+    let frame = 0;
+    frame < 180 && Math.abs(sluice.hero.x - target) > 3;
+    frame++
+  ) {
+    const movement = emptyInput()
+    if (sluice.hero.x < target) movement.held.right = true
+    else movement.held.left = true
+    sluice.update(movement)
+    assert.equal(sluice.mode, 'play')
+  }
+  assert.ok(Math.abs(sluice.hero.x - target) <= 3)
+}
+
+walkDamTo(47)
+press(sluice, 'down')
+assert.equal(sluice.hero.x, 10 * TILE + TILE / 2)
+assert.ok(sluice.activePipeRoom)
+const inspectionTokens = sluice.tokens
+walkDamTo(22)
+for (let i = 0; i < 20; i++) sluice.update(emptyInput())
+assert.equal(sluice.hero.y + 20, 10 * TILE)
+assert.equal(sluice.tokens, inspectionTokens + 2)
+walkDamTo(15)
+const damClimb = emptyInput()
+damClimb.held.up = true
+sluice.update(damClimb)
+assert.ok(sluice.climbing)
+for (let i = 0; i < 100 && sluice.climbing; i++) sluice.update(damClimb)
+assert.ok(sluice.ground)
+walkDamTo(10)
+press(sluice, 'down')
+assert.equal(sluice.hero.x, 47 * TILE + TILE / 2)
+assert.equal(sluice.activePipeRoom, undefined)
+assert.equal(sluice.deaths, 0)
 const damLives = sluice.lives
 sluice.hero.y = sluice.stage.rows * TILE + 60
 for (let i = 0; i < 600 && sluice.lives === damLives; i++) sluice.update(input)

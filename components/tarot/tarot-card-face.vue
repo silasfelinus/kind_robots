@@ -52,8 +52,8 @@ const SUIT_GLYPH: Record<string, string> = {
 }
 
 const numeral = computed(() => {
-  const major = /^major-(\d+)$/.exec(props.cardKey)
-  if (major) return ROMAN[Number(major[1])] ?? ''
+  const ordinal = /^major-(\d+)$/.exec(props.cardKey)?.[1]
+  if (ordinal !== undefined) return ROMAN[Number(ordinal)] ?? ''
   return props.cardKey.split('-of-')[0] ?? ''
 })
 

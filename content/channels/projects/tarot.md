@@ -6,7 +6,7 @@ label: Tarot
 title: Kind Tarot
 subtitle: Daily readings, horoscope and your birth chart
 description: Three automatic tarot readings every day from the 78-card Kind Oracle, a daily horoscope from your Sun, Moon and rising sign, and an in-depth natal chart with houses and aspects.
-summary: Tarot readings, horoscope and birth chart.
+summary: Tarot, horoscope and your birth chart.
 icon: kind-icon:cards
 image: /images/art/resources.webp
 route: /play/tarot

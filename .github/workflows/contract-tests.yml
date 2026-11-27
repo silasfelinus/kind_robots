@@ -564,6 +564,9 @@ jobs:
       - name: Monstrique series bible, canon and running jokes
         run: npx tsx utils/scripts/verifyMonstriqueBible.test.ts
 
+      - name: Monstrique walk paths, map shortcuts, compact clue and reload repair
+        run: npx tsx utils/scripts/verifyMonstriqueNavigation.test.ts
+
   contract_2:
     name: Contract shard 2/4
     runs-on: ubuntu-latest

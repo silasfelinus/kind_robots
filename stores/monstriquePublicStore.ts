@@ -18,6 +18,7 @@ import {
   type CaseState,
   type RoomId,
 } from '~/utils/monstressConvention/prologue'
+import { travelRoute } from '~/utils/monstressConvention/navigation'
 import {
   achievementsFor,
   MONSTRIQUE_ENDINGS,
@@ -287,6 +288,14 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     commit(travelForAudience(state.value, room, audience.value))
   }
 
+  function travelTo(room: RoomId): void {
+    commit(
+      travelRoute(state.value, room, (here, destination) =>
+        travelForAudience(here, destination, audience.value),
+      ),
+    )
+  }
+
   function switchActor(): void {
     commit(switchInvestigator(state.value))
   }
@@ -308,6 +317,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     forgetCase,
     takeAction,
     move,
+    travelTo,
     switchActor,
   }
 })

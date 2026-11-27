@@ -15,6 +15,7 @@ import {
   type CaseState,
   type RoomId,
 } from '~/utils/monstressConvention/prologue'
+import { travelRoute } from '~/utils/monstressConvention/navigation'
 import {
   achievementsFor,
   MONSTRIQUE_ENDINGS,
@@ -182,6 +183,13 @@ export const useMonstressConventionStore = defineStore(
       else feedback.value = result.line
     }
 
+    function travelTo(room: RoomId): void {
+      if (!authorized.value) return
+      const result = travelRoute(state.value, room)
+      if (result.changed) commit(result.state)
+      else feedback.value = result.line
+    }
+
     function switchActor(): void {
       if (!authorized.value) return
       const result = switchInvestigator(state.value)
@@ -205,6 +213,7 @@ export const useMonstressConventionStore = defineStore(
       forgetCase,
       takeAction,
       move,
+      travelTo,
       switchActor,
     }
   },

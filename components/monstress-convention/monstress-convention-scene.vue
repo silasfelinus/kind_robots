@@ -123,12 +123,14 @@
         class="mc-scene relative min-h-0 flex-1 overflow-hidden"
         :data-room="story.state.room"
         :aria-label="
-          room.label + '. Arrow keys cycle objects. Tap empty ground to walk.'
+          room.label +
+          '. Arrow keys cycle objects. W, A, S and D walk. Tap the floor to walk.'
         "
         tabindex="0"
         @click="walkTo"
         @keydown.left.prevent="selectAdjacent(-1)"
         @keydown.right.prevent="selectAdjacent(1)"
+        @keydown="stepByKey"
       >
         <svg
           class="mc-painted-scene absolute inset-0 size-full"
@@ -417,25 +419,27 @@
             :character="actor.character"
             :mood="speaker === actor.character ? speakerMood : undefined"
             :talking="speaker === actor.character"
-            :facing="actor.x > irisX ? 'left' : 'right'"
+            :facing="actor.x > iris.x ? 'left' : 'right'"
           />
           <div
             v-if="showNorbFollower"
             class="mc-germ-zone absolute"
-            :style="{ left: norbX + '%' }"
+            :style="walkerStyle(norb, 0, followMs)"
           />
           <MonstriqueCharacterSprite
             v-if="showNorbFollower"
             class="mc-walker absolute"
-            :style="{ left: norbX + '%', height: 52 * 0.68 + '%' }"
+            :style="walkerStyle(norb, 52 * 0.68, followMs)"
             character="norb"
             :mood="speaker === 'norb' ? speakerMood : 'annoyed'"
             :talking="speaker === 'norb'"
-            :facing="norbX > irisX ? 'left' : 'right'"
+            :facing="norb.x > iris.x ? 'left' : 'right'"
           />
           <MonstriqueCharacterSprite
             class="mc-walker absolute"
-            :style="{ left: irisX + '%', height: '52%' }"
+            data-testid="monstrique-iris-walker"
+            :data-walking="walking ? 'true' : 'false'"
+            :style="walkerStyle(iris, 52, walkMs)"
             character="iris"
             :mood="speaker === 'iris' ? speakerMood : 'smirk'"
             :talking="speaker === 'iris'"
@@ -549,6 +553,24 @@
                   {{ HOTEL_ROOMS[exit].label }}
                 </button>
               </div>
+              <template v-if="shortcuts.length">
+                <h3 class="mc-eyebrow mt-4">SHORTCUTS</h3>
+                <div
+                  class="flex flex-col gap-2 pt-3"
+                  data-testid="monstrique-map-shortcuts"
+                >
+                  <button
+                    v-for="shortcut in shortcuts"
+                    :key="shortcut"
+                    type="button"
+                    class="mc-exit"
+                    @click="shortcutTo(shortcut)"
+                  >
+                    <Icon name="kind-icon:map" class="size-4" />
+                    {{ HOTEL_ROOMS[shortcut].label }}
+                  </button>
+                </div>
+              </template>
             </template>
           </div>
         </aside>
@@ -694,10 +716,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useMonstressConventionStore } from '~/stores/monstressConventionStore'
 import { useMonstriquePublicStore } from '~/stores/monstriquePublicStore'
-import { roomForAudience } from '~/utils/monstressConvention/edition'
+import {
+  roomForAudience,
+  travelForAudience,
+} from '~/utils/monstressConvention/edition'
+import {
+  WALK_AREAS,
+  approachPoint,
+  depthScale,
+  findPath,
+  followerPoint,
+  nearestWalkable,
+  shortcutRooms,
+  type StagePoint,
+} from '~/utils/monstressConvention/navigation'
 import {
   availableTopics,
   caseScore,
@@ -736,7 +771,14 @@ const openingScene = computed(() => coldOpen(audience.value))
 const drawer = ref<'case' | 'map' | null>(null)
 const selected = ref<string | null>(null)
 const held = ref<string | null>(null)
-const walkTarget = ref<number | null>(null)
+const iris = ref<StagePoint>({
+  ...WALK_AREAS[story.value.state.room].entry,
+})
+const walkMs = ref(0)
+const walking = ref(false)
+const facing = ref<'left' | 'right'>('right')
+let walkTimer: ReturnType<typeof setTimeout> | null = null
+let reducedMotion = false
 const room = computed(() =>
   roomForAudience(story.value.state.room, audience.value),
 )
@@ -785,43 +827,108 @@ const stageNpcs = computed(() =>
       : []
   }),
 )
-const irisX = computed(() => {
-  const target = activeHotspot.value
-  if (!target) return walkTarget.value ?? 20
-  const side = target.x > 50 ? -11 : 11
-  return Math.min(92, Math.max(8, target.x + side))
-})
 const irisFacing = computed(() =>
-  activeHotspot.value && activeHotspot.value.x < irisX.value ? 'left' : 'right',
+  !walking.value && activeHotspot.value
+    ? activeHotspot.value.x < iris.value.x
+      ? 'left'
+      : 'right'
+    : facing.value,
 )
 const showNorbFollower = computed(
   () => !stageNpcs.value.some((actor) => actor.character === 'norb'),
 )
-const norbX = computed(() =>
-  Math.min(
-    94,
-    Math.max(6, irisX.value >= 50 ? irisX.value - 34 : irisX.value + 34),
-  ),
+const norb = computed(() => followerPoint(story.value.state.room, iris.value))
+const followMs = computed(() => (walkMs.value ? walkMs.value + 180 : 0))
+const shortcuts = computed(() => {
+  if (drawer.value !== 'map') return []
+  const state = story.value.state
+  const step = (here: typeof state, destination: RoomId) =>
+    travelForAudience(here, destination, audience.value)
+  return shortcutRooms(state, step).filter(
+    (destination) => !room.value.exits.includes(destination),
+  )
+})
+
+function walkerStyle(
+  point: StagePoint,
+  height: number,
+  ms: number,
+): Record<string, string> {
+  const style: Record<string, string> = {
+    left: point.x + '%',
+    top: point.y + '%',
+    transitionDuration: ms + 'ms',
+  }
+  if (height) style.height = height * depthScale(point.y) + '%'
+  return style
+}
+
+function stopWalking(): void {
+  if (walkTimer) clearTimeout(walkTimer)
+  walkTimer = null
+  walking.value = false
+}
+
+function stepAlong(path: StagePoint[]): void {
+  const next = path.shift()
+  if (!next) {
+    walkMs.value = 0
+    walking.value = false
+    walkTimer = null
+    return
+  }
+  const from = iris.value
+  if (Math.abs(next.x - from.x) > 0.5)
+    facing.value = next.x < from.x ? 'left' : 'right'
+  const ms = reducedMotion
+    ? 0
+    : Math.round(Math.hypot(next.x - from.x, next.y - from.y) * 16)
+  walking.value = ms > 0
+  walkMs.value = ms
+  iris.value = next
+  walkTimer = setTimeout(() => stepAlong(path), ms)
+}
+
+function walkToPoint(target: StagePoint): void {
+  stopWalking()
+  stepAlong(findPath(story.value.state.room, iris.value, target))
+}
+
+watch(
+  () => story.value.state.room,
+  (next) => {
+    stopWalking()
+    walkMs.value = 0
+    iris.value = { ...WALK_AREAS[next].entry }
+  },
 )
+watch(activeHotspot, (hotspot) => {
+  if (hotspot) walkToPoint(approachPoint(story.value.state.room, hotspot))
+})
 
 onMounted(() => {
+  reducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true
   if (props.entry === 'continue') screen.value = 'stage'
   else if (props.entry === 'new') screen.value = 'intro'
   else if (story.value.state.transcript.length > 1) screen.value = 'stage'
 })
+onBeforeUnmount(stopWalking)
 
 function begin(): void {
   story.value.begin()
   selected.value = null
   held.value = null
   drawer.value = null
-  walkTarget.value = null
+  stopWalking()
+  walkMs.value = 0
+  iris.value = { ...WALK_AREAS[story.value.state.room].entry }
   screen.value = 'intro'
 }
 
 function selectHotspot(id: string): void {
   selected.value = selected.value === id ? null : id
-  if (selected.value) walkTarget.value = null
 }
 
 function walkTo(event: MouseEvent): void {
@@ -829,13 +936,35 @@ function walkTo(event: MouseEvent): void {
   if (target?.closest('button, aside')) return
   const stage = event.currentTarget as HTMLElement
   const bounds = stage.getBoundingClientRect()
-  if (bounds.width === 0) return
-  walkTarget.value = Math.min(
-    92,
-    Math.max(8, ((event.clientX - bounds.left) / bounds.width) * 100),
-  )
+  if (bounds.width === 0 || bounds.height === 0) return
   selected.value = null
   drawer.value = null
+  walkToPoint(
+    nearestWalkable(story.value.state.room, {
+      x: ((event.clientX - bounds.left) / bounds.width) * 100,
+      y: ((event.clientY - bounds.top) / bounds.height) * 100,
+    }),
+  )
+}
+
+function stepByKey(event: KeyboardEvent): void {
+  const moves: Record<string, [number, number]> = {
+    w: [0, -7],
+    a: [-8, 0],
+    s: [0, 7],
+    d: [8, 0],
+  }
+  const move = moves[event.key.toLowerCase()]
+  if (!move || drawer.value || event.metaKey || event.ctrlKey || event.altKey)
+    return
+  event.preventDefault()
+  selected.value = null
+  walkToPoint(
+    nearestWalkable(story.value.state.room, {
+      x: Math.min(97, Math.max(3, iris.value.x + move[0])),
+      y: Math.min(98, Math.max(2, iris.value.y + move[1])),
+    }),
+  )
 }
 
 function selectAdjacent(direction: -1 | 1): void {
@@ -844,7 +973,6 @@ function selectAdjacent(direction: -1 | 1): void {
   const current = spots.findIndex((spot) => spot.id === selected.value)
   const start = current < 0 ? (direction === 1 ? -1 : 0) : current
   selected.value = spots[(start + direction + spots.length) % spots.length]!.id
-  walkTarget.value = null
 }
 
 function pickInventory(item: string): void {
@@ -876,7 +1004,12 @@ function go(destination: RoomId): void {
   story.value.move(destination)
   selected.value = null
   drawer.value = null
-  walkTarget.value = null
+}
+
+function shortcutTo(destination: RoomId): void {
+  story.value.travelTo(destination)
+  selected.value = null
+  drawer.value = null
 }
 
 function toggleDrawer(value: 'case' | 'map'): void {
@@ -912,18 +1045,18 @@ function verbIcon(verb: Verb): string {
   translate: -50% -86%;
 }
 .mc-walker {
-  bottom: 3%;
-  translate: -50% 0;
-  transition: left 0.65s cubic-bezier(0.45, 0, 0.3, 1);
+  translate: -50% -100%;
+  transition-property: left, top, height;
+  transition-timing-function: linear;
 }
 .mc-germ-zone {
-  bottom: 1%;
   width: 16%;
   aspect-ratio: 4 / 1;
-  translate: -50% 0;
+  translate: -50% -50%;
   border: 2px dashed rgb(242 214 75 / 0.55);
   border-radius: 50%;
-  transition: left 0.65s cubic-bezier(0.45, 0, 0.3, 1);
+  transition-property: left, top;
+  transition-timing-function: linear;
 }
 .mc-score {
   position: relative;

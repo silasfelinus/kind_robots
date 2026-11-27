@@ -457,6 +457,8 @@ export const EVIDENCE: Record<string, string> = {
   'makeup-smear': 'Skin-tone foundation on the missing ice bucket',
   'violet-scent': 'Violet smelled cold cream when the ice came',
   'fangs-detail': 'A rental serial number on Violet’s costume fangs',
+  'compact-shade':
+    'Odette’s compact is porcelain powder; the bucket smear is old tan greasepaint',
 }
 
 export const ITEMS: Record<string, string> = {
@@ -1108,6 +1110,31 @@ function useItem(state: CaseState, item: string, target: string): CaseResult {
   )
 }
 
+/**
+ * Two-clue combination: Odette's compact, photographed beside the camera's
+ * colour card, only means something once Iris has seen the bucket smear.
+ */
+function photographCompact(state: CaseState): CaseResult {
+  if (state.evidence.includes('compact-shade'))
+    return withLine(
+      state,
+      'Iris already has the compact on film. Norb: Twice would be vanity.',
+      false,
+    )
+  if (!state.evidence.includes('makeup-smear'))
+    return withLine(
+      state,
+      'Iris snaps Odette’s powder compact against the camera’s colour card: porcelain, shade “Hex White”. Norb: A colour with nothing to compare it to is just a colour. Find me a second sample.',
+      false,
+    )
+  const next = copyState(state)
+  add(next.evidence, 'compact-shade')
+  return withLine(
+    next,
+    'Iris photographs Odette’s compact against the camera’s colour card, then the bucket smear beside it. Porcelain powder on one; thick tan greasepaint on the other, a shade nobody has sold since 1965. Norb: Not the victim’s face, then. Somebody who still paints on an old-fashioned face carried that bucket.',
+  )
+}
+
 function combineItems(
   state: CaseState,
   first: string,
@@ -1146,6 +1173,11 @@ function combineItems(
       'Iris photographs the fangs beside her camera lens. A tiny costume-rental number is scratched into the hinge. Norb: Finally, a lead with decent lighting.',
     )
   }
+  if (
+    (first === 'camera' && second === 'odette-purse') ||
+    (first === 'odette-purse' && second === 'camera')
+  )
+    return photographCompact(state)
   return withLine(
     state,
     'Iris tries the ' +
@@ -1235,7 +1267,7 @@ export function performAction(
       'violet-body':
         'Iris: Violet, still in the cape. She deserves this solved as much as her client does.',
       'odette-purse':
-        'Iris: Lipstick, a flask and four hundred dollars in fifties. Odette: Don’t you dare.',
+        'Iris: Lipstick, a flask, a powder compact and four hundred dollars in fifties. Odette: Don’t you dare.',
       'ice-ring':
         'Iris: A wet ring where an ice bucket stood. The bucket’s gone. Somebody came back for it. Or never left.',
       'ice-machine':
@@ -1597,12 +1629,44 @@ export function restoreCase(value: unknown): CaseState | null {
     }
     if (!Number.isInteger(raw.rebuffs) || (raw.rebuffs ?? -1) < 0) return null
   }
-  return copyState({
-    ...(raw as CaseState),
-    version: 3,
-    gratitude,
-    rebuffs: raw.version === 3 ? (raw.rebuffs as number) : 0,
-  })
+  return repairCase(
+    copyState({
+      ...(raw as CaseState),
+      version: 3,
+      gratitude,
+      rebuffs: raw.version === 3 ? (raw.rebuffs as number) : 0,
+    }),
+  )
+}
+
+const ROOM_GATES: Partial<Record<RoomId, { flag: string; fallback: RoomId }>> =
+  {
+    'odette-room': { flag: 'crime-room-access', fallback: 'balcony' },
+    'city-map': { flag: 'city-lead', fallback: 'motel-exterior' },
+    'convention-center': { flag: 'city-lead', fallback: 'motel-exterior' },
+  }
+
+function unique(list: string[]): string[] {
+  return [...new Set(list)]
+}
+
+/**
+ * Reload edge cases: a hand-edited, truncated or older save never strands
+ * Iris behind a gate she has not opened, never carries an item or clue the
+ * game no longer knows, never duplicates entries and never loses the camera
+ * every photograph needs.
+ */
+function repairCase(state: CaseState): CaseState {
+  state.inventory = unique(state.inventory).filter((item) => item in ITEMS)
+  if (!state.inventory.includes('camera')) state.inventory.unshift('camera')
+  state.evidence = unique(state.evidence).filter((clue) => clue in EVIDENCE)
+  state.topics = unique(state.topics).filter((topic) => topic in TOPICS)
+  state.flags = unique(state.flags)
+  state.asked = unique(state.asked)
+  const gate = ROOM_GATES[state.room]
+  if (gate && !has(state, gate.flag)) state.room = gate.fallback
+  if (!state.transcript.length) state.transcript = [...newCase().transcript]
+  return state
 }
 
 export const monstrexxKitId = (accountId: string | number): string =>

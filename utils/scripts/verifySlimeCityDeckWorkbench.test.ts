@@ -153,7 +153,10 @@ assert.match(ui, /data-testid="slime-show-locked"/)
 // Silas, 2026-11-11 PT: "Should have the 20 deck cards as an actual hand at
 // the bottom of the screen, with the ability to remove, add, etc."
 const hand = readFileSync('components/slime-city-deck-hand.vue', 'utf8')
-assert.match(ui, /<SlimeCityDeckHand @inspect="inspectId = \$event" \/>/)
+assert.match(
+  ui,
+  /<SlimeCityDeckHand\s+v-if="collectionPane === 'deck'"\s+@inspect="inspectId = \$event"\s*\/>/,
+)
 assert.match(hand, /lab\.toggleAllianceCard\(id\)/)
 assert.match(hand, /lab\.toggleSoloCard\(id\)/)
 assert.match(hand, /v-for="n in Math\.max\(0, size - cards\.length\)"/)

@@ -68,8 +68,13 @@ function assertSafe(run: PlumberRun, label: string) {
   }
 }
 
-function start(index: number, autopilot = false, suited = true) {
-  const run = new PlumberRun(options, { customLevel: pool, autopilot })
+function start(
+  index: number,
+  autopilot = false,
+  suited = true,
+  def = pool,
+) {
+  const run = new PlumberRun(options, { customLevel: def, autopilot })
   run.heroineSeed = seedForRoster(index, () => 0.5)
   assert.equal(run.member.key, PLUMBER_ROSTER[index]!.key)
   if (suited) {
@@ -193,10 +198,15 @@ reverse.update(rightKick)
 step(reverse, 1, ['left'], 'reverse kick')
 assert.equal(reverse.tideKick, 0, 'counter-steering cancels the burst')
 
-const wall = start(0)
 const wallCol = 27
-for (let row = 18; row < 23; row++)
-  wall.solid[row * wall.stage.cols + wallCol] = SOLID_GROUND
+const wall = start(0, false, true, {
+  ...pool,
+  rows: pool.rows.map((row, index) =>
+    index >= 18 && index < 23
+      ? row.slice(0, wallCol) + '#' + row.slice(wallCol + 1)
+      : row,
+  ),
+})
 wall.update(rightKick)
 step(wall, 8, ['right'], 'kick into wall')
 assert.ok(wall.hero.x + HERO_HALF <= wallCol * TILE + 0.01)

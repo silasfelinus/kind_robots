@@ -5,6 +5,7 @@ import { CROSSFIRE_CHAPTERS, crossfireFinaleNetwork } from './crossfireCampaign'
 import { ACCIDENT_CAMPAIGNS } from './personalAccidentCampaigns'
 import { MAGIC_CAMPAIGNS } from './personalMagicCampaigns'
 import { TECH_CAMPAIGNS } from './personalTechCampaigns'
+import { MUTANT_CAMPAIGNS } from './personalMutantCampaigns'
 import type { StoryRun } from './firstBellStory'
 import type { TrainingState } from './training'
 
@@ -12,6 +13,7 @@ export const PERSONAL_CAMPAIGNS = {
   ...ACCIDENT_CAMPAIGNS,
   ...MAGIC_CAMPAIGNS,
   ...TECH_CAMPAIGNS,
+  ...MUTANT_CAMPAIGNS,
 }
 
 type BattleEvidence = {

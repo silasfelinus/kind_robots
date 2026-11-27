@@ -171,7 +171,9 @@ export const useRulerHookedAccountStore = defineStore(
         const local = deviceRoyalBackup()
         const merged = remote ? mergeRoyalBackups(remote, local) : local
         if (
-          (!remote && !local.reigns.length && !Object.keys(local.scrapbook).length) ||
+          (!remote &&
+            !local.reigns.length &&
+            !Object.keys(local.scrapbook).length) ||
           (remote && JSON.stringify(merged) === JSON.stringify(remote))
         ) {
           retries = 0

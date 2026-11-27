@@ -29,7 +29,11 @@
         <button type="button" class="rh-btn" @click="importGuest">
           Confirm import
         </button>
-        <button type="button" class="rh-btn" @click="confirmGuestImport = false">
+        <button
+          type="button"
+          class="rh-btn"
+          @click="confirmGuestImport = false"
+        >
           Cancel
         </button>
       </div>
@@ -97,7 +101,8 @@ function importGuest() {
       importMessage.value = 'Finish your active encounter before importing.'
     }
   } catch {
-    importMessage.value = 'Could not import the legacy archive. Originals are unchanged.'
+    importMessage.value =
+      'Could not import the legacy archive. Originals are unchanged.'
   }
   confirmGuestImport.value = false
 }

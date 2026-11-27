@@ -3067,11 +3067,7 @@ export class PlumberRun implements ArcadeGameInstance {
       return
     }
     if (!grab && this.mounted && !this.carrying) {
-      if (
-        this.grabRoller(true) ||
-        this.slurpSmallFoe() ||
-        this.slurpSupply()
-      )
+      if (this.grabRoller(true) || this.slurpSmallFoe() || this.slurpSupply())
         return
     }
     if (grab && !this.carrying && this.grabRoller()) return

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { discoveryArt } from '../playbookKit/view'
 import {
   DeepheartSound,
   DEEPHEART_THEMES,
@@ -1754,3 +1755,20 @@ void verifyMediaAudit().catch((error: unknown) => {
   console.error(error)
   process.exitCode = 1
 })
+
+for (const entry of [...DEEPHEART.moments, ...DEEPHEART.endings]) {
+  assert.equal(discoveryArt(DEEPHEART, entry.art, false), DEEPHEART.keyArt)
+  assert.equal(discoveryArt(DEEPHEART, entry.art, true), entry.art)
+  assert.equal(
+    discoveryArt({ ...DEEPHEART, id: 'other-game' }, entry.art, false),
+    entry.art,
+  )
+}
+assert.match(
+  readFileSync('components/playbook-kit/playbook-kit-scrapbook.vue', 'utf8'),
+  /discoveryArt\(\s*spec,\s*moment\.art,\s*kit\.isUnlocked\('moments', moment\.id\)/,
+)
+assert.match(
+  readFileSync('components/playbook-kit/playbook-kit-endings.vue', 'utf8'),
+  /discoveryArt\(spec, ending\.art, found\(ending\.id\)\)/,
+)

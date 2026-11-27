@@ -20,7 +20,7 @@
       >
         <span class="relative block aspect-[4/3]">
           <PlaybookKitArt
-            :art="ending.art"
+            :art="discoveryArt(spec, ending.art, found(ending.id))"
             :tone="ENDING_TONES[ending.tone].tone"
             icon="kind-icon:star"
             class="absolute inset-0"
@@ -54,7 +54,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
-import { ENDING_TONES } from '~/utils/playbookKit/view'
+import { ENDING_TONES, discoveryArt } from '~/utils/playbookKit/view'
 import type {
   KitEndingTone,
   KitTone,

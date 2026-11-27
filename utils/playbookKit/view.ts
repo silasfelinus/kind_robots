@@ -1,5 +1,6 @@
 import type { KitSettings } from './settings'
 import type {
+  KitArt,
   KitEndingTone,
   KitMoment,
   KitMomentKind,
@@ -65,4 +66,13 @@ export function subjectNames(spec: PlaybookKitSpec, ids: string[]): string[] {
 export function actTitle(spec: PlaybookKitSpec, act: number): string {
   const found = spec.acts.find((a) => a.id === act)
   return found ? `Act ${act} · ${found.title}` : `Act ${act}`
+}
+
+/** Deepheart keeps the actual painting off the gallery until it is earned. */
+export function discoveryArt(
+  spec: PlaybookKitSpec,
+  art: KitArt,
+  earned: boolean,
+): KitArt {
+  return spec.id === 'deepheart' && !earned ? spec.keyArt : art
 }

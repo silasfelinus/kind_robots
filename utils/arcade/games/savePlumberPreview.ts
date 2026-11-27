@@ -3952,7 +3952,10 @@ export class PlumberRun implements ArcadeGameInstance {
           boss.kind === 'flange'
             ? boss.hp > 1
               ? 0
-              : Math.max(-1.6, Math.min(1.6, boss.home + boss.dir * 32 - boss.x))
+              : Math.max(
+                  -1.6,
+                  Math.min(1.6, boss.home + boss.dir * 32 - boss.x),
+                )
             : boss.kind === 'gale' ||
                 boss.kind === 'spigot' ||
                 boss.kind === 'dive'
@@ -7111,9 +7114,16 @@ export class PlumberRun implements ArcadeGameInstance {
         )
       ) {
         if (boss.kind === 'flange') {
-          drawSprite(g, PLUMBER_ART.enemy('rivet-roller'), boss.x, boss.y, tall, {
-            flipX: boss.dir < 0,
-          })
+          drawSprite(
+            g,
+            PLUMBER_ART.enemy('rivet-roller'),
+            boss.x,
+            boss.y,
+            tall,
+            {
+              flipX: boss.dir < 0,
+            },
+          )
         } else {
           g.fillStyle = '#b8743a'
           g.fillRect(boss.x - 18, boss.y - 66, 36, 66)

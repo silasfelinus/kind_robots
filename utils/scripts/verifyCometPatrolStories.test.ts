@@ -659,7 +659,10 @@ for (const [index, identity] of IDENTITY_ARCS.entries()) {
 assert.equal(canonicalRuns.size, 48)
 assert.equal(witnessedNights, 48 * 29)
 assert.equal(walkedZones.size, PATROL_ZONES.length)
-assert.ok(witnessedCases.size >= 36, `only ${witnessedCases.size} playable calls`)
+assert.ok(
+  witnessedCases.size >= 36,
+  `only ${witnessedCases.size} playable calls`,
+)
 assert.deepEqual([...witnessedGrades].sort(), [
   'failed',
   'honors',

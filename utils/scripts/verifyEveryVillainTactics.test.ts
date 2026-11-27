@@ -196,7 +196,10 @@ burningCover.run.field = {
   sealed: [],
   held: 0,
 }
-assert.equal(rivalRetreatDestination(burningCover.run, burningCover.rival), null)
+assert.equal(
+  rivalRetreatDestination(burningCover.run, burningCover.rival),
+  null,
+)
 
 const page = readFileSync(
   new URL('../../pages/admin/every-villain-tactics.vue', import.meta.url),

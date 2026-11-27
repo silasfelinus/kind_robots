@@ -108,6 +108,8 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       art: {
         brief:
           'Iris and tiny gloved Norb under a Six Decades of Screams banner outside the convention hall, neon noir comedy illustration',
+        src: '/monstress-convention/endings/lead-earned.webp',
+        alt: 'Iris photographs a glittering convention display of monster starlets while Norb holds up the bagged Beach Hex prop dagger, a beach towel under his arm.',
       },
     },
     {
@@ -121,6 +123,8 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       art: {
         brief:
           'A hasty tabloid blog headline on motel computer, Iris concerned, Norb recoiling in dismay, noir retro game',
+        src: '/monstress-convention/endings/reckless.webp',
+        alt: 'Norb hunches at a glowing motel computer while Iris covers her mouth and an angry crowd with flashlights gathers outside the rainy window.',
       },
     },
   ],

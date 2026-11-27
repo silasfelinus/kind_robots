@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
+import { MONSTRESS_CONVENTION } from '../playbookKit/games/monstressConvention'
 import {
   GENERAL_INTRO,
   MATURE_INTRO,
+  MONSTRIQUE_GENERAL_SPEC,
   actionForAudience,
   roomForAudience,
   travelForAudience,
@@ -332,6 +334,25 @@ for (const asset of ['splash-wide.webp', 'splash-tall.webp', 'hero.webp'])
 assert.match(
   repoFile('content/channels/arcade/monstrique.md'),
   /^image: \/monstrique\/front\/hero\.webp$/m,
+)
+
+// Main-game standard item 6: every ending has its own painted plate, served
+// as a static general-safe file (ArtImages 270458 and 270459, round
+// monstrique-endings-1) in both editions' endings and on the ending card.
+for (const spec of [MONSTRESS_CONVENTION, MONSTRIQUE_GENERAL_SPEC])
+  for (const ending of spec.endings) {
+    const src = ending.art?.src
+    assert.ok(src, spec.id + '/' + ending.id + ' has a plate')
+    assert.match(src, /^\/monstress-convention\/endings\/[a-z-]+\.webp$/)
+    assert.ok(
+      existsSync(new URL('../../public' + src, import.meta.url)),
+      src + ' is committed',
+    )
+    assert.ok((ending.art?.alt ?? '').length > 20, ending.id + ' alt text')
+  }
+assert.match(
+  repoFile('components/monstress-convention/monstress-convention-scene.vue'),
+  /data-testid="monstrique-ending-plate"[\s\S]*?:src="endingPlate\.src"/,
 )
 
 console.log(

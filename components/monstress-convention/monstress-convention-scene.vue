@@ -695,7 +695,14 @@
       <div
         v-if="story.state.ending"
         class="mc-ending absolute inset-0 z-30 grid place-items-center p-5"
+        data-testid="monstrique-ending-plate"
       >
+        <img
+          v-if="endingPlate"
+          :src="endingPlate.src"
+          :alt="endingPlate.alt"
+          class="mc-ending-plate absolute inset-0 size-full object-cover"
+        />
         <div class="mc-ending-card max-w-lg space-y-4 text-center">
           <p class="mc-eyebrow">CHAPTER ONE · THE LAST CALL</p>
           <h2 class="text-3xl font-bold">
@@ -752,6 +759,7 @@ import {
   type MonstriqueCharacterId,
 } from '~/utils/monstrique/characterModels'
 import { coldOpen } from '~/utils/monstrique/cutscenes'
+import { MONSTRESS_CONVENTION } from '~/utils/playbookKit/games/monstressConvention'
 
 const props = defineProps<{
   entry?: 'new' | 'continue'
@@ -768,6 +776,12 @@ const screen = ref<'title' | 'intro' | 'stage'>(
   props.entry === 'continue' ? 'stage' : 'intro',
 )
 const openingScene = computed(() => coldOpen(audience.value))
+const endingPlate = computed(() => {
+  const art = MONSTRESS_CONVENTION.endings.find(
+    (ending) => ending.id === story.value.state.ending,
+  )?.art
+  return art?.src ? { src: art.src, alt: art.alt ?? '' } : null
+})
 const drawer = ref<'case' | 'map' | null>(null)
 const selected = ref<string | null>(null)
 const held = ref<string | null>(null)
@@ -1470,8 +1484,12 @@ function verbIcon(verb: Verb): string {
 .mc-ending {
   background: #100f22ed;
 }
+.mc-ending-plate {
+  opacity: 0.6;
+}
 .mc-ending-card {
-  background: #342338;
+  position: relative;
+  background: #342338e8;
   border: 2px solid #e2a5ba;
   border-radius: 1.5rem;
   padding: 2rem;

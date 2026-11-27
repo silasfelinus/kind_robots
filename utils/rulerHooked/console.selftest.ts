@@ -74,8 +74,14 @@ const fresh = (seed = 'console-seed'): RunSave =>
   const pad = (buttons: number[], index = 0): Gamepad =>
     ({
       index,
+      connected: true,
+      id: 'test-controller',
+      mapping: 'standard',
+      timestamp: 0,
       buttons: Array.from({ length: 16 }, (_, i) => ({
         pressed: buttons.includes(i),
+        touched: buttons.includes(i),
+        value: buttons.includes(i) ? 1 : 0,
       })),
       axes: [0, 0],
     }) as Gamepad

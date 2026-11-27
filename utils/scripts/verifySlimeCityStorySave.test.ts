@@ -259,7 +259,10 @@ assert.match(
 )
 assert.match(emailService, /raw\.pvpChallengeEmail === true/)
 assert.match(emailService, /if \(!challengeOptedIn\(row\?\.data\)\) return/)
-assert.match(emailService, /challengeEnabled \?\? challengeOptedIn\(row\.data\)/)
+assert.match(
+  emailService,
+  /challengeEnabled \?\? challengeOptedIn\(row\.data\)/,
+)
 assert.match(emailService, /enabled \?\? optedIn\(row\.data\)/)
 assert.match(preferenceUi, /slime-challenge-email-opt-in/)
 assert.match(preferenceUi, /slime-turn-email-opt-in/)

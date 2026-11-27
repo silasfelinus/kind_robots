@@ -89,10 +89,14 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     emailBusy.value = true
     emailMessage.value = ''
     try {
-      const result = await performFetch<EmailPreference>(emailPath, {
-        method: 'PATCH',
-        body: JSON.stringify({ [field]: enabled }),
-      }, 1)
+      const result = await performFetch<EmailPreference>(
+        emailPath,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ [field]: enabled }),
+        },
+        1,
+      )
       if (emailAccountId.value !== id) return
       if (!result.success || !result.data)
         throw new Error('Could not save email settings.')

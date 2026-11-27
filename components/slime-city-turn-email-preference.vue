@@ -17,7 +17,8 @@
     </label>
     <small v-if="pvp.emailMessage" role="status">{{ pvp.emailMessage }}</small>
     <small v-else-if="pvp.emailPreference && !pvp.emailPreference.eligible">
-      <NuxtLink to="/account">Verify your email</NuxtLink> to enable notifications.
+      <NuxtLink to="/account">Verify your email</NuxtLink> to enable
+      notifications.
     </small>
     <small v-else>Optional · one email per event.</small>
   </div>
@@ -41,14 +42,15 @@ const options = [
   },
 ] as const
 
-watch(() => pvp.emailAccountId, () => pvp.loadEmailPreference(), {
-  immediate: true,
-})
+watch(
+  () => pvp.emailAccountId,
+  () => pvp.loadEmailPreference(),
+  {
+    immediate: true,
+  },
+)
 
-async function change(
-  field: 'enabled' | 'challengeEnabled',
-  event: Event,
-) {
+async function change(field: 'enabled' | 'challengeEnabled', event: Event) {
   const input = event.target as HTMLInputElement
   await pvp.saveEmailPreference(field, input.checked)
   input.checked = pvp.emailPreference?.[field] ?? false

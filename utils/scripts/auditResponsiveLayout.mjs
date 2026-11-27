@@ -577,7 +577,9 @@ async function auditRulerOpening(page, vp) {
       throw new Error('Display or audio preferences did not survive reload')
     }
     await stage('accessible-settings-restored', settings)
-    await settings.getByRole('button', { name: 'Restore display defaults' }).click()
+    await settings
+      .getByRole('button', { name: 'Restore display defaults' })
+      .click()
     await settings.getByLabel('Mute all game audio').uncheck()
     await title
       .getByRole('button', { name: 'Return to reign selection', exact: true })
@@ -632,7 +634,9 @@ async function auditRulerOpening(page, vp) {
     let finaleSeen = false
     const court = page.getByLabel('Royal Court', { exact: true })
     async function handleFinale() {
-      const conclude = court.getByRole('button', { name: 'Conclude this reign' })
+      const conclude = court.getByRole('button', {
+        name: 'Conclude this reign',
+      })
       if (!(await conclude.isVisible())) return
       await stage('finale-offer', court.locator('.rh-ending'))
       finaleSeen = true
@@ -691,7 +695,9 @@ async function auditRulerOpening(page, vp) {
           const progress = lake.getByRole('progressbar', {
             name: 'Fish caught progress',
           })
-          const tension = lake.getByRole('progressbar', { name: 'Line tension' })
+          const tension = lake.getByRole('progressbar', {
+            name: 'Line tension',
+          })
           const progressBefore = await progress.getAttribute('aria-valuenow')
           const tensionBefore = await tension.getAttribute('aria-valuenow')
           await page.reload({ waitUntil: 'load', timeout: NAVIGATION_MS })
@@ -730,9 +736,13 @@ async function auditRulerOpening(page, vp) {
           throw new Error('Dismissed fishing result returned after the decree')
         if (caught) break
       } else if (
-        await reveal.getByRole('button', { name: 'Consider the finale' }).isVisible()
+        await reveal
+          .getByRole('button', { name: 'Consider the finale' })
+          .isVisible()
       ) {
-        await reveal.getByRole('button', { name: 'Consider the finale' }).click()
+        await reveal
+          .getByRole('button', { name: 'Consider the finale' })
+          .click()
         await court
           .getByRole('button', { name: 'Conclude this reign' })
           .waitFor({ state: 'visible' })

@@ -24,6 +24,7 @@ import { IDENTITY_ARCS, identityFor } from '../cometAcademy/identityArcs'
 import {
   ACCIDENT_SCIENCE_LINES,
   MAGIC_SCIENCE_LINES,
+  TECH_SCIENCE_LINES,
   PERSONAL_SCIENCE_LINES,
   personalScienceNode,
 } from '../everyVillainTactics/personalScienceScenes'
@@ -1451,7 +1452,8 @@ const scienceNodes = SCIENCE_WING_SCRIPT.scenes.flatMap((scene) => scene.nodes)
 const scienceVoices = new Set<string>()
 assert.equal(Object.keys(ACCIDENT_SCIENCE_LINES).length, 8)
 assert.equal(Object.keys(MAGIC_SCIENCE_LINES).length, 8)
-assert.equal(Object.keys(PERSONAL_SCIENCE_LINES).length, 16)
+assert.equal(Object.keys(TECH_SCIENCE_LINES).length, 8)
+assert.equal(Object.keys(PERSONAL_SCIENCE_LINES).length, 24)
 for (const lead of Object.keys(PERSONAL_SCIENCE_LINES)) {
   for (const perspective of ['hero', 'villain'] as const) {
     const state = trainingState(41, clonePreset('science-lab'), {
@@ -1510,5 +1512,5 @@ for (const lead of Object.keys(PERSONAL_SCIENCE_LINES)) {
     assert.equal(JSON.stringify(state), before)
   }
 }
-assert.equal(scienceVoices.size, 176)
+assert.equal(scienceVoices.size, 264)
 assert.ok(store.includes('personalScienceNode('))

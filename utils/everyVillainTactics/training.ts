@@ -888,8 +888,7 @@ function environmentalPreview(
   )
     return null
   const power = powerFor(unit)
-  if (!power || power.family !== mission.family || power.cooldown !== 0)
-    return null
+  if (!power || power.family !== mission.family) return null
   return {
     power,
     user: unit.id,

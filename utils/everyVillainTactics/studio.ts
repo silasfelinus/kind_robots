@@ -30,6 +30,7 @@ import {
   CLOCKTOWER_COLLAPSE_SCRIPT,
   EQUATION_ESCAPED_SCRIPT,
 } from './finalAccidentScripts'
+import { CANDLE_VIGIL_SCRIPT } from './candleVigilScript'
 import { ROOFTOP_BROADCAST_SCRIPT } from './rooftopBroadcastScript'
 import { UNDER_COMET_BREACH_SCRIPT } from './underCometBreachScript'
 import { PROM_NIGHT_FINALE_SCRIPT } from './promNightFinaleScript'
@@ -507,6 +508,52 @@ export const STAGE_PRESETS: StageDraft[] = [
     ],
     victory: { kind: 'rescue', count: 2 },
     script: EQUATION_ESCAPED_SCRIPT,
+  },
+  {
+    version: 1,
+    id: 'candle-that-wouldnt-die',
+    title: "The Candle That Wouldn't Die",
+    venue: 'Rain-soaked vigil beneath the academy chapel',
+    objective:
+      'Stand beside the bronze lantern at column 5, row 4 with both AP free. Bind the candle with your one-use ritual, then evacuate both mourners.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls([2, 0], [2, 1], [2, 4], [2, 5], [6, 1], [6, 2], [6, 4]),
+        '3,2': tile(0, false, { east: 'half' }),
+        '4,3': tile(0),
+        '5,3': tile(0, false, { north: 'half' }),
+        '7,2': tile(1),
+        '7,3': tile(1),
+      },
+    },
+    spawns: [
+      { id: 'backdraft', x: 0, y: 3 },
+      { id: 'priya', x: 1, y: 2 },
+      { id: 'hattie', x: 1, y: 4 },
+      { id: 'pip', x: 8, y: 0 },
+      { id: 'vee', x: 8, y: 3 },
+      { id: 'remy', x: 8, y: 5 },
+    ],
+    secrets: [{ x: 3, y: 5 }],
+    hazards: [{ x: 4, y: 3 }],
+    turnLimit: 10,
+    civilians: [
+      { id: 'vigil-mourner', name: 'Sleeping mourner', x: 5, y: 1 },
+      { id: 'vigil-caretaker', name: 'Chapel caretaker', x: 7, y: 4 },
+    ],
+    props: [
+      { id: 'stone-pew', x: 4, y: 1, cover: 'full', hp: 3 },
+      { id: 'offering-table', x: 5, y: 5, cover: 'half', hp: 2 },
+    ],
+    activeHazards: [
+      { id: 'vigil-burning-banner', kind: 'fire', x: 5, y: 0 },
+      { id: 'vigil-rain-puddle', kind: 'water', x: 3, y: 4 },
+      { id: 'vigil-loose-masonry', kind: 'collapse', x: 4, y: 5, round: 6 },
+    ],
+    victory: { kind: 'rescue', count: 2 },
+    script: CANDLE_VIGIL_SCRIPT,
   },
   {
     version: 1,

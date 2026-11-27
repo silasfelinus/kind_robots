@@ -190,7 +190,7 @@ assert.ok(
 const titles = ONE_SHOT_MENU.map(
   (entry) => STAGE_PRESETS.find((stage) => stage.id === entry.id)!.title,
 )
-assert.equal(titles.length, 19)
+assert.equal(titles.length, 20)
 const oneShots = titles.map((stage) => result({ mode: 'oneshot', stage }))
 assert.ok(achievementsProven(book([], oneShots), []).includes(C.oneShotSweep))
 assert.ok(

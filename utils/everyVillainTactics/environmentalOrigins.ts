@@ -5,13 +5,26 @@ type EnvironmentalOrigin = {
   flag: string
   target: Point
   range: number
-  family: 'undertow' | 'strike' | 'analyze'
+  family: 'undertow' | 'strike' | 'analyze' | 'blaze'
   even: boolean
   fire: boolean
   msg: string
 }
 
 const ORIGINS: Readonly<Record<string, EnvironmentalOrigin>> = {
+  'candle-that-wouldnt-die': {
+    lead: 'magic-fire',
+    flag: 'vigil-flame-bound',
+    target: {
+      x: 4,
+      y: 3,
+    },
+    range: 1,
+    family: 'blaze',
+    even: false,
+    fire: true,
+    msg: 'Lanternwitch binds the possessed candle inside a bronze lantern. The mourners can now be evacuated.',
+  },
   'hydrant-blue': {
     lead: 'accident-water',
     flag: 'hydrant-main-flowing',

@@ -153,14 +153,20 @@ export const useRulerHookedAccountStore = defineStore(
         if (!archive.value) return
       }
 
-      if (pullNeeded) {
-        const remote = archive.value?.save
-        if (remote && !game.canRestoreAccount) return
-        if (remote && !game.restoreAccount(remote)) return
-        pullNeeded = false
-      }
-
       try {
+        if (pullNeeded) {
+          const incoming = archive.value?.save
+          if (incoming) {
+            const local = deviceRoyalBackup()
+            const restored = mergeRoyalBackups(local, incoming)
+            if (JSON.stringify(restored) !== JSON.stringify(local)) {
+              if (!game.canRestoreAccount || !game.restoreAccount(incoming))
+                return
+            }
+          }
+          pullNeeded = false
+        }
+
         const remote = archive.value?.save
         const local = deviceRoyalBackup()
         const merged = remote ? mergeRoyalBackups(remote, local) : local

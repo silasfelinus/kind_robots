@@ -148,6 +148,7 @@ export const RAINBOW_IDLE_ATLASES: Readonly<Record<string, number>> = {
   'enemies/guardian-shoal-koi': 8,
   'enemies/hammerhead': 8,
   'enemies/mirror': 8,
+  'enemies/motherdrone': 8,
   'enemies/skate': 8,
   'hazards/kelp-frond': 8,
   'pickups/comet-cadet-pod': 8,

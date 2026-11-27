@@ -2934,3 +2934,17 @@ for (const [id, extra] of [
   assert.match(face, /\.ccf-attack,\s*\.ccf-toughness \{[\s\S]*?font-size: 12cqw;/)
   assert.match(face, /v-else class="ccf-top"/)
 }
+
+{
+  const face = readFileSync(
+    'components/slime-city-clash-card-face.vue',
+    'utf8',
+  )
+  assert.equal(
+    [...face.matchAll(/<i v-for="n in plays" :key="n" aria-hidden="true" \/>/g)]
+      .length,
+    2,
+  )
+  assert.doesNotMatch(face, /\{\{ plays \}\} PLAY/)
+  assert.match(face, /\.ccf-cost i \{[\s\S]*?width: 8cqw;/)
+}

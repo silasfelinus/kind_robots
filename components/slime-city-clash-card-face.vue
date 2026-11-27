@@ -29,11 +29,23 @@
         <b class="ccf-toughness" :aria-label="balance.hp + ' toughness'">
           ♥ {{ balance.hp }}
         </b>
-        <b class="ccf-cost">{{ plays }} PLAY{{ plays === 2 ? 'S' : '' }}</b>
+        <span
+          class="ccf-cost"
+          :aria-label="plays + (plays === 1 ? ' play' : ' plays')"
+          :title="plays + (plays === 1 ? ' play' : ' plays')"
+        >
+          <i v-for="n in plays" :key="n" aria-hidden="true" />
+        </span>
         <SlimeCityArmorStat class="ccf-armor" :armor="balance.armor" />
       </span>
       <span v-else class="ccf-top">
-        <b class="ccf-cost">{{ plays }} PLAY{{ plays === 2 ? 'S' : '' }}</b>
+        <span
+          class="ccf-cost"
+          :aria-label="plays + (plays === 1 ? ' play' : ' plays')"
+          :title="plays + (plays === 1 ? ' play' : ' plays')"
+        >
+          <i v-for="n in plays" :key="n" aria-hidden="true" />
+        </span>
         <em class="ccf-badge">{{
           clashCardBadge(card, level, balanceVersion)
         }}</em>
@@ -361,7 +373,6 @@ const kind = computed(() =>
   grid-area: 2 / 2;
   justify-self: end;
 }
-.ccf-cost,
 .ccf-badge {
   border-radius: 4cqw;
   padding: 1.6cqw 3.4cqw;
@@ -374,8 +385,21 @@ const kind = computed(() =>
   max-width: 100%;
 }
 .ccf-cost {
-  background: #b9ef56;
-  color: #071115;
+  display: inline-flex;
+  align-items: center;
+  gap: 2cqw;
+  padding: 1.2cqw 2cqw;
+  border-radius: 2.4cqw;
+  background: #071a20ee;
+}
+.ccf-cost i {
+  display: block;
+  width: 8cqw;
+  height: 12cqw;
+  border: 0.8cqw solid #c9ee5a;
+  border-radius: 2cqw;
+  background: linear-gradient(160deg, #e8ff9a, #8fc23a);
+  box-shadow: 0 0 2cqw #c9ee5a99;
 }
 .ccf-badge {
   white-space: normal;

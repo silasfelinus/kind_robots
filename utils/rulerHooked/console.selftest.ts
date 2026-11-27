@@ -5,7 +5,11 @@
 // library's fallback chains. Run via `npx tsx`, like the other selftests.
 
 import assert from 'node:assert/strict'
-import { newRoyalPadMemory, readRoyalPad } from '~/utils/rulerHooked/gamepad'
+import {
+  newRoyalPadMemory,
+  readRoyalPad,
+  runRoyalQuizPad,
+} from '~/utils/rulerHooked/gamepad'
 import {
   mergeRoyalBackups,
   nextRoyalArchiveRetryDelay,
@@ -117,6 +121,72 @@ const fresh = (seed = 'console-seed'): RunSave =>
   assert.equal(nextRoyalArchiveRetryDelay(1), 31_000)
   assert.equal(nextRoyalArchiveRetryDelay(2), undefined)
   assert.equal(nextRoyalArchiveRetryDelay(100), undefined)
+}
+
+{
+  const document: { activeElement: unknown } = { activeElement: null }
+  const clicks: string[] = []
+  function button(
+    name: string,
+    options: {
+      disabled?: boolean
+      hidden?: boolean
+      inert?: boolean
+      ariaDisabled?: boolean
+    } = {},
+  ) {
+    const control = {
+      disabled: !!options.disabled,
+      getAttribute: () => (options.ariaDisabled ? 'true' : null),
+      getClientRects: () => (options.hidden ? [] : [{}]),
+      closest: () => (options.inert ? {} : null),
+      focus: () => {
+        document.activeElement = control
+      },
+      click: () => clicks.push(name),
+    }
+    return control
+  }
+  const a = button('first')
+  const b = button('second')
+  const c = button('continue')
+  let controls = [
+    button('disabled', { disabled: true }),
+    a,
+    button('hidden', { hidden: true }),
+    button('inert', { inert: true }),
+    b,
+    button('aria-disabled', { ariaDisabled: true }),
+  ]
+  const root = {
+    ownerDocument: document,
+    querySelectorAll: () => controls,
+  } as unknown as HTMLElement
+  runRoyalQuizPad(root, 'confirm')
+  assert.equal(document.activeElement, a)
+  assert.deepEqual(clicks, [])
+  runRoyalQuizPad(root, 'right')
+  assert.equal(document.activeElement, b)
+  runRoyalQuizPad(root, 'down')
+  assert.equal(document.activeElement, a)
+  runRoyalQuizPad(root, 'left')
+  assert.equal(document.activeElement, b)
+  runRoyalQuizPad(root, 'up')
+  assert.equal(document.activeElement, a)
+  runRoyalQuizPad(root, 'confirm')
+  assert.deepEqual(clicks, ['first'])
+  controls = [c]
+  runRoyalQuizPad(root, 'confirm')
+  assert.equal(document.activeElement, c)
+  assert.deepEqual(clicks, ['first'])
+  runRoyalQuizPad(root, 'confirm')
+  assert.deepEqual(clicks, ['first', 'continue'])
+  runRoyalQuizPad(root, 'fishopedia')
+  runRoyalQuizPad(root, 'back')
+  runRoyalQuizPad(null, 'confirm')
+  controls = []
+  runRoyalQuizPad(root, 'confirm')
+  assert.deepEqual(clicks, ['first', 'continue'])
 }
 
 // --- daily proclamations ----------------------------------------------------

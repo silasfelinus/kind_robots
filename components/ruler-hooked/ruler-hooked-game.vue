@@ -193,7 +193,11 @@ import {
 } from '~/utils/rulerHooked/console'
 import { FIGHT_PROMPT, fightAim } from '~/utils/rulerHooked/timingBar'
 import { isTextEntry, type ConsoleCommand } from '~/utils/consoleInput'
-import { newRoyalPadMemory, readRoyalPad } from '~/utils/rulerHooked/gamepad'
+import {
+  newRoyalPadMemory,
+  readRoyalPad,
+  runRoyalQuizPad,
+} from '~/utils/rulerHooked/gamepad'
 import {
   currentLesson,
   lessonsRemaining,
@@ -313,7 +317,11 @@ const prompts = computed(() => {
   if (s === 'lake') {
     const fight = store.activeClassicFishing
     if (fight) return [{ key: 'A', label: FIGHT_PROMPT[fightAim(fight)] }]
-    if (store.activeFishing) return [{ key: 'A', label: 'Answer' }]
+    if (store.activeFishing)
+      return [
+        { key: '◀▶', label: 'Choose' },
+        { key: 'A', label: 'Select' },
+      ]
     const lead = store.activeCard
       ? 'Answer the Petition'
       : store.pendingEnding
@@ -367,6 +375,13 @@ function run(command: Command) {
     return
   }
   if (s === 'lake') {
+    if (store.activeFishing && !store.activeClassicFishing) {
+      runRoyalQuizPad(
+        consoleEl.value?.querySelector<HTMLElement>('.rh-quiz') ?? null,
+        command,
+      )
+      return
+    }
     if (command === 'confirm') lakeEl.value?.press()
     if (command === 'fishopedia' && !store.activeFishing) go('fishopedia')
     return

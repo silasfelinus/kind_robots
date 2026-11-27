@@ -291,7 +291,9 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   const plumberCloud = new PlumberCloud({
     read(owner) {
       try {
-        return JSON.parse(localStorage.getItem(`kr-plumber-save-${owner}`) ?? 'null')
+        return JSON.parse(
+          localStorage.getItem(`kr-plumber-save-${owner}`) ?? 'null',
+        )
       } catch {
         return null
       }

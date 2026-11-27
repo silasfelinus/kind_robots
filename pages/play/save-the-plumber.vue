@@ -614,6 +614,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import ArcadePlumberLevelMaker from '~/components/arcade/plumber-level-maker.vue'
 import { useSavePlumberStore } from '~/stores/savePlumberStore'
 import { useArcadeStore } from '~/stores/arcadeStore'
+import { useUserStore } from '~/stores/userStore'
 import { PLUMBER_WORLDS } from '~/utils/arcade/games/savePlumberWorlds'
 import { stageNode } from '~/utils/arcade/games/savePlumberOverworld'
 

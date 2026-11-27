@@ -950,7 +950,6 @@ console.log(
   'Save the Plumber Gen-2 overworld: the GEN2-WORLDS graph (8 painted worlds + the Upstream Sky) validated, paths opened by clears, unbuilt nodes never block, castle roads, three node-keyed save files with v1/v2 migration, erase, deaths and time remembered',
 )
 
-
 async function verifyAccountSync() {
   type File = ReturnType<typeof readPlumberFile>
   const cache = new Map<string, unknown>()
@@ -963,8 +962,9 @@ async function verifyAccountSync() {
     get: async (token) => remote.get(token) ?? null,
     put: async (token, save, revision) => {
       const old = remote.get(token)
-      if ((old?.revision ?? null) !== revision)
-        throw { statusCode: 409 }
+      if ((old?.revision ?? null) !== revision) {
+        throw Object.assign(new Error('Save conflict'), { statusCode: 409 })
+      }
       const next = (old?.revision ?? -1) + 1
       remote.set(token, { save, revision: next })
       return next

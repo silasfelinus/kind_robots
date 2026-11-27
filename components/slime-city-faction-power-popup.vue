@@ -27,7 +27,9 @@
             <strong>{{ charged ? 'OVERCHARGED NOW' : 'OVERCHARGE' }}:</strong>
             {{ factionPower(team).overcharge }}
           </p>
-          <small>{{ OVERCHARGE_RULE }} One use per match; no card play spent.</small>
+          <small
+            >{{ OVERCHARGE_RULE }} One use per match; no card play spent.</small
+          >
           <p role="status">{{ status(team) }}</p>
           <button
             v-if="own"

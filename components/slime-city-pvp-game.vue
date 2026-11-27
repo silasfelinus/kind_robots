@@ -517,7 +517,9 @@
             <button
               type="button"
               class="scpvp-boss-portrait"
-              :aria-label="'Inspect ' + nameOf(teamOf(side)) + ' faction powers'"
+              :aria-label="
+                'Inspect ' + nameOf(teamOf(side)) + ' faction powers'
+              "
               aria-haspopup="dialog"
               :data-testid="'slime-pvp-power-portrait-' + side"
               @click="powerSide = side"

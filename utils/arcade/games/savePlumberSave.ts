@@ -59,6 +59,7 @@ export type PlumberSlot = {
   cleared?: boolean
   /** Stage codes whose Golden Gear has been found, kept across runs. */
   gears?: string[]
+  pearls?: string[]
   /** Lives lost on this slot. */
   deaths?: number
   /** Seconds played on this slot. */
@@ -86,6 +87,7 @@ export type PlumberAlbum = {
   done: string[]
   secrets: string[]
   gears: string[]
+  pearls?: string[]
   heroines: number[]
   endings: PlumberEnding[]
 }
@@ -269,6 +271,12 @@ function codes(raw: unknown): string[] {
   return Array.isArray(raw) ? [...new Set(raw.filter(isStageCode))] : []
 }
 
+function pearlCodes(raw: unknown): string[] {
+  return codes(raw).filter((code) =>
+    CAMPAIGN.some((stage) => stage.code === code && stage.wildwater),
+  )
+}
+
 /** Real node ids, each once; a legacy file's entries are stage codes, moved to their nodes. */
 function nodeIds(raw: unknown, legacy: boolean): string[] {
   if (!Array.isArray(raw)) return []
@@ -325,6 +333,7 @@ export function readPlumberSlot(
     tokens: r.tokens,
     cleared: r.cleared === true,
     gears: codes(r.gears),
+    ...(pearlCodes(r.pearls).length ? { pearls: pearlCodes(r.pearls) } : {}),
     deaths: count(r.deaths, 999_999) ? r.deaths : 0,
     time: count(r.time, 99_999_999) ? r.time : 0,
     ...(plumberName(r.name) ? { name: plumberName(r.name) } : {}),
@@ -358,6 +367,10 @@ export function mergePlumberAlbum(
     ...array(a.gears),
     ...slots.flatMap((slot) => slot?.gears ?? []),
   ])
+  const pearls = pearlCodes([
+    ...array(a.pearls),
+    ...slots.flatMap((slot) => slot?.pearls ?? []),
+  ])
   const heroines = [
     ...new Set([
       ...array(a.heroines).filter(
@@ -377,7 +390,14 @@ export function mergePlumberAlbum(
     ...slots.flatMap((slot) => (slot ? earnedPlumberEndings(slot) : [])),
   ])
   const endings = PLUMBER_ENDINGS.filter((ending) => earned.has(ending))
-  return { done, secrets, gears, heroines, endings }
+  return {
+    done,
+    secrets,
+    gears,
+    ...(pearls.length ? { pearls } : {}),
+    heroines,
+    endings,
+  }
 }
 
 /** The cabinet's file from untrusted data: version 3, or an older file migrated forward. */
@@ -478,6 +498,7 @@ export function reconcilePlumberSaves(
       done: [...remote.album.done, ...local.album.done],
       secrets: [...remote.album.secrets, ...local.album.secrets],
       gears: [...remote.album.gears, ...local.album.gears],
+      pearls: [...(remote.album.pearls ?? []), ...(local.album.pearls ?? [])],
       heroines: [...remote.album.heroines, ...local.album.heroines],
       endings: [...remote.album.endings, ...local.album.endings],
     },

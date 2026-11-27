@@ -655,7 +655,7 @@ const followerMoments: KitMoment[] = [
     'follower',
     1,
     pair('oona', 'benny'),
-    'A towering broad chestnut bison woman with close-cropped head fur, amber eyes and a scar on her shoulder gestures with both hands as she tells a story. A stout tawny bulldog man in a leather apron wipes a tear from his laughing face; an old oak door shield leans against their bench. Medium view across a tavern table, warm candlelight on two wooden mugs.',
+    'A towering broad chestnut bison woman with close-cropped head fur, amber eyes and a scar on her shoulder holds both hands apart at chest height, mouth open. A stout tawny bulldog man in a leather apron wipes a tear from his laughing face; an old oak door shield leans against their bench. Medium view across a tavern table, warm candlelight on two wooden mugs.',
   ),
 ]
 

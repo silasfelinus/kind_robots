@@ -34,6 +34,8 @@ export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   // Existing media-tower painting; unique studio arena art is still outstanding.
   'song-that-stopped': 265023,
   'hydrant-blue': 265018,
+  'clocktower-collapse': 265015,
+  'equation-that-escaped': 265017,
   ...verifiedArenaImageIds,
 }
 

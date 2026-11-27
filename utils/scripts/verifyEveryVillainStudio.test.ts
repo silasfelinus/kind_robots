@@ -25,7 +25,7 @@ import {
   walkScene,
 } from '../everyVillainTactics/sceneGraph'
 
-assert.equal(STAGE_PRESETS.length, 19)
+assert.equal(STAGE_PRESETS.length, 21)
 assert.ok(STAGE_PRESETS.some((stage) => stage.id === 'hydrant-blue'))
 assert.ok(
   STAGE_PRESETS.some((stage) => stage.id === 'song-that-stopped'),

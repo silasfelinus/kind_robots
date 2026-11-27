@@ -46,6 +46,7 @@ import {
   readPlumberFile,
   readPlumberSave,
   validPlumberCloudSave,
+  reconcilePlumberSaves,
 } from '../arcade/games/savePlumberSave'
 
 // --- The graph (conductor validate_gen2_worlds.py, ported) ----------------------
@@ -270,6 +271,52 @@ const erasedSlot = readPlumberFile({
 })
 assert.ok(validPlumberCloudSave(erasedSlot))
 assert.deepEqual(erasedSlot.album, cloud.album, 'album survives slot erasure')
+
+const otherDevice = readPlumberFile({
+  ...cloud,
+  slots: [migrated.slots[0], cloud.slots[1], null],
+  endlessBest: 85,
+})
+const independent = reconcilePlumberSaves(erasedSlot, otherDevice, cloud)
+assert.equal(independent.status, 'merged')
+if (independent.status === 'merged') {
+  assert.deepEqual(independent.save.slots, [migrated.slots[0], null, null])
+  assert.equal(independent.save.endlessBest, 85)
+  assert.ok(independent.save.album.gears.includes('1-1'))
+  assert.ok(independent.save.album.gears.includes('1-4'))
+  assert.ok(validPlumberCloudSave(independent.save))
+}
+const progressed = readPlumberFile({
+  ...cloud,
+  slots: [null, { ...cloud.slots[1], score: 500 }, null],
+})
+assert.deepEqual(reconcilePlumberSaves(erasedSlot, progressed, cloud), {
+  status: 'conflict',
+  slots: [1],
+})
+assert.deepEqual(reconcilePlumberSaves(cloud, progressed, null), {
+  status: 'conflict',
+  slots: [1],
+})
+const firstSync = reconcilePlumberSaves(migrated, cloud, null)
+assert.equal(firstSync.status, 'merged')
+if (firstSync.status === 'merged') {
+  assert.deepEqual(firstSync.save.slots, [
+    migrated.slots[0],
+    cloud.slots[1],
+    null,
+  ])
+  assert.ok(validPlumberCloudSave(firstSync.save))
+}
+const sameReset = reconcilePlumberSaves(erasedSlot, erasedSlot, cloud)
+assert.equal(sameReset.status, 'merged')
+if (sameReset.status === 'merged')
+  assert.deepEqual(sameReset.save, erasedSlot)
+const remoteOnly = reconcilePlumberSaves(cloud, progressed, cloud)
+assert.equal(remoteOnly.status, 'merged')
+if (remoteOnly.status === 'merged')
+  assert.deepEqual(remoteOnly.save, progressed)
+
 
 const options = (resume?: unknown) => ({
   rng: () => 0.5,

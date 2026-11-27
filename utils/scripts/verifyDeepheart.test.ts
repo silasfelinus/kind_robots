@@ -1588,3 +1588,169 @@ assert.match(
   sound.dispose()
   assert.equal(calls.at(-1), 'dispose')
 }
+
+type MediaFetcher = (url: URL, init: RequestInit) => Promise<Response>
+
+const MEDIA_ORIGIN = 'https://kindrobots.org'
+
+async function imageHeader(response: Response): Promise<boolean> {
+  const reader = response.body?.getReader()
+  if (!reader) return false
+  const prefix: number[] = []
+  try {
+    while (prefix.length < 16) {
+      const { done, value } = await reader.read()
+      if (done) break
+      prefix.push(...value.subarray(0, 16 - prefix.length))
+    }
+  } finally {
+    await reader.cancel()
+  }
+  const bytes = Buffer.from(prefix)
+  const ascii = bytes.toString('ascii')
+  const type = response.headers.get('content-type')?.split(';')[0]
+  switch (type) {
+    case 'image/png':
+      return bytes
+        .subarray(0, 8)
+        .equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
+    case 'image/jpeg':
+      return bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255
+    case 'image/webp':
+      return ascii.startsWith('RIFF') && ascii.slice(8, 12) === 'WEBP'
+    case 'image/gif':
+      return ascii.startsWith('GIF87a') || ascii.startsWith('GIF89a')
+    case 'image/avif':
+      return ascii.slice(4, 8) === 'ftyp' && ascii.slice(8, 12) === 'avif'
+    default:
+      return false
+  }
+}
+
+async function auditMedia(
+  id: number,
+  token: string,
+  request: MediaFetcher = fetch,
+): Promise<string | null> {
+  const url = new URL(`/api/deepheart/art/${id}`, MEDIA_ORIGIN)
+  const options = { redirect: 'manual' as const }
+  const denied = await request(url, options)
+  await denied.body?.cancel()
+  if (denied.status !== 404) {
+    return `anonymous route returned ${denied.status}, expected 404`
+  }
+
+  const authenticated = {
+    ...options,
+    headers: { 'x-api-key': token },
+  }
+  let image = await request(url, authenticated)
+  if (image.status === 302) {
+    const location = image.headers.get('location')
+    await image.body?.cancel()
+    if (!location) return 'redirect missing location'
+    const target = new URL(location, url)
+    if (
+      target.origin !== url.origin ||
+      !target.pathname.startsWith('/images/')
+    ) {
+      return 'unexpected image redirect'
+    }
+    const direct = await request(target, options)
+    await direct.body?.cancel()
+    if (![401, 403, 404].includes(direct.status)) {
+      return `anonymous image path returned ${direct.status}`
+    }
+    image = await request(target, authenticated)
+  }
+  if (image.status !== 200) {
+    await image.body?.cancel()
+    return `authenticated image returned ${image.status}`
+  }
+  return (await imageHeader(image)) ? null : 'invalid image type or signature'
+}
+
+async function verifyMediaAudit() {
+  const png = () =>
+    new Response(Uint8Array.of(137, 80, 78, 71, 13, 10, 26, 10), {
+      headers: { 'content-type': 'image/png' },
+    })
+  const missing = () => new Response(null, { status: 404 })
+  const redirect = (location: string) =>
+    new Response(null, { status: 302, headers: { location } })
+  const token = 'mock-test-token'
+  const isAuthenticated = (init: RequestInit) =>
+    new Headers(init.headers).get('x-api-key') === token
+
+  assert.equal(
+    await auditMedia(1, token, async (_, init) =>
+      isAuthenticated(init) ? png() : missing(),
+    ),
+    null,
+  )
+  assert.match(
+    (await auditMedia(1, token, async () => png())) ?? '',
+    /anonymous route/,
+  )
+  assert.match(
+    (await auditMedia(1, token, async (_, init) =>
+      isAuthenticated(init)
+        ? new Response('<html>login</html>', {
+            headers: { 'content-type': 'image/png' },
+          })
+        : missing(),
+    )) ?? '',
+    /signature/,
+  )
+  assert.match(
+    (await auditMedia(1, token, async (_, init) =>
+      isAuthenticated(init)
+        ? redirect('https://example.invalid/image.png')
+        : missing(),
+    )) ?? '',
+    /unexpected image redirect/,
+  )
+  assert.equal(
+    await auditMedia(1, token, async (url, init) => {
+      if (!isAuthenticated(init)) return missing()
+      return url.pathname.startsWith('/images/')
+        ? png()
+        : redirect('/images/private.png')
+    }),
+    null,
+  )
+  assert.match(
+    (await auditMedia(1, token, async (url, init) => {
+      if (url.pathname.startsWith('/images/')) return png()
+      return isAuthenticated(init) ? redirect('/images/private.png') : missing()
+    })) ?? '',
+    /anonymous image path/,
+  )
+
+  if (!process.argv.includes('--live-media')) return
+  const liveToken = process.env.KR_API_TOKEN
+  if (!liveToken)
+    throw new Error('KR_API_TOKEN is required for live media audit')
+  const failures: string[] = []
+  const assets = Object.entries(DEEPHEART_ART_IDS)
+  for (const [key, id] of assets) {
+    try {
+      const failure = await auditMedia(id, liveToken, (url, init) =>
+        fetch(url, { ...init, signal: AbortSignal.timeout(15000) }),
+      )
+      if (failure) failures.push(`${key} (${id}): ${failure}`)
+    } catch {
+      failures.push(`${key} (${id}): media request failed`)
+    }
+  }
+  for (const failure of failures) console.error(failure)
+  console.log(
+    `Deepheart live media: ${assets.length - failures.length}/${assets.length} verified`,
+  )
+  assert.equal(failures.length, 0, 'live media audit failed')
+}
+
+void verifyMediaAudit().catch((error: unknown) => {
+  console.error(error)
+  process.exitCode = 1
+})

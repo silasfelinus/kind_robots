@@ -586,8 +586,39 @@ assert.equal(keep.solidAt(28, 20), SOLID_LOCK)
 assert.equal(keep.solidAt(64, 20), SOLID_LOCK)
 const keepInput = emptyInput()
 keepInput.held.right = true
-for (let i = 0; i < 2000 && keep.mode === 'play'; i++) keep.update(keepInput)
-assert.equal(keep.mode, 'clear', 'both key chambers are walkable')
+for (let i = 0; i < 2000 && !keep.locked; i++) keep.update(keepInput)
+assert.equal(keep.mode, 'play', 'both key chambers are walkable')
+assert.ok(keep.locked, 'the arena locks behind the player')
+assert.equal(keep.boss?.name, 'Foreman Flange')
+assert.equal(keep.boss?.hp, 3)
+assert.ok(!nodeReachable('1-4', keep.progress))
+// Approach the axle, stun incoming rollers, then kick them back. This
+// exercises actual input and collision rather than calling hitBoss directly.
+for (let i = 0; i < 5000 && keep.mode === 'play'; i++) {
+  const frame = emptyInput()
+  const boss = keep.boss!
+  const roller = keep.foes.find(
+    (foe) =>
+      foe.kind === 'rivet-roller' &&
+      !foe.fade &&
+      (foe.state === 'walk' || foe.state === 'stunned'),
+  )
+  if (boss.hp > 0 && boss.state !== 'hurt') {
+    const target = boss.x - 120
+    if (keep.hero.x < target - 6) frame.held.right = true
+    else if (keep.hero.x > target + 6) frame.held.left = true
+    if (roller && Math.abs(roller.x - keep.hero.x) <= 42) {
+      frame.held.right = roller.x > keep.hero.x
+      frame.held.left = roller.x < keep.hero.x
+      if (!keep.cooldown) frame.pressed.x = true
+    }
+  }
+  keep.update(frame)
+}
+assert.equal(keep.boss?.hp, 0, 'roller counters defeat Foreman Flange')
+assert.equal(keep.mode, 'clear')
+assert.equal(keep.deaths, 0)
+assert.ok(!keep.done.has('1-castle'))
 assert.equal(keep.boltsOpened, 2)
 assert.ok(keep.checkpoints[0]!.reached)
 assert.ok(keep.keys.every((key) => key.state === 'used'))

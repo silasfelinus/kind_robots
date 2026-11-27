@@ -1249,23 +1249,25 @@ export const DRIP_PARLOUR: StageDef = {
   }),
 }
 
-/** Rustbolt's first two key chambers; Foreman Flange's arena follows. */
+/** Rustbolt's two key chambers and Foreman Flange's roller arena. */
 export const RUSTBOLT_KEEP: StageDef = {
   code: '1-f',
   name: 'Rustbolt Keep',
   rows: Array.from({ length: 24 }, (_, row) => {
-    const line = Array.from({ length: 96 }, () => '.')
+    const line = Array.from({ length: 122 }, () => '.')
     if (row >= 21) line.fill('#')
     else {
       line[28] = '['
       line[64] = '['
+      line[121] = 'B'
     }
     if (row === 20) {
       line[2] = '@'
       line[8] = '0'
       line[40] = 'K'
       line[47] = '0'
-      line[91] = 'G'
+      line[92] = 'X'
+      line[113] = 'M'
     }
     if (row === 17) {
       for (let col = 12; col <= 18; col++) line[col] = '='

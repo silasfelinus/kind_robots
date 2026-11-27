@@ -2,7 +2,12 @@
 // adds pages and results the battle really produced, so when a live save grows
 // the book, everything the book now proves is awarded (already-earned codes are
 // skipped by the achievement store). Loading a slot never awards.
-import { SCRAPBOOK_MOMENTS, ONE_SHOT_MENU, type Scrapbook } from './frontMenu'
+import {
+  SCRAPBOOK_MOMENTS,
+  ONE_SHOT_MENU,
+  PLAYABLE_PERSPECTIVES,
+  type Scrapbook,
+} from './frontMenu'
 import type { EvtSave } from './saves'
 import { STAGE_PRESETS } from './studio'
 
@@ -49,8 +54,6 @@ const MEDAL_CODES: ReadonlyArray<[string, EvtAchievementCode]> = [
   ['secret-route', C.secretRoute],
 ]
 
-const STORY_SIDES = ['hero', 'villain', 'henchman', 'sidekick'] as const
-
 const ONE_SHOT_TITLES = ONE_SHOT_MENU.map(
   (entry) => STAGE_PRESETS.find((stage) => stage.id === entry.id)?.title,
 ).filter((title): title is string => !!title)
@@ -64,7 +67,9 @@ export function achievementsProven(
   const wins = book.results.filter((result) => result.outcome === 'victory')
   const medals = new Set(book.results.flatMap((result) => result.medals))
   const storySides = new Set(
-    wins.filter((r) => r.mode === 'story').map((r) => r.perspective),
+    wins
+      .filter((r) => r.mode === 'story' && r.stage === 'First Bell')
+      .map((r) => r.perspective),
   )
   const oneShotWins = new Set(
     wins.filter((r) => r.mode === 'oneshot').map((r) => r.stage),
@@ -84,7 +89,8 @@ export function achievementsProven(
   if (decisions.some((d) => d.completed && d.made.has('spare')))
     earned.add(C.mercy)
   if (wins.some((result) => result.foil !== null)) earned.add(C.rivalFoil)
-  if (STORY_SIDES.every((side) => storySides.has(side))) earned.add(C.everySide)
+  if (PLAYABLE_PERSPECTIVES.every((side) => storySides.has(side)))
+    earned.add(C.everySide)
   if (
     ONE_SHOT_TITLES.length === ONE_SHOT_MENU.length &&
     ONE_SHOT_TITLES.every((title) => oneShotWins.has(title))

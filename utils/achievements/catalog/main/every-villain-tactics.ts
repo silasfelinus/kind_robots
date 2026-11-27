@@ -66,9 +66,9 @@ export const EVERY_VILLAIN_TACTICS_ACHIEVEMENTS: GameAchievementDef[] = [
     tier: 3,
     label: "Everyone's Villain",
     message:
-      'Hero, villain, henchman and sidekick: you won First Bell from all four sides.',
+      'Hero and villain: you won First Bell from both playable sides.',
     tooltip:
-      'In Every Villain Tactics, win First Bell as the hero, the villain, the henchman and the sidekick.',
+      'In Every Villain Tactics, win First Bell as both the hero and the villain.',
     subtleHint: 'Every side of the doors has a story worth winning.',
     icon: 'kind-icon:mask',
     rule: { kind: 'event' },
@@ -208,10 +208,10 @@ export const EVERY_VILLAIN_TACTICS_ACHIEVEMENTS: GameAchievementDef[] = [
     key: 'one-shot-sweep',
     tier: 3,
     label: 'Stage Veteran',
-    message: 'All eight one-shots won. Every stage knows your name.',
+    message: 'Every one-shot won. Every stage knows your name.',
     tooltip:
       'In Every Villain Tactics, win every one-shot battle on the One-Shot menu.',
-    subtleHint: 'Quad, lab, boiler room, quarry and four more.',
+    subtleHint: 'Explore the full one-shot roster, including identity-locked origins.',
     icon: 'kind-icon:trophy',
     rule: { kind: 'event' },
     artPrompt: `A young caped hero stands on a podium of eight stacked stage miniatures, a fountain quad, a science lab, a boiler room, a quarry, a picnic plaza and more, each topped with a tiny victory flag, under a sweep of spotlights. ${STYLE}`,

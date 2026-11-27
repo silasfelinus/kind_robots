@@ -490,15 +490,14 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     step((r) => engine.chooseCourtOption(r, id))
 
   function campAction(option: engine.CampOption) {
-    const before = run.value?.moments.length ?? 0
+    lastLine.value = ''
+    lastMoment.value = null
+    lastFaces.value = []
     step((r) => {
       lastLine.value = engine.campAction(r, option, romanceOn.value)
+      lastMoment.value = engine.campSceneMoment(r, option, lastLine.value)
     })
-    const current = run.value
-    lastMoment.value =
-      current && current.moments.length > before
-        ? (current.moments.at(-1) ?? null)
-        : null
+    if (!lastLine.value) return
     // Not every support conversation has a separate approved painting.
     // In those cases display the participants' real rendered portraits.
     lastFaces.value =

@@ -8,6 +8,7 @@
 // checksum, every load is also rebuilt against a fresh reference roster and
 // rejected when an immutable field (identity, max HP, role stats, power) or a
 // rule invariant (bounds, walls, overlaps, cooldown range) does not hold.
+import { personalCastFor } from './personalCasts'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import type { SignaturePowerId } from '../cometAcademy/specialPowers'
 import { FIRST_BELL_MAP, inside, tileAt, type Point } from './combat'
@@ -574,10 +575,19 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
       !isValidFoil(save.foilSignature, save.leadSignature))
   )
     return reject('Rival foil is not a valid canonical opponent.')
+  if (
+    state.crossfireCast !== undefined &&
+    (state.crossfireCast !== 1 ||
+      legacy ||
+      personalCastFor(save.leadSignature)?.foil !== save.foilSignature ||
+      (save.stage && !isCrossfireFoilStage(save.stage)))
+  )
+    return reject('Personal Crossfire cast does not match the campaign.')
   const reference = trainingState(1, save.stage ?? undefined, {
     lead: save.leadSignature,
     foil: save.foilSignature,
     roles: !legacy,
+    crossfireCast: state.crossfireCast,
   })
   // Reinforcements join the reference roster only once they have arrived.
   for (const id of state.field?.reinforced ?? []) {

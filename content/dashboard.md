@@ -5,7 +5,7 @@ subtitle: 'Your Private Page'
 description: Your private page for your profile, art sharing settings and galleries. Sign in free to open it.
 image: splash/dashboard.png
 icon: kind-icon:settings
-tooltip: User customizations and art sharing settings live here.
+tooltip: Your profile, art sharing settings and galleries, kept on one private page.
 dottiTip: Everyone needs a personal space all to their own.
 amiTip: Even I've got a bungalow in the cloud where I unwind.
 channelKey: home

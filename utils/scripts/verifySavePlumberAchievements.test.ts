@@ -11,7 +11,11 @@ import {
   plumberProgressFeats,
   rosterComplete,
 } from '../arcade/games/savePlumberAchievements'
-import { OVERWORLD, nodeBuilt } from '../arcade/games/savePlumberOverworld'
+import {
+  OVERWORLD,
+  nodeBuilt,
+  nodeGearCode,
+} from '../arcade/games/savePlumberOverworld'
 import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
 import { PLUMBER_WORLDS } from '../arcade/games/savePlumberWorlds'
 import { emptyInput } from '../arcade/types'
@@ -58,7 +62,10 @@ const nodes = OVERWORLD.flatMap((map) =>
 )
 const worldOne = nodes.filter((n) => n.world === 1)
 const gearsOf = (list: typeof nodes) =>
-  list.flatMap(({ node }) => (node.stage ? [node.stage] : []))
+  list.flatMap(({ node }) => {
+    const code = nodeGearCode(node)
+    return code ? [code] : []
+  })
 assert.deepEqual(
   plumberProgressFeats({ done: [], secrets: [], gears: [] }, 1),
   [],

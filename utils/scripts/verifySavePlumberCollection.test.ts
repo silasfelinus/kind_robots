@@ -12,7 +12,7 @@ import {
   SECRET_EXITS_READY,
   stageNode,
 } from '../arcade/games/savePlumberOverworld'
-import { CAMPAIGN } from '../arcade/games/savePlumberLevels'
+import { GEAR_COURSE_CODES } from '../arcade/games/savePlumberLevels'
 import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
 import { rosterIndex } from '../arcade/games/savePlumberRoster'
 
@@ -116,7 +116,7 @@ assert.deepEqual(legacy.album.endings, [])
 
 // Multiple endings (conductor save-the-plumber t-028): every clear earns the base ending; every Golden Gear and
 // every playable secret exit each add their own, and the finale shows the rarest.
-const allGears = CAMPAIGN.map((def) => def.code)
+const allGears = [...GEAR_COURSE_CODES]
 const allSecrets = [...SECRET_EXITS_READY]
 assert.ok(allSecrets.length > 0, 'at least one secret exit is playable')
 assert.deepEqual(

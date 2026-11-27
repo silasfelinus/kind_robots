@@ -11,6 +11,7 @@ import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
 import {
   CAMPAIGN,
   CHAPEL_COURSES,
+  GEAR_COURSE_CODES,
   DRIP_PARLOUR,
   RUSTBOLT_KEEP,
   SLUICEGATE_STEPS,
@@ -138,7 +139,7 @@ assert.ok(
 const w1 = worldCompletion(1, { done: ['1-1', '1-2'], gears: ['1-1'] })
 assert.deepEqual(
   [w1.stages, w1.stagesDone, w1.gears, w1.gearsFound, w1.secrets],
-  [8, 2, 4, 1, 2],
+  [8, 2, 5, 1, 2],
 )
 assert.equal(completionPercent(fresh), 0)
 const everything = CAMPAIGN.map((s) => s.code)
@@ -151,7 +152,7 @@ assert.equal(
       RUSTBOLT_KEEP.code,
       '1-4',
     ],
-    gears: everything,
+    gears: [...GEAR_COURSE_CODES],
     secrets: [...SECRET_EXITS_READY],
   }),
   100,
@@ -862,6 +863,9 @@ walkDamTo(22)
 for (let i = 0; i < 20; i++) sluice.update(emptyInput())
 assert.equal(sluice.hero.y + 20, 10 * TILE)
 assert.equal(sluice.tokens, inspectionTokens + 2)
+assert.ok(sluice.gears.has(SLUICEGATE_STEPS.code))
+assert.ok(!sluice.gears.has('1-4'))
+assert.equal(worldCompletion(1, sluice.progress).gearsFound, 1)
 walkDamTo(15)
 const damClimb = emptyInput()
 damClimb.held.up = true
@@ -891,6 +895,9 @@ assert.ok(nodeReachable('1-castle', sluice.progress))
 const damReload = createSavePlumberPreview(options(sluice.save))
 assert.ok(damReload.done.has('1-4'))
 assert.ok(!damReload.done.has('1-castle'))
+assert.ok(damReload.gears.has(SLUICEGATE_STEPS.code))
+assert.ok(!damReload.gears.has('1-4'))
+assert.ok(readPlumberFile(sluice.save).album.gears.includes('1-sluice'))
 
 // Deaths are remembered on the slot.
 press(next, 'a')

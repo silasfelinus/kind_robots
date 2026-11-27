@@ -22,6 +22,7 @@ import GEN2 from './savePlumberGen2Worlds.json'
 import {
   CAMPAIGN,
   DRIP_PARLOUR,
+  GEAR_COURSE_CODES,
   SLUICEGATE_NODE_ID,
   SLUICEGATE_STEPS,
   optionalCourse,
@@ -82,7 +83,7 @@ export type MapProgress = {
   done: readonly string[]
   /** Node ids cleared by a secret exit. */
   secrets?: readonly string[]
-  /** Gen-1 stage codes whose Golden Gear has been found. */
+  /** Course codes whose Golden Gear has been found. */
   gears?: readonly string[]
 }
 
@@ -426,6 +427,11 @@ export type WorldCompletion = {
   secretsFound: number
 }
 
+export function nodeGearCode(node: MapNode): string | undefined {
+  const code = node.stage ?? optionalCourseAtNode(node.id)?.code
+  return code && GEAR_COURSE_CODES.includes(code) ? code : undefined
+}
+
 /** A world's completion, counting only what can be played today. */
 export function worldCompletion(
   world: number,
@@ -434,14 +440,16 @@ export function worldCompletion(
   const built = worldMap(world).nodes.filter(nodeBuilt)
   const done = new Set([...progress.done, ...(progress.secrets ?? [])])
   const secrets = built.filter((n) => SECRET_EXITS_READY.has(n.id))
+  const gears = built.flatMap((node) => {
+    const code = nodeGearCode(node)
+    return code ? [code] : []
+  })
   return {
     world,
     stages: built.length,
     stagesDone: built.filter((n) => done.has(n.id)).length,
-    gears: built.filter((n) => n.stage).length,
-    gearsFound: built.filter(
-      (n) => n.stage && progress.gears?.includes(n.stage),
-    ).length,
+    gears: gears.length,
+    gearsFound: gears.filter((code) => progress.gears?.includes(code)).length,
     secrets: secrets.length,
     secretsFound: secrets.filter((n) => progress.secrets?.includes(n.id))
       .length,

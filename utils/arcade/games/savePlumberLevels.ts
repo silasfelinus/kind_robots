@@ -1338,6 +1338,7 @@ export const SLUICEGATE_STEPS: StageDef = {
     }
     if (row === 9) {
       line[19] = 'o'
+      line[21] = '*'
       line[22] = 'o'
     }
     if (row === 9) {
@@ -1383,6 +1384,11 @@ export const CAMPAIGN: StageDef[] = [
   ...WORLD_SIX,
   ...WORLD_SEVEN,
   ...WORLD_EIGHT,
+]
+
+export const GEAR_COURSE_CODES: readonly string[] = [
+  ...CAMPAIGN.map((stage) => stage.code),
+  SLUICEGATE_STEPS.code,
 ]
 
 export function stageWorld(code: string): number {

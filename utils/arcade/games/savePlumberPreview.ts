@@ -35,6 +35,7 @@ import {
   SOLID_FRAGILE_ICE,
   TILE,
   CAMPAIGN,
+  GEAR_COURSE_CODES,
   chapelCourse,
   optionalCourse,
   optionalCourseAtNode,
@@ -83,6 +84,7 @@ import {
   newlyOpened,
   nodeReachable,
   nodeBuilt,
+  nodeGearCode,
   startId,
   stageNode,
   warpHeading,
@@ -5527,7 +5529,8 @@ export class PlumberRun implements ArcadeGameInstance {
         11,
         '#fff4dc',
       )
-      if (node.stage && progress.gears?.includes(node.stage)) {
+      const gearCode = nodeGearCode(node)
+      if (gearCode && progress.gears?.includes(gearCode)) {
         g.fillStyle = '#ffd24a'
         g.beginPath()
         g.arc(node.x + size / 2, node.y - size / 2, 4, 0, Math.PI * 2)
@@ -5930,7 +5933,7 @@ export class PlumberRun implements ArcadeGameInstance {
     )
     this.text(
       g,
-      `SCORE ${this.score}   ·   GOLDEN GEARS ${this.gears.size} / ${CAMPAIGN.length}`,
+      `SCORE ${this.score}   ·   GOLDEN GEARS ${this.gears.size} / ${GEAR_COURSE_CODES.length}`,
       W / 2,
       256,
       13,
@@ -5968,7 +5971,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.drawHeroSprite(g, 320, 236, 'cheer', 1.95)
     this.text(
       g,
-      `FINAL SCORE ${this.score}   ·   GOLDEN GEARS ${this.gears.size} / ${CAMPAIGN.length}`,
+      `FINAL SCORE ${this.score}   ·   GOLDEN GEARS ${this.gears.size} / ${GEAR_COURSE_CODES.length}`,
       W / 2,
       258,
       13,

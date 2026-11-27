@@ -2014,6 +2014,10 @@ export class PlumberRun implements ArcadeGameInstance {
     if (!this.ground || !keys.pressed.x || !keys.held.down) return false
     if (this.mounted) {
       if (this.waterAt(feet + 2)) return false
+      if (this.heldRoller) {
+        this.sound.play('warn')
+        return true
+      }
       gurgle.state = 'parked'
       gurgle.x = this.hero.x
       gurgle.y = feet
@@ -3054,6 +3058,8 @@ export class PlumberRun implements ArcadeGameInstance {
       this.kick(roller, this.facing)
       return
     }
+    if (!grab && this.mounted && !this.carrying && this.grabRoller(true))
+      return
     if (grab && !this.carrying && this.grabRoller()) return
     if (this.carrying) {
       this.carrying = false
@@ -3083,6 +3089,7 @@ export class PlumberRun implements ArcadeGameInstance {
     for (const foe of this.foes) {
       if (foe.state === 'gone' || foe.fade) continue
       if (!inBox(foe.x, foe.y - 8)) continue
+      if (this.mounted && !this.toolPathClear(foe.x, foe.y - 8)) continue
       if (foe.kind === 'minnow' && foe.y >= foe.homeY) continue
       struck = true
       this.strikeFoe(foe)
@@ -3133,13 +3140,28 @@ export class PlumberRun implements ArcadeGameInstance {
     playPlumberCue(this.sound, struck ? 'strike' : 'wrench')
   }
 
-  private grabRoller(): boolean {
+  private toolPathClear(x: number, y: number): boolean {
+    const startY = this.hero.y + TALL - 10
+    const dx = x - this.hero.x
+    const dy = y - startY
+    const steps = Math.ceil(Math.max(Math.abs(dx), Math.abs(dy)) / 4)
+    for (let i = 1; i <= steps; i++) {
+      const col = Math.floor((this.hero.x + (dx * i) / steps) / TILE)
+      const row = Math.floor((startY + (dy * i) / steps) / TILE)
+      if (isWall(this.solidAt(col, row))) return false
+    }
+    return true
+  }
+
+  private grabRoller(allowLive = false): boolean {
     const hero = this.hero
     const index = this.foes.findIndex((foe) => {
       const dx = (foe.x - hero.x) * this.facing
       return (
         foe.kind === 'rivet-roller' &&
-        foe.state === 'stunned' &&
+        (foe.state === 'stunned' ||
+          (allowLive && (foe.state === 'walk' || foe.state === 'idle'))) &&
+        (!this.mounted || this.toolPathClear(foe.x, foe.y - 8)) &&
         !foe.giant &&
         !foe.glide &&
         !foe.fade &&

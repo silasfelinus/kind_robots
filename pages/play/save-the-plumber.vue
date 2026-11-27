@@ -718,7 +718,7 @@ const controls = [
     keyboard: 'E / C',
     pad: 'X',
     label: 'WRENCH',
-    does: 'Strike enemies, crates and valves. Down + Wrench mounts or parks Gurgle on dry ground, or lifts a stunned Rivet Roller. Wrench again throws a held roller.',
+    does: 'Strike enemies, crates and valves. Down + Wrench mounts or parks Gurgle on dry ground, or lifts a stunned Rivet Roller. Mounted Wrench slurps a nearby roller, then spits it on the next press. Spit before parking.',
   },
   {
     keyboard: 'F / V',

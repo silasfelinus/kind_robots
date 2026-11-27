@@ -25,6 +25,7 @@ import { FERRIS_WHEEL_SCRIPT } from './ferrisWheelScript'
 import { SUNKEN_STREET_SCRIPT } from './sunkenStreetScript'
 import { UNLICENSED_RESCUE_SCRIPT } from './unlicensedRescueScript'
 import { CHORUS_RADIO_SCRIPT } from './chorusRadioScript'
+import { HYDRANT_BLUE_SCRIPT } from './hydrantBlueScript'
 import { ROOFTOP_BROADCAST_SCRIPT } from './rooftopBroadcastScript'
 import { UNDER_COMET_BREACH_SCRIPT } from './underCometBreachScript'
 import { PROM_NIGHT_FINALE_SCRIPT } from './promNightFinaleScript'
@@ -366,6 +367,53 @@ export const STAGE_PRESETS: StageDraft[] = [
     ],
     victory: { kind: 'rescue', count: 2 },
     script: CHORUS_RADIO_SCRIPT,
+  },
+  {
+    version: 1,
+    id: 'hydrant-blue',
+    title: 'Hydrant Blue',
+    venue: 'Municipal fire station during a heat wave',
+    objective:
+      'Move Tidewarden beside the blue valve at column 5, row 3. Use her signature power on the valve, then evacuate both trapped crews before round nine.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls([2, 0], [5, 0], [5, 1], [3, 5], [6, 5]),
+        '2,2': tile(0, false, { east: 'half' }),
+        '4,2': tile(1),
+        '5,3': tile(0, false, { north: 'half' }),
+        '6,2': tile(0, false, { west: 'full' }),
+        '7,3': tile(1),
+      },
+    },
+    spawns: [
+      { id: 'backdraft', x: 0, y: 3 },
+      { id: 'priya', x: 1, y: 1 },
+      { id: 'hattie', x: 1, y: 4 },
+      { id: 'pip', x: 8, y: 0 },
+      { id: 'vee', x: 8, y: 3 },
+      { id: 'remy', x: 8, y: 5 },
+    ],
+    secrets: [{ x: 2, y: 4 }],
+    hazards: [{ x: 4, y: 2 }],
+    turnLimit: 9,
+    civilians: [
+      { id: 'hydrant-engine', name: 'Engine bay crew', x: 7, y: 1 },
+      { id: 'hydrant-dispatch', name: 'Dispatch room crew', x: 7, y: 4 },
+    ],
+    props: [
+      { id: 'hose-rack', x: 3, y: 3, cover: 'half', hp: 2 },
+      { id: 'engine-cab', x: 6, y: 2, cover: 'full', hp: 3 },
+      { id: 'dispatch-desk', x: 6, y: 4, cover: 'half', hp: 2 },
+    ],
+    activeHazards: [
+      { id: 'engine-smoke', kind: 'fire', x: 5, y: 4 },
+      { id: 'live-drain', kind: 'water', x: 3, y: 2 },
+      { id: 'bay-gantry', kind: 'collapse', x: 7, y: 3, round: 5 },
+    ],
+    victory: { kind: 'rescue', count: 2 },
+    script: HYDRANT_BLUE_SCRIPT,
   },
   {
     version: 1,

@@ -579,6 +579,76 @@ const wrongChorusSave = createSave({
 })
 assert.equal(loadSave(JSON.stringify(wrongChorusSave)).ok, false)
 
+// Environmental signature target is legal without any living rival.
+const hydrant = clonePreset('hydrant-blue')
+assert.deepEqual(stageProblems(hydrant), [])
+assert.equal(hydrant.civilians?.length, 2)
+for (const perspective of ['hero', 'villain'] as const) {
+  const run = trainingState(41, hydrant, { lead: 'accident-water' })
+  const tide = run.units.find((unit) => unit.id === 'backdraft')!
+  run.selected = tide.id
+  tide.x = 6
+  tide.y = 1
+  tide.ap = 2
+  assert.equal(rescueSelected(run), false)
+  assert.equal(useSelectedPower(run, { x: 4, y: 2 }), false)
+  assert.equal(tide.powerSpent, false)
+  tide.x = 3
+  tide.y = 2
+  tide.ap = 2
+  const valve = { x: 4, y: 2 }
+  assert.deepEqual(selectedPowerTargets(run), [valve])
+  assert.equal(useSelectedPower(run, valve), true)
+  assert.ok(run.flags?.includes('hydrant-main-flowing'))
+  assert.equal(tide.powerSpent, true)
+  assert.deepEqual(selectedPowerTargets(run), [])
+  const checkpoint = createSave({
+    slot: 'slot-2',
+    perspective,
+    leadSignature: 'accident-water',
+    stage: hydrant,
+    state: run,
+    story: { ...createStory(), current: null },
+  })
+  assert.ok(loadSave(JSON.stringify(checkpoint)).ok)
+  const forged = createSave({
+    ...checkpoint,
+    state: {
+      ...run,
+      units: run.units.map((unit) =>
+        unit.id === tide.id ? { ...unit, powerSpent: false } : unit,
+      ),
+    },
+  })
+  assert.equal(loadSave(JSON.stringify(forged)).ok, false)
+  tide.x = 6
+  tide.y = 1
+  tide.ap = 2
+  assert.equal(rescueSelected(run), true)
+  tide.x = 7
+  tide.y = 4
+  tide.ap = 2
+  assert.equal(rescueSelected(run), true)
+  assert.equal(run.phase, 'victory')
+}
+const emptyStation = trainingState(41, hydrant, { lead: 'accident-water' })
+const tide = emptyStation.units[0]!
+tide.x = 3
+tide.y = 2
+for (const rival of emptyStation.units.filter((unit) => unit.team === 'rival'))
+  rival.hp = 0
+assert.deepEqual(selectedPowerTargets(emptyStation), [{ x: 4, y: 2 }])
+assert.equal(useSelectedPower(emptyStation, { x: 4, y: 2 }), true)
+assert.ok(
+  hydrant.script?.scenes.some((scene) => scene.id === 'hydrant-allocation'),
+)
+assert.ok(
+  readFileSync(
+    'components/every-villain-tactics/every-villain-front-menu.vue',
+    'utf8',
+  ).includes('front-origin-hydrant-blue'),
+)
+
 // Identity-locked rescue scenarios cannot strand someone without the needed
 // power, even if a saved menu or scripted call bypasses the visual filter.
 assert.deepEqual(ORIGIN_STAGE_LEADS, {
@@ -587,6 +657,7 @@ assert.deepEqual(ORIGIN_STAGE_LEADS, {
   'sunken-street': 'accident-earth',
   'unlicensed-rescue': 'accident-birthright',
   'song-that-stopped': 'accident-social',
+  'hydrant-blue': 'accident-water',
 })
 for (const [stage, signature] of Object.entries(ORIGIN_STAGE_LEADS)) {
   assert.equal(canStartOneShot(stage, signature), true)

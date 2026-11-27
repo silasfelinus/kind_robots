@@ -25,7 +25,8 @@ import {
   walkScene,
 } from '../everyVillainTactics/sceneGraph'
 
-assert.equal(STAGE_PRESETS.length, 18)
+assert.equal(STAGE_PRESETS.length, 19)
+assert.ok(STAGE_PRESETS.some((stage) => stage.id === 'hydrant-blue'))
 assert.ok(
   STAGE_PRESETS.some((stage) => stage.id === 'song-that-stopped'),
   "Chorus's broadcast origin is a distinct traversable battle",

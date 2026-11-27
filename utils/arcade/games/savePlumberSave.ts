@@ -16,7 +16,7 @@
  * stage before its resume point cleared. Nobody loses a run to the upgrade.
  */
 import { MAX_SAVE_BYTES, serializedSaveBytes } from '../saves'
-import { CAMPAIGN } from './savePlumberLevels'
+import { CAMPAIGN, GEAR_COURSE_CODES } from './savePlumberLevels'
 import {
   SECRET_EXITS_READY,
   mapNode,
@@ -162,7 +162,7 @@ export function earnedPlumberEndings(run: {
   const gears = new Set(run.gears ?? [])
   const secrets = new Set(run.secrets ?? [])
   const endings: PlumberEnding[] = ['rivers-run-home']
-  if (CAMPAIGN.every((def) => gears.has(def.code)))
+  if (GEAR_COURSE_CODES.every((code) => gears.has(code)))
     endings.push('clockwork-gift')
   if (
     SECRET_EXITS_READY.size > 0 &&
@@ -262,7 +262,7 @@ const count = (v: unknown, max: number): v is number =>
   typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= max
 
 const isStageCode = (code: unknown): code is string =>
-  typeof code === 'string' && CAMPAIGN.some((s) => s.code === code)
+  typeof code === 'string' && GEAR_COURSE_CODES.includes(code)
 
 /** Real stage codes, each once. */
 function codes(raw: unknown): string[] {

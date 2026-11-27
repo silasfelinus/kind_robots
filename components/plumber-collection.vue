@@ -6,8 +6,9 @@
     <template v-if="view === 'collection'">
       <h2 class="plumber-album-heading">THE SOUVENIR CABINET</h2>
       <p class="plumber-album-summary">
-        {{ clearedNodes.size }} cleared paths · {{ album.gears.length }} / 32
-        Golden Gears · {{ album.heroines.length }} / 8 heroines
+        {{ clearedNodes.size }} cleared paths · {{ album.gears.length }} /
+        {{ GEAR_COURSE_CODES.length }} Golden Gears ·
+        {{ album.heroines.length }} / 8 heroines
       </p>
       <div class="plumber-album-grid" aria-label="World medals">
         <figure
@@ -122,6 +123,10 @@ import { computed } from 'vue'
 import { PLUMBER_ART } from '~/utils/arcade/games/savePlumberArt'
 import { stageNode } from '~/utils/arcade/games/savePlumberOverworld'
 import {
+  GEAR_COURSE_CODES,
+  stageWorld,
+} from '~/utils/arcade/games/savePlumberLevels'
+import {
   PLUMBER_ROSTER,
   rosterHeroine,
   rosterPortrait,
@@ -157,8 +162,9 @@ const worlds = computed(() =>
       boss: world.boss.name,
       total: world.stages.length,
       cleared,
-      gears: world.stages.filter((stage) =>
-        collectedGears.value.has(stage.code),
+      gears: GEAR_COURSE_CODES.filter(
+        (code) =>
+          stageWorld(code) === world.id && collectedGears.value.has(code),
       ).length,
       bossCleared: bossId ? clearedNodes.value.has(bossId) : false,
     }

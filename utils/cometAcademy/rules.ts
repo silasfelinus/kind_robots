@@ -145,6 +145,9 @@ import {
   campaignVillain,
   campaignBetrayer,
   campaignPlotEvent,
+  betrayalMemory,
+  validBetrayalTrail,
+  type BetrayalMemory,
   campaignAccomplice,
   CAMPAIGN_VILLAINS,
   GUEST_LIST_EVENT,
@@ -711,6 +714,7 @@ export type AcademyRun = {
     status: 'active' | 'reconciled' | 'isolated'
   }
   plotEvidence?: string[]
+  betrayalTrail?: BetrayalMemory[]
   /** t-016: who moved which way on each real night. Absent until the first
    * night that moves anybody, so older saves are unchanged. */
   alignmentLog?: AlignmentNight[]
@@ -804,6 +808,7 @@ export function encounterFor(run: AcademyRun) {
       run.mastermind,
       run.day,
       person.name,
+      run.betrayalTrail,
     )
     if (plot) {
       const opponent = run.opponentSignature
@@ -2623,6 +2628,7 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
           STUDENTS.find(
             (s) => s.id === (run.betrayer ?? campaignBetrayer(run.seed)),
           )!.name,
+          run.betrayalTrail,
         )
       : undefined
   const personalDay = [4, 12, 21, 27].includes(run.day) && run.flowVersion === 3
@@ -2672,6 +2678,8 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
     ? [...(run.personalHistory ?? []), { day: run.day, choice: witnessChoice }]
     : run.personalHistory
   const betrayerId = run.betrayer ?? campaignBetrayer(run.seed)
+  const betrayalBeat =
+    run.flowVersion === 3 ? betrayalMemory(run.day, option.id) : undefined
   const plotEvidence = [...(run.plotEvidence ?? [])]
   if (
     run.flowVersion === 3 &&
@@ -2719,6 +2727,9 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
     ...(run.flowVersion === 3 && plot
       ? {
           plotEvidence,
+          ...(betrayalBeat
+            ? { betrayalTrail: [...(run.betrayalTrail ?? []), betrayalBeat] }
+            : {}),
           ...(betrayal ? { betrayal } : {}),
         }
       : {}),
@@ -3247,6 +3258,13 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
                 ).accomplices?.some((a) => a.id === id),
             ) ||
             new Set(data.plotEvidence).size !== data.plotEvidence.length)) ||
+        (data.betrayalTrail !== undefined &&
+          !validBetrayalTrail(
+            data.betrayalTrail,
+            ['map', 'campus'].includes(data.phase ?? '')
+              ? data.day! - 1
+              : data.day!,
+          )) ||
         (data.alignmentLog !== undefined &&
           !validAlignmentLog(
             data.alignmentLog,

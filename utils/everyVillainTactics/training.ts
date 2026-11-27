@@ -1578,6 +1578,81 @@ function aiPower(
   updateOutcome(state)
   return true
 }
+function rivalHazardAt(state: TrainingState, point: Point): boolean {
+  return !!(
+    state.field?.fire.some((fire) => cellKey(fire) === cellKey(point)) ||
+    state.rules?.hazards.some(
+      (hazard) =>
+        cellKey(hazard) === cellKey(point) &&
+        ((hazard.kind === 'water' && isWaterLive(state.turn)) ||
+          (hazard.kind === 'collapse' && hazard.round === state.turn)),
+    )
+  )
+}
+
+function rivalExposure(state: TrainingState, enemy: Unit, point: Point) {
+  const threats = state.units
+    .filter((unit) => unit.team !== enemy.team && unit.hp > 0)
+    .map((unit) => ({
+      hit: chanceFrom(state.map, unit, { ...enemy, ...point }).hit,
+      overwatch: unit.overwatch,
+    }))
+  return {
+    incoming: Math.max(0, ...threats.map((threat) => threat.hit)),
+    reaction: Math.min(
+      100,
+      threats
+        .filter((threat) => threat.overwatch)
+        .reduce((sum, threat) => sum + threat.hit, 0),
+    ),
+  }
+}
+
+/** Compare real shots from affordable destinations, including directional
+ * cover, incoming exposure and immediate reactions. Never consume RNG. */
+export function rivalAttackDestination(state: TrainingState, enemy: Unit) {
+  if (
+    enemy.team !== 'rival' ||
+    enemy.hp <= 0 ||
+    enemy.fired ||
+    enemy.ap < 2 ||
+    state.phase !== 'active'
+  )
+    return null
+  const currentHit = bestShot(state, enemy)?.chance.hit ?? 0
+  const currentRisk = rivalExposure(state, enemy, enemy)
+  const baseline = currentHit - currentRisk.incoming / 4
+  const candidates = reachableCells(state.map, state.units, enemy)
+    .filter(
+      (point) =>
+        point.cost < enemy.ap && !rivalHazardAt(state, point),
+    )
+    .map((point) => {
+      const hit = bestShot(state, enemy, point)?.chance.hit ?? 0
+      const risk = rivalExposure(state, enemy, point)
+      return {
+        point,
+        hit,
+        score: hit - risk.incoming / 4 - risk.reaction / 2,
+      }
+    })
+    .filter(
+      (candidate) =>
+        candidate.hit > 0 &&
+        candidate.hit >= currentHit + 12 &&
+        (candidate.score > baseline || rivalHazardAt(state, enemy)),
+    )
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        b.hit - a.hit ||
+        a.point.steps - b.point.steps ||
+        a.point.y - b.point.y ||
+        a.point.x - b.point.x,
+    )
+  return candidates[0]?.point ?? null
+}
+
 /** Critical-health rivals seek real directional cover or blocked sightlines
  * rather than charging a fresh squad. One-hit crews keep their authored AI. */
 export function rivalRetreatDestination(state: TrainingState, enemy: Unit) {
@@ -1600,16 +1675,8 @@ export function rivalRetreatDestination(state: TrainingState, enemy: Unit) {
     )
   const current = exposure(enemy)
   if (current < 45) return null
-  const dangerous = (point: Point) =>
-    state.field?.fire.some((fire) => cellKey(fire) === cellKey(point)) ||
-    state.rules?.hazards.some(
-      (hazard) =>
-        cellKey(hazard) === cellKey(point) &&
-        ((hazard.kind === 'water' && isWaterLive(state.turn)) ||
-          (hazard.kind === 'collapse' && hazard.round === state.turn)),
-    )
   const destination = reachableCells(state.map, state.units, enemy)
-    .filter((point) => !dangerous(point))
+    .filter((point) => !rivalHazardAt(state, point))
     .map((point) => ({ point, exposure: exposure(point) }))
     .filter((candidate) => current - candidate.exposure >= 25)
     .sort(
@@ -1655,41 +1722,31 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
     if (enemy.hp <= 0 || state.phase !== 'active') return
     shot = bestShot(state, enemy)
   }
-  const positions = reachableCells(state.map, state.units, enemy)
-  const improvement = positions
-    .filter((p) => p.cost === 1)
-    .map((p) => ({ point: p, next: bestShot(state, enemy, p) }))
-    .filter((p): p is typeof p & { next: NonNullable<typeof shot> } => !!p.next)
-    .sort(
-      (a, b) =>
-        b.next.chance.hit - a.next.chance.hit ||
-        b.point.y - a.point.y ||
-        a.point.x - b.point.x,
-    )[0]
-  if (
-    improvement &&
-    (improvement.next.chance.hit >= (shot?.chance.hit ?? 0) + 12 ||
-      (!shot && improvement.next.chance.hit > 0))
-  ) {
-    enemy.x = improvement.point.x
-    enemy.y = improvement.point.y
-    enemy.ap--
+  const positions = reachableCells(state.map, state.units, enemy).filter(
+    (point) => !rivalHazardAt(state, point),
+  )
+  const improvement = rivalAttackDestination(state, enemy)
+  if (improvement) {
+    enemy.x = improvement.x
+    enemy.y = improvement.y
+    enemy.ap -= improvement.cost
     enemy.moved = true
     triggerReactions(state, enemy)
     shot = bestShot(state, enemy)
-  } else if (!shot && positions.length) {
-    // When out of range, close distance by actual path rather than teleporting.
+  } else if ((!shot || rivalHazardAt(state, enemy)) && positions.length) {
+    // Approach along a legal path, prioritizing escape from active hazards.
     const targets = state.units.filter((u) => u.team === 'squad' && u.hp > 0)
     const move = positions
       .map((p) => ({
         point: p,
         distance: Math.min(...targets.map((t) => gridDistance(p, t))),
-        cover: !!tileAt(state.map, p).cover,
+        risk: rivalExposure(state, enemy, p),
       }))
       .sort(
         (a, b) =>
           a.distance - b.distance ||
-          Number(b.cover) - Number(a.cover) ||
+          a.risk.reaction - b.risk.reaction ||
+          a.risk.incoming - b.risk.incoming ||
           a.point.cost - b.point.cost ||
           a.point.y - b.point.y ||
           a.point.x - b.point.x,
@@ -1723,8 +1780,8 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
       )
     }
   }
-  if (enemy.ap > 0 && !enemy.fired) {
-    if (tileAt(state.map, enemy).cover) takeCover(enemy)
+  if (enemy.ap > 0) {
+    if (enemy.fired || tileAt(state.map, enemy).cover) takeCover(enemy)
     else prepareOverwatch(enemy)
   }
   updateOutcome(state)

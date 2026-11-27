@@ -152,14 +152,17 @@ for (const missing of ['hero', 'villain'] as const) {
   const other = missing === 'hero' ? 'villain' : 'hero'
   assert.ok(
     !achievementsProven(
-      book([], [
-        result({ perspective: other }),
-        result({ perspective: 'henchman' }),
-        result({ perspective: 'sidekick' }),
-        result({ perspective: missing, outcome: 'defeat' }),
-        result({ perspective: missing, mode: 'oneshot' }),
-        result({ perspective: missing, stage: 'The Fountain Standoff' }),
-      ]),
+      book(
+        [],
+        [
+          result({ perspective: other }),
+          result({ perspective: 'henchman' }),
+          result({ perspective: 'sidekick' }),
+          result({ perspective: missing, outcome: 'defeat' }),
+          result({ perspective: missing, mode: 'oneshot' }),
+          result({ perspective: missing, stage: 'The Fountain Standoff' }),
+        ],
+      ),
       [],
     ).includes(C.everySide),
   )
@@ -171,11 +174,14 @@ const both = [
 assert.ok(achievementsProven(book([], both), []).includes(C.everySide))
 assert.ok(
   achievementsProven(
-    book([], [
-      ...both,
-      result({ perspective: 'henchman' }),
-      result({ perspective: 'sidekick' }),
-    ]),
+    book(
+      [],
+      [
+        ...both,
+        result({ perspective: 'henchman' }),
+        result({ perspective: 'sidekick' }),
+      ],
+    ),
     [],
   ).includes(C.everySide),
 )

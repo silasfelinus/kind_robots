@@ -403,11 +403,17 @@ assert.deepEqual(
 assert.equal(SUPPORTS.length, 35, 'all support pairs are accounted for')
 assert.equal(Object.keys(SUPPORT_MOMENTS).length, SUPPORTS.length)
 assert.equal(new Set(Object.values(SUPPORT_MOMENTS)).size, SUPPORTS.length)
+const supportArt = Object.values(SUPPORT_MOMENTS).map((id) =>
+  deepheartArtSrc(`moment:${id}`),
+)
+assert.ok(supportArt.every(Boolean), 'all support scenes have paintings')
+assert.equal(new Set(supportArt).size, SUPPORTS.length)
 for (const support of SUPPORTS) {
   const key = pairKey(support.a, support.b)
   const id = SUPPORT_MOMENTS[key]!
   const moment = DEEPHEART.moments.find((entry) => entry.id === id)
   assert.ok(moment, `missing scrapbook entry for ${key}`)
+  assert.equal(moment.art.src, deepheartArtSrc(`moment:${id}`))
   assert.deepEqual([...moment.about].sort(), [support.a, support.b].sort())
   const romantic = support.kind === 'lovers' || support.kind === 'exes'
   assert.equal(moment.kind, romantic ? 'romance' : 'follower')

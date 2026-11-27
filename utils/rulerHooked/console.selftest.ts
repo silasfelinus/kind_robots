@@ -6,6 +6,10 @@
 
 import assert from 'node:assert/strict'
 import {
+  newRoyalPadMemory,
+  readRoyalPad,
+} from '~/utils/rulerHooked/gamepad'
+import {
   mergeRoyalBackups,
   parseRoyalBackup,
   royalBackup,
@@ -68,6 +72,44 @@ const fresh = (seed = 'console-seed'): RunSave =>
     rulerName: 'Mo',
     stamp: '2026-11-05T00:00:00Z',
   })
+
+{
+  const pad = (buttons: number[], index = 0): Gamepad =>
+    ({
+      index,
+      buttons: Array.from({ length: 16 }, (_, i) => ({
+        pressed: buttons.includes(i),
+      })),
+      axes: [0, 0],
+    }) as Gamepad
+
+  const memory = newRoyalPadMemory()
+  assert.deepEqual(readRoyalPad(pad([0, 2]), memory, 0, false), [])
+  assert.deepEqual(readRoyalPad(pad([0, 2]), memory, 16, true), [])
+  assert.deepEqual(readRoyalPad(pad([]), memory, 32, true), [])
+  assert.deepEqual(readRoyalPad(pad([0, 2]), memory, 48, true), [
+    'confirm',
+    'fishopedia',
+  ])
+  assert.deepEqual(readRoyalPad(pad([0, 2]), memory, 64, true), [])
+  assert.deepEqual(readRoyalPad(null, memory, 80, true), [])
+  assert.deepEqual(readRoyalPad(pad([0, 2]), memory, 96, true), [
+    'confirm',
+    'fishopedia',
+  ])
+  assert.deepEqual(readRoyalPad(pad([0, 2], 1), memory, 112, true), [
+    'confirm',
+    'fishopedia',
+  ])
+  assert.deepEqual(readRoyalPad(pad([0, 2], 1), memory, 128, true), [])
+  assert.deepEqual(readRoyalPad(pad([], 1), memory, 144, false), [])
+  assert.deepEqual(readRoyalPad(pad([0], 1), memory, 160, false), [])
+  assert.deepEqual(readRoyalPad(pad([0], 1), memory, 176, true), [])
+  assert.deepEqual(readRoyalPad(pad([], 1), memory, 192, true), [])
+  assert.deepEqual(readRoyalPad(pad([0], 1), memory, 208, true), [
+    'confirm',
+  ])
+}
 
 // --- daily proclamations ----------------------------------------------------
 

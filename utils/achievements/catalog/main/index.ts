@@ -20,6 +20,7 @@ import { RULER_HOOKED_ACHIEVEMENTS } from './ruler-hooked'
 import { SAVE_THE_PLUMBER_ACHIEVEMENTS } from './save-the-plumber'
 import { SHIFTING_DESKS_ACHIEVEMENTS } from './shifting-desks'
 import { SLIME_CITY_ACHIEVEMENTS } from './slime-city'
+import { TAROT_STUDIO_ACHIEVEMENTS } from './tarot-studio'
 import { WEIRD_HUMBOLDT_ACHIEVEMENTS } from './weird-humboldt'
 import { ZUZU_GAMEBOOK_ACHIEVEMENTS } from './zuzu-gamebook'
 import { ZUZU_SHIFTING_LANDS_ACHIEVEMENTS } from './zuzu-shifting-lands'
@@ -38,6 +39,7 @@ export const MAIN_GAME_ACHIEVEMENT_DEFS: GameAchievementDef[] = [
   ...RULER_HOOKED_ACHIEVEMENTS,
   ...CTHULHUQUARIUM_ACHIEVEMENTS,
   ...COMET_CITY_ACADEMY_ACHIEVEMENTS,
+  ...TAROT_STUDIO_ACHIEVEMENTS,
   ...GAME_OF_CAPTAINS_ACHIEVEMENTS,
   ...EVERY_VILLAIN_TACTICS_ACHIEVEMENTS,
   ...MONSTRESS_CONVENTION_ACHIEVEMENTS,

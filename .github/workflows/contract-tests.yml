@@ -148,6 +148,12 @@ jobs:
       - name: Tarot Studio catalog and canonical Kind Oracle id contract
         run: npm run test:tarot-studio
 
+      - name: Tarot reader, astrology and design prompt contract
+        run: npm run test:tarot-reader
+
+      - name: Shared collectibles, daily rewards and group chat contract
+        run: npm run test:collectibles
+
       - name: Art-request YAML indentation contract
         run: npm run test:art-request-yaml
 

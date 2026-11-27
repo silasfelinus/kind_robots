@@ -3844,48 +3844,112 @@ model SlimeCityMatch {
 /// Private multi-deck tarot production. All reads and writes are ADMIN-gated;
 /// printable products are not published merely because a card has artwork.
 model TarotDeck {
-  id                Int         @id @default(autoincrement())
-  slug              String      @unique @db.VarChar(120)
-  title             String      @db.VarChar(200)
-  description       String      @db.Text
-  styleBible        String      @db.LongText
-  defaultEngine     String      @default("krea2") @db.VarChar(40)
-  defaultCheckpoint String?     @db.VarChar(255)
-  defaultLoras      String      @db.LongText
-  backPrompt        String      @db.LongText
-  printStatus       String      @default("DRAFT") @db.VarChar(24)
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
+  id                Int           @id @default(autoincrement())
+  slug              String        @unique @db.VarChar(120)
+  title             String        @db.VarChar(200)
+  description       String        @db.Text
+  styleBible        String        @db.LongText
+  defaultEngine     String        @default("krea2") @db.VarChar(40)
+  defaultCheckpoint String?       @db.VarChar(255)
+  defaultLoras      String        @db.LongText
+  backPrompt        String        @db.LongText
+  printStatus       String        @default("DRAFT") @db.VarChar(24)
+  /// Shown in the public /play/tarot reader (approved card art only).
+  isPublic          Boolean       @default(false)
+  approvedDesignId  Int?
+  backArtId         Int?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
   Cards             TarotCard[]
+  Designs           TarotDesign[]
+  Art               TarotArt[]
 }
 
 model TarotCard {
-  id         Int       @id @default(autoincrement())
-  deckId     Int
-  key        String    @db.VarChar(80)
-  title      String    @db.VarChar(120)
-  arcana     String    @db.VarChar(8)
-  suit       String?   @db.VarChar(16)
-  rank       String    @db.VarChar(16)
-  ordinal    Int
-  oracleId   String    @db.VarChar(80)
-  prompt     String    @db.LongText
-  checkpoint String?   @db.VarChar(255)
-  loras      String    @db.LongText
-  status     String    @default("DRAFT") @db.VarChar(24)
-  upright    String    @db.Text
-  reversed   String    @db.Text
-  notes      String    @db.LongText
-  artJobId   Int?
-  artImageId Int?
-  imageUrl   String?   @db.VarChar(1024)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  Deck       TarotDeck @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  id            Int        @id @default(autoincrement())
+  deckId        Int
+  key           String     @db.VarChar(80)
+  title         String     @db.VarChar(120)
+  arcana        String     @db.VarChar(8)
+  suit          String?    @db.VarChar(16)
+  rank          String     @db.VarChar(16)
+  ordinal       Int
+  oracleId      String     @db.VarChar(80)
+  prompt        String     @db.LongText
+  checkpoint    String?    @db.VarChar(255)
+  loras         String     @db.LongText
+  status        String     @default("DRAFT") @db.VarChar(24)
+  upright       String     @db.Text
+  reversed      String     @db.Text
+  notes         String     @db.LongText
+  artJobId      Int?
+  artImageId    Int?
+  imageUrl      String?    @db.VarChar(1024)
+  /// The TarotArt variant currently shown as this card's default face.
+  selectedArtId Int?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  Deck          TarotDeck  @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  Art           TarotArt[]
 
   @@unique([deckId, key])
   @@index([deckId, arcana, rank])
   @@index([deckId, status])
+  @@index([artJobId])
+}
+
+/// A candidate visual design for a deck: style, model checkpoint and LoRAs.
+/// Samples are rendered per design; approving one sets the deck's art recipe.
+model TarotDesign {
+  id          Int        @id @default(autoincrement())
+  deckId      Int
+  key         String     @db.VarChar(80)
+  title       String     @db.VarChar(160)
+  stylePrompt String     @db.LongText
+  backPrompt  String     @db.LongText
+  engine      String     @default("krea2") @db.VarChar(40)
+  checkpoint  String?    @db.VarChar(255)
+  loras       String     @db.LongText
+  status      String     @default("EXPLORING") @db.VarChar(24)
+  notes       String     @db.LongText
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  Deck        TarotDeck  @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  Art         TarotArt[]
+
+  @@unique([deckId, key])
+  @@index([deckId, status])
+}
+
+/// One rendered (or pending) art variant for a card face or a deck back.
+/// ArtJob provenance is reconciled by /api/tarot/art/sync via the request key
+/// `tarot-art:<id>`, so a lost client response never orphans a render.
+model TarotArt {
+  id         Int          @id @default(autoincrement())
+  deckId     Int
+  designId   Int?
+  cardId     Int?
+  side       String       @default("FACE") @db.VarChar(8)
+  purpose    String       @default("SAMPLE") @db.VarChar(12)
+  prompt     String       @db.LongText
+  engine     String       @default("krea2") @db.VarChar(40)
+  checkpoint String?      @db.VarChar(255)
+  loras      String       @db.LongText
+  width      Int          @default(832)
+  height     Int          @default(1248)
+  status     String       @default("PENDING") @db.VarChar(16)
+  error      String?      @db.Text
+  artJobId   Int?
+  artImageId Int?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  Deck       TarotDeck    @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  Design     TarotDesign? @relation(fields: [designId], references: [id], onDelete: SetNull)
+  Card       TarotCard?   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([deckId, status])
+  @@index([cardId])
+  @@index([designId])
   @@index([artJobId])
 }
 

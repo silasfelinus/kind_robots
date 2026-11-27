@@ -25,6 +25,7 @@ export type TarotDeckSeed = {
   defaultLoras: string
   backPrompt: string
   subject: string
+  isPublic: boolean
 }
 
 const MAJORS = [
@@ -253,6 +254,9 @@ const ORACLE_RANKS: Record<string, string> = {
   king: 'elder',
 }
 
+const titleCase = (value: string) =>
+  `${value[0]?.toUpperCase() ?? ''}${value.slice(1)}`
+
 export const TAROT_CATALOG: TarotCatalogCard[] = [
   ...MAJORS.map(([title, oracleId, oracleTitle, scene], ordinal) => ({
     key: `major-${String(ordinal).padStart(2, '0')}`,
@@ -274,7 +278,7 @@ export const TAROT_CATALOG: TarotCatalogCard[] = [
       rank,
       ordinal: 22 + suitIndex * 14 + rankIndex,
       oracleId: `${ORACLE_RANKS[rank] ?? rank}-of-${suit.oracle}`,
-      oracleTitle: `${ORACLE_RANKS[rank] ?? label} of ${suit.oracle}`,
+      oracleTitle: `${titleCase(ORACLE_RANKS[rank] ?? label)} of ${titleCase(suit.oracle)}`,
       scene: `At ${suit.place}, ${setting}, featuring a ${suit.motif}`,
     })),
   ),
@@ -295,6 +299,7 @@ export const TAROT_DECK_SEEDS: TarotDeckSeed[] = [
       'Intricate symmetrical braids of rainbow-colored hair ribbons, iridescent combs, stars and curling leaves surrounding a central luminous jewel, deep plum background, elegant ornamental symmetry, vertical composition',
     subject:
       'An expressive fantasy character with an imaginative hairstyle and beautifully dyed rainbow colors',
+    isPublic: false,
   },
   {
     slug: 'kind-robots',
@@ -309,6 +314,7 @@ export const TAROT_DECK_SEEDS: TarotDeckSeed[] = [
     backPrompt:
       'A perfectly symmetric botanical gearwork mandala with small fireflies, teal enamel and gold brass details, dark midnight-blue background, vertical composition',
     subject: 'A unique kindhearted robot with visible articulated mechanisms',
+    isPublic: true,
   },
   {
     slug: 'zuzu',
@@ -324,8 +330,161 @@ export const TAROT_DECK_SEEDS: TarotDeckSeed[] = [
       'Symmetrical weathered copper filigree with twin coyote silhouettes, desert wildflowers, small bones and an amber sun, deep indigo background, vertical composition',
     subject:
       'An expressive anthropomorphic frontier animal wearing practical weathered clothing',
+    isPublic: false,
   },
 ]
+
+function seedScenePrompt(deck: TarotDeckSeed, card: TarotCatalogCard) {
+  return `${deck.subject}. ${card.scene}. ${deck.styleBible.split('.')[0]}.`
+}
+
+/** The prompt the 2026-11-20 seed wrote, so untouched rows can be upgraded. */
+export function legacySeedPrompt(deckSlug: string, cardKey: string) {
+  const deck = TAROT_DECK_SEEDS.find((entry) => entry.slug === deckSlug)
+  const card = TAROT_CATALOG.find((entry) => entry.key === cardKey)
+  if (!deck || !card) return null
+  return `${deck.subject}. ${card.scene}. ${deck.styleBible.split('.')[0]}. Portrait 2:3 composition, strong readable silhouette and cinematic lighting.`
+}
+
+/** The card's scene recipe: its edited prompt, or the current seed if untouched. */
+export function cardScenePrompt(
+  deckSlug: string,
+  card: { key: string; prompt: string },
+) {
+  const prompt = card.prompt.trim()
+  const deck = TAROT_DECK_SEEDS.find((entry) => entry.slug === deckSlug)
+  const catalog = TAROT_CATALOG.find((entry) => entry.key === card.key)
+  if (
+    deck &&
+    catalog &&
+    (!prompt || prompt === legacySeedPrompt(deckSlug, card.key))
+  ) {
+    return seedScenePrompt(deck, catalog)
+  }
+  return prompt
+}
+
+export type TarotDesignPreset = {
+  key: string
+  title: string
+  stylePrompt: string
+  backMedium: string
+}
+
+export const TAROT_DESIGN_PRESETS: TarotDesignPreset[] = [
+  {
+    key: 'gilded-nouveau',
+    title: 'Gilded Art Nouveau',
+    stylePrompt:
+      'Art nouveau illustration with flowing gold linework, ornamental vines and halos, rich jewel-toned inks on warm cream paper, soft gilded highlights.',
+    backMedium:
+      'rendered as gold leaf art nouveau metalwork with flowing vine borders',
+  },
+  {
+    key: 'storybook-watercolor',
+    title: 'Storybook Watercolor',
+    stylePrompt:
+      'Loose watercolor and ink storybook painting on textured cotton paper, gentle color washes, delicate pen linework, airy morning light.',
+    backMedium:
+      'painted in soft watercolor washes and fine ink lines on textured cotton paper',
+  },
+  {
+    key: 'neon-cosmos',
+    title: 'Neon Cosmos',
+    stylePrompt:
+      'Luminous neon illustration beneath a deep violet starfield, glowing magenta and cyan rim light, iridescent haze, crisp airbrushed shading.',
+    backMedium:
+      'glowing in neon magenta and cyan light lines over a deep violet starfield',
+  },
+  {
+    key: 'woodcut-classic',
+    title: 'Classic Woodcut',
+    stylePrompt:
+      'Hand-carved woodcut print with bold black linework, flat hand-tinted color in ochre, crimson and indigo, visible paper grain, antique engraving style.',
+    backMedium:
+      'carved as a bold black woodcut print hand-tinted in ochre, crimson and indigo',
+  },
+  {
+    key: 'stained-glass',
+    title: 'Stained Glass',
+    stylePrompt:
+      'Radiant stained glass window with thick leaded outlines, saturated translucent color panes, sunlight glowing through ruby, cobalt and amber glass.',
+    backMedium:
+      'built from leaded stained glass panes in ruby, cobalt and amber with sunlight glowing through',
+  },
+]
+
+export const TAROT_DESIGN_ENGINES = [
+  'krea2',
+  'comfy',
+  'flux',
+  'flux2',
+  'zimage',
+] as const
+
+/** One major, one more major, one pip and one court: a fair style preview. */
+export const TAROT_SAMPLE_CARD_KEYS = [
+  'major-00',
+  'major-17',
+  'ace-of-cups',
+  'queen-of-swords',
+] as const
+
+export const TAROT_ART_WIDTH = 832
+export const TAROT_ART_HEIGHT = 1248
+
+export function designBackPrompt(deckBackPrompt: string, backMedium: string) {
+  const motif =
+    deckBackPrompt.trim().replace(/[.\s]+$/, '') ||
+    'A perfectly symmetrical ornamental emblem with stars, leaves and a central jewel'
+  return `${motif}, ${backMedium}.`
+}
+
+export function seedTarotDesigns(deckSlug: string) {
+  const deck = TAROT_DECK_SEEDS.find((entry) => entry.slug === deckSlug)
+  return TAROT_DESIGN_PRESETS.map((preset) => ({
+    key: preset.key,
+    title: preset.title,
+    stylePrompt: preset.stylePrompt,
+    backPrompt: designBackPrompt(deck?.backPrompt ?? '', preset.backMedium),
+    engine: deck?.defaultEngine ?? 'krea2',
+    checkpoint: null,
+    loras: '',
+    status: 'EXPLORING',
+    notes: '',
+  }))
+}
+
+export function composeFacePrompt(scene: string, stylePrompt: string) {
+  const base = scene.trim().replace(/\s+$/, '')
+  const style = stylePrompt.trim()
+  return [
+    base,
+    style,
+    'Tall vertical framing with the figure centered and generous margins.',
+  ]
+    .filter(Boolean)
+    .join(' ')
+}
+
+export function tarotArtRequestKey(artId: number) {
+  return `tarot-art:${artId}`
+}
+
+/** "name" or "name:0.8" per line, the format the editors use. */
+export function parseLoraLines(value: string) {
+  return value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const match = /^(.*?)(?::\s*(-?\d+(?:\.\d+)?))?$/.exec(line)
+      const name = (match?.[1] ?? line).trim()
+      const strength = match?.[2] ? Number(match[2]) : 1
+      return { name, strength }
+    })
+    .filter((entry) => entry.name)
+}
 
 export function seedTarotCards(deckSlug: string) {
   const deck = TAROT_DECK_SEEDS.find((entry) => entry.slug === deckSlug)
@@ -337,9 +496,7 @@ export function seedTarotCards(deckSlug: string) {
     rank: card.rank,
     ordinal: card.ordinal,
     oracleId: card.oracleId,
-    prompt: deck
-      ? `${deck.subject}. ${card.scene}. ${deck.styleBible.split('.')[0]}. Portrait 2:3 composition, strong readable silhouette and cinematic lighting.`
-      : '',
+    prompt: deck ? seedScenePrompt(deck, card) : '',
     checkpoint: deck?.defaultCheckpoint ?? null,
     loras: '',
     status: 'DRAFT',

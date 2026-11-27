@@ -1,0 +1,612 @@
+// /stores/tarotReaderStore.ts
+//
+// Public tarot reader (/play/tarot): automatic daily readings from the Kind
+// Oracle engine, birth profiles with natal charts and daily transits. All
+// reading and chart work is pure client-side code; the only API call is the
+// public deck list (approved art). Birth profiles stay in this browser.
+import { computed, ref } from 'vue'
+import { defineStore } from 'pinia'
+import { performFetch } from '~/stores/utils'
+import { useAchievementStore } from '~/stores/achievementStore'
+import { useCollectibleStore, type OpenedCard } from '~/stores/collectibleStore'
+import { useTarotSoundStore } from '~/stores/tarotSoundStore'
+import { buildReading } from '~/utils/oracle/reading'
+import { newSeed } from '~/utils/oracle/rng'
+import { ORACLE_CARD_BY_ID, ORACLE_CONTENT } from '~/utils/oracle/content'
+import type {
+  OracleCard,
+  OracleReading,
+  OracleSpreadId,
+} from '~/utils/oracle/types'
+import { TAROT_CATALOG } from '~/utils/tarotStudio'
+import {
+  computeNatalChart,
+  computeTransits,
+  moonIngresses,
+  type NatalChart,
+} from '~/utils/astrology/chart'
+import {
+  birthMomentToUtc,
+  isValidTimeZone,
+  localDateKey,
+} from '~/utils/astrology/time'
+import { signAt } from '~/utils/astrology/zodiac'
+
+export type TarotReaderCard = {
+  key: string
+  title: string
+  oracleId: string
+  imageUrl: string | null
+}
+
+export type TarotReaderDeck = {
+  slug: string
+  title: string
+  description: string
+  backUrl: string | null
+  cards: TarotReaderCard[]
+}
+
+export type BirthProfile = {
+  id: string
+  name: string
+  date: string
+  time: string | null
+  cityId: string | null
+  latitude: number
+  longitude: number
+  timeZone: string
+}
+
+export type AutoReadingId = 'daily' | 'path' | 'heart'
+
+export type AutoReading = {
+  id: AutoReadingId
+  title: string
+  subtitle: string
+  spread: OracleSpreadId
+  reading: OracleReading
+}
+
+const PROFILES_KEY = 'kr.tarot.profiles'
+const SETTINGS_KEY = 'kr.tarot.settings'
+const PROGRESS_KEY = 'kr.tarot.progress'
+export const TAROT_COLLECTION = 'tarot'
+
+export type TarotSettings = {
+  musicOn: boolean
+  musicVolume: number
+  sfxOn: boolean
+  sfxVolume: number
+  textSize: 'sm' | 'md' | 'lg'
+  revealSpeed: 'slow' | 'normal' | 'fast'
+  reducedMotion: boolean
+  highContrast: boolean
+}
+
+export const DEFAULT_TAROT_SETTINGS: TarotSettings = {
+  musicOn: false,
+  musicVolume: 0.5,
+  sfxOn: true,
+  sfxVolume: 0.7,
+  textSize: 'md',
+  revealSpeed: 'normal',
+  reducedMotion: false,
+  highContrast: false,
+}
+
+export const REVEAL_DELAY_MS: Record<TarotSettings['revealSpeed'], number> = {
+  slow: 700,
+  normal: 380,
+  fast: 150,
+}
+
+function sanitizeSettings(value: unknown): TarotSettings {
+  const raw = (value ?? {}) as Partial<TarotSettings>
+  const volume = (v: unknown, fallback: number) =>
+    typeof v === 'number' && Number.isFinite(v)
+      ? Math.max(0, Math.min(1, v))
+      : fallback
+  const pick = <T extends string>(v: unknown, options: T[], fallback: T) =>
+    options.includes(v as T) ? (v as T) : fallback
+  const d = DEFAULT_TAROT_SETTINGS
+  return {
+    musicOn: typeof raw.musicOn === 'boolean' ? raw.musicOn : d.musicOn,
+    musicVolume: volume(raw.musicVolume, d.musicVolume),
+    sfxOn: typeof raw.sfxOn === 'boolean' ? raw.sfxOn : d.sfxOn,
+    sfxVolume: volume(raw.sfxVolume, d.sfxVolume),
+    textSize: pick(raw.textSize, ['sm', 'md', 'lg'], d.textSize),
+    revealSpeed: pick(
+      raw.revealSpeed,
+      ['slow', 'normal', 'fast'],
+      d.revealSpeed,
+    ),
+    reducedMotion:
+      typeof raw.reducedMotion === 'boolean'
+        ? raw.reducedMotion
+        : d.reducedMotion,
+    highContrast:
+      typeof raw.highContrast === 'boolean' ? raw.highContrast : d.highContrast,
+  }
+}
+const ACTIVE_PROFILE_KEY = 'kr.tarot.activeProfile'
+const DECK_KEY = 'kr.tarot.deck'
+
+const AUTO_READINGS: Array<Omit<AutoReading, 'reading'>> = [
+  {
+    id: 'daily',
+    title: "Today's Companion",
+    subtitle: 'One card for the day',
+    spread: 'one',
+  },
+  {
+    id: 'path',
+    title: 'The Path',
+    subtitle: 'Where you have been, are, and are going',
+    spread: 'three',
+  },
+  {
+    id: 'heart',
+    title: 'The Heart of It',
+    subtitle: 'A fuller five-card look',
+    spread: 'five',
+  },
+]
+
+export const FALLBACK_TAROT_DECK: TarotReaderDeck = {
+  slug: 'kind-robots',
+  title: 'Kind Robots Tarot',
+  description: 'The Kind Oracle: 78 cards of kindness and ingenuity.',
+  backUrl: null,
+  cards: TAROT_CATALOG.map((card) => ({
+    key: card.key,
+    title: card.oracleTitle,
+    oracleId: card.oracleId,
+    imageUrl: null,
+  })),
+}
+
+function readStorage<T>(key: string, fallback: T): T {
+  try {
+    if (typeof window === 'undefined') return fallback
+    const raw = window.localStorage.getItem(key)
+    return raw ? (JSON.parse(raw) as T) : fallback
+  } catch {
+    return fallback
+  }
+}
+
+function writeStorage(key: string, value: unknown) {
+  try {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // Convenience storage only; the reader works without it.
+  }
+}
+
+function isBirthProfile(value: unknown): value is BirthProfile {
+  const entry = value as BirthProfile
+  return (
+    typeof entry?.id === 'string' &&
+    typeof entry.name === 'string' &&
+    typeof entry.date === 'string' &&
+    typeof entry.latitude === 'number' &&
+    typeof entry.longitude === 'number' &&
+    typeof entry.timeZone === 'string'
+  )
+}
+
+export const useTarotReaderStore = defineStore('tarotReader', () => {
+  const decks = ref<TarotReaderDeck[]>([FALLBACK_TAROT_DECK])
+  const activeDeckSlug = ref(FALLBACK_TAROT_DECK.slug)
+  const profiles = ref<BirthProfile[]>([])
+  const activeProfileId = ref<string | null>(null)
+  const ready = ref(false)
+  const loadingDecks = ref(false)
+  const now = ref<Date>(new Date(0))
+  const seeds = ref<Record<AutoReadingId, string>>({
+    daily: '',
+    path: '',
+    heart: '',
+  })
+  const activeReadingId = ref<AutoReadingId>('daily')
+  const error = ref('')
+  const settings = ref<TarotSettings>({ ...DEFAULT_TAROT_SETTINGS })
+  const majorsStudied = ref<string[]>([])
+  const achievementStore = useAchievementStore()
+  const collectibleStore = useCollectibleStore()
+  const sound = useTarotSoundStore()
+
+  const collection = computed(() => collectibleStore.set(TAROT_COLLECTION))
+  const selectedBackUrl = computed(() => {
+    const key = collection.value.player?.selectedBack
+    return key ? (collection.value.catalog?.art[key] ?? null) : null
+  })
+  const tableBackUrl = computed(
+    () => selectedBackUrl.value ?? activeDeck.value.backUrl,
+  )
+  const revealDelay = computed(() =>
+    settings.value.reducedMotion
+      ? 0
+      : REVEAL_DELAY_MS[settings.value.revealSpeed],
+  )
+
+  const activeDeck = computed(
+    () =>
+      decks.value.find((deck) => deck.slug === activeDeckSlug.value) ??
+      decks.value[0] ??
+      FALLBACK_TAROT_DECK,
+  )
+
+  const deckCards = computed<OracleCard[]>(() =>
+    activeDeck.value.cards
+      .map((card) => {
+        const base = ORACLE_CARD_BY_ID[card.oracleId]
+        return base ? { ...base, title: card.title } : null
+      })
+      .filter((card): card is OracleCard => Boolean(card)),
+  )
+
+  const cardByOracleId = computed(() =>
+    Object.fromEntries(
+      activeDeck.value.cards.map((card) => [card.oracleId, card]),
+    ),
+  )
+
+  const cardByKey = computed(() =>
+    Object.fromEntries(activeDeck.value.cards.map((card) => [card.key, card])),
+  )
+
+  const activeProfile = computed(
+    () =>
+      profiles.value.find((profile) => profile.id === activeProfileId.value) ??
+      null,
+  )
+
+  const todayKey = computed(() => (ready.value ? localDateKey(now.value) : ''))
+
+  function dailySeed(id: AutoReadingId) {
+    return `${todayKey.value}:${activeProfile.value?.id ?? 'guest'}:${id}`
+  }
+
+  const readings = computed<AutoReading[]>(() => {
+    if (!ready.value || deckCards.value.length < 5) return []
+    return AUTO_READINGS.map((entry) => ({
+      ...entry,
+      reading: buildReading(
+        deckCards.value,
+        ORACLE_CONTENT,
+        entry.spread,
+        seeds.value[entry.id] || dailySeed(entry.id),
+      ),
+    }))
+  })
+
+  const activeReading = computed(
+    () =>
+      readings.value.find((entry) => entry.id === activeReadingId.value) ??
+      readings.value[0] ??
+      null,
+  )
+
+  const natalChart = computed<NatalChart | null>(() => {
+    const profile = activeProfile.value
+    if (!ready.value || !profile) return null
+    const instant = birthMomentToUtc({
+      date: profile.date,
+      time: profile.time,
+      timeZone: profile.timeZone,
+    })
+    if (!instant) return null
+    return computeNatalChart(
+      instant,
+      { latitude: profile.latitude, longitude: profile.longitude },
+      Boolean(profile.time),
+    )
+  })
+
+  const transits = computed(() => {
+    if (!ready.value || !natalChart.value) return null
+    return computeTransits(natalChart.value, now.value)
+  })
+
+  const moonWeek = computed(() =>
+    ready.value ? moonIngresses(now.value, 7) : [],
+  )
+
+  const moonCardKey = computed(() => {
+    const moon = transits.value?.sky.find((point) => point.id === 'moon')
+    return moon ? signAt(moon.longitude).tarotKey : null
+  })
+
+  function persistProfiles() {
+    writeStorage(PROFILES_KEY, profiles.value)
+    writeStorage(ACTIVE_PROFILE_KEY, activeProfileId.value)
+  }
+
+  function init() {
+    if (ready.value) return
+    now.value = new Date()
+    const stored = readStorage<unknown[]>(PROFILES_KEY, [])
+    profiles.value = Array.isArray(stored) ? stored.filter(isBirthProfile) : []
+    const storedActive = readStorage<string | null>(ACTIVE_PROFILE_KEY, null)
+    activeProfileId.value = profiles.value.some(
+      (profile) => profile.id === storedActive,
+    )
+      ? storedActive
+      : (profiles.value[0]?.id ?? null)
+    const storedDeck = readStorage<string | null>(DECK_KEY, null)
+    if (storedDeck) activeDeckSlug.value = storedDeck
+    settings.value = sanitizeSettings(readStorage(SETTINGS_KEY, {}))
+    const progress = readStorage<{ majorsStudied?: unknown }>(PROGRESS_KEY, {})
+    majorsStudied.value = Array.isArray(progress.majorsStudied)
+      ? progress.majorsStudied.filter(
+          (key): key is string => typeof key === 'string',
+        )
+      : []
+    sound.apply(settings.value)
+    ready.value = true
+  }
+
+  function updateSettings(patch: Partial<TarotSettings>) {
+    settings.value = sanitizeSettings({ ...settings.value, ...patch })
+    writeStorage(SETTINGS_KEY, settings.value)
+    sound.unlock()
+    sound.apply(settings.value)
+  }
+
+  function resetProgress() {
+    profiles.value = []
+    activeProfileId.value = null
+    majorsStudied.value = []
+    settings.value = { ...DEFAULT_TAROT_SETTINGS }
+    seeds.value = { daily: '', path: '', heart: '' }
+    try {
+      if (typeof window !== 'undefined') {
+        for (const key of [
+          PROFILES_KEY,
+          ACTIVE_PROFILE_KEY,
+          DECK_KEY,
+          SETTINGS_KEY,
+          PROGRESS_KEY,
+        ]) {
+          window.localStorage.removeItem(key)
+        }
+      }
+    } catch {
+      // Storage may be unavailable; in-memory state is already reset.
+    }
+    sound.apply(settings.value)
+  }
+
+  function award(code: string) {
+    void achievementStore.rewardAchievementByCode(code)
+  }
+
+  function task(key: string) {
+    void collectibleStore.completeTask(TAROT_COLLECTION, key)
+  }
+
+  function playSfx(name: Parameters<typeof sound.play>[0]) {
+    sound.unlock()
+    sound.play(name)
+  }
+
+  function noteReadingViewed(id: AutoReadingId) {
+    playSfx('flip')
+    if (id !== 'daily') award('tarot-studio-first-spread')
+    task('reading')
+  }
+
+  function noteChartViewed() {
+    task('chart')
+  }
+
+  function noteCardStudied(key: string) {
+    if (!/^major-\d+$/.test(key) || majorsStudied.value.includes(key)) return
+    majorsStudied.value = [...majorsStudied.value, key]
+    writeStorage(PROGRESS_KEY, { majorsStudied: majorsStudied.value })
+    if (majorsStudied.value.length >= 22) award('tarot-studio-deck-scholar')
+  }
+
+  function noteClaimed(streak: number) {
+    playSfx('claim')
+    award('tarot-studio-daily-ritual')
+    if (streak >= 7) award('tarot-studio-week-of-moons')
+  }
+
+  function notePackOpened(cards: OpenedCard[]) {
+    playSfx('pack')
+    award('tarot-studio-first-pack')
+    if (cards.some((card) => card.rarity === 'legendary')) {
+      award('tarot-studio-legend-pulled')
+    }
+    const owned = Object.keys(collection.value.player?.owned ?? {}).length
+    if (owned >= 50) award('tarot-studio-halfway-there')
+    if (owned >= 100) award('tarot-studio-grand-orrery')
+  }
+
+  function noteBacksUnlocked() {
+    playSfx('unlock')
+  }
+
+  function noteChatSent() {
+    playSfx('send')
+    award('tarot-studio-kind-words')
+    task('chat')
+  }
+
+  function refreshClock() {
+    now.value = new Date()
+  }
+
+  async function loadDecks(): Promise<boolean> {
+    if (loadingDecks.value) return false
+    loadingDecks.value = true
+    try {
+      const response =
+        await performFetch<TarotReaderDeck[]>('/api/tarot/reader')
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Could not load decks.')
+      }
+      const usable = response.data.filter((deck) => deck.cards.length >= 22)
+      if (usable.length) decks.value = usable
+      if (!decks.value.some((deck) => deck.slug === activeDeckSlug.value)) {
+        activeDeckSlug.value = decks.value[0]?.slug ?? FALLBACK_TAROT_DECK.slug
+      }
+      return true
+    } catch (caught) {
+      error.value =
+        caught instanceof Error ? caught.message : 'Could not load decks.'
+      return false
+    } finally {
+      loadingDecks.value = false
+    }
+  }
+
+  function selectDeck(slug: string) {
+    if (!decks.value.some((deck) => deck.slug === slug)) return
+    activeDeckSlug.value = slug
+    writeStorage(DECK_KEY, slug)
+  }
+
+  function selectReading(id: AutoReadingId) {
+    activeReadingId.value = id
+  }
+
+  function redraw(id: AutoReadingId) {
+    seeds.value = { ...seeds.value, [id]: newSeed() }
+    playSfx('shuffle')
+    award('tarot-studio-fresh-shuffle')
+  }
+
+  function redrawAll() {
+    seeds.value = { daily: newSeed(), path: newSeed(), heart: newSeed() }
+    playSfx('shuffle')
+    award('tarot-studio-fresh-shuffle')
+  }
+
+  function resetToDaily() {
+    seeds.value = { daily: '', path: '', heart: '' }
+  }
+
+  function saveProfile(
+    input: Omit<BirthProfile, 'id'> & { id?: string },
+  ): string | null {
+    error.value = ''
+    if (!input.name.trim()) {
+      error.value = 'Add a name for this chart.'
+      return null
+    }
+    if (!isValidTimeZone(input.timeZone)) {
+      error.value = 'Choose a birthplace or a valid time zone.'
+      return null
+    }
+    if (
+      !Number.isFinite(input.latitude) ||
+      Math.abs(input.latitude) > 90 ||
+      !Number.isFinite(input.longitude) ||
+      Math.abs(input.longitude) > 180
+    ) {
+      error.value = 'Latitude and longitude are out of range.'
+      return null
+    }
+    const instant = birthMomentToUtc({
+      date: input.date,
+      time: input.time,
+      timeZone: input.timeZone,
+    })
+    if (!instant) {
+      error.value = 'Check the birth date and time.'
+      return null
+    }
+    const id = input.id ?? `p-${newSeed()}`
+    const profile: BirthProfile = {
+      id,
+      name: input.name.trim().slice(0, 60),
+      date: input.date,
+      time: input.time || null,
+      cityId: input.cityId,
+      latitude: input.latitude,
+      longitude: input.longitude,
+      timeZone: input.timeZone,
+    }
+    const index = profiles.value.findIndex((entry) => entry.id === id)
+    if (index === -1) profiles.value.push(profile)
+    else profiles.value[index] = profile
+    activeProfileId.value = id
+    resetToDaily()
+    persistProfiles()
+    award('tarot-studio-star-chart')
+    if (profiles.value.length >= 3) award('tarot-studio-family-sky')
+    return id
+  }
+
+  function selectProfile(id: string | null) {
+    activeProfileId.value = profiles.value.some((entry) => entry.id === id)
+      ? id
+      : null
+    resetToDaily()
+    persistProfiles()
+  }
+
+  function removeProfile(id: string) {
+    profiles.value = profiles.value.filter((entry) => entry.id !== id)
+    if (activeProfileId.value === id) {
+      activeProfileId.value = profiles.value[0]?.id ?? null
+    }
+    persistProfiles()
+  }
+
+  return {
+    decks,
+    activeDeckSlug,
+    activeDeck,
+    deckCards,
+    cardByOracleId,
+    cardByKey,
+    profiles,
+    activeProfileId,
+    activeProfile,
+    ready,
+    loadingDecks,
+    now,
+    seeds,
+    activeReadingId,
+    readings,
+    activeReading,
+    natalChart,
+    transits,
+    moonWeek,
+    moonCardKey,
+    error,
+    init,
+    refreshClock,
+    loadDecks,
+    selectDeck,
+    selectReading,
+    redraw,
+    redrawAll,
+    resetToDaily,
+    saveProfile,
+    selectProfile,
+    removeProfile,
+    settings,
+    majorsStudied,
+    collection,
+    selectedBackUrl,
+    tableBackUrl,
+    revealDelay,
+    updateSettings,
+    resetProgress,
+    playSfx,
+    noteReadingViewed,
+    noteChartViewed,
+    noteCardStudied,
+    noteClaimed,
+    notePackOpened,
+    noteBacksUnlocked,
+    noteChatSent,
+  }
+})

@@ -3,7 +3,8 @@ import prisma from '~/server/utils/prisma'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
 import { errorHandler } from '~/server/utils/error'
 import { slugify } from '~/utils/slugify'
-import { seedTarotCards } from '~/utils/tarotStudio'
+import { seedTarotCards, seedTarotDesigns } from '~/utils/tarotStudio'
+import { TAROT_DECK_INCLUDE } from '~/server/utils/tarotStudio'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -32,8 +33,9 @@ export default defineEventHandler(async (event) => {
         defaultLoras: '',
         backPrompt: '',
         Cards: { create: seedTarotCards(slug) },
+        Designs: { create: seedTarotDesigns(slug) },
       },
-      include: { Cards: { orderBy: { ordinal: 'asc' } } },
+      include: TAROT_DECK_INCLUDE,
     })
     event.node.res.statusCode = 201
     return {

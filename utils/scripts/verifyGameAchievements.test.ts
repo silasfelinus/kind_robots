@@ -37,6 +37,7 @@ const STANDARD_MAIN_GAMES = [
   'game-of-captains',
   'every-villain-tactics',
   'monstress-convention',
+  'tarot-studio',
 ]
 const MAIN_MIN = 12
 const MAIN_MAX = 30

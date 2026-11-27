@@ -215,6 +215,38 @@ export type ComicIssue = Prisma.ComicIssueModel
  */
 export type ComicCritique = Prisma.ComicCritiqueModel
 /**
+ * Model ChatRoom
+ * A live group chat room for people on a front-end page. Rooms are
+ * registered in code (utils/community/rooms.ts) and created on first use.
+ */
+export type ChatRoom = Prisma.ChatRoomModel
+/**
+ * Model ChatRoomMessage
+ * 
+ */
+export type ChatRoomMessage = Prisma.ChatRoomMessageModel
+/**
+ * Model CollectibleWallet
+ * Earn-only collection currency and daily-reward state for one collectible
+ * set (utils/collectibles/sets/*). There is no purchase path of any kind.
+ */
+export type CollectibleWallet = Prisma.CollectibleWalletModel
+/**
+ * Model CollectibleOwnership
+ * 
+ */
+export type CollectibleOwnership = Prisma.CollectibleOwnershipModel
+/**
+ * Model CollectiblePull
+ * Append-only history of every card or back a player received.
+ */
+export type CollectiblePull = Prisma.CollectiblePullModel
+/**
+ * Model CollectibleArt
+ * Rendered art for a catalog item, linked from its Conductor art-ledger job.
+ */
+export type CollectibleArt = Prisma.CollectibleArtModel
+/**
  * Model FacetAlias
  * Alternate names that resolve to one canonical Facet.
  * 
@@ -1225,6 +1257,19 @@ export type TarotDeck = Prisma.TarotDeckModel
  * 
  */
 export type TarotCard = Prisma.TarotCardModel
+/**
+ * Model TarotDesign
+ * A candidate visual design for a deck: style, model checkpoint and LoRAs.
+ * Samples are rendered per design; approving one sets the deck's art recipe.
+ */
+export type TarotDesign = Prisma.TarotDesignModel
+/**
+ * Model TarotArt
+ * One rendered (or pending) art variant for a card face or a deck back.
+ * ArtJob provenance is reconciled by /api/tarot/art/sync via the request key
+ * `tarot-art:<id>`, so a lost client response never orphans a render.
+ */
+export type TarotArt = Prisma.TarotArtModel
 /**
  * Model ArcadeCabinetSave
  * * Per-account Arcade career record. One revisioned private save for each cabinet.

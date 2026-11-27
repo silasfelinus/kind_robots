@@ -34,6 +34,22 @@ export async function deleteUserWithOwnedData(
         }),
       )
       track('reactions', await tx.reaction.deleteMany({ where: { userId } }))
+      track(
+        'chatRoomMessages',
+        await tx.chatRoomMessage.deleteMany({ where: { userId } }),
+      )
+      track(
+        'collectibleWallets',
+        await tx.collectibleWallet.deleteMany({ where: { userId } }),
+      )
+      track(
+        'collectibleOwnership',
+        await tx.collectibleOwnership.deleteMany({ where: { userId } }),
+      )
+      track(
+        'collectiblePulls',
+        await tx.collectiblePull.deleteMany({ where: { userId } }),
+      )
 
       const challenges = await tx.challenge.findMany({
         where: { userId },

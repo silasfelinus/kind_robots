@@ -6,6 +6,10 @@ import {
   type StageDef,
 } from '../arcade/games/savePlumberLevels'
 import { HERO_TALL, PlumberRun } from '../arcade/games/savePlumberPreview'
+import {
+  readPlumberFile,
+  validPlumberCloudSave,
+} from '../arcade/games/savePlumberSave'
 import { emptyInput, type ArcadeButton } from '../arcade/types'
 
 const cols = 48
@@ -168,6 +172,65 @@ frame(walledSupply, [], ['x'])
 assert.equal(walledSupply.power, null, 'wall occludes pickup slurp')
 assert.equal(walledSupply.gurgle?.water, false, 'wall occludes water slurp')
 assert.equal(walledSupply.pickups[0]!.taken, false)
+
+const stageIndex = CAMPAIGN.findIndex((stage) => stage.code === '2-1')
+const seedFile = readPlumberFile({
+  v: 3,
+  active: 0,
+  slots: [
+    {
+      heroine: 3,
+      stage: stageIndex,
+      node: '2-1',
+      score: 0,
+      lives: 3,
+      tokens: 0,
+    },
+    { heroine: 4, stage: 0, score: 0, lives: 3, tokens: 0 },
+  ],
+})
+const traveler = new PlumberRun({ ...options, resume: seedFile })
+frame(traveler, [], ['start'])
+frame(traveler, [], ['a'])
+frame(traveler, [], ['a'])
+frame(traveler, [], ['a'])
+assert.equal(traveler.mode, 'play')
+const barrel = traveler.gurgle!
+traveler.hero.x = barrel.x
+traveler.hero.y = barrel.y - HERO_TALL
+traveler.ground = true
+frame(traveler, ['down'], ['x'])
+assert.equal(traveler.gurgle?.state, 'mounted')
+;(traveler as unknown as { stageClear(): void }).stageClear()
+for (let i = 0; i < 240 && traveler.modeTimer; i++) frame(traveler)
+assert.equal(traveler.mode, 'map')
+const travelingFile = readPlumberFile(traveler.save)
+assert.equal(travelingFile.slots[0]?.gurgle, true)
+assert.equal(travelingFile.slots[1]?.gurgle, undefined)
+assert.ok(validPlumberCloudSave(travelingFile))
+const resumed = new PlumberRun({ ...options, resume: travelingFile })
+resumed.loadStage(stageIndex + 1)
+assert.equal(resumed.gurgle?.state, 'mounted')
+assert.equal(resumed.gurgle?.water, false, 'charges do not cross courses')
+const separate = new PlumberRun({
+  ...options,
+  resume: { ...travelingFile, active: 1 },
+})
+separate.loadStage(stageIndex + 1)
+assert.equal(separate.gurgle, null, 'companion is slot-scoped')
+const maker = new PlumberRun(
+  { ...options, resume: travelingFile },
+  { customLevel: pool },
+)
+assert.equal(maker.gurgle?.state, 'parked', 'maker starts independently')
+assert.equal(
+  readPlumberFile({
+    ...travelingFile,
+    slots: [{ ...travelingFile.slots[0], gurgle: 'yes' }],
+  }).slots[0]?.gurgle,
+  undefined,
+  'untrusted companion flag is rejected',
+)
 
 console.log(
   'Save the Plumber Gurgle mount, surface swim, spit and supplies: OK',

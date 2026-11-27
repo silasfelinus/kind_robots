@@ -67,6 +67,7 @@ export type PlumberSlot = {
   name?: string
   power?: PlumberPower
   reserve?: PlumberPower
+  gurgle?: true
 }
 
 /**
@@ -329,6 +330,7 @@ export function readPlumberSlot(
     ...(plumberName(r.name) ? { name: plumberName(r.name) } : {}),
     ...(readPower(r.power) ? { power: readPower(r.power) } : {}),
     ...(readPower(r.reserve) ? { reserve: readPower(r.reserve) } : {}),
+    ...(r.gurgle === true ? { gurgle: true as const } : {}),
   }
 }
 

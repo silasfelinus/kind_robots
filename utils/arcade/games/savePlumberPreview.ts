@@ -572,6 +572,7 @@ export class PlumberRun implements ArcadeGameInstance {
   airCooldown = 0
   tideKick = 0
   tideKickCooldown = 0
+  private travelWithGurgle = false
   gurgle: {
     x: number
     y: number
@@ -790,6 +791,8 @@ export class PlumberRun implements ArcadeGameInstance {
   /** Load a slot's memory into the run (or clear it for a new slot). */
   private loadSlotMemory(slot: PlumberSlot | null) {
     this.heroName = slot?.name
+    this.travelWithGurgle =
+      !this.customLevel && !this.autopilot && slot?.gurgle === true
     this.power =
       this.customLevel || this.autopilot ? null : (slot?.power ?? null)
     this.reserve =
@@ -845,6 +848,7 @@ export class PlumberRun implements ArcadeGameInstance {
       ...(this.heroName ? { name: this.heroName } : {}),
       ...(this.power ? { power: this.power } : {}),
       ...(this.reserve ? { reserve: this.reserve } : {}),
+      ...(this.travelWithGurgle ? { gurgle: true as const } : {}),
       ...extra,
     }
     this.file = {
@@ -1277,6 +1281,7 @@ export class PlumberRun implements ArcadeGameInstance {
       return this.beginDemoStage(last ? 0 : this.stageIndex + 1)
     const node = stageNode(this.stage.code)
     if (node) this.mapNodeId = node.id
+    if (!this.stage.space) this.travelWithGurgle = this.mounted
     const before = this.progress
     ;(exit === 'secret' ? this.secrets : this.done).add(
       node?.id ?? this.stage.code,
@@ -1367,12 +1372,15 @@ export class PlumberRun implements ArcadeGameInstance {
     this.airCooldown = 0
     this.tideKick = 0
     this.tideKickCooldown = 0
+    const traveling =
+      this.travelWithGurgle && !this.customLevel && !this.autopilot
+    const barrel = def.gurgleBarrel
     this.gurgle =
-      def.gurgleBarrel && !this.autopilot && !this.endless && !def.space
+      (traveling || barrel) && !this.autopilot && !this.endless && !def.space
         ? {
-            x: def.gurgleBarrel.col * TILE + TILE / 2,
-            y: (def.gurgleBarrel.row + 1) * TILE,
-            state: 'parked',
+            x: (traveling ? stage.start.col : barrel!.col) * TILE + TILE / 2,
+            y: ((traveling ? stage.start.row : barrel!.row) + 1) * TILE,
+            state: traveling ? 'mounted' : 'parked',
             water: false,
             hopped: false,
             timer: 0,
@@ -4428,6 +4436,7 @@ export class PlumberRun implements ArcadeGameInstance {
     })
     this.checkpoint = stageCheckpoint
     if (this.gurgle) {
+      this.gurgle.state = 'parked'
       this.gurgle.x = stageCheckpoint.x
       this.gurgle.y = stageCheckpoint.y + TALL
     }

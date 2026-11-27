@@ -2,15 +2,37 @@
   <fieldset class="grid gap-2 rounded-xl border p-3">
     <legend class="font-bold">Account archive</legend>
     <p v-if="!account.signedIn" class="text-sm">
-      Sign in to back up reigns and scrapbook discoveries across devices. Device
-      saves remain available offline.
+      Sign in for automatic reign and scrapbook syncing across devices. Guest
+      reigns remain available offline.
     </p>
     <template v-else>
       <p class="text-sm">
-        Backups include all reigns on this device. Matching reigns use the
-        newest saved timestamp. Custom portrait images stay on their original
-        device. Deleting a device reign does not delete its account backup.
+        Your account's reigns sync automatically while playing. Matching reigns
+        use the newest saved timestamp. Guest reigns stay separate, and custom
+        portrait images stay on their original device. Deleting a local reign
+        does not delete its account backup.
       </p>
+      <button
+        v-if="!confirmGuestImport"
+        type="button"
+        class="rh-btn"
+        :disabled="!store.canRestoreAccount || account.busy"
+        @click="confirmGuestImport = true"
+      >
+        Import older device reigns
+      </button>
+      <div v-else class="grid gap-2">
+        <p class="text-sm">
+          Copy all guest and legacy device reigns into this account? Only do
+          this if they belong to you. Originals stay on this device.
+        </p>
+        <button type="button" class="rh-btn" @click="importGuest">
+          Confirm import
+        </button>
+        <button type="button" class="rh-btn" @click="confirmGuestImport = false">
+          Cancel
+        </button>
+      </div>
       <button
         type="button"
         class="rh-btn"
@@ -58,4 +80,13 @@ import { useRulerHookedStore } from '~/stores/rulerHookedStore'
 
 const account = useRulerHookedAccountStore()
 const store = useRulerHookedStore()
+const confirmGuestImport = ref(false)
+
+function importGuest() {
+  if (store.importGuestReigns()) account.reconnect()
+  confirmGuestImport.value = false
+}
+watch(() => account.signedIn, () => {
+  confirmGuestImport.value = false
+})
 </script>

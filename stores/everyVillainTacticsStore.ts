@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
 import { personalCastFor } from '~/utils/everyVillainTactics/personalCasts'
 import { personalScienceNode } from '~/utils/everyVillainTactics/personalScienceScenes'
+import { personalRooftopNode } from '~/utils/everyVillainTactics/personalRooftopScenes'
 import {
   actorAt,
   aliasFor,
@@ -817,8 +818,15 @@ export const useEveryVillainTacticsStore = defineStore(
     }))
     const sceneLines = computed(() =>
       (sceneWalk.value?.nodes ?? []).map((source: SceneNode) => {
-        const node = personalScienceNode(
+        const scienceNode = personalScienceNode(
           source,
+          leadSignature.value,
+          draft.value.id,
+          crossfireActive.value && !previewSceneId.value,
+          state.value,
+        )
+        const node = personalRooftopNode(
+          scienceNode,
           leadSignature.value,
           draft.value.id,
           crossfireActive.value && !previewSceneId.value,

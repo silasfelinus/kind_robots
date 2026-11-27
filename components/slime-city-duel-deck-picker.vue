@@ -13,14 +13,26 @@
         {{ item.name }}
       </button>
     </div>
-    <label v-if="mode === 'alliance-classic'" class="sc-duel-option">
-      Ally faction
-      <select v-model="ally" class="select w-full">
-        <option v-for="crew in allies" :key="crew.id" :value="crew.id">
-          {{ crew.name }}
-        </option>
-      </select>
-    </label>
+    <div
+      v-if="mode === 'alliance-classic' && classicDeck"
+      class="sc-duel-starter"
+      data-testid="slime-duel-classic-starter"
+    >
+      <SlimeCityArtwork
+        :image-id="slimeArtId('crews', classicDeck.general)"
+        alt=""
+        compact
+      />
+      <SlimeCityArtwork
+        :image-id="slimeArtId('crews', classicDeck.ally ?? classicDeck.general)"
+        alt=""
+        compact
+      />
+      <span>
+        <b>{{ classicDeck.name }}</b>
+        <small>20 cards · Alliance starter</small>
+      </span>
+    </div>
     <label v-if="mode === 'alliance-constructed'" class="sc-duel-option">
       Saved alliance deck
       <select v-model="deckId" class="select w-full">
@@ -45,7 +57,8 @@
 import { computed, ref, watch } from 'vue'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import type { ClashRewardSetup } from '~/utils/slimeCity/clashRewards'
-import { TEAMS, type TeamId } from '~/utils/slimeCity/prototypes'
+import type { TeamId } from '~/utils/slimeCity/prototypes'
+import { slimeArtId } from '~/utils/slimeCity/artManifest'
 
 const props = defineProps<{
   team: TeamId
@@ -61,24 +74,39 @@ const modes = [
   { id: 'alliance-classic', name: 'Alliance Classic' },
   { id: 'alliance-constructed', name: 'Alliance Constructed' },
 ] as const
-const mode = ref<(typeof modes)[number]['id']>('faction-classic')
-const allies = computed(() => TEAMS.filter((crew) => crew.id !== props.team))
-const ally = ref<TeamId | undefined>(allies.value[0]?.id)
+const mode = ref<(typeof modes)[number]['id']>('alliance-classic')
+const classicDeck = computed(() =>
+  lab.starterDecks.find(
+    (deck) => deck.general === props.team && deck.ally !== null,
+  ),
+)
 const deckId = ref('')
 const decks = computed(() =>
   lab.library.filter(
-    (deck) => deck.general === props.team && lab.libraryDeckReady(deck.id),
+    (deck) =>
+      deck.general === props.team &&
+      lab.libraryDeckReady(deck.id) &&
+      deck.cards.every(lab.isCardUnlocked),
   ),
 )
 watch(
-  () => props.team,
-  () => {
-    ally.value = allies.value[0]?.id
-    deckId.value = ''
+  [decks, () => lab.libraryId],
+  ([available, selected]) => {
+    if (available.some((deck) => deck.id === deckId.value)) return
+    deckId.value =
+      available.find((deck) => deck.id === selected)?.id ??
+      available[0]?.id ??
+      ''
   },
+  { immediate: true },
 )
 const setup = computed(() =>
-  lab.duelDeck(props.team, mode.value, ally.value, deckId.value),
+  lab.duelDeck(
+    props.team,
+    mode.value,
+    classicDeck.value?.ally ?? undefined,
+    deckId.value,
+  ),
 )
 const hint = computed(() => {
   switch (mode.value) {
@@ -89,7 +117,7 @@ const hint = computed(() => {
         ? 'Your saved legal faction deck.'
         : 'No legal saved faction deck yet.'
     case 'alliance-classic':
-      return 'The original starter recipe for your two factions.'
+      return 'Choose a leading faction above to switch between the six starters.'
     case 'alliance-constructed':
       return setup.value
         ? 'Your selected named Alliance deck.'
@@ -124,6 +152,27 @@ watch(setup, (value) => emit('update:modelValue', value), { immediate: true })
 .sc-duel-modes button[aria-pressed='true'] {
   background: #c5ff59;
   color: #12200c;
+}
+.sc-duel-starter {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid #c5ff59;
+  border-radius: 0.4rem;
+  padding: 0.3rem;
+}
+.sc-duel-starter :deep(.slime-art) {
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  margin: 0;
+}
+.sc-duel-starter span {
+  display: grid;
+  min-width: 0;
+}
+.sc-duel-starter small {
+  color: #c6dcd4;
 }
 .sc-duel-option {
   display: grid;

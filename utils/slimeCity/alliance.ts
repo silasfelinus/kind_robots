@@ -30,6 +30,16 @@ export {
   type PowerTarget,
 } from './factionPowers'
 
+/** Prebuilt Alliance pairings: each crew leads once. */
+export const STARTER_MATCHUPS: [TeamId, TeamId][] = [
+  ['catgirls', 'bloodfairies'],
+  ['bloodfairies', 'riot'],
+  ['ironjaw', 'catgirls'],
+  ['riot', 'ironjaw'],
+  ['undertow', 'exchange'],
+  ['exchange', 'bloodfairies'],
+]
+
 export const ALLIANCE_DECK_SIZE = CLASH_DECK_SIZE
 /** SOLO CLASH: one faction, the canonical 20-card Clash deck. */
 export const SOLO_DECK_SIZE = CLASH_DECK_SIZE

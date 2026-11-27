@@ -416,8 +416,23 @@
           aria-label="Special cards and creature collection"
         >
           <div class="sc-collection-nav" aria-label="Collection sections">
-            <button type="button" class="active" aria-current="page">
-              YOUR CARDS
+            <button
+              type="button"
+              :class="{ active: collectionPane === 'deck' }"
+              :aria-pressed="collectionPane === 'deck'"
+              data-testid="slime-collection-deck"
+              @click="collectionPane = 'deck'"
+            >
+              DECK BUILDER
+            </button>
+            <button
+              type="button"
+              :class="{ active: collectionPane === 'gallery' }"
+              :aria-pressed="collectionPane === 'gallery'"
+              data-testid="slime-collection-gallery"
+              @click="collectionPane = 'gallery'"
+            >
+              CARD GALLERY
             </button>
             <button
               type="button"
@@ -454,6 +469,184 @@
           </div>
           <div class="sc-collection-body kr-scroll">
             <section
+              v-if="collectionPane === 'deck'"
+              class="sc-builder"
+              :class="'tone-' + lab.team.color"
+              :aria-label="
+                lab.deckFormat === 'alliance' ? 'Alliance deck' : 'Solo deck'
+              "
+              data-testid="slime-deck-builder"
+            >
+              <div
+                class="sc-builder-pick"
+                role="group"
+                aria-label="Choose your general"
+                data-testid="slime-general-picker"
+              >
+                <span class="sc-builder-label">GENERAL</span>
+                <SlimeCityCrewSelect label="Choose general" />
+              </div>
+              <div
+                class="sc-builder-pick"
+                role="group"
+                aria-label="Solo, or choose a second faction"
+                data-testid="slime-ally-picker"
+              >
+                <span class="sc-builder-label">SECOND FACTION</span>
+                <button
+                  type="button"
+                  class="sc-face is-solo"
+                  :aria-pressed="lab.deckFormat === 'solo'"
+                  title="Solo: one faction and the mercenaries"
+                  data-testid="slime-deck-type-solo"
+                  @click="lab.setDeckAlly(null)"
+                >
+                  SOLO
+                </button>
+                <SlimeCityCrewSelect
+                  label="Choose second faction"
+                  :team-id="
+                    lab.deckFormat === 'alliance'
+                      ? lab.currentAlliance.ally
+                      : null
+                  "
+                  :exclude-team="lab.activeTeam"
+                  @picked="lab.setDeckAlly($event)"
+                />
+              </div>
+              <div
+                v-if="lab.deckFormat === 'alliance'"
+                class="sc-builder-bar"
+                data-testid="slime-alliance-workbench"
+              >
+                <strong
+                  class="sc-builder-count"
+                  :class="{
+                    full:
+                      lab.currentAlliance.cards.length === ALLIANCE_DECK_SIZE,
+                  }"
+                  >{{ lab.currentAlliance.cards.length
+                  }}<small>/{{ ALLIANCE_DECK_SIZE }}</small></strong
+                >
+                <label v-if="libraryEntry" class="sc-active-deck">
+                  <small>SELECTED DECK · RENAME</small>
+                  <input
+                    :key="libraryEntry.id"
+                    class="sc-library-name"
+                    :value="libraryEntry.name"
+                    maxlength="32"
+                    aria-label="Deck name"
+                    data-testid="slime-library-name"
+                    @change="
+                      lab.renameLibraryDeck(
+                        libraryEntry.id,
+                        ($event.target as HTMLInputElement).value,
+                      )
+                    "
+                    @keydown.enter="($event.target as HTMLInputElement).blur()"
+                  />
+                </label>
+                <span v-else class="sc-active-deck">
+                  <small>SELECTED DECK</small>
+                  <b class="sc-builder-name">{{ activeDeckName }}</b>
+                </span>
+                <span class="sc-builder-powers">
+                  <span
+                    class="sc-power-chip"
+                    :title="generalPower.name + ': ' + generalPower.text"
+                    data-testid="slime-alliance-power"
+                    >{{ generalPower.symbol }} {{ generalPower.name }}</span
+                  >
+                  <span
+                    class="sc-power-chip"
+                    :title="allyPower.name + ': ' + allyPower.text"
+                    >{{ allyPower.symbol }} {{ allyPower.name }}</span
+                  >
+                </span>
+                <small
+                  class="sc-builder-note"
+                  :class="{ problem: lab.currentAllianceProblems.length }"
+                  aria-live="polite"
+                  >{{
+                    lab.currentAllianceProblems.length
+                      ? lab.currentAllianceProblems.join(' · ')
+                      : lab.deckMessage
+                  }}</small
+                >
+                <span class="sc-builder-actions">
+                  <button
+                    type="button"
+                    title="Save a copy you can edit"
+                    data-testid="slime-library-copy"
+                    :disabled="lab.library.length >= lab.libraryMax"
+                    @click="lab.copyCurrentDeck()"
+                  >
+                    {{ libraryEntry ? 'COPY' : 'SAVE AS' }}
+                  </button>
+                  <button
+                    v-if="libraryEntry"
+                    type="button"
+                    :class="{ armed: deleteArmed === libraryEntry.id }"
+                    data-testid="slime-library-delete"
+                    @click="confirmDelete(libraryEntry.id)"
+                  >
+                    {{ deleteArmed === libraryEntry.id ? 'SURE?' : 'DELETE' }}
+                  </button>
+                  <button
+                    type="button"
+                    class="go"
+                    data-testid="slime-alliance-play"
+                    @click="lab.playAllianceClash()"
+                  >
+                    PLAY ›
+                  </button>
+                </span>
+              </div>
+              <div
+                v-else
+                class="sc-builder-bar"
+                data-testid="slime-solo-workbench"
+              >
+                <strong
+                  class="sc-builder-count"
+                  :class="{ full: lab.currentSolo.length === 20 }"
+                  >{{ lab.currentSolo.length }}<small>/20</small></strong
+                >
+                <span class="sc-active-deck">
+                  <small>SELECTED DECK</small>
+                  <b class="sc-builder-name">{{ activeDeckName }}</b>
+                </span>
+                <span class="sc-builder-powers">
+                  <span
+                    class="sc-power-chip"
+                    :title="generalPower.name + ': ' + generalPower.text"
+                    >{{ generalPower.symbol }} {{ generalPower.name }}</span
+                  >
+                </span>
+                <small
+                  class="sc-builder-note"
+                  :class="{ problem: lab.currentSoloProblems.length }"
+                  aria-live="polite"
+                  >{{
+                    lab.currentSoloProblems.length
+                      ? lab.currentSoloProblems.join(' · ')
+                      : lab.deckMessage
+                  }}</small
+                >
+                <span class="sc-builder-actions">
+                  <button
+                    type="button"
+                    class="go"
+                    data-testid="slime-solo-play"
+                    @click="lab.playClashFormat('solo')"
+                  >
+                    PLAY ›
+                  </button>
+                </span>
+              </div>
+            </section>
+            <section
+              v-if="collectionPane === 'deck'"
               class="sc-shelf"
               aria-label="Decks"
               data-testid="slime-deck-library"
@@ -536,7 +729,7 @@
                   </button>
                 </div>
               </details>
-              <details class="sc-shelf-section" open>
+              <details class="sc-shelf-section">
                 <summary
                   class="sc-shelf-label"
                   data-testid="slime-saved-decks-toggle"
@@ -636,177 +829,6 @@
               </details>
             </section>
 
-            <section
-              class="sc-builder"
-              :class="'tone-' + lab.team.color"
-              :aria-label="
-                lab.deckFormat === 'alliance' ? 'Alliance deck' : 'Solo deck'
-              "
-              data-testid="slime-deck-builder"
-            >
-              <div
-                class="sc-builder-pick"
-                role="group"
-                aria-label="Choose your general"
-                data-testid="slime-general-picker"
-              >
-                <span class="sc-builder-label">GENERAL</span>
-                <SlimeCityCrewSelect label="Choose general" />
-              </div>
-              <div
-                class="sc-builder-pick"
-                role="group"
-                aria-label="Solo, or choose a second faction"
-                data-testid="slime-ally-picker"
-              >
-                <span class="sc-builder-label">SECOND FACTION</span>
-                <button
-                  type="button"
-                  class="sc-face is-solo"
-                  :aria-pressed="lab.deckFormat === 'solo'"
-                  title="Solo: one faction and the mercenaries"
-                  data-testid="slime-deck-type-solo"
-                  @click="lab.setDeckAlly(null)"
-                >
-                  SOLO
-                </button>
-                <SlimeCityCrewSelect
-                  label="Choose second faction"
-                  :team-id="
-                    lab.deckFormat === 'alliance'
-                      ? lab.currentAlliance.ally
-                      : null
-                  "
-                  :exclude-team="lab.activeTeam"
-                  @picked="lab.setDeckAlly($event)"
-                />
-              </div>
-              <div
-                v-if="lab.deckFormat === 'alliance'"
-                class="sc-builder-bar"
-                data-testid="slime-alliance-workbench"
-              >
-                <strong
-                  class="sc-builder-count"
-                  :class="{
-                    full:
-                      lab.currentAlliance.cards.length === ALLIANCE_DECK_SIZE,
-                  }"
-                  >{{ lab.currentAlliance.cards.length
-                  }}<small>/{{ ALLIANCE_DECK_SIZE }}</small></strong
-                >
-                <input
-                  v-if="libraryEntry"
-                  class="sc-library-name"
-                  :value="libraryEntry.name"
-                  maxlength="32"
-                  aria-label="Deck name"
-                  data-testid="slime-library-name"
-                  @change="
-                    lab.renameLibraryDeck(
-                      libraryEntry.id,
-                      ($event.target as HTMLInputElement).value,
-                    )
-                  "
-                />
-                <b v-else class="sc-builder-name"
-                  >{{ lab.team.name.split(' ')[0] }} +
-                  {{ teamName(lab.currentAlliance.ally).split(' ')[0] }}</b
-                >
-                <span class="sc-builder-powers">
-                  <span
-                    class="sc-power-chip"
-                    :title="generalPower.name + ': ' + generalPower.text"
-                    data-testid="slime-alliance-power"
-                    >{{ generalPower.symbol }} {{ generalPower.name }}</span
-                  >
-                  <span
-                    class="sc-power-chip"
-                    :title="allyPower.name + ': ' + allyPower.text"
-                    >{{ allyPower.symbol }} {{ allyPower.name }}</span
-                  >
-                </span>
-                <small
-                  class="sc-builder-note"
-                  :class="{ problem: lab.currentAllianceProblems.length }"
-                  aria-live="polite"
-                  >{{
-                    lab.currentAllianceProblems.length
-                      ? lab.currentAllianceProblems.join(' · ')
-                      : lab.deckMessage
-                  }}</small
-                >
-                <span class="sc-builder-actions">
-                  <button
-                    type="button"
-                    title="Save a copy you can edit"
-                    data-testid="slime-library-copy"
-                    :disabled="lab.library.length >= lab.libraryMax"
-                    @click="lab.copyCurrentDeck()"
-                  >
-                    COPY
-                  </button>
-                  <button
-                    v-if="libraryEntry"
-                    type="button"
-                    :class="{ armed: deleteArmed === libraryEntry.id }"
-                    data-testid="slime-library-delete"
-                    @click="confirmDelete(libraryEntry.id)"
-                  >
-                    {{ deleteArmed === libraryEntry.id ? 'SURE?' : 'DELETE' }}
-                  </button>
-                  <button
-                    type="button"
-                    class="go"
-                    data-testid="slime-alliance-play"
-                    @click="lab.playAllianceClash()"
-                  >
-                    PLAY ›
-                  </button>
-                </span>
-              </div>
-              <div
-                v-else
-                class="sc-builder-bar"
-                data-testid="slime-solo-workbench"
-              >
-                <strong
-                  class="sc-builder-count"
-                  :class="{ full: lab.currentSolo.length === 20 }"
-                  >{{ lab.currentSolo.length }}<small>/20</small></strong
-                >
-                <b class="sc-builder-name"
-                  >{{ lab.team.name.split(' ')[0] }} · SOLO</b
-                >
-                <span class="sc-builder-powers">
-                  <span
-                    class="sc-power-chip"
-                    :title="generalPower.name + ': ' + generalPower.text"
-                    >{{ generalPower.symbol }} {{ generalPower.name }}</span
-                  >
-                </span>
-                <small
-                  class="sc-builder-note"
-                  :class="{ problem: lab.currentSoloProblems.length }"
-                  aria-live="polite"
-                  >{{
-                    lab.currentSoloProblems.length
-                      ? lab.currentSoloProblems.join(' · ')
-                      : lab.deckMessage
-                  }}</small
-                >
-                <span class="sc-builder-actions">
-                  <button
-                    type="button"
-                    class="go"
-                    data-testid="slime-solo-play"
-                    @click="lab.playClashFormat('solo')"
-                  >
-                    PLAY ›
-                  </button>
-                </span>
-              </div>
-            </section>
             <div class="sc-collection-tools">
               <div
                 class="sc-evolution"
@@ -846,7 +868,11 @@
                   :aria-pressed="collectionFilter === filter.id"
                   @click="collectionFilter = filter.id"
                 >
-                  {{ filter.label }}
+                  {{
+                    collectionPane === 'gallery' && filter.id === 'all'
+                      ? 'ALL CARDS'
+                      : filter.label
+                  }}
                 </button>
                 <button
                   v-if="lockedCount"
@@ -862,7 +888,39 @@
               </div>
             </div>
             <ul
-              v-if="lab.deckFormat === 'alliance'"
+              v-if="collectionPane === 'gallery'"
+              class="sc-collection-grid"
+              aria-label="Card gallery"
+              data-testid="slime-card-gallery"
+            >
+              <li
+                v-for="card in galleryCards"
+                :key="card.id"
+                class="sc-collect"
+                :class="{ 'is-locked': !lab.isCardUnlocked(card.id) }"
+              >
+                <span class="sc-clash-tile">
+                  <SlimeCityClashCardFace
+                    :card-id="card.id"
+                    :level="evolutionLevel"
+                  />
+                  <span class="sc-collect-ribbon">
+                    {{ lab.isCardUnlocked(card.id) ? 'OWNED' : 'LOCKED' }}
+                  </span>
+                </span>
+                <p v-if="clashCardFlavor(card.id)" class="sc-collect-flavor">
+                  {{ clashCardFlavor(card.id) }}
+                </p>
+                <button
+                  type="button"
+                  class="sc-collect-pick"
+                  :aria-label="'Inspect ' + card.name"
+                  @click="inspectId = card.id"
+                />
+              </li>
+            </ul>
+            <ul
+              v-else-if="lab.deckFormat === 'alliance'"
               class="sc-collection-grid"
               aria-label="General, ally and mercenary cards"
               data-testid="slime-alliance-grid"
@@ -966,7 +1024,10 @@
               </li>
             </ul>
           </div>
-          <SlimeCityDeckHand @inspect="inspectId = $event" />
+          <SlimeCityDeckHand
+            v-if="collectionPane === 'deck'"
+            @inspect="inspectId = $event"
+          />
         </section>
 
         <section
@@ -1251,7 +1312,7 @@
           class="sc-inspect-evolutions"
           :card-id="inspectCard.id"
         />
-        <footer class="sc-inspect-foot">
+        <footer v-if="collectionPane === 'deck'" class="sc-inspect-foot">
           <button
             type="button"
             class="sc-inspect-action"
@@ -1274,7 +1335,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useNavStore } from '@/stores/navStore'
-import { cardById, type Card } from '~/utils/slimeCity/prototypes'
+import { CARDS, cardById, type Card } from '~/utils/slimeCity/prototypes'
 import { factionPower } from '~/utils/slimeCity/factionPowers'
 import { CLASH_MAX_LEVEL } from '~/utils/slimeCity/clash'
 import { clashCardFlavor } from '~/utils/slimeCity/clashEvolutions'
@@ -1441,6 +1502,17 @@ function setClassicOpen(id: keyof typeof classicOpen.value, event: Event) {
 const libraryEntry = computed(
   () => lab.library.find((deck) => deck.id === lab.libraryId) ?? null,
 )
+const collectionPane = ref<'deck' | 'gallery'>('deck')
+const activeDeckName = computed(() => {
+  if (lab.deckFormat === 'solo') return lab.team.name + ' · SOLO'
+  return (
+    libraryEntry.value?.name ??
+    lab.starterDecks.find((deck) => deck.id === lab.activeStarterId)?.name ??
+    lab.team.name.split(' ')[0] +
+      ' + ' +
+      teamName(lab.currentAlliance.ally).split(' ')[0]
+  )
+})
 /** Deleting a library deck takes two taps. */
 const deleteArmed = ref<string | null>(null)
 function confirmDelete(id: string): void {
@@ -1462,9 +1534,7 @@ const collectionFilter = ref<(typeof collectionFilters)[number]['id']>('all')
 const inspectId = ref<string | null>(null)
 const inspectCard = computed(() =>
   inspectId.value
-    ? (lab.allianceCards.find((card) => card.id === inspectId.value) ??
-      lab.soloCards.find((card) => card.id === inspectId.value) ??
-      null)
+    ? (CARDS.find((card) => card.id === inspectId.value) ?? null)
     : null,
 )
 const inspectInDeck = computed(() =>
@@ -1497,9 +1567,19 @@ const filterCards = (cards: Card[]): Card[] =>
       byFilter(card) &&
       (showLocked.value || lab.isCardUnlocked(card.id) || inCurrentDeck(card)),
   )
+const galleryCards = computed(() =>
+  CARDS.filter(
+    (card) => byFilter(card) && (showLocked.value || lab.isCardUnlocked(card.id)),
+  ),
+)
 const lockedCount = computed(
   () =>
-    (lab.deckFormat === 'alliance' ? lab.allianceCards : lab.soloCards).filter(
+    (collectionPane.value === 'gallery'
+      ? CARDS
+      : lab.deckFormat === 'alliance'
+        ? lab.allianceCards
+        : lab.soloCards
+    ).filter(
       (card) =>
         byFilter(card) && !lab.isCardUnlocked(card.id) && !inCurrentDeck(card),
     ).length,
@@ -2165,6 +2245,8 @@ onUnmounted(() => {
 */
 .sc-shelf {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
   gap: 0.45rem;
   flex: none;
   min-width: 0;
@@ -2354,8 +2436,24 @@ onUnmounted(() => {
   font-size: 0.55em;
   color: #a6c7bc;
 }
+.sc-active-deck {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #c5ff59;
+  border-radius: 0.45rem;
+  background: #16281c;
+}
+.sc-active-deck > small {
+  color: #c5ff59;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
 .sc-builder-bar .sc-library-name {
-  width: 11rem;
+  width: clamp(9rem, 22cqw, 17rem);
+  border-color: #c5ff59;
 }
 .sc-builder-name {
   font-size: 0.8rem;
@@ -2425,7 +2523,7 @@ onUnmounted(() => {
   justify-content: space-between;
   isolation: isolate;
   overflow: hidden;
-  min-height: clamp(3.8rem, 7cqw, 5.25rem);
+  min-height: 3.1rem;
   max-width: none;
   padding: 0.6rem 0.8rem;
   border-radius: 0.45rem;
@@ -2499,6 +2597,17 @@ onUnmounted(() => {
   outline-offset: -2px;
 }
 @container (max-width: 600px) {
+  .sc-shelf-section > summary.sc-shelf-label {
+    padding: 0.35rem;
+    align-items: center;
+  }
+  .sc-shelf-banner-title b {
+    font-size: 0.65rem;
+  }
+  .sc-shelf-section > summary::after {
+    width: 1rem;
+    height: 1.2rem;
+  }
   .sc-shelf-deck {
     flex-basis: 9.5rem;
   }

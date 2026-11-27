@@ -90,6 +90,24 @@ assert.equal(pilot.gurgle, null, 'pilots retain their existing route')
 assert.ok(CAMPAIGN.find((stage) => stage.code === '2-1')?.gurgleBarrel)
 assert.equal(CAMPAIGN.filter((stage) => stage.gurgleBarrel).length, 1)
 
+const wharves = CAMPAIGN.find((stage) => stage.code === '2-1')!
+assert.ok(wharves.gurgleBarrel, 'the campaign introduces Gurgle')
+const wharfRun = new PlumberRun(options, { customLevel: wharves })
+frame(wharfRun)
+for (let i = 0; i < 90 && wharfRun.hero.x < 5 * TILE; i++)
+  frame(wharfRun, ['right'])
+frame(wharfRun, ['down'], ['x'])
+assert.equal(wharfRun.gurgle?.state, 'mounted')
+assert.equal(wharfRun.gurgle?.water, false)
+for (let i = 0; i < 180 && wharfRun.hero.x < 13 * TILE + 8; i++) {
+  frame(wharfRun, ['right'])
+  assert.equal(wharfRun.mode, 'play', 'the first wharf pool is safe')
+}
+assert.ok(wharfRun.hero.x >= 13 * TILE + 8, 'Gurgle reaches the far bank')
+assert.equal(wharfRun.gurgle?.water, true, 'the pool charges the spout hop')
+assert.equal(wharfRun.hearts, 3)
+assert.equal(wharfRun.deaths, 0)
+
 function rollerArena(blocked = false): StageDef {
   return {
     ...pool,

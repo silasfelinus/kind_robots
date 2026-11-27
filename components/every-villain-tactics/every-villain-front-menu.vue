@@ -441,7 +441,9 @@
               type="button"
               class="evf-stage"
               data-testid="front-origin-hydrant-blue"
-              @click="store.startOneShot('hydrant-blue', pickedLead, pickedView)"
+              @click="
+                store.startOneShot('hydrant-blue', pickedLead, pickedView)
+              "
             >
               <img
                 v-if="art('districts/industrial-foundry')"

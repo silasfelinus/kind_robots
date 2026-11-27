@@ -639,7 +639,9 @@ for (const rival of emptyStation.units.filter((unit) => unit.team === 'rival'))
   rival.hp = 0
 assert.deepEqual(selectedPowerTargets(emptyStation), [{ x: 4, y: 2 }])
 assert.equal(useSelectedPower(emptyStation, { x: 4, y: 2 }), true)
-assert.ok(hydrant.script?.scenes.some((scene) => scene.id === 'hydrant-allocation'))
+assert.ok(
+  hydrant.script?.scenes.some((scene) => scene.id === 'hydrant-allocation'),
+)
 assert.ok(
   readFileSync(
     'components/every-villain-tactics/every-villain-front-menu.vue',

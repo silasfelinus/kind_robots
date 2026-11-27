@@ -858,8 +858,7 @@ function hydrantValvePreview(
   )
     return null
   const power = powerFor(unit)
-  if (!power || power.family !== 'undertow' || power.cooldown !== 0)
-    return null
+  if (!power || power.family !== 'undertow' || power.cooldown !== 0) return null
   return {
     power,
     user: unit.id,
@@ -985,7 +984,10 @@ export function useSelectedPower(state: TrainingState, target: Cell): boolean {
     unit.fired = true
     state.flags ??= []
     state.flags.push('hydrant-main-flowing')
-    note(state, 'Tidewarden redirects the broken water main. Both crews can now evacuate.')
+    note(
+      state,
+      'Tidewarden redirects the broken water main. Both crews can now evacuate.',
+    )
     state.mode = 'move'
     updateOutcome(state)
     return true

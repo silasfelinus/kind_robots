@@ -3402,10 +3402,7 @@ export class PlumberRun implements ArcadeGameInstance {
       return false
     const x = wild.tap.col * TILE + TILE / 2
     const y = wild.tap.row * TILE
-    if (
-      Math.abs(this.hero.x - x) > 12 ||
-      Math.abs(this.hero.y + TALL - y) > 3
-    )
+    if (Math.abs(this.hero.x - x) > 12 || Math.abs(this.hero.y + TALL - y) > 3)
       return false
     this.wildwaterActive = true
     for (const step of wild.steps) {

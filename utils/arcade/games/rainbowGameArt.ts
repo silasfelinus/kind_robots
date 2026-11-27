@@ -129,6 +129,7 @@ export const RAINBOW_IDLE_ATLASES: Readonly<Record<string, number>> = {
   'bosses/b08-phase3': 8,
   'bosses/flagship': 8,
   'enemies/angler': 8,
+  'enemies/bulwark': 8,
   'enemies/captive': 8,
   'enemies/clawstrike': 8,
   'enemies/coral': 8,

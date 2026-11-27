@@ -146,22 +146,41 @@ assert.ok(
   ).includes(C.rivalFoil),
 )
 
-// Every side: First Bell victories from all four perspectives.
-const sides = ['hero', 'villain', 'henchman', 'sidekick'] as const
-assert.ok(
-  !achievementsProven(
-    book(
+// The two playable viewpoints both need a First Bell victory. Historical
+// supporting-role results remain readable but cannot substitute for either.
+for (const missing of ['hero', 'villain'] as const) {
+  const other = missing === 'hero' ? 'villain' : 'hero'
+  assert.ok(
+    !achievementsProven(
+      book(
+        [],
+        [
+          result({ perspective: other }),
+          result({ perspective: 'henchman' }),
+          result({ perspective: 'sidekick' }),
+          result({ perspective: missing, outcome: 'defeat' }),
+          result({ perspective: missing, mode: 'oneshot' }),
+          result({ perspective: missing, stage: 'The Fountain Standoff' }),
+        ],
+      ),
       [],
-      sides.slice(0, 3).map((perspective) => result({ perspective })),
-    ),
-    [],
-  ).includes(C.everySide),
-)
+    ).includes(C.everySide),
+  )
+}
+const both = [
+  result({ perspective: 'hero' }),
+  result({ perspective: 'villain' }),
+]
+assert.ok(achievementsProven(book([], both), []).includes(C.everySide))
 assert.ok(
   achievementsProven(
     book(
       [],
-      sides.map((perspective) => result({ perspective })),
+      [
+        ...both,
+        result({ perspective: 'henchman' }),
+        result({ perspective: 'sidekick' }),
+      ],
     ),
     [],
   ).includes(C.everySide),

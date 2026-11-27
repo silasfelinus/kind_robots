@@ -47,39 +47,50 @@ export function evolutionEncounter(
   const current = person?.[state.form]
   const scene = !person
     ? 'Your identity has not been registered. You can continue training but may not borrow another person’s heroic mantle.'
-    : day === 16
+    : day === 16 && state.form === 'student'
       ? `You began as ${person.realName}, known as ${person.student.alias}. ${person.backstory} The heroic ${person.hero.alias} would ${person.hero.method}; the feared ${person.villain.alias} would ${person.villain.method}. Neither path happens automatically.`
       : `${person.realName} arrives for another reckoning as ${current?.alias}. ${person.heroDecision} Or: ${person.villainDecision} Former friends will remember what you choose.`
   const options = [
-    ...(canEvolve(state, 'hero', signature)
+    ...(state.form !== 'hero' && canEvolve(state, 'hero', signature)
       ? [
           {
             id: 'evolve-hero',
-            label: `Take the mantle of ${person!.hero.alias}`,
+            label: `Choose heroism as ${person!.hero.alias}`,
             text: `${person!.realName} chooses ${person!.hero.alias}. ${person!.heroDecision} ${person!.hero.method} Rescues become easier but covert villain jobs harder.`,
             influence: 2,
             danger: -1,
           },
         ]
       : []),
-    ...(canEvolve(state, 'villain', signature)
+    ...(state.form !== 'villain' && canEvolve(state, 'villain', signature)
       ? [
           {
             id: 'evolve-villain',
-            label: `Claim the name ${person!.villain.alias}`,
+            label: `Choose villainy as ${person!.villain.alias}`,
             text: `${person!.realName} claims ${person!.villain.alias}. ${person!.villainDecision} ${person!.villain.method} Covert jobs become easier but public rescues harder.`,
             influence: -2,
             danger: 2,
           },
         ]
       : []),
+    ...(state.form !== 'student'
+      ? [
+          {
+            id: 'evolve-independent',
+            label: 'Step back from the mantle and return to student duties',
+            text: `${person?.realName ?? 'You'} chooses independence. Your name stays yours, but you return to the student toolkit and its responsibilities.`,
+            influence: 0,
+            danger: 0,
+          },
+        ]
+      : []),
     {
       id: 'evolve-student',
       label:
-        day === 16
+        state.form === 'student'
           ? 'Stay a student and build my own future'
           : 'Keep my current identity',
-      text: `Nobody gets to impose a costume on ${person?.realName ?? 'you'}. ${day === 16 ? 'You remain a student, with more time to earn a mantle.' : 'Your present mantle stays intact.'}`,
+      text: `Nobody gets to impose a costume on ${person?.realName ?? 'you'}. ${state.form === 'student' ? 'You remain a student, with more time to earn a mantle.' : 'Your present mantle stays intact.'}`,
       influence: 0,
       danger: 0,
     },
@@ -105,12 +116,17 @@ export function resolveEvolution(
       ? 'hero'
       : choice === 'evolve-villain'
         ? 'villain'
-        : choice === 'evolve-student'
-          ? day === 16
-            ? 'student'
-            : state.form
-          : null
-  if (!form || !canEvolve(state, form, signature)) return null
+        : choice === 'evolve-independent'
+          ? 'student'
+          : choice === 'evolve-student'
+            ? state.form
+            : null
+  if (!form || (form !== 'student' && !signature)) return null
+  if (
+    choice !== 'evolve-student' &&
+    (form === state.form || !canEvolve(state, form, signature))
+  )
+    return null
   return { ...state, form, milestones: [...state.milestones, { day, form }] }
 }
 
@@ -160,8 +176,10 @@ export function isValidPlayerEvolution(
     )
       return false
     if (!signature && event.form !== 'student') return false
-    if (event.form === 'hero' && (state.protect ?? 0) < 2) return false
-    if (event.form === 'villain' && (state.exploit ?? 0) < 2) return false
+    if (event.form !== last) {
+      if (event.form === 'hero' && (state.protect ?? 0) < 2) return false
+      if (event.form === 'villain' && (state.exploit ?? 0) < 2) return false
+    }
     previous = event.day
     last = event.form
   }

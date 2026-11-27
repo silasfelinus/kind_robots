@@ -860,6 +860,82 @@ for (const identity of IDENTITY_ARCS) {
 }
 assert.equal(IDENTITY_ARCS.length, 48)
 assert.equal(allForms.size, 48, 'A role evolution never creates a new identity')
+
+// An earned New Game Plus mantle is not a new promotion. Both milestone
+// encounters must allow keeping it without re-earning its original threshold.
+for (const identity of IDENTITY_ARCS) {
+  const signature = identity.signature
+  for (const initial of ['hero', 'villain'] as const) {
+    const opposite = initial === 'hero' ? 'villain' : 'hero'
+    let state = beginPlayerEvolution(initial)
+    for (const day of [16, 23] as const) {
+      const choices = evolutionEncounter(signature, state, day).options
+      assert.ok(
+        choices.some(
+          (choice) =>
+            choice.id === 'evolve-student' &&
+            choice.label === 'Keep my current identity',
+        ),
+      )
+      assert.ok(!choices.some((choice) => choice.id === 'evolve-' + initial))
+      assert.ok(!choices.some((choice) => choice.id === 'evolve-' + opposite))
+      assert.equal(
+        resolveEvolution(state, 'evolve-' + opposite, day, signature),
+        null,
+      )
+      const independent = resolveEvolution(
+        state,
+        'evolve-independent',
+        day,
+        signature,
+      )!
+      assert.equal(independent.form, 'student')
+      assert.ok(isValidPlayerEvolution(independent, signature, initial))
+      state = resolveEvolution(state, 'evolve-student', day, signature)!
+      assert.equal(state.form, initial)
+      assert.ok(isValidPlayerEvolution(state, signature, initial))
+      assert.equal(evolutionNightModifier(state, initial), 2)
+      assert.equal(
+        resolveEvolution(state, 'evolve-student', day, signature),
+        null,
+      )
+      assert.ok(
+        !isValidPlayerEvolution(
+          {
+            ...state,
+            form: opposite,
+            milestones: state.milestones.map((event) =>
+              event.day === day ? { ...event, form: opposite } : event,
+            ),
+          },
+          signature,
+          initial,
+        ),
+      )
+    }
+    assert.ok(
+      isValidPlayerEvolution(
+        {
+          ...beginPlayerEvolution(initial),
+          form: 'student',
+          milestones: [{ day: 16, form: 'student' }],
+        },
+        signature,
+        initial,
+      ),
+      'Historical New Game Plus student milestones remain valid',
+    )
+    assert.equal(
+      resolveEvolution(
+        { ...beginPlayerEvolution(initial), protect: 2, exploit: 2 },
+        'evolve-' + opposite,
+        16,
+        signature,
+      )?.form,
+      opposite,
+    )
+  }
+}
 assert.deepEqual(
   evolutionEncounter(undefined, novice, 16).options.map((o) => o.id),
   ['evolve-student'],
@@ -2016,6 +2092,30 @@ const ngVillain = startFullAcademy(
   'villain',
 )
 assert.equal(restoreAcademy(ngVillain)?.playerEvolution?.form, 'villain')
+for (const initial of [ngPlus, ngVillain]) {
+  const form = initial.playerEvolution!.form
+  let run = initial
+  for (const day of [16, 23]) {
+    const campus = { ...run, day, phase: 'campus' as const }
+    const retained = chooseEncounter(campus, 'evolve-student')
+    assert.equal(retained.phase, 'dispatch')
+    assert.equal(retained.playerEvolution?.form, form)
+    assert.equal(
+      restoreAcademy(JSON.parse(JSON.stringify(retained)))?.playerEvolution
+        ?.form,
+      form,
+    )
+    const independent = chooseEncounter(campus, 'evolve-independent')
+    assert.equal(independent.phase, 'dispatch')
+    assert.equal(independent.playerEvolution?.form, 'student')
+    assert.equal(
+      restoreAcademy(JSON.parse(JSON.stringify(independent)))?.playerEvolution
+        ?.form,
+      'student',
+    )
+    run = retained
+  }
+}
 assert.equal(
   startFullAcademy(fieldFor('mutant-genius'), 42, 'mutant-genius')
     .playerEvolution?.form,

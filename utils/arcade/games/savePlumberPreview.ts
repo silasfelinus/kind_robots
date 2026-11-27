@@ -572,6 +572,15 @@ export class PlumberRun implements ArcadeGameInstance {
   airCooldown = 0
   tideKick = 0
   tideKickCooldown = 0
+  gurgle: {
+    x: number
+    y: number
+    state: 'parked' | 'mounted' | 'puddle'
+    water: boolean
+    hopped: boolean
+    timer: number
+    recovery: number
+  } | null = null
   /** Compressed propellant is a pacing resource, never an oxygen/death timer. */
   airPressure = AIR_PRESSURE_CAPACITY
   airCanisters: { x: number; y: number; taken: boolean }[] = []
@@ -1358,6 +1367,18 @@ export class PlumberRun implements ArcadeGameInstance {
     this.airCooldown = 0
     this.tideKick = 0
     this.tideKickCooldown = 0
+    this.gurgle =
+      def.gurgleBarrel && !this.autopilot && !this.endless && !def.space
+        ? {
+            x: def.gurgleBarrel.col * TILE + TILE / 2,
+            y: (def.gurgleBarrel.row + 1) * TILE,
+            state: 'parked',
+            water: false,
+            hopped: false,
+            timer: 0,
+            recovery: 0,
+          }
+        : null
     this.airPressure = AIR_PRESSURE_CAPACITY
     this.airCanisters = []
     this.airDocks = []
@@ -1965,10 +1986,51 @@ export class PlumberRun implements ArcadeGameInstance {
     )
   }
 
+  private get mounted(): boolean {
+    return this.gurgle?.state === 'mounted'
+  }
+
+  private updateGurgle(keys: InputFrame): boolean {
+    const gurgle = this.gurgle
+    if (!gurgle) return false
+    const feet = this.hero.y + TALL
+    const nearby =
+      Math.abs(gurgle.x - this.hero.x) < 24 &&
+      Math.abs(gurgle.y - feet) < 20
+    if (gurgle.state === 'puddle') {
+      gurgle.timer--
+      gurgle.recovery = nearby && this.ground ? gurgle.recovery + 1 : 0
+      if (gurgle.recovery >= 60) {
+        gurgle.state = 'mounted'
+        gurgle.water = false
+        gurgle.hopped = false
+        this.sound.play('extra')
+      } else if (gurgle.timer <= 0) {
+        gurgle.state = 'parked'
+        gurgle.x = this.checkpoint.x
+        gurgle.y = this.checkpoint.y + TALL
+      }
+      return false
+    }
+    if (!this.ground || !keys.pressed.x || !keys.held.down) return false
+    if (this.mounted) {
+      if (this.waterAt(feet + 2)) return false
+      gurgle.state = 'parked'
+      gurgle.x = this.hero.x
+      gurgle.y = feet
+    } else {
+      if (!nearby || this.carrying || this.heldRoller) return false
+      gurgle.state = 'mounted'
+      gurgle.hopped = false
+    }
+    this.sound.play('pickup')
+    return true
+  }
+
   private get swimming(): boolean {
     return (
       !this.stage.space &&
-      this.power === 'tidecoat' &&
+      (this.power === 'tidecoat' || this.mounted) &&
       this.waterAt(this.hero.y + TALL - 6)
     )
   }
@@ -1978,9 +2040,26 @@ export class PlumberRun implements ArcadeGameInstance {
     const up = keys.held.a || keys.held.up
     const down = keys.held.down
     const surface = !this.waterAt(hero.y + 2)
-    const target =
-      up && !down ? (surface ? -6.5 : -2.8) : down && !up ? 2 : -0.55
-    if (keys.pressed.b && !surface && !this.tideKickCooldown) {
+    const mount = this.mounted ? this.gurgle! : null
+    const target = mount
+      ? up && !down && surface
+        ? -6.5
+        : surface
+          ? 0
+          : -2.8
+      : up && !down
+        ? surface
+          ? -6.5
+          : -2.8
+        : down && !up
+          ? 2
+          : -0.55
+    if (mount) {
+      mount.water = true
+      mount.hopped = false
+      this.tideKick = 0
+    }
+    if (!mount && keys.pressed.b && !surface && !this.tideKickCooldown) {
       const direction = move || this.facing
       hero.vx = direction * TIDE_KICK_SPEED
       this.tideKick = TIDE_KICK_TICKS
@@ -1989,7 +2068,7 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     if (this.tideKick && move && move * hero.vx < 0) this.tideKick = 0
     if (this.tideKick) this.tideKick--
-    else hero.vx += (move * 2.8 - hero.vx) * 0.25
+    else hero.vx += (move * (mount ? 3.2 : 2.8) - hero.vx) * 0.25
     hero.vy =
       surface && up && !down ? target : hero.vy + (target - hero.vy) * 0.3
     if (move) this.facing = move > 0 ? 1 : -1
@@ -2025,6 +2104,7 @@ export class PlumberRun implements ArcadeGameInstance {
       this.moveX(hero, HALF, TALL, this.riding.dx)
       hero.y += this.riding.dy
     }
+    const usedMount = this.updateGurgle(keys)
     const runner = this.runnerOn
     const move = this.stage.space
       ? 0
@@ -2114,7 +2194,21 @@ export class PlumberRun implements ArcadeGameInstance {
       else if (this.grace) this.grace--
       const jumpDown = !this.stage.space && (keys.pressed.a || keys.pressed.up)
       this.jumpHeld = !this.stage.space && (keys.held.a || keys.held.up)
-      if (jumpDown) this.jumpBuffer = 7
+      if (this.mounted && this.ground) this.gurgle!.hopped = false
+      if (
+        jumpDown &&
+        this.mounted &&
+        !this.grace &&
+        !this.ground &&
+        this.gurgle!.water &&
+        !this.gurgle!.hopped
+      ) {
+        this.gurgle!.water = false
+        this.gurgle!.hopped = true
+        hero.vy = -6.5
+        this.jumpBuffer = 0
+        this.sound.play('shoot')
+      } else if (jumpDown) this.jumpBuffer = 7
       else if (this.jumpBuffer) this.jumpBuffer--
       if (this.jumpBuffer && this.grace) this.startBufferedJump()
       if (hero.vy >= 0) this.sprung = false
@@ -2199,7 +2293,7 @@ export class PlumberRun implements ArcadeGameInstance {
       this.tryDoor()
       if (this.mode !== 'play') return
     }
-    if (!this.stage.space && keys.pressed.x && !this.cooldown)
+    if (!usedMount && !this.stage.space && keys.pressed.x && !this.cooldown)
       this.useTool(keys.held.down)
     this.collectTokens()
     this.collectPickups()
@@ -2216,7 +2310,11 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.boss) this.updateBoss(prevBottom)
     this.updateCheckpoints()
     if (hero.y > this.stage.rows * TILE + 40) return this.die()
-    if (this.waterAt(hero.y + TALL - 6) && this.power !== 'tidecoat') {
+    if (
+      this.waterAt(hero.y + TALL - 6) &&
+      this.power !== 'tidecoat' &&
+      !this.mounted
+    ) {
       this.sound.play('pop')
       return this.die()
     }
@@ -4190,7 +4288,16 @@ export class PlumberRun implements ArcadeGameInstance {
   private hurt(dir: number) {
     if (this.immune || this.shielded || this.mode !== 'play') return
     this.stageHits++
-    if (this.power) {
+    if (this.mounted) {
+      const gurgle = this.gurgle!
+      gurgle.state = 'puddle'
+      gurgle.x = this.hero.x
+      gurgle.y = this.hero.y + TALL
+      gurgle.timer = 300
+      gurgle.recovery = 0
+      gurgle.water = false
+      gurgle.hopped = false
+    } else if (this.power) {
       this.power = null
       this.carrying = false
       this.dropReserve()
@@ -4245,6 +4352,10 @@ export class PlumberRun implements ArcadeGameInstance {
       f.reached = flags[i] ?? false
     })
     this.checkpoint = stageCheckpoint
+    if (this.gurgle) {
+      this.gurgle.x = stageCheckpoint.x
+      this.gurgle.y = stageCheckpoint.y + TALL
+    }
     this.placeHero()
     this.setMode('play')
   }
@@ -5955,6 +6066,18 @@ export class PlumberRun implements ArcadeGameInstance {
     this.renderHushDoors(g)
     this.renderWinterHazards(g)
     this.renderFoes(g)
+    const gurgle = this.gurgle
+    if (gurgle) {
+      const x = this.mounted ? this.hero.x : gurgle.x
+      const feet = this.mounted ? this.hero.y + TALL : gurgle.y
+      const pose = gurgle.state === 'puddle' ? 'puddle' : 'idle'
+      if (
+        !drawSprite(g, PLUMBER_ART.cast(`gurgle-${pose}`), x, feet, 23, {
+          flipX: this.facing < 0,
+        })
+      )
+        this.text(g, pose === 'puddle' ? 'GURGLE · RECOVER' : 'GURGLE', x, feet - 4, 9, '#8bdfff')
+    }
     if (this.boss) this.renderBoss(g)
     this.renderSpecial(g, false)
     const blink = this.immune && Math.floor(this.tick / 5) % 2
@@ -5970,7 +6093,7 @@ export class PlumberRun implements ArcadeGameInstance {
       this.drawHeroSprite(
         g,
         this.hero.x,
-        this.hero.y + TALL + 1,
+        this.hero.y + TALL + 1 - (this.mounted ? 8 : 0),
         this.mode === 'dying'
           ? 'dazed'
           : this.mode === 'clear'

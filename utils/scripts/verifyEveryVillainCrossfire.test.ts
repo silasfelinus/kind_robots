@@ -258,67 +258,90 @@ for (const person of IDENTITY_ARCS) {
   assert.ok(expected.every((id) => identityFor(id)))
   assert.ok(!castCombinations.has(expected.slice(1).join(',')))
   castCombinations.add(expected.slice(1).join(','))
-  for (const perspective of ['hero', 'villain'] as const) {
-    const opening = createSave({
-      slot: 'auto',
-      perspective,
-      leadSignature: person.signature,
-      foilSignature: cast.foil,
-      stage: null,
-      state: trainingState(123, undefined, {
-        lead: person.signature,
-        foil: cast.foil,
-        crossfireCast: 1,
-      }),
-      story: createStory(),
-    })
-    let personal = newCrossfireJournal(opening)!
-    assert.ok(personal)
-    assert.equal(personal.active.state.crossfireCast, 1)
-    for (let chapter = 0; chapter < 6; chapter++) {
-      const current = personal.active
-      assert.ok(loadSave(current).ok)
-      assert.equal(current.state.crossfireCast, 1)
-      if (chapter > 0) {
-        assert.deepEqual(
-          current.state.units.map((unit) => unit.identity),
-          expected,
-        )
-        assert.deepEqual(
-          retryCrossfire(personal)?.active.state.units.map(
-            (unit) => unit.identity,
-          ),
-          expected,
-        )
-      }
-      const state = structuredClone(current.state)
-      state.phase = 'victory'
-      const story = structuredClone(current.story)
-      if (chapter === 0) {
-        story.current = null
-        story.seen.push('victory')
-        story.decisions.push('finish')
-        story.completed = true
-        state.fired ??= []
-        state.fired.push('story:victory')
-      }
-      const victory = createSave({
+  for (const version of [1, 2] as const) {
+    for (const perspective of ['hero', 'villain'] as const) {
+      const opening = createSave({
         slot: 'auto',
         perspective,
         leadSignature: person.signature,
         foilSignature: cast.foil,
-        stage: current.stage,
-        state,
-        story,
+        stage: null,
+        state: trainingState(123, undefined, {
+          lead: person.signature,
+          foil: cast.foil,
+          crossfireCast: version,
+        }),
+        story: createStory(),
       })
-      const checkpoint = snapshotCrossfire(personal, victory)
-      assert.ok(checkpoint)
-      const next = advanceCrossfire(checkpoint)
-      assert.ok(next)
-      personal = next
+      let personal = newCrossfireJournal(opening)!
+      assert.ok(personal)
+      assert.equal(personal.active.state.crossfireCast, version)
+      for (let chapter = 0; chapter < 6; chapter++) {
+        const current = personal.active
+        assert.ok(loadSave(current).ok)
+        assert.equal(current.state.crossfireCast, version)
+        if (chapter > 0 || version === 2) {
+          assert.deepEqual(
+            current.state.units.map((unit) => unit.identity),
+            expected,
+          )
+          assert.deepEqual(
+            retryCrossfire(personal)?.active.state.units.map(
+              (unit) => unit.identity,
+            ),
+            expected,
+          )
+        }
+        if (chapter === 0 && version === 2) {
+          const arrival = storyMoment(
+            perspective,
+            'arrival',
+            person.signature,
+            current.story,
+            current.state,
+          )
+          const roster = arrival.lines.find(
+            (line) =>
+              line.speaker === 'FIELD REPORT' &&
+              line.text.includes('Opposing patrol:'),
+          )
+          assert.ok(roster)
+          for (const id of expected)
+            assert.ok(roster.text.includes(identityFor(id).hero.alias))
+          assert.equal(
+            arrival.lines[1]?.speaker,
+            identityFor(cast.allies[0]).hero.alias,
+          )
+        }
+        const state = structuredClone(current.state)
+        state.phase = 'victory'
+        const story = structuredClone(current.story)
+        if (chapter === 0) {
+          story.current = null
+          story.seen.push('victory')
+          story.decisions.push('finish')
+          story.completed = true
+          state.fired ??= []
+          state.fired.push('story:victory')
+        }
+        const victory = createSave({
+          slot: 'auto',
+          perspective,
+          leadSignature: person.signature,
+          foilSignature: cast.foil,
+          stage: current.stage,
+          state,
+          story,
+        })
+        const checkpoint = snapshotCrossfire(personal, victory)
+        assert.ok(checkpoint)
+        const next = advanceCrossfire(checkpoint)
+        assert.ok(next)
+        personal = next
+      }
+      assert.ok(personal.finished)
+      assert.ok(readCrossfireJournal(JSON.stringify(personal)))
     }
-    assert.ok(personal.finished)
-    assert.ok(readCrossfireJournal(JSON.stringify(personal)))
   }
 }
 const personalCastStage = clonePreset('science-lab')

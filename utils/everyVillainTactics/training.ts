@@ -126,7 +126,7 @@ export type TrainingState = {
    * saves leave this unset and cannot retroactively claim a flawless run. */
   damageTaken?: number
   /** New Crossfire roster; absent in historical saves and standalone battles. */
-  crossfireCast?: 1
+  crossfireCast?: 1 | 2
   impact: {
     attacker: string
     target: string
@@ -284,7 +284,7 @@ export type TrainingOptions = {
   /** Apply hero roles and signature powers. Prom of Doom interludes opt out
    * so their saved battles and balance stay exactly as shipped. */
   roles?: boolean
-  crossfireCast?: 1
+  crossfireCast?: 1 | 2
 }
 export function trainingState(
   seed = 0x53a1b7,
@@ -371,16 +371,16 @@ export function trainingState(
   }
   const cast = personalCastFor(lead.identity)
   if (
-    options.crossfireCast === 1 &&
+    (options.crossfireCast === 1 || options.crossfireCast === 2) &&
     options.roles !== false &&
     cast &&
     options.foil === cast.foil &&
     (!stage || isCrossfireFoilStage(stage))
   ) {
-    state.crossfireCast = 1
-    // First Bell has established dialogue and supporting-character voices.
-    // The five follow-on missions use the lead's hand-selected roster.
-    if (stage) {
+    state.crossfireCast = options.crossfireCast
+    // Version 1 preserves the original First Bell roster for existing saves.
+    // Version 2 fields the personal cast from the first battle onward.
+    if (stage || options.crossfireCast === 2) {
       const identities = {
         priya: cast.allies[0],
         hattie: cast.allies[1],

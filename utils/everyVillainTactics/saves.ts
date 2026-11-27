@@ -598,7 +598,7 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
     return reject('Rival foil is not a valid canonical opponent.')
   if (
     state.crossfireCast !== undefined &&
-    (state.crossfireCast !== 1 ||
+    ((state.crossfireCast !== 1 && state.crossfireCast !== 2) ||
       legacy ||
       personalCastFor(save.leadSignature)?.foil !== save.foilSignature ||
       (save.stage && !isCrossfireFoilStage(save.stage)))

@@ -14,6 +14,7 @@ import {
   lineClear,
   moveSelected,
   previewShot,
+  rivalAttackDestination,
   rivalRetreatDestination,
   terrainAt,
   trainingState,
@@ -200,6 +201,66 @@ assert.equal(
   rivalRetreatDestination(burningCover.run, burningCover.rival),
   null,
 )
+
+// A flanker must use the same directional hit calculation as the player.
+const flankScenario = (seed: number) => {
+  const scenario = retreatScenario(seed)
+  const { run, rival, squad } = scenario
+  Object.assign(rival, {
+    x: 2,
+    y: 1,
+    hp: 4,
+    aim: 85,
+    weapon: 'mid',
+    reach: 0,
+    power: undefined,
+    role: undefined,
+  })
+  Object.assign(squad, { x: 4, y: 1, defense: 0, hp: 4, maxHp: 4 })
+  run.map = {
+    width: 6,
+    height: 3,
+    tiles: { '4,1': { elevation: 0, cover: { west: 'full' } } },
+  }
+  return scenario
+}
+for (const seed of [1, 41, 219, 997]) {
+  const { run, rival, squad } = flankScenario(seed)
+  const before = JSON.stringify(run)
+  const destination = rivalAttackDestination(run, rival)
+  assert.ok(destination)
+  assert.equal(destination.cost, 1)
+  assert.equal(destination.x, 4)
+  assert.equal(destination.y, 0)
+  assert.equal(JSON.stringify(run), before, 'flank planning must be pure')
+  endTurn(run)
+  assert.deepEqual({ x: rival.x, y: rival.y }, { x: 4, y: 0 })
+  assert.equal(rival.ap, 0)
+  assert.ok(rival.fired)
+  assert.ok(run.impact?.target === squad.id)
+}
+const burningFlank = flankScenario(41)
+burningFlank.run.field = {
+  props: [],
+  fire: [{ x: 4, y: 0 }],
+  fireNext: null,
+  collapsed: [],
+  reinforced: [],
+  sealed: [],
+  held: 0,
+}
+assert.deepEqual(rivalAttackDestination(burningFlank.run, burningFlank.rival), {
+  x: 4,
+  y: 2,
+  steps: 3,
+  cost: 1,
+})
+const noAttackAP = flankScenario(41)
+noAttackAP.rival.ap = 1
+assert.equal(rivalAttackDestination(noAttackAP.run, noAttackAP.rival), null)
+const alreadyFired = flankScenario(41)
+alreadyFired.rival.fired = true
+assert.equal(rivalAttackDestination(alreadyFired.run, alreadyFired.rival), null)
 
 const page = readFileSync(
   new URL('../../pages/admin/every-villain-tactics.vue', import.meta.url),

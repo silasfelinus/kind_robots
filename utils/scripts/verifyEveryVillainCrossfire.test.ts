@@ -21,7 +21,10 @@ import {
   personalCastFor,
 } from '../everyVillainTactics/personalCasts'
 import { IDENTITY_ARCS, identityFor } from '../cometAcademy/identityArcs'
-import { PERSONAL_SUPPORT_VOICES, personalSupportVoice } from '../everyVillainTactics/personalSupportVoices'
+import {
+  PERSONAL_SUPPORT_VOICES,
+  personalSupportVoice,
+} from '../everyVillainTactics/personalSupportVoices'
 import { applySupport, supportPlan } from '../everyVillainTactics/supportAgency'
 import {
   crossfireChapterBeat,
@@ -1374,7 +1377,8 @@ for (const person of IDENTITY_ARCS) {
     assert.ok(!supportLines.has(line))
     supportLines.add(line)
   }
-  const lead = person.signature === 'accident-fire' ? 'accident-air' : 'accident-fire'
+  const lead =
+    person.signature === 'accident-fire' ? 'accident-air' : 'accident-fire'
   const state = trainingState(41, undefined, { lead })
   state.crossfireCast = 1
   const actor = state.units.find((unit) => unit.id === 'priya')!
@@ -1384,12 +1388,19 @@ for (const person of IDENTITY_ARCS) {
   const plan = supportPlan(state, 'alarm', 'rescue')!
   assert.ok(plan)
   assert.equal(plan.action.actor, actor.id)
-  assert.equal(plan.action.effect, voice.preference === 'mark' ? 'marked' : 'guarded')
+  assert.equal(
+    plan.action.effect,
+    voice.preference === 'mark' ? 'marked' : 'guarded',
+  )
   assert.ok(plan.text.startsWith(voice[voice.preference]))
   assert.equal(JSON.stringify(state), before)
   assert.ok(applySupport(state, plan.action, plan.text))
   assert.ok(state.events[0]?.includes(plan.text))
-  assert.ok(state.units.find((unit) => unit.id === plan.action.target)?.statuses.includes(plan.action.effect))
+  assert.ok(
+    state.units
+      .find((unit) => unit.id === plan.action.target)
+      ?.statuses.includes(plan.action.effect),
+  )
   for (const unit of state.units)
     unit.statuses = unit.statuses.filter((status) => status !== 'guarded')
   const refusal = supportPlan(state, 'reckoning', 'press')!

@@ -146,7 +146,9 @@ export function applySupport(
   target.statuses.push(action.effect)
   const report = supportReport(state, action)!
   const message =
-    report.speaker + ': ' + (state.crossfireCast && plannedText ? plannedText : report.text)
+    report.speaker +
+    ': ' +
+    (state.crossfireCast && plannedText ? plannedText : report.text)
   state.log = message
   state.events = [message, ...state.events].slice(0, 6)
   return true

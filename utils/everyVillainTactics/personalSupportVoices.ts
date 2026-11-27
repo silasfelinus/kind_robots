@@ -7,12 +7,16 @@ export type PersonalSupportVoice = {
   refuse: string
 }
 
-export const PERSONAL_SUPPORT_VOICES: Record<SignaturePowerId, PersonalSupportVoice> = {
+export const PERSONAL_SUPPORT_VOICES: Record<
+  SignaturePowerId,
+  PersonalSupportVoice
+> = {
   'accident-fire': {
     preference: 'guard',
     mark: 'The heat shimmer gives the patrol away.',
     guard: 'I can stand between you and the next flame.',
-    refuse: "Strangers saved me from a burning kitchen. I won't pursue someone who is down.",
+    refuse:
+      "Strangers saved me from a burning kitchen. I won't pursue someone who is down.",
   },
   'accident-air': {
     preference: 'mark',
@@ -24,7 +28,8 @@ export const PERSONAL_SUPPORT_VOICES: Record<SignaturePowerId, PersonalSupportVo
     preference: 'guard',
     mark: 'Their boots are vibrating through the floor.',
     guard: 'Get behind me while I brace the passage.',
-    refuse: 'I spent nine days buried. I will not put another person under the rubble.',
+    refuse:
+      'I spent nine days buried. I will not put another person under the rubble.',
   },
   'accident-water': {
     preference: 'guard',
@@ -60,19 +65,22 @@ export const PERSONAL_SUPPORT_VOICES: Record<SignaturePowerId, PersonalSupportVo
     preference: 'guard',
     mark: 'Their heat stands out against the concrete.',
     guard: 'My healing flame can shelter our crew.',
-    refuse: 'Registration officers made me a target. I refuse to do that to someone helpless.',
+    refuse:
+      'Registration officers made me a target. I refuse to do that to someone helpless.',
   },
   'mutant-air': {
     preference: 'mark',
     mark: "The patrol can't hide its route from my wings.",
     guard: "I'll watch the exit while you move.",
-    refuse: "I hid under a coat for years. I won't corner someone with nowhere to go.",
+    refuse:
+      "I hid under a coat for years. I won't corner someone with nowhere to go.",
   },
   'mutant-earth': {
     preference: 'guard',
     mark: 'I feel their boots through the tiles.',
     guard: 'Someone has to hold the weight while you move.',
-    refuse: 'I know what it is to be called a monster. I will not chase the fallen.',
+    refuse:
+      'I know what it is to be called a monster. I will not chase the fallen.',
   },
   'mutant-water': {
     preference: 'guard',
@@ -84,7 +92,8 @@ export const PERSONAL_SUPPORT_VOICES: Record<SignaturePowerId, PersonalSupportVo
     preference: 'guard',
     mark: 'Grandmother taught me to read their balance.',
     guard: 'Four arms can shelter two people at once.',
-    refuse: 'The last step of a dance is a bow, not a kick at someone on the floor.',
+    refuse:
+      'The last step of a dance is a bow, not a kick at someone on the floor.',
   },
   'mutant-genius': {
     preference: 'mark',
@@ -96,7 +105,8 @@ export const PERSONAL_SUPPORT_VOICES: Record<SignaturePowerId, PersonalSupportVo
     preference: 'guard',
     mark: "A guardian's watch begins with the real threat.",
     guard: 'My wings are a shelter, not a badge.',
-    refuse: 'My ancestors did not grant me the right to punish someone who surrendered.',
+    refuse:
+      'My ancestors did not grant me the right to punish someone who surrendered.',
   },
   'mutant-social': {
     preference: 'guard',
@@ -108,13 +118,15 @@ export const PERSONAL_SUPPORT_VOICES: Record<SignaturePowerId, PersonalSupportVo
     preference: 'guard',
     mark: 'My visor caught their exhaust heat.',
     guard: 'The scrap gauntlet can hold this lane.',
-    refuse: "I built this to make exits work, not burn people who can't escape.",
+    refuse:
+      "I built this to make exits work, not burn people who can't escape.",
   },
   'tech-air': {
     preference: 'mark',
     mark: 'My racing feed gives us a clear view of their position.',
     guard: "I'll watch the approach from my wingsuit.",
-    refuse: "I lost a scholarship over safety concerns. I won't ground someone out of spite.",
+    refuse:
+      "I lost a scholarship over safety concerns. I won't ground someone out of spite.",
   },
   'tech-earth': {
     preference: 'guard',
@@ -126,7 +138,8 @@ export const PERSONAL_SUPPORT_VOICES: Record<SignaturePowerId, PersonalSupportVo
     preference: 'guard',
     mark: 'My diving rig detected movement along that passage.',
     guard: 'The rescue suit can take the next impact.',
-    refuse: "I know what happens when rescue budgets disappear. I won't withhold help.",
+    refuse:
+      "I know what happens when rescue budgets disappear. I won't withhold help.",
   },
   'tech-discipline': {
     preference: 'mark',
@@ -150,13 +163,15 @@ export const PERSONAL_SUPPORT_VOICES: Record<SignaturePowerId, PersonalSupportVo
     preference: 'mark',
     mark: "My glasses caught the patrol's movement.",
     guard: 'I can cover you without broadcasting private details.',
-    refuse: 'I built these to document abuses, not turn the injured into content.',
+    refuse:
+      'I built these to document abuses, not turn the injured into content.',
   },
   'magic-fire': {
     preference: 'guard',
     mark: 'My salamander sees which flame the patrol disturbed.',
     guard: 'The wick will burn between us and the next attack.',
-    refuse: "I traded my voice for this power. I won't take another person's last chance to speak.",
+    refuse:
+      "I traded my voice for this power. I won't take another person's last chance to speak.",
   },
   'magic-air': {
     preference: 'mark',
@@ -180,7 +195,8 @@ export const PERSONAL_SUPPORT_VOICES: Record<SignaturePowerId, PersonalSupportVo
     preference: 'guard',
     mark: 'My old order taught me to read that formation.',
     guard: "I'll hold the door as I did in the mountain passes.",
-    refuse: "I left the order when it refused refugees. I won't abandon someone again.",
+    refuse:
+      "I left the order when it refused refugees. I won't abandon someone again.",
   },
   'magic-genius': {
     preference: 'mark',
@@ -192,7 +208,8 @@ export const PERSONAL_SUPPORT_VOICES: Record<SignaturePowerId, PersonalSupportVo
     preference: 'guard',
     mark: 'The grimoire recognizes a hostile presence.',
     guard: 'Mother taught me the houseward before any attack.',
-    refuse: 'A hearth shelters a guest even if the guest was an enemy yesterday.',
+    refuse:
+      'A hearth shelters a guest even if the guest was an enemy yesterday.',
   },
   'magic-social': {
     preference: 'mark',
@@ -204,7 +221,8 @@ export const PERSONAL_SUPPORT_VOICES: Record<SignaturePowerId, PersonalSupportVo
     preference: 'guard',
     mark: "Sunlight catches the patrol's equipment.",
     guard: "My colony's sun can cover our crew.",
-    refuse: "I arrived as a refugee. I won't make an injured stranger beg to leave.",
+    refuse:
+      "I arrived as a refugee. I won't make an injured stranger beg to leave.",
   },
   'alien-air': {
     preference: 'mark',
@@ -234,7 +252,8 @@ export const PERSONAL_SUPPORT_VOICES: Record<SignaturePowerId, PersonalSupportVo
     preference: 'mark',
     mark: "I'll share the sensor reading without installing anything in your head.",
     guard: 'Use this shield. Here is how to switch it off.',
-    refuse: "I was exiled for sharing knowledge, not for taking people's choices away.",
+    refuse:
+      "I was exiled for sharing knowledge, not for taking people's choices away.",
   },
   'alien-birthright': {
     preference: 'guard',
@@ -252,7 +271,8 @@ export const PERSONAL_SUPPORT_VOICES: Record<SignaturePowerId, PersonalSupportVo
     preference: 'guard',
     mark: "Heat is pooling near the patrol's position.",
     guard: 'I know where the extinguisher is. Follow me.',
-    refuse: "I've frightened enough people by accident. I won't do it for revenge.",
+    refuse:
+      "I've frightened enough people by accident. I won't do it for revenge.",
   },
   'psychic-air': {
     preference: 'mark',
@@ -270,7 +290,8 @@ export const PERSONAL_SUPPORT_VOICES: Record<SignaturePowerId, PersonalSupportVo
     preference: 'guard',
     mark: 'Tension is rising around the patrol.',
     guard: "I'll keep the crew calm without taking their feelings away.",
-    refuse: "I know the weight of other people's grief. I won't manufacture more.",
+    refuse:
+      "I know the weight of other people's grief. I won't manufacture more.",
   },
   'psychic-discipline': {
     preference: 'mark',
@@ -294,11 +315,14 @@ export const PERSONAL_SUPPORT_VOICES: Record<SignaturePowerId, PersonalSupportVo
     preference: 'mark',
     mark: "I can identify who's giving orders without repeating private thoughts.",
     guard: "I'll help you move without sharing your fears.",
-    refuse: "I printed a secret I should have kept. I won't make another wounded person a headline.",
+    refuse:
+      "I printed a secret I should have kept. I won't make another wounded person a headline.",
   },
 }
 
-export function personalSupportVoice(identity: string): PersonalSupportVoice | undefined {
+export function personalSupportVoice(
+  identity: string,
+): PersonalSupportVoice | undefined {
   return Object.hasOwn(PERSONAL_SUPPORT_VOICES, identity)
     ? PERSONAL_SUPPORT_VOICES[identity as SignaturePowerId]
     : undefined

@@ -7,6 +7,9 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from '~/stores/utils'
+import { useAchievementStore } from '~/stores/achievementStore'
+import { useCollectibleStore, type OpenedCard } from '~/stores/collectibleStore'
+import { useTarotSoundStore } from '~/stores/tarotSoundStore'
 import { buildReading } from '~/utils/oracle/reading'
 import { newSeed } from '~/utils/oracle/rng'
 import { ORACLE_CARD_BY_ID, ORACLE_CONTENT } from '~/utils/oracle/content'
@@ -66,6 +69,66 @@ export type AutoReading = {
 }
 
 const PROFILES_KEY = 'kr.tarot.profiles'
+const SETTINGS_KEY = 'kr.tarot.settings'
+const PROGRESS_KEY = 'kr.tarot.progress'
+export const TAROT_COLLECTION = 'tarot'
+
+export type TarotSettings = {
+  musicOn: boolean
+  musicVolume: number
+  sfxOn: boolean
+  sfxVolume: number
+  textSize: 'sm' | 'md' | 'lg'
+  revealSpeed: 'slow' | 'normal' | 'fast'
+  reducedMotion: boolean
+  highContrast: boolean
+}
+
+export const DEFAULT_TAROT_SETTINGS: TarotSettings = {
+  musicOn: false,
+  musicVolume: 0.5,
+  sfxOn: true,
+  sfxVolume: 0.7,
+  textSize: 'md',
+  revealSpeed: 'normal',
+  reducedMotion: false,
+  highContrast: false,
+}
+
+export const REVEAL_DELAY_MS: Record<TarotSettings['revealSpeed'], number> = {
+  slow: 700,
+  normal: 380,
+  fast: 150,
+}
+
+function sanitizeSettings(value: unknown): TarotSettings {
+  const raw = (value ?? {}) as Partial<TarotSettings>
+  const volume = (v: unknown, fallback: number) =>
+    typeof v === 'number' && Number.isFinite(v)
+      ? Math.max(0, Math.min(1, v))
+      : fallback
+  const pick = <T extends string>(v: unknown, options: T[], fallback: T) =>
+    options.includes(v as T) ? (v as T) : fallback
+  const d = DEFAULT_TAROT_SETTINGS
+  return {
+    musicOn: typeof raw.musicOn === 'boolean' ? raw.musicOn : d.musicOn,
+    musicVolume: volume(raw.musicVolume, d.musicVolume),
+    sfxOn: typeof raw.sfxOn === 'boolean' ? raw.sfxOn : d.sfxOn,
+    sfxVolume: volume(raw.sfxVolume, d.sfxVolume),
+    textSize: pick(raw.textSize, ['sm', 'md', 'lg'], d.textSize),
+    revealSpeed: pick(
+      raw.revealSpeed,
+      ['slow', 'normal', 'fast'],
+      d.revealSpeed,
+    ),
+    reducedMotion:
+      typeof raw.reducedMotion === 'boolean'
+        ? raw.reducedMotion
+        : d.reducedMotion,
+    highContrast:
+      typeof raw.highContrast === 'boolean' ? raw.highContrast : d.highContrast,
+  }
+}
 const ACTIVE_PROFILE_KEY = 'kr.tarot.activeProfile'
 const DECK_KEY = 'kr.tarot.deck'
 
@@ -149,6 +212,25 @@ export const useTarotReaderStore = defineStore('tarotReader', () => {
   })
   const activeReadingId = ref<AutoReadingId>('daily')
   const error = ref('')
+  const settings = ref<TarotSettings>({ ...DEFAULT_TAROT_SETTINGS })
+  const majorsStudied = ref<string[]>([])
+  const achievementStore = useAchievementStore()
+  const collectibleStore = useCollectibleStore()
+  const sound = useTarotSoundStore()
+
+  const collection = computed(() => collectibleStore.set(TAROT_COLLECTION))
+  const selectedBackUrl = computed(() => {
+    const key = collection.value.player?.selectedBack
+    return key ? (collection.value.catalog?.art[key] ?? null) : null
+  })
+  const tableBackUrl = computed(
+    () => selectedBackUrl.value ?? activeDeck.value.backUrl,
+  )
+  const revealDelay = computed(() =>
+    settings.value.reducedMotion
+      ? 0
+      : REVEAL_DELAY_MS[settings.value.revealSpeed],
+  )
 
   const activeDeck = computed(
     () =>
@@ -256,7 +338,103 @@ export const useTarotReaderStore = defineStore('tarotReader', () => {
       : (profiles.value[0]?.id ?? null)
     const storedDeck = readStorage<string | null>(DECK_KEY, null)
     if (storedDeck) activeDeckSlug.value = storedDeck
+    settings.value = sanitizeSettings(readStorage(SETTINGS_KEY, {}))
+    const progress = readStorage<{ majorsStudied?: unknown }>(PROGRESS_KEY, {})
+    majorsStudied.value = Array.isArray(progress.majorsStudied)
+      ? progress.majorsStudied.filter(
+          (key): key is string => typeof key === 'string',
+        )
+      : []
+    sound.apply(settings.value)
     ready.value = true
+  }
+
+  function updateSettings(patch: Partial<TarotSettings>) {
+    settings.value = sanitizeSettings({ ...settings.value, ...patch })
+    writeStorage(SETTINGS_KEY, settings.value)
+    sound.unlock()
+    sound.apply(settings.value)
+  }
+
+  function resetProgress() {
+    profiles.value = []
+    activeProfileId.value = null
+    majorsStudied.value = []
+    settings.value = { ...DEFAULT_TAROT_SETTINGS }
+    seeds.value = { daily: '', path: '', heart: '' }
+    try {
+      if (typeof window !== 'undefined') {
+        for (const key of [
+          PROFILES_KEY,
+          ACTIVE_PROFILE_KEY,
+          DECK_KEY,
+          SETTINGS_KEY,
+          PROGRESS_KEY,
+        ]) {
+          window.localStorage.removeItem(key)
+        }
+      }
+    } catch {
+      // Storage may be unavailable; in-memory state is already reset.
+    }
+    sound.apply(settings.value)
+  }
+
+  function award(code: string) {
+    void achievementStore.rewardAchievementByCode(code)
+  }
+
+  function task(key: string) {
+    void collectibleStore.completeTask(TAROT_COLLECTION, key)
+  }
+
+  function playSfx(name: Parameters<typeof sound.play>[0]) {
+    sound.unlock()
+    sound.play(name)
+  }
+
+  function noteReadingViewed(id: AutoReadingId) {
+    playSfx('flip')
+    if (id !== 'daily') award('tarot-studio-first-spread')
+    task('reading')
+  }
+
+  function noteChartViewed() {
+    task('chart')
+  }
+
+  function noteCardStudied(key: string) {
+    if (!/^major-\d+$/.test(key) || majorsStudied.value.includes(key)) return
+    majorsStudied.value = [...majorsStudied.value, key]
+    writeStorage(PROGRESS_KEY, { majorsStudied: majorsStudied.value })
+    if (majorsStudied.value.length >= 22) award('tarot-studio-deck-scholar')
+  }
+
+  function noteClaimed(streak: number) {
+    playSfx('claim')
+    award('tarot-studio-daily-ritual')
+    if (streak >= 7) award('tarot-studio-week-of-moons')
+  }
+
+  function notePackOpened(cards: OpenedCard[]) {
+    playSfx('pack')
+    award('tarot-studio-first-pack')
+    if (cards.some((card) => card.rarity === 'legendary')) {
+      award('tarot-studio-legend-pulled')
+    }
+    const owned = Object.keys(collection.value.player?.owned ?? {}).length
+    if (owned >= 50) award('tarot-studio-halfway-there')
+    if (owned >= 100) award('tarot-studio-grand-orrery')
+  }
+
+  function noteBacksUnlocked() {
+    playSfx('unlock')
+  }
+
+  function noteChatSent() {
+    playSfx('send')
+    award('tarot-studio-kind-words')
+    task('chat')
   }
 
   function refreshClock() {
@@ -299,10 +477,14 @@ export const useTarotReaderStore = defineStore('tarotReader', () => {
 
   function redraw(id: AutoReadingId) {
     seeds.value = { ...seeds.value, [id]: newSeed() }
+    playSfx('shuffle')
+    award('tarot-studio-fresh-shuffle')
   }
 
   function redrawAll() {
     seeds.value = { daily: newSeed(), path: newSeed(), heart: newSeed() }
+    playSfx('shuffle')
+    award('tarot-studio-fresh-shuffle')
   }
 
   function resetToDaily() {
@@ -356,6 +538,8 @@ export const useTarotReaderStore = defineStore('tarotReader', () => {
     activeProfileId.value = id
     resetToDaily()
     persistProfiles()
+    award('tarot-studio-star-chart')
+    if (profiles.value.length >= 3) award('tarot-studio-family-sky')
     return id
   }
 
@@ -408,5 +592,21 @@ export const useTarotReaderStore = defineStore('tarotReader', () => {
     saveProfile,
     selectProfile,
     removeProfile,
+    settings,
+    majorsStudied,
+    collection,
+    selectedBackUrl,
+    tableBackUrl,
+    revealDelay,
+    updateSettings,
+    resetProgress,
+    playSfx,
+    noteReadingViewed,
+    noteChartViewed,
+    noteCardStudied,
+    noteClaimed,
+    notePackOpened,
+    noteBacksUnlocked,
+    noteChatSent,
   }
 })

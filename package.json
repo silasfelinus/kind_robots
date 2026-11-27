@@ -7,6 +7,7 @@
     "test:emperor-ruler": "tsx utils/scripts/verifyEmperorRulerCreator.test.ts",
     "test:tarot-studio": "tsx utils/scripts/verifyTarotStudio.test.ts",
     "test:tarot-reader": "tsx utils/scripts/verifyTarotReader.test.ts",
+    "test:collectibles": "tsx utils/scripts/verifyCollectibles.test.ts",
     "addFilePathComments": "node utils/scripts/addFilePathComment.js",
     "audit": "node ./utils/scripts/audit.mjs",
     "audit:channel-assets": "tsx utils/scripts/auditChannelAssets.ts",

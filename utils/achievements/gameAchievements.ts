@@ -33,6 +33,7 @@ export type AchievementSectionKey =
   | 'every-villain-tactics'
   | 'monstress-convention'
   | 'deepheart'
+  | 'tarot-studio'
 
 export type AchievementSection = {
   key: AchievementSectionKey
@@ -83,6 +84,7 @@ export const ACHIEVEMENT_SECTIONS: readonly AchievementSection[] = [
     icon: 'kind-icon:mask',
   },
   { key: 'deepheart', label: 'Deepheart', icon: 'kind-icon:dungeon' },
+  { key: 'tarot-studio', label: 'Kind Tarot', icon: 'kind-icon:cards' },
 ]
 
 export type GameAchievementRule =
@@ -305,6 +307,14 @@ const MAIN_GAMES: AchievementGame[] = [
     route: '/admin/deepheart',
     arcade: false,
     adminOnly: true,
+    main: true,
+  },
+  {
+    key: 'tarot-studio',
+    title: 'Kind Tarot',
+    section: 'tarot-studio',
+    route: '/play/tarot',
+    arcade: false,
     main: true,
   },
 ]

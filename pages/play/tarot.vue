@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
+  TAROT_COLLECTION,
   useTarotReaderStore,
   type AutoReadingId,
 } from '~/stores/tarotReaderStore'
+import { useCollectibleStore } from '~/stores/collectibleStore'
 import { useUserStore } from '~/stores/userStore'
 import { ORACLE_CARD_BY_ID } from '~/utils/oracle/content'
 import {
@@ -25,10 +27,19 @@ import {
 
 useHead({ title: 'Kind Tarot · Readings, horoscope and birth chart' })
 
-type ReaderView = 'readings' | 'horoscope' | 'chart' | 'deck'
+type ReaderView =
+  | 'readings'
+  | 'horoscope'
+  | 'chart'
+  | 'deck'
+  | 'collection'
+  | 'circle'
+  | 'achievements'
+  | 'settings'
 
 const store = useTarotReaderStore()
 const userStore = useUserStore()
+const collectibles = useCollectibleStore()
 const view = ref<ReaderView>('readings')
 const chartPane = ref<'placements' | 'aspects' | 'balance'>('placements')
 const formOpen = ref(false)
@@ -44,6 +55,8 @@ const VIEWS: Array<{ id: ReaderView; label: string }> = [
   { id: 'horoscope', label: 'Horoscope' },
   { id: 'chart', label: 'Chart' },
   { id: 'deck', label: 'Deck' },
+  { id: 'collection', label: 'Collection' },
+  { id: 'circle', label: 'Circle' },
 ]
 
 const reading = computed(() => store.activeReading)
@@ -143,8 +156,28 @@ function moonDay(at: string) {
   })
 }
 
+const surfaceClass = computed(() => ({
+  'text-sm': store.settings.textSize === 'sm',
+  'text-base': store.settings.textSize === 'md',
+  'text-lg': store.settings.textSize === 'lg',
+  'tarot-calm': store.settings.reducedMotion,
+}))
+
+watch(view, (next) => {
+  if (next === 'chart' && store.natalChart) store.noteChartViewed()
+})
+
+watch(deckFocus, (key) => {
+  if (key) store.noteCardStudied(key)
+})
+
+function linkCollectibleArt() {
+  void collectibles.syncArt(TAROT_COLLECTION)
+}
+
 function chooseReading(id: AutoReadingId) {
   store.selectReading(id)
+  store.noteReadingViewed(id)
 }
 
 function editProfile(id: string) {
@@ -160,6 +193,8 @@ function newProfile() {
 onMounted(() => {
   store.init()
   void store.loadDecks()
+  void collectibles.loadCatalog(TAROT_COLLECTION)
+  void collectibles.loadPlayer(TAROT_COLLECTION)
   if (!store.profiles.length) formOpen.value = true
   clock = setInterval(() => store.refreshClock(), 5 * 60 * 1000)
 })
@@ -172,6 +207,8 @@ onBeforeUnmount(() => {
 <template>
   <main
     class="kr-surface tarot-reader flex h-full min-h-0 flex-col overflow-hidden"
+    :class="surfaceClass"
+    :data-contrast="store.settings.highContrast ? 'high' : undefined"
     data-layout="console-fixed"
     data-testid="tarot-reader"
   >
@@ -212,14 +249,37 @@ onBeforeUnmount(() => {
         <span v-else class="badge badge-ghost badge-sm">
           {{ store.activeDeck.title }}
         </span>
-        <nuxt-link
-          v-if="userStore.isAdmin"
-          to="/admin/tarot"
-          class="btn btn-secondary btn-xs ml-auto"
-          data-testid="tarot-studio-link"
-        >
-          Tarot Studio ↗
-        </nuxt-link>
+        <div class="ml-auto flex items-center gap-1">
+          <button
+            class="btn btn-ghost btn-xs"
+            :class="{ 'btn-active': view === 'achievements' }"
+            type="button"
+            aria-label="Achievements"
+            title="Achievements"
+            @click="view = 'achievements'"
+          >
+            <icon name="kind-icon:trophy" class="h-4 w-4" />
+          </button>
+          <button
+            class="btn btn-ghost btn-xs"
+            :class="{ 'btn-active': view === 'settings' }"
+            type="button"
+            aria-label="Settings"
+            title="Settings"
+            data-testid="tarot-settings-button"
+            @click="view = 'settings'"
+          >
+            <icon name="kind-icon:settings" class="h-4 w-4" />
+          </button>
+          <nuxt-link
+            v-if="userStore.isAdmin"
+            to="/admin/tarot"
+            class="btn btn-secondary btn-xs"
+            data-testid="tarot-studio-link"
+          >
+            Tarot Studio ↗
+          </nuxt-link>
+        </div>
       </div>
     </header-page-bar>
 
@@ -595,6 +655,55 @@ onBeforeUnmount(() => {
     </section>
 
     <section
+      v-else-if="view === 'collection'"
+      class="flex min-h-0 flex-1 flex-col gap-2 p-2 sm:p-3"
+      aria-label="Kind Tarot collection"
+    >
+      <kr-collectible-board
+        :set="TAROT_COLLECTION"
+        @claimed="store.noteClaimed"
+        @opened="store.notePackOpened"
+        @backs="store.noteBacksUnlocked"
+      />
+      <button
+        v-if="userStore.isAdmin"
+        class="btn btn-ghost btn-xs self-start"
+        type="button"
+        @click="linkCollectibleArt"
+      >
+        Admin: link rendered collectible art
+      </button>
+    </section>
+
+    <section
+      v-else-if="view === 'circle'"
+      class="flex min-h-0 flex-1 flex-col p-2 sm:p-3"
+      aria-label="Tarot Circle group chat"
+    >
+      <kr-group-chat room="tarot" @sent="store.noteChatSent" />
+    </section>
+
+    <section
+      v-else-if="view === 'achievements'"
+      class="kr-panes grid-cols-1 p-2 sm:p-3"
+      aria-label="Kind Tarot achievements"
+    >
+      <div class="kr-pane-scroll rounded-2xl border border-base-content/10 p-3">
+        <game-achievement-strip game="tarot-studio" layout="list" />
+      </div>
+    </section>
+
+    <section
+      v-else-if="view === 'settings'"
+      class="kr-panes grid-cols-1 p-2 sm:p-3"
+      aria-label="Kind Tarot settings"
+    >
+      <div class="kr-pane-scroll rounded-2xl border border-base-content/10 p-4">
+        <tarot-settings-panel />
+      </div>
+    </section>
+
+    <section
       v-else
       class="kr-panes grid-cols-1 gap-2 p-2 sm:p-3 lg:grid-cols-[minmax(0,1fr)_minmax(280px,30%)]"
       aria-label="The full deck"
@@ -644,6 +753,18 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.tarot-reader[data-contrast='high'] {
+  --color-base-100: #ffffff;
+  --color-base-200: #f2f2f2;
+  --color-base-300: #e6e6e6;
+  --color-base-content: #000000;
+}
+
+.tarot-calm :deep(*) {
+  animation: none !important;
+  transition: none !important;
+}
+
 .tarot-table {
   background:
     radial-gradient(

@@ -1,0 +1,92 @@
+/// Shared, project-agnostic community and collection systems (tarot-studio is
+/// the first consumer). `userId` is an indexed ownership scalar rather than
+/// another back-relation on the already enormous User model, the brainstorm
+/// precedent; server/utils/userPurge.ts deletes these rows with the account.
+
+/// A live group chat room for people on a front-end page. Rooms are
+/// registered in code (utils/community/rooms.ts) and created on first use.
+model ChatRoom {
+  id          Int               @id @default(autoincrement())
+  slug        String            @unique @db.VarChar(80)
+  projectSlug String?           @db.VarChar(120)
+  title       String            @db.VarChar(160)
+  isOpen      Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  Messages    ChatRoomMessage[]
+}
+
+model ChatRoomMessage {
+  id         Int       @id @default(autoincrement())
+  roomId     Int
+  userId     Int
+  body       String    @db.VarChar(600)
+  hiddenAt   DateTime?
+  hiddenById Int?
+  createdAt  DateTime  @default(now())
+  Room       ChatRoom  @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, id])
+  @@index([userId, createdAt])
+}
+
+/// Earn-only collection currency and daily-reward state for one collectible
+/// set (utils/collectibles/sets/*). There is no purchase path of any kind.
+model CollectibleWallet {
+  userId        Int
+  setSlug       String   @db.VarChar(80)
+  balance       Int      @default(0)
+  streak        Int      @default(0)
+  bestStreak    Int      @default(0)
+  lastClaimDay  String?  @db.VarChar(10)
+  packTickets   Int      @default(0)
+  totalPulls    Int      @default(0)
+  pullsSinceTop Int      @default(0)
+  selectedBack  String?  @db.VarChar(80)
+  /// JSON: { day, tasks: string[] } for once-a-day bonus tasks.
+  bonusState    String   @db.LongText
+  revision      Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@id([userId, setSlug])
+  @@index([setSlug])
+}
+
+model CollectibleOwnership {
+  userId  Int
+  setSlug String   @db.VarChar(80)
+  itemKey String   @db.VarChar(80)
+  count   Int      @default(1)
+  firstAt DateTime @default(now())
+  lastAt  DateTime @updatedAt
+
+  @@id([userId, setSlug, itemKey])
+  @@index([setSlug, itemKey])
+}
+
+/// Append-only history of every card or back a player received.
+model CollectiblePull {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  setSlug   String   @db.VarChar(80)
+  itemKey   String   @db.VarChar(80)
+  rarity    String   @db.VarChar(16)
+  source    String   @db.VarChar(24)
+  duplicate Boolean  @default(false)
+  refund    Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([userId, setSlug, id])
+}
+
+/// Rendered art for a catalog item, linked from its Conductor art-ledger job.
+model CollectibleArt {
+  setSlug    String   @db.VarChar(80)
+  itemKey    String   @db.VarChar(80)
+  artImageId Int
+  artJobId   Int?
+  updatedAt  DateTime @updatedAt
+
+  @@id([setSlug, itemKey])
+}

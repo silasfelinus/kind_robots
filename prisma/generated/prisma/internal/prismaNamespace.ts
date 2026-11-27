@@ -418,6 +418,12 @@ export const ModelName = {
   ComicAttempt: 'ComicAttempt',
   ComicIssue: 'ComicIssue',
   ComicCritique: 'ComicCritique',
+  ChatRoom: 'ChatRoom',
+  ChatRoomMessage: 'ChatRoomMessage',
+  CollectibleWallet: 'CollectibleWallet',
+  CollectibleOwnership: 'CollectibleOwnership',
+  CollectiblePull: 'CollectiblePull',
+  CollectibleArt: 'CollectibleArt',
   FacetAlias: 'FacetAlias',
   FacetProfile: 'FacetProfile',
   CharacterFacet: 'CharacterFacet',
@@ -562,7 +568,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "artSlot" | "artCandidate" | "brainstormSession" | "brainstormCandidate" | "brainstormRiff" | "brainstormLine" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "plumberLevel" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "monstriqueBibleEntry" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "hybridizerFusion" | "hybridizerUpload" | "spaceCouchAlienGuide" | "spaceCouchVoyageSave" | "slimeCityAccount" | "zuzuGamebookSave" | "slimeCityMatch" | "tarotDeck" | "tarotCard" | "tarotDesign" | "tarotArt" | "arcadeCabinetSave" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "artSlot" | "artCandidate" | "brainstormSession" | "brainstormCandidate" | "brainstormRiff" | "brainstormLine" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "chatRoom" | "chatRoomMessage" | "collectibleWallet" | "collectibleOwnership" | "collectiblePull" | "collectibleArt" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "plumberLevel" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "monstriqueBibleEntry" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "hybridizerFusion" | "hybridizerUpload" | "spaceCouchAlienGuide" | "spaceCouchVoyageSave" | "slimeCityAccount" | "zuzuGamebookSave" | "slimeCityMatch" | "tarotDeck" | "tarotCard" | "tarotDesign" | "tarotArt" | "arcadeCabinetSave" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1949,6 +1955,402 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ComicCritiqueCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ComicCritiqueCountAggregateOutputType> | number
+        }
+      }
+    }
+    ChatRoom: {
+      payload: Prisma.$ChatRoomPayload<ExtArgs>
+      fields: Prisma.ChatRoomFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ChatRoomFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ChatRoomFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomPayload>
+        }
+        findFirst: {
+          args: Prisma.ChatRoomFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ChatRoomFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomPayload>
+        }
+        findMany: {
+          args: Prisma.ChatRoomFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomPayload>[]
+        }
+        create: {
+          args: Prisma.ChatRoomCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomPayload>
+        }
+        createMany: {
+          args: Prisma.ChatRoomCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ChatRoomDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomPayload>
+        }
+        update: {
+          args: Prisma.ChatRoomUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomPayload>
+        }
+        deleteMany: {
+          args: Prisma.ChatRoomDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ChatRoomUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ChatRoomUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomPayload>
+        }
+        aggregate: {
+          args: Prisma.ChatRoomAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateChatRoom>
+        }
+        groupBy: {
+          args: Prisma.ChatRoomGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ChatRoomGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ChatRoomCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ChatRoomCountAggregateOutputType> | number
+        }
+      }
+    }
+    ChatRoomMessage: {
+      payload: Prisma.$ChatRoomMessagePayload<ExtArgs>
+      fields: Prisma.ChatRoomMessageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ChatRoomMessageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomMessagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ChatRoomMessageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomMessagePayload>
+        }
+        findFirst: {
+          args: Prisma.ChatRoomMessageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomMessagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ChatRoomMessageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomMessagePayload>
+        }
+        findMany: {
+          args: Prisma.ChatRoomMessageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomMessagePayload>[]
+        }
+        create: {
+          args: Prisma.ChatRoomMessageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomMessagePayload>
+        }
+        createMany: {
+          args: Prisma.ChatRoomMessageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ChatRoomMessageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomMessagePayload>
+        }
+        update: {
+          args: Prisma.ChatRoomMessageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomMessagePayload>
+        }
+        deleteMany: {
+          args: Prisma.ChatRoomMessageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ChatRoomMessageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ChatRoomMessageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChatRoomMessagePayload>
+        }
+        aggregate: {
+          args: Prisma.ChatRoomMessageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateChatRoomMessage>
+        }
+        groupBy: {
+          args: Prisma.ChatRoomMessageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ChatRoomMessageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ChatRoomMessageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ChatRoomMessageCountAggregateOutputType> | number
+        }
+      }
+    }
+    CollectibleWallet: {
+      payload: Prisma.$CollectibleWalletPayload<ExtArgs>
+      fields: Prisma.CollectibleWalletFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CollectibleWalletFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleWalletPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CollectibleWalletFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleWalletPayload>
+        }
+        findFirst: {
+          args: Prisma.CollectibleWalletFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleWalletPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CollectibleWalletFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleWalletPayload>
+        }
+        findMany: {
+          args: Prisma.CollectibleWalletFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleWalletPayload>[]
+        }
+        create: {
+          args: Prisma.CollectibleWalletCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleWalletPayload>
+        }
+        createMany: {
+          args: Prisma.CollectibleWalletCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CollectibleWalletDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleWalletPayload>
+        }
+        update: {
+          args: Prisma.CollectibleWalletUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleWalletPayload>
+        }
+        deleteMany: {
+          args: Prisma.CollectibleWalletDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CollectibleWalletUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CollectibleWalletUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleWalletPayload>
+        }
+        aggregate: {
+          args: Prisma.CollectibleWalletAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCollectibleWallet>
+        }
+        groupBy: {
+          args: Prisma.CollectibleWalletGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CollectibleWalletGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CollectibleWalletCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CollectibleWalletCountAggregateOutputType> | number
+        }
+      }
+    }
+    CollectibleOwnership: {
+      payload: Prisma.$CollectibleOwnershipPayload<ExtArgs>
+      fields: Prisma.CollectibleOwnershipFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CollectibleOwnershipFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleOwnershipPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CollectibleOwnershipFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleOwnershipPayload>
+        }
+        findFirst: {
+          args: Prisma.CollectibleOwnershipFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleOwnershipPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CollectibleOwnershipFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleOwnershipPayload>
+        }
+        findMany: {
+          args: Prisma.CollectibleOwnershipFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleOwnershipPayload>[]
+        }
+        create: {
+          args: Prisma.CollectibleOwnershipCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleOwnershipPayload>
+        }
+        createMany: {
+          args: Prisma.CollectibleOwnershipCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CollectibleOwnershipDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleOwnershipPayload>
+        }
+        update: {
+          args: Prisma.CollectibleOwnershipUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleOwnershipPayload>
+        }
+        deleteMany: {
+          args: Prisma.CollectibleOwnershipDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CollectibleOwnershipUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CollectibleOwnershipUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleOwnershipPayload>
+        }
+        aggregate: {
+          args: Prisma.CollectibleOwnershipAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCollectibleOwnership>
+        }
+        groupBy: {
+          args: Prisma.CollectibleOwnershipGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CollectibleOwnershipGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CollectibleOwnershipCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CollectibleOwnershipCountAggregateOutputType> | number
+        }
+      }
+    }
+    CollectiblePull: {
+      payload: Prisma.$CollectiblePullPayload<ExtArgs>
+      fields: Prisma.CollectiblePullFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CollectiblePullFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectiblePullPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CollectiblePullFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectiblePullPayload>
+        }
+        findFirst: {
+          args: Prisma.CollectiblePullFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectiblePullPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CollectiblePullFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectiblePullPayload>
+        }
+        findMany: {
+          args: Prisma.CollectiblePullFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectiblePullPayload>[]
+        }
+        create: {
+          args: Prisma.CollectiblePullCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectiblePullPayload>
+        }
+        createMany: {
+          args: Prisma.CollectiblePullCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CollectiblePullDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectiblePullPayload>
+        }
+        update: {
+          args: Prisma.CollectiblePullUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectiblePullPayload>
+        }
+        deleteMany: {
+          args: Prisma.CollectiblePullDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CollectiblePullUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CollectiblePullUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectiblePullPayload>
+        }
+        aggregate: {
+          args: Prisma.CollectiblePullAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCollectiblePull>
+        }
+        groupBy: {
+          args: Prisma.CollectiblePullGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CollectiblePullGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CollectiblePullCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CollectiblePullCountAggregateOutputType> | number
+        }
+      }
+    }
+    CollectibleArt: {
+      payload: Prisma.$CollectibleArtPayload<ExtArgs>
+      fields: Prisma.CollectibleArtFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CollectibleArtFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleArtPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CollectibleArtFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleArtPayload>
+        }
+        findFirst: {
+          args: Prisma.CollectibleArtFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleArtPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CollectibleArtFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleArtPayload>
+        }
+        findMany: {
+          args: Prisma.CollectibleArtFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleArtPayload>[]
+        }
+        create: {
+          args: Prisma.CollectibleArtCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleArtPayload>
+        }
+        createMany: {
+          args: Prisma.CollectibleArtCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CollectibleArtDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleArtPayload>
+        }
+        update: {
+          args: Prisma.CollectibleArtUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleArtPayload>
+        }
+        deleteMany: {
+          args: Prisma.CollectibleArtDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CollectibleArtUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CollectibleArtUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectibleArtPayload>
+        }
+        aggregate: {
+          args: Prisma.CollectibleArtAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCollectibleArt>
+        }
+        groupBy: {
+          args: Prisma.CollectibleArtGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CollectibleArtGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CollectibleArtCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CollectibleArtCountAggregateOutputType> | number
         }
       }
     }
@@ -10875,6 +11277,90 @@ export const ComicCritiqueScalarFieldEnum = {
 export type ComicCritiqueScalarFieldEnum = (typeof ComicCritiqueScalarFieldEnum)[keyof typeof ComicCritiqueScalarFieldEnum]
 
 
+export const ChatRoomScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  projectSlug: 'projectSlug',
+  title: 'title',
+  isOpen: 'isOpen',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ChatRoomScalarFieldEnum = (typeof ChatRoomScalarFieldEnum)[keyof typeof ChatRoomScalarFieldEnum]
+
+
+export const ChatRoomMessageScalarFieldEnum = {
+  id: 'id',
+  roomId: 'roomId',
+  userId: 'userId',
+  body: 'body',
+  hiddenAt: 'hiddenAt',
+  hiddenById: 'hiddenById',
+  createdAt: 'createdAt'
+} as const
+
+export type ChatRoomMessageScalarFieldEnum = (typeof ChatRoomMessageScalarFieldEnum)[keyof typeof ChatRoomMessageScalarFieldEnum]
+
+
+export const CollectibleWalletScalarFieldEnum = {
+  userId: 'userId',
+  setSlug: 'setSlug',
+  balance: 'balance',
+  streak: 'streak',
+  bestStreak: 'bestStreak',
+  lastClaimDay: 'lastClaimDay',
+  packTickets: 'packTickets',
+  totalPulls: 'totalPulls',
+  pullsSinceTop: 'pullsSinceTop',
+  selectedBack: 'selectedBack',
+  bonusState: 'bonusState',
+  revision: 'revision',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CollectibleWalletScalarFieldEnum = (typeof CollectibleWalletScalarFieldEnum)[keyof typeof CollectibleWalletScalarFieldEnum]
+
+
+export const CollectibleOwnershipScalarFieldEnum = {
+  userId: 'userId',
+  setSlug: 'setSlug',
+  itemKey: 'itemKey',
+  count: 'count',
+  firstAt: 'firstAt',
+  lastAt: 'lastAt'
+} as const
+
+export type CollectibleOwnershipScalarFieldEnum = (typeof CollectibleOwnershipScalarFieldEnum)[keyof typeof CollectibleOwnershipScalarFieldEnum]
+
+
+export const CollectiblePullScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  setSlug: 'setSlug',
+  itemKey: 'itemKey',
+  rarity: 'rarity',
+  source: 'source',
+  duplicate: 'duplicate',
+  refund: 'refund',
+  createdAt: 'createdAt'
+} as const
+
+export type CollectiblePullScalarFieldEnum = (typeof CollectiblePullScalarFieldEnum)[keyof typeof CollectiblePullScalarFieldEnum]
+
+
+export const CollectibleArtScalarFieldEnum = {
+  setSlug: 'setSlug',
+  itemKey: 'itemKey',
+  artImageId: 'artImageId',
+  artJobId: 'artJobId',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CollectibleArtScalarFieldEnum = (typeof CollectibleArtScalarFieldEnum)[keyof typeof CollectibleArtScalarFieldEnum]
+
+
 export const FacetAliasScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -13613,6 +14099,58 @@ export const ComicCritiqueOrderByRelevanceFieldEnum = {
 export type ComicCritiqueOrderByRelevanceFieldEnum = (typeof ComicCritiqueOrderByRelevanceFieldEnum)[keyof typeof ComicCritiqueOrderByRelevanceFieldEnum]
 
 
+export const ChatRoomOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  projectSlug: 'projectSlug',
+  title: 'title'
+} as const
+
+export type ChatRoomOrderByRelevanceFieldEnum = (typeof ChatRoomOrderByRelevanceFieldEnum)[keyof typeof ChatRoomOrderByRelevanceFieldEnum]
+
+
+export const ChatRoomMessageOrderByRelevanceFieldEnum = {
+  body: 'body'
+} as const
+
+export type ChatRoomMessageOrderByRelevanceFieldEnum = (typeof ChatRoomMessageOrderByRelevanceFieldEnum)[keyof typeof ChatRoomMessageOrderByRelevanceFieldEnum]
+
+
+export const CollectibleWalletOrderByRelevanceFieldEnum = {
+  setSlug: 'setSlug',
+  lastClaimDay: 'lastClaimDay',
+  selectedBack: 'selectedBack',
+  bonusState: 'bonusState'
+} as const
+
+export type CollectibleWalletOrderByRelevanceFieldEnum = (typeof CollectibleWalletOrderByRelevanceFieldEnum)[keyof typeof CollectibleWalletOrderByRelevanceFieldEnum]
+
+
+export const CollectibleOwnershipOrderByRelevanceFieldEnum = {
+  setSlug: 'setSlug',
+  itemKey: 'itemKey'
+} as const
+
+export type CollectibleOwnershipOrderByRelevanceFieldEnum = (typeof CollectibleOwnershipOrderByRelevanceFieldEnum)[keyof typeof CollectibleOwnershipOrderByRelevanceFieldEnum]
+
+
+export const CollectiblePullOrderByRelevanceFieldEnum = {
+  setSlug: 'setSlug',
+  itemKey: 'itemKey',
+  rarity: 'rarity',
+  source: 'source'
+} as const
+
+export type CollectiblePullOrderByRelevanceFieldEnum = (typeof CollectiblePullOrderByRelevanceFieldEnum)[keyof typeof CollectiblePullOrderByRelevanceFieldEnum]
+
+
+export const CollectibleArtOrderByRelevanceFieldEnum = {
+  setSlug: 'setSlug',
+  itemKey: 'itemKey'
+} as const
+
+export type CollectibleArtOrderByRelevanceFieldEnum = (typeof CollectibleArtOrderByRelevanceFieldEnum)[keyof typeof CollectibleArtOrderByRelevanceFieldEnum]
+
+
 export const FacetAliasOrderByRelevanceFieldEnum = {
   alias: 'alias',
   lookupKey: 'lookupKey'
@@ -15750,6 +16288,12 @@ export type GlobalOmitConfig = {
   comicAttempt?: Prisma.ComicAttemptOmit
   comicIssue?: Prisma.ComicIssueOmit
   comicCritique?: Prisma.ComicCritiqueOmit
+  chatRoom?: Prisma.ChatRoomOmit
+  chatRoomMessage?: Prisma.ChatRoomMessageOmit
+  collectibleWallet?: Prisma.CollectibleWalletOmit
+  collectibleOwnership?: Prisma.CollectibleOwnershipOmit
+  collectiblePull?: Prisma.CollectiblePullOmit
+  collectibleArt?: Prisma.CollectibleArtOmit
   facetAlias?: Prisma.FacetAliasOmit
   facetProfile?: Prisma.FacetProfileOmit
   characterFacet?: Prisma.CharacterFacetOmit

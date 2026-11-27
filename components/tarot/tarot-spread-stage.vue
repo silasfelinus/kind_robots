@@ -29,10 +29,7 @@ watch(
   () => {
     clearTimers()
     revealed.value = 0
-    const reduce =
-      typeof window !== 'undefined' &&
-      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-    if (reduce) {
+    if (!store.revealDelay) {
       revealed.value = props.reading.cards.length
       return
     }
@@ -41,8 +38,9 @@ watch(
         setTimeout(
           () => {
             revealed.value = index + 1
+            store.playSfx('flip')
           },
-          250 + index * 380,
+          250 + index * store.revealDelay,
         ),
       )
     })
@@ -74,7 +72,7 @@ function revealAll() {
           <tarot-card-face
             :title="drawn.card.title"
             side="back"
-            :back-url="store.activeDeck.backUrl"
+            :back-url="store.tableBackUrl"
           />
         </div>
         <div class="tarot-flip-face tarot-flip-front">

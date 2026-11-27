@@ -1589,7 +1589,6 @@ assert.match(
   assert.equal(calls.at(-1), 'dispose')
 }
 
-
 type MediaFetcher = (url: URL, init: RequestInit) => Promise<Response>
 
 const MEDIA_ORIGIN = 'https://kindrobots.org'
@@ -1612,9 +1611,9 @@ async function imageHeader(response: Response): Promise<boolean> {
   const type = response.headers.get('content-type')?.split(';')[0]
   switch (type) {
     case 'image/png':
-      return bytes.subarray(0, 8).equals(
-        Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
-      )
+      return bytes
+        .subarray(0, 8)
+        .equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
     case 'image/jpeg':
       return bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255
     case 'image/webp':
@@ -1730,7 +1729,8 @@ async function verifyMediaAudit() {
 
   if (!process.argv.includes('--live-media')) return
   const liveToken = process.env.KR_API_TOKEN
-  if (!liveToken) throw new Error('KR_API_TOKEN is required for live media audit')
+  if (!liveToken)
+    throw new Error('KR_API_TOKEN is required for live media audit')
   const failures: string[] = []
   const assets = Object.entries(DEEPHEART_ART_IDS)
   for (const [key, id] of assets) {

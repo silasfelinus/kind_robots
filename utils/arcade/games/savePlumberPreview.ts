@@ -3279,8 +3279,11 @@ export class PlumberRun implements ArcadeGameInstance {
     for (let distance = TILE; distance <= 42; distance += TILE) {
       const col = Math.floor((hero.x + distance * this.facing) / TILE)
       const x = col * TILE + TILE / 2
-      const y = row * TILE + TILE / 2
-      if (this.solidAt(col, row) === SOLID_WATER && this.toolPathClear(x, y)) {
+      const surface = row * TILE - 1
+      if (
+        this.solidAt(col, row) === SOLID_WATER &&
+        this.toolPathClear(x, surface)
+      ) {
         gurgle.water = true
         this.sound.play('pickup')
         return true

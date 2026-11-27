@@ -23,6 +23,25 @@ import {
 const SCRAPBOOK_KEY = 'rulerHooked:scrapbook:v1'
 const INDEX_KEY = 'rulerHooked:index'
 const slotKey = (saveId: string) => `rulerHooked:save:${saveId}`
+let accountScope: number | null = null
+
+export function setRoyalSaveScope(owner: number | null): void {
+  if (hasWindow()) accountScope = owner
+}
+
+export function royalScopedKey(key: string, owner: number | null): string {
+  return owner === null ? key : `rulerHooked:account:${owner}:${key}`
+}
+
+export function guestRoyalBackup(): RoyalBackup {
+  const previous = accountScope
+  try {
+    setRoyalSaveScope(null)
+    return deviceRoyalBackup()
+  } finally {
+    setRoyalSaveScope(previous)
+  }
+}
 // v5 (t-021): ruler.cosmetics widened from an untyped bag to RulerCosmetics
 // with a required-in-practice presetId. Old saves (schemaVersion <= 4) never
 // wrote presetId, so migrateSave() below fills it in with the hero preset
@@ -39,7 +58,7 @@ const hasWindow = (): boolean => typeof window !== 'undefined'
 function safeGet(key: string): string | null {
   if (!hasWindow()) return null
   try {
-    return window.localStorage.getItem(key)
+    return window.localStorage.getItem(royalScopedKey(key, accountScope))
   } catch {
     return null
   }
@@ -47,7 +66,7 @@ function safeGet(key: string): string | null {
 function safeSet(key: string, value: string): void {
   if (!hasWindow()) return
   try {
-    window.localStorage.setItem(key, value)
+    window.localStorage.setItem(royalScopedKey(key, accountScope), value)
   } catch {
     /* quota / privacy mode — non-fatal for a game */
   }
@@ -55,7 +74,7 @@ function safeSet(key: string, value: string): void {
 function safeRemove(key: string): void {
   if (!hasWindow()) return
   try {
-    window.localStorage.removeItem(key)
+    window.localStorage.removeItem(royalScopedKey(key, accountScope))
   } catch {
     /* ignore */
   }

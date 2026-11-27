@@ -1,7 +1,9 @@
 <template>
   <div
     class="kr-surface relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl bg-[#141f24] text-[#f8edce]"
+    :class="displayClasses"
     data-layout="console-fixed"
+    data-testid="memory-world-console"
   >
     <header-page-bar console-theme="memory-dungeon">
       <div class="md-bar" data-testid="memory-world-header">
@@ -248,6 +250,65 @@
             Card-back choices are saved separately from your expedition.
             Illustrated crests appear automatically when their Comfy artwork is
             delivered.
+          </p>
+        </fieldset>
+        <fieldset
+          class="mt-3 border-t border-[#9f875e]/50 pt-3"
+          data-testid="memory-display-settings"
+        >
+          <legend class="px-2 text-sm font-bold">Reading and comfort</legend>
+          <div
+            class="flex flex-wrap items-center gap-2"
+            role="group"
+            aria-label="Text size"
+          >
+            <span class="text-xs font-semibold">Text size</span>
+            <button
+              v-for="size in MEMORY_TEXT_SIZES"
+              :key="size.id"
+              type="button"
+              class="rounded border px-2 py-1 text-xs hover:bg-[#514b3d]"
+              :class="
+                display.textSize === size.id
+                  ? 'border-[#ffe29a] bg-[#514b3d]'
+                  : 'border-[#9f875e]'
+              "
+              :aria-pressed="display.textSize === size.id"
+              @click="setDisplay({ textSize: size.id })"
+            >
+              {{ size.label }}
+            </button>
+          </div>
+          <label class="mt-2 flex items-center gap-2 text-xs">
+            <input
+              type="checkbox"
+              class="checkbox checkbox-sm"
+              :checked="display.reducedMotion"
+              data-testid="memory-display-reduced-motion"
+              @change="
+                setDisplay({
+                  reducedMotion: ($event.target as HTMLInputElement).checked,
+                })
+              "
+            />
+            Reduce motion (card flips and fades happen instantly)
+          </label>
+          <label class="mt-2 flex items-center gap-2 text-xs">
+            <input
+              type="checkbox"
+              class="checkbox checkbox-sm"
+              :checked="display.highContrast"
+              data-testid="memory-display-high-contrast"
+              @change="
+                setDisplay({
+                  highContrast: ($event.target as HTMLInputElement).checked,
+                })
+              "
+            />
+            High contrast text and focus outlines
+          </label>
+          <p class="mt-2 text-xs text-[#e4d0a8]">
+            Saved on this device, apart from your expedition.
           </p>
         </fieldset>
         <fieldset class="mt-3 border-t border-[#9f875e]/50 pt-3">
@@ -1005,6 +1066,13 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { trapMemoryDialogTab } from '~/utils/memoryDungeon/dialogFocus'
 import { memoryCheckpointPreview } from '~/utils/memoryDungeon/saveSlots'
+import {
+  MEMORY_TEXT_SIZES,
+  loadMemoryDisplay,
+  memoryDisplayClasses,
+  saveMemoryDisplay,
+  type MemoryDisplaySettings,
+} from '~/utils/memoryDungeon/displaySettings'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import {
   BRIAR_SITES,
@@ -1152,6 +1220,19 @@ function progressLabel(key: string): string {
         : 'hidden'
 }
 const settingsOpen = ref(false)
+const display = ref<MemoryDisplaySettings>(loadMemoryDisplay(null))
+const displayClasses = computed(() => memoryDisplayClasses(display.value))
+function browserStorage(): Storage | null {
+  try {
+    return typeof window === 'undefined' ? null : window.localStorage
+  } catch {
+    return null
+  }
+}
+function setDisplay(change: Partial<MemoryDisplaySettings>) {
+  display.value = { ...display.value, ...change }
+  saveMemoryDisplay(browserStorage(), display.value)
+}
 const settingsTrigger = ref<HTMLButtonElement | null>(null)
 const settingsDialog = ref<HTMLElement | null>(null)
 watch(settingsOpen, async (open, wasOpen) => {
@@ -1230,6 +1311,7 @@ function siteSymbol(kind: BriarSiteKind | undefined): string {
 }
 
 onMounted(() => {
+  display.value = loadMemoryDisplay(browserStorage())
   world.hydrate()
   void world.syncActiveMapDeck()
 })

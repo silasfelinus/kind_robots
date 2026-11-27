@@ -238,3 +238,50 @@
     display: none;
   }
 }
+
+/* Reading and comfort settings (utils/memoryDungeon/displaySettings.ts).
+   Tailwind sizes are rem-based, so each step restates the small text sizes
+   the console uses instead of scaling the root and breaking the fixed frame. */
+.md-text-large {
+  font-size: 1.125rem;
+}
+.md-text-large .text-xs {
+  font-size: 0.875rem;
+  line-height: 1.3rem;
+}
+.md-text-large .text-sm {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+.md-text-larger {
+  font-size: 1.25rem;
+}
+.md-text-larger .text-xs {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+.md-text-larger .text-sm {
+  font-size: 1.125rem;
+  line-height: 1.65rem;
+}
+
+/* Matches the prefers-reduced-motion rule above, for players who want it here only. */
+.md-reduce-motion *,
+.md-reduce-motion *::before,
+.md-reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Muted parchment captions (#d…/#e… tones, always on dark panels) become
+   near-white, and focus rings get thicker. */
+.md-high-contrast [class*='text-[#d'],
+.md-high-contrast [class*='text-[#e'] {
+  color: #fffaf0 !important;
+}
+.md-high-contrast :focus-visible {
+  outline: 3px solid #fff3c4 !important;
+  outline-offset: 2px;
+}

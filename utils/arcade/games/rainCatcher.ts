@@ -953,7 +953,8 @@ class RainCatcher implements ArcadeGameInstance {
       if (h.hitCooldown > 0) h.hitCooldown--
       if (h.skidTicks > 0) {
         h.x += h.vx
-        if (--h.skidTicks === 0) this.land(h)
+        const reachedBed = BEDS.some((x) => Math.abs(x - h.x) <= 3)
+        if (--h.skidTicks === 0 || reachedBed) this.land(h)
         continue
       }
       if (h.sprite) this.swerve(h)
@@ -1714,3 +1715,4 @@ const rainCatcher: ArcadeGameModule = {
 
 export const create = rainCatcher.create
 export default rainCatcher
+

@@ -35,6 +35,8 @@ assert.deepEqual([...weather].sort(), [
 assert.equal(rainWaveForLevel(31).garden, RAIN_GARDENS[0])
 assert.equal(rainWaveForLevel(1).wind, 0)
 const music = parseLoop(RAIN_CATCHER_MUSIC)
-assert.ok(music.notes.length >= 16)
+assert.equal(music.length, 16, 'loop spans two bars')
+assert.ok(music.notes.some((note) => note.steps > 1))
 assert.ok(music.notes.some((note) => note.noise))
 console.log('Rain Catcher: 30 authored forecasts and original loop')
+

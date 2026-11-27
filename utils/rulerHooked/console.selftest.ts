@@ -71,24 +71,19 @@ const fresh = (seed = 'console-seed'): RunSave =>
   })
 
 {
-  const pad = (buttons: number[], index = 0): Gamepad =>
-    ({
+  const pad = (buttons: number[], index = 0): Gamepad => {
+    const input: Pick<Gamepad, 'index' | 'buttons' | 'axes'> = {
       index,
-      connected: true,
-      id: 'test-controller',
-      mapping: 'standard',
-      timestamp: 0,
-      vibrationActuator: {
-        playEffect: async () => 'complete' as const,
-        reset: async () => 'complete' as const,
-      },
       buttons: Array.from({ length: 16 }, (_, i) => ({
         pressed: buttons.includes(i),
         touched: buttons.includes(i),
         value: buttons.includes(i) ? 1 : 0,
       })),
       axes: [0, 0],
-    }) as Gamepad
+    }
+    // Only input fields are read; browser-specific haptics are not simulated.
+    return input as Gamepad
+  }
 
   const memory = newRoyalPadMemory()
   assert.deepEqual(readRoyalPad(pad([0, 2]), memory, 0, false), [])

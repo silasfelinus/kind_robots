@@ -1,4 +1,9 @@
-// GET /api/collectibles/:set/art/:key -- public catalog art for one item.
+// GET /api/collectibles/:set/art/:key -- catalog art for one item.
+//
+// Collectible art renders as public ArtImages (the Conductor ledger sets
+// is_public), so the shared media rule decides who sees it: public, active,
+// and mature only for viewers who opted in. A plain <img> sends no header,
+// so the viewer comes from the kind-session cookie.
 import {
   createError,
   defineEventHandler,
@@ -7,6 +12,10 @@ import {
   setHeader,
 } from 'h3'
 import prisma from '~/server/utils/prisma'
+import {
+  canReadArtImage,
+  getMediaViewerAccessContext,
+} from '~/server/utils/artImageAccess'
 import { setFromEvent } from '~/server/utils/collectibles'
 
 const IMAGE_TYPES: Record<string, string> = {
@@ -29,12 +38,26 @@ export default defineEventHandler(async (event) => {
   if (!art) throw notFound()
   const image = await prisma.artImage.findUnique({
     where: { id: art.artImageId },
-    select: { isActive: true, isMature: true, imagePath: true, fileType: true },
+    select: {
+      userId: true,
+      isActive: true,
+      isPublic: true,
+      isMature: true,
+      imagePath: true,
+      fileType: true,
+    },
   })
-  if (!image || image.isActive === false || image.isMature === true) {
-    throw notFound()
-  }
-  setHeader(event, 'Cache-Control', 'public, max-age=86400')
+  if (!image || image.isActive === false) throw notFound()
+  const access = await getMediaViewerAccessContext(event)
+  if (!canReadArtImage(image, access)) throw notFound()
+
+  setHeader(
+    event,
+    'Cache-Control',
+    image.isPublic && !image.isMature
+      ? 'public, max-age=86400'
+      : 'private, max-age=300',
+  )
   setHeader(event, 'X-Content-Type-Options', 'nosniff')
   if (image.imagePath?.startsWith('/images/')) {
     return sendRedirect(event, image.imagePath, 302)

@@ -3006,6 +3006,7 @@ export class PlumberRun implements ArcadeGameInstance {
     const boss = this.boss
     if (
       boss &&
+      boss.kind !== 'flange' &&
       boss.state === 'recover' &&
       Math.abs(boss.x - (box.left + box.right) / 2) < 46
     ) {
@@ -4083,7 +4084,7 @@ export class PlumberRun implements ArcadeGameInstance {
       return
     }
     const stomp = hero.vy > 0.5 && prevBottom <= top + 12
-    if (stomp && boss.state === 'recover') {
+    if (stomp && boss.state === 'recover' && boss.kind !== 'flange') {
       hero.vy = -7.2
       this.hitBoss()
     } else if (stomp) {
@@ -7113,14 +7114,14 @@ export class PlumberRun implements ArcadeGameInstance {
           drawSprite(g, PLUMBER_ART.enemy('rivet-roller'), boss.x, boss.y, tall, {
             flipX: boss.dir < 0,
           })
-          return
+        } else {
+          g.fillStyle = '#b8743a'
+          g.fillRect(boss.x - 18, boss.y - 66, 36, 66)
+          g.fillStyle = boss.state === 'tell' ? '#e8705f' : '#8ad66b'
+          g.beginPath()
+          g.arc(boss.x, boss.y - 56, 12, 0, Math.PI * 2)
+          g.fill()
         }
-        g.fillStyle = '#b8743a'
-        g.fillRect(boss.x - 18, boss.y - 66, 36, 66)
-        g.fillStyle = boss.state === 'tell' ? '#e8705f' : '#8ad66b'
-        g.beginPath()
-        g.arc(boss.x, boss.y - 56, 12, 0, Math.PI * 2)
-        g.fill()
       }
     }
     if (boss.state === 'burst' && boss.kind === 'anchor') {

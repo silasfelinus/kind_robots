@@ -370,6 +370,40 @@ assert.deepEqual(
 
 // ── Campfire narrative: earned second supports and three-beat promises ───
 assert.equal(SUPPORTS.length, 35, 'all support pairs are accounted for')
+assert.equal(Object.keys(SUPPORT_MOMENTS).length, SUPPORTS.length)
+assert.equal(new Set(Object.values(SUPPORT_MOMENTS)).size, SUPPORTS.length)
+for (const support of SUPPORTS) {
+  const key = pairKey(support.a, support.b)
+  const id = SUPPORT_MOMENTS[key]!
+  const moment = DEEPHEART.moments.find((entry) => entry.id === id)
+  assert.ok(moment, `missing scrapbook entry for ${key}`)
+  assert.deepEqual([...moment.about].sort(), [support.a, support.b].sort())
+  const romantic = support.kind === 'lovers' || support.kind === 'exes'
+  assert.equal(moment.kind, romantic ? 'romance' : 'follower')
+  const run = createRun(hero(support.a), [support.b], 1472)
+  run.phase = 'camp'
+  run.camp = { talks: 2, supportScenes: [] }
+  assert.ok(!run.moments.includes(id), 'support must be earned')
+  const choice = campOptions(run).find(
+    (option) => option.kind === 'support' && option.key === key,
+  )
+  assert.ok(choice && choice.kind === 'support')
+  assert.equal(choice.tier, 1)
+  assert.equal(
+    campOptions(run, false).some(
+      (option) => option.kind === 'support' && option.key === key,
+    ),
+    !romantic,
+  )
+  if (romantic) {
+    assert.equal(campAction(run, choice, false), '')
+    assert.ok(!run.moments.includes(id))
+  }
+  assert.equal(campAction(run, choice), support.scene)
+  assert.equal(run.moments.filter((entry) => entry === id).length, 1)
+  assert.equal(campAction(run, choice), '')
+  assert.equal(run.moments.filter((entry) => entry === id).length, 1)
+}
 assert.deepEqual(
   Object.keys(SUPPORT_SEQUELS).sort(),
   SUPPORTS.map((s) => pairKey(s.a, s.b)).sort(),

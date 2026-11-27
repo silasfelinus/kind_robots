@@ -1364,7 +1364,8 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     this.autoScroll = def.autoScroll
     this.solid = stage.solid.slice()
-    this.wildwater = this.autopilot || this.demo ? undefined : def.wildwater
+    this.wildwater =
+      this.autopilot || this.demo || this.endless ? undefined : def.wildwater
     this.wildwaterActive = false
     this.wildwaterSpent = false
     this.wildwaterCells.clear()

@@ -233,7 +233,7 @@ import { computed } from 'vue'
 import { useDeepheartStore } from '~/stores/deepheartStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import { ENEMIES, LAYERS, item } from '~/utils/deepheart/dungeon'
-import { enemyArt, ROOM_ART } from '~/utils/deepheart/art'
+import { encounterArt, enemyArt, ROOM_ART } from '~/utils/deepheart/art'
 import { DEEPHEART } from '~/utils/playbookKit/games/deepheart'
 import { deepheartArtSrc } from '~/utils/deepheart/renderedArt'
 import * as engine from '~/utils/deepheart/engine'
@@ -271,9 +271,19 @@ const roomArt = computed(() => {
     const art = enemyArt(layer.value.boss)
     if (art) return art
   }
-  if (current.phase === 'choice' && ev.value?.id.startsWith('fairy-')) {
-    const ruler = DEEPHEART.cast.find((member) => member.id === ev.value?.id)
-    if (ruler?.portrait.src) return ruler.portrait
+  if (current.phase === 'choice' && ev.value) {
+    if (ev.value.id.startsWith('fairy-')) {
+      const ruler = DEEPHEART.cast.find((member) => member.id === ev.value?.id)
+      if (ruler?.portrait.src) return ruler.portrait
+    }
+    const art = encounterArt(ev.value)
+    if (art) return art
+  }
+  if (current.phase === 'fight') {
+    const art = DEEPHEART.moments.find(
+      (moment) => moment.id === layer.value.moment,
+    )?.art
+    if (art?.src) return art
   }
   return campMomentArt.value ?? ROOM_ART[current.room?.kind ?? 'boss']
 })

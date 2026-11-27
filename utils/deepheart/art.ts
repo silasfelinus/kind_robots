@@ -3,7 +3,7 @@ import { ANTHRO_ROMANCE_ACTION } from './anthro'
 import { ENEMIES } from './dungeon'
 import { DEEPHEART_ART_IDS, deepheartArtSrc } from './renderedArt'
 import { CHARACTERS, ROLES, character } from './roster'
-import type { Character, RoomKind } from './types'
+import type { Character, EventDef, RoomKind } from './types'
 
 // Every Deepheart picture as a brief plus a literal render prompt for the
 // kit's engine. Rendered art lands under /images/deepheart/ and is wired in
@@ -83,6 +83,19 @@ export function enemyArt(id: string): KitArt | undefined {
     alt: enemy.name,
     brief: enemy.look,
     prompt: enemy.look,
+  }
+}
+
+export function encounterArt(event: EventDef): KitArt | undefined {
+  const src =
+    deepheartArtSrc(`encounter:${event.id}`) ??
+    (event.moment ? deepheartArtSrc(`moment:${event.moment}`) : undefined)
+  if (!src) return undefined
+  return {
+    src,
+    alt: event.title,
+    brief: event.title,
+    prompt: event.text,
   }
 }
 

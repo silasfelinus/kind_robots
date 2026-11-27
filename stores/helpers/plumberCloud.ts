@@ -6,12 +6,7 @@ import {
 } from '../../utils/arcade/games/savePlumberSave'
 
 export type PlumberCloudStatus =
-  | 'local'
-  | 'checking'
-  | 'saving'
-  | 'synced'
-  | 'offline'
-  | 'conflict'
+  'local' | 'checking' | 'saving' | 'synced' | 'offline' | 'conflict'
 
 export type PlumberAccountCopy = {
   save: PlumberFile

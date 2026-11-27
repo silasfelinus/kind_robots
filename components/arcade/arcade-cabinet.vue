@@ -1633,7 +1633,8 @@ let spectrumRunOwner: number | null = null
 /** Keep a long game's progress (a real game's only; demos never save). */
 function keepSave(instance: ArcadePlayableInstance | null) {
   if (
-    (props.slug === 'superkate-spectrum' || props.slug === 'save-the-plumber') &&
+    (props.slug === 'superkate-spectrum' ||
+      props.slug === 'save-the-plumber') &&
     spectrumRunOwner !== (useUserStore().authenticatedUserId ?? null)
   )
     return

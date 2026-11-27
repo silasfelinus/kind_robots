@@ -310,13 +310,11 @@ if (firstSync.status === 'merged') {
 }
 const sameReset = reconcilePlumberSaves(erasedSlot, erasedSlot, cloud)
 assert.equal(sameReset.status, 'merged')
-if (sameReset.status === 'merged')
-  assert.deepEqual(sameReset.save, erasedSlot)
+if (sameReset.status === 'merged') assert.deepEqual(sameReset.save, erasedSlot)
 const remoteOnly = reconcilePlumberSaves(cloud, progressed, cloud)
 assert.equal(remoteOnly.status, 'merged')
 if (remoteOnly.status === 'merged')
   assert.deepEqual(remoteOnly.save, progressed)
-
 
 const options = (resume?: unknown) => ({
   rng: () => 0.5,

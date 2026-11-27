@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   CAMPAIGN,
+  SOLID_WATER,
   TILE,
   type StageDef,
 } from '../arcade/games/savePlumberLevels'
@@ -130,4 +131,42 @@ assert.equal(screened.gurgle?.state, 'mounted')
 assert.equal(screened.heldRoller, null, 'solid wall blocks the slurp')
 assert.notEqual(screened.foes[0]?.state, 'stunned', 'wall blocks the strike')
 
-console.log('Save the Plumber Gurgle mount, surface swim and roller spit: OK')
+function supplyArena(blocked = false): StageDef {
+  return {
+    ...pool,
+    name: 'Gurgle supply practice',
+    rows: pool.rows.map((line, row) =>
+      Array.from(line, (cell, col) => {
+        if (blocked && col === 5 && (row === 19 || row === 20)) return 'B'
+        if (row === 20 && col === 6) return '1'
+        if (row === 21 && col === 6) return 'w'
+        return cell
+      }).join(''),
+    ),
+  }
+}
+const supply = new PlumberRun(options, { customLevel: supplyArena() })
+frame(supply)
+frame(supply, ['down'], ['x'])
+const pickup = supply.pickups[0]!
+assert.ok(pickup && !pickup.taken)
+frame(supply, [], ['x'])
+assert.equal(supply.power, 'springstep')
+assert.equal(pickup.taken, true)
+assert.equal(supply.gurgle?.water, false, 'one supply per slurp')
+for (let i = 0; i < 22; i++) frame(supply)
+frame(supply, [], ['x'])
+assert.equal(supply.gurgle?.water, true, 'dry mount can sip nearby water')
+assert.equal(supply.solidAt(6, 21), SOLID_WATER, 'water stays in the course')
+assert.equal(supply.hearts, 3)
+const walledSupply = new PlumberRun(options, {
+  customLevel: supplyArena(true),
+})
+frame(walledSupply)
+frame(walledSupply, ['down'], ['x'])
+frame(walledSupply, [], ['x'])
+assert.equal(walledSupply.power, null, 'wall occludes pickup slurp')
+assert.equal(walledSupply.gurgle?.water, false, 'wall occludes water slurp')
+assert.equal(walledSupply.pickups[0]!.taken, false)
+
+console.log('Save the Plumber Gurgle mount, surface swim, spit and supplies: OK')

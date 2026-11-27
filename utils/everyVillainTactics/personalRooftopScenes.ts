@@ -180,9 +180,17 @@ export function personalRooftopNode(
   const ally = state.units.find(
     (unit) => unit.team === 'squad' && unit.id !== 'backdraft' && unit.hp > 0,
   )
-  const speaker = ['c1', 'cw', 'cj', 'w1', 'j1', 't1', 's1', 'vw', 'vj'].includes(
-    node.id,
-  )
+  const speaker = [
+    'c1',
+    'cw',
+    'cj',
+    'w1',
+    'j1',
+    't1',
+    's1',
+    'vw',
+    'vj',
+  ].includes(node.id)
     ? (ally?.id ?? 'backdraft')
     : 'backdraft'
   return { ...node, speaker, text }

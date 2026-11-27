@@ -1536,9 +1536,7 @@ const roofNodes = ROOFTOP_BROADCAST_SCRIPT.scenes.flatMap(
 const roofVoices = new Set<string>()
 assert.deepEqual(
   Object.keys(PERSONAL_ROOFTOP_LINES).sort(),
-  IDENTITY_ARCS.filter((identity) =>
-    identity.signature.startsWith('accident-'),
-  )
+  IDENTITY_ARCS.filter((identity) => identity.signature.startsWith('accident-'))
     .map((identity) => identity.signature)
     .sort(),
 )
@@ -1553,14 +1551,20 @@ for (const lead of Object.keys(PERSONAL_ROOFTOP_LINES)) {
       state,
       perspective,
     })
-    assert.ok(arrival?.nodes.some((node) =>
-      node.id === (perspective === 'hero' ? 'oh' : 'ov'),
-    ))
+    assert.ok(
+      arrival?.nodes.some(
+        (node) => node.id === (perspective === 'hero' ? 'oh' : 'ov'),
+      ),
+    )
     const before = JSON.stringify(state)
     let changed = 0
     for (const node of roofNodes) {
       const line = personalRooftopNode(
-        node, lead, 'rooftop-broadcast', true, state,
+        node,
+        lead,
+        'rooftop-broadcast',
+        true,
+        state,
       )
       assert.deepEqual(line.choices, node.choices)
       assert.deepEqual(line.branch, node.branch)
@@ -1584,7 +1588,13 @@ for (const lead of Object.keys(PERSONAL_ROOFTOP_LINES)) {
         node,
       )
       assert.equal(
-        personalRooftopNode(node, 'constructor', 'rooftop-broadcast', true, state),
+        personalRooftopNode(
+          node,
+          'constructor',
+          'rooftop-broadcast',
+          true,
+          state,
+        ),
         node,
       )
       assert.equal(

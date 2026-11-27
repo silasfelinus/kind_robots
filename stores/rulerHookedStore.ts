@@ -526,7 +526,10 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     restoreRoyalBackup(backup)
     if (activeId) {
       const restored = loadSave(activeId)
-      if (restored) {
+      if (
+        restored &&
+        Date.parse(restored.updatedAt) > Date.parse(save.value?.updatedAt ?? '')
+      ) {
         save.value = restored
         restoreCourtState()
       }

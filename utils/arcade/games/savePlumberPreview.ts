@@ -3058,8 +3058,7 @@ export class PlumberRun implements ArcadeGameInstance {
       this.kick(roller, this.facing)
       return
     }
-    if (!grab && this.mounted && !this.carrying && this.grabRoller(true))
-      return
+    if (!grab && this.mounted && !this.carrying && this.grabRoller(true)) return
     if (grab && !this.carrying && this.grabRoller()) return
     if (this.carrying) {
       this.carrying = false

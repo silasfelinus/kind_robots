@@ -430,6 +430,35 @@
             </button>
           </div>
         </div>
+        <div
+          v-if="pickedLead === 'accident-water'"
+          class="evf-origin-battle"
+          data-testid="front-tidewarden-origin-battle"
+        >
+          <h3 class="evf-label">YOUR POWER ORIGIN / HYDRANT BLUE</h3>
+          <div class="evf-stages">
+            <button
+              type="button"
+              class="evf-stage"
+              data-testid="front-origin-hydrant-blue"
+              @click="store.startOneShot('hydrant-blue', pickedLead, pickedView)"
+            >
+              <img
+                v-if="art('districts/industrial-foundry')"
+                :src="art('districts/industrial-foundry')!"
+                alt=""
+                loading="lazy"
+              />
+              <span class="evf-stage-text">
+                <small class="evf-kicker">TIDEWARDEN / ORIGIN BATTLE</small>
+                <strong>Hydrant Blue</strong>
+                <span>
+                  Restore the dry water main and evacuate two trapped crews.
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
         <template v-if="store.screen === 'oneshot'">
           <h3 class="evf-label">04 / Pick a battlefield</h3>
           <div class="evf-stages">

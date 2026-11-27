@@ -481,6 +481,17 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
     save.leadSignature === 'accident-social'
   )
     flagsAllowed.add('radio-counter-melody')
+  if (save.stage?.id === 'hydrant-blue' && save.leadSignature === 'accident-water')
+    flagsAllowed.add('hydrant-main-flowing')
+  if (
+    save.stage?.id === 'hydrant-blue' &&
+    (save.leadSignature !== 'accident-water' ||
+      (state.flags?.includes('hydrant-main-flowing') !== true &&
+        state.civilians?.some((civilian) => civilian.status === 'rescued')) ||
+      (state.flags?.includes('hydrant-main-flowing') === true &&
+        !state.units.some((unit) => unit.id === 'backdraft' && unit.identity === 'accident-water' && unit.powerSpent)))
+  )
+    return reject('Hydrant Blue requires Tidewarden and a genuine restored main.')
   if (
     Array.isArray(state.flags) &&
     state.flags.includes('diner-hood-vented') &&

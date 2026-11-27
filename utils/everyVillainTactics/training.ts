@@ -48,6 +48,7 @@ import {
   applyTacticalProfile,
   bestPowerPlay,
   previewPower,
+  powerBlocker,
   powerTargets,
   tacticFor,
   tickPowerCooldowns,
@@ -831,9 +832,51 @@ export function useAlliedSignature(state: TrainingState): boolean {
   return true
 }
 
+function hydrantValveMission(state: TrainingState, unit: Unit): boolean {
+  return (
+    state.stageId === 'hydrant-blue' &&
+    unit.id === 'backdraft' &&
+    unit.identity === 'accident-water'
+  )
+}
+
+/** An environmental use of the same one-shot signature: the broken main
+ * is a target even when the rivals have been defeated. */
+function hydrantValvePreview(
+  state: TrainingState,
+  unit: Unit,
+  target: Cell,
+): PowerPreview | null {
+  const valve = { x: 4, y: 2 }
+  if (
+    !hydrantValveMission(state, unit) ||
+    powerBlocker(unit) ||
+    target.x !== valve.x ||
+    target.y !== valve.y ||
+    gridDistance(unit, valve) > 1 ||
+    (state.flags ?? []).includes('hydrant-main-flowing')
+  )
+    return null
+  const power = powerFor(unit)
+  if (!power || power.family !== 'undertow' || power.cooldown !== 0)
+    return null
+  return {
+    power,
+    user: unit.id,
+    target: valve,
+    cells: [valve],
+    chance: null,
+    effects: [],
+  }
+}
+
 export function selectedPowerTargets(state: TrainingState): Cell[] {
   const unit = selectedUnit(state)
   if (!unit || state.phase !== 'active') return []
+  if (hydrantValveMission(state, unit)) {
+    const valve = { x: 4, y: 2 }
+    return hydrantValvePreview(state, unit, valve) ? [valve] : []
+  }
   return powerTargets(state, unit).filter(
     (target) =>
       valcourtRescueTarget(state, unit, target) &&
@@ -846,6 +889,8 @@ export function previewSelectedPower(
 ): PowerPreview | null {
   const unit = selectedUnit(state)
   if (!unit || state.phase !== 'active') return null
+  if (hydrantValveMission(state, unit))
+    return hydrantValvePreview(state, unit, target)
   if (
     !valcourtRescueTarget(state, unit, target) ||
     !chorusBroadcastTarget(state, unit, target)
@@ -932,6 +977,19 @@ function narratePower(
 export function useSelectedPower(state: TrainingState, target: Cell): boolean {
   const unit = selectedUnit(state)
   if (!unit || state.phase !== 'active') return false
+  if (hydrantValveMission(state, unit)) {
+    const preview = hydrantValvePreview(state, unit, target)
+    if (!preview) return false
+    unit.ap -= preview.power.ap
+    unit.powerSpent = true
+    unit.fired = true
+    state.flags ??= []
+    state.flags.push('hydrant-main-flowing')
+    note(state, 'Tidewarden redirects the broken water main. Both crews can now evacuate.')
+    state.mode = 'move'
+    updateOutcome(state)
+    return true
+  }
   if (
     !valcourtRescueTarget(state, unit, target) ||
     !chorusBroadcastTarget(state, unit, target)
@@ -1059,6 +1117,12 @@ export function rescueTargets(state: TrainingState): Civilian[] {
         state.stageId !== 'song-that-stopped' ||
         !['radio-listeners', 'radio-volunteers'].includes(c.id) ||
         (state.flags ?? []).includes('radio-counter-melody'),
+    )
+    .filter(
+      (c) =>
+        state.stageId !== 'hydrant-blue' ||
+        !c.id.startsWith('hydrant-') ||
+        (state.flags ?? []).includes('hydrant-main-flowing'),
     )
     .filter((c) => gridDistance(unit, c) <= 1)
     .sort((a, b) => a.id.localeCompare(b.id))

@@ -332,6 +332,7 @@ export const ORIGIN_STAGE_LEADS: Readonly<Record<string, string>> = {
   'sunken-street': 'accident-earth',
   'unlicensed-rescue': 'accident-birthright',
   'song-that-stopped': 'accident-social',
+  'hydrant-blue': 'accident-water',
 }
 export const canStartOneShot = (stageId: string, lead: string): boolean =>
   !ORIGIN_STAGE_LEADS[stageId] || ORIGIN_STAGE_LEADS[stageId] === lead
@@ -366,6 +367,11 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     id: 'song-that-stopped',
     art: 'districts/media-spire',
     tag: 'Chorus origin · break the radio loop, evacuate two groups',
+  },
+  {
+    id: 'hydrant-blue',
+    art: 'districts/industrial-foundry',
+    tag: 'Tidewarden origin · restore the main and rescue both crews',
   },
   {
     id: 'college-quad',

@@ -238,6 +238,15 @@ const endingArt = DEEPHEART.endings.map((ending) => ending.art.src)
 assert.ok(endingArt.every(Boolean))
 assert.equal(new Set(endingArt).size, DEEPHEART.endings.length)
 assert.ok(DEEPHEART.cast.every((member) => member.portrait.src))
+const scrapbookSources = DEEPHEART.moments.map((moment) => moment.art.src)
+assert.ok(scrapbookSources.every(Boolean), 'every scrapbook plate is wired')
+assert.equal(new Set(scrapbookSources).size, DEEPHEART.moments.length)
+assert.equal(DEEPHEART_ART_IDS['moment:full-party'], 280883)
+assert.equal(
+  DEEPHEART.moments.find((moment) => moment.id === 'full-party')?.art.src,
+  deepheartArtSrc('moment:full-party'),
+)
+assert.ok(!Object.values(DEEPHEART_ART_IDS).includes(273876))
 for (const id of ['hollow-king', 'bone-warden', 'mother-brine', 'vesper']) {
   const member = DEEPHEART.cast.find((entry) => entry.id === id)
   assert.ok(member?.portrait.src, `boss portrait ${id} is wired`)

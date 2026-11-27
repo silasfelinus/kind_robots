@@ -168,6 +168,7 @@ export const DEEPHEART_ART_IDS: Readonly<Record<string, number>> = {
   'moment:campfire': 273868,
   'moment:drowned-halls': 273863,
   'moment:ember-deep': 273864,
+  'moment:full-party': 280883,
   'moment:duo': 273877,
   'moment:warden-falls': 273878,
   'moment:brine-falls': 273879,

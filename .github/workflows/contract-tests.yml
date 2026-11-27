@@ -574,6 +574,9 @@ jobs:
         env:
           DATABASE_URL: 'mysql://monstrique:monstrique@127.0.0.1:3306/monstrique'
 
+      - name: Monstrique account saves, edition slots and sync choice
+        run: npx tsx utils/scripts/verifyMonstriqueAccountSave.test.ts
+
       - name: Monstrique original score, cues and volume controls
         run: npx tsx utils/scripts/verifyMonstriqueSound.test.ts
 

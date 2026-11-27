@@ -2,6 +2,7 @@ import { identityFor } from '../cometAcademy/identityArcs'
 import type { SignaturePowerId } from '../cometAcademy/specialPowers'
 import type { CrossfireJournal } from './crossfireCampaign'
 import { CROSSFIRE_CHAPTERS, crossfireFinaleNetwork } from './crossfireCampaign'
+import { ACCIDENT_CAMPAIGNS } from './personalAccidentCampaigns'
 import type { StoryRun } from './firstBellStory'
 import type { TrainingState } from './training'
 
@@ -109,13 +110,16 @@ export function crossfireChapterBeat(
   const chapter = CROSSFIRE_CHAPTERS[index]
   const speaker = identityFor(lead).hero.alias
   const opponent = foil ? identityFor(foil).hero.alias : 'the rival patrol'
-  const reported = AFTERMATH[index]?.[choice] ?? ''
+  const personal = ACCIDENT_CAMPAIGNS[lead]?.chapters[index]
+  const reported = personal
+    ? personal[choice === 'rescue' ? 1 : choice === 'evidence' ? 2 : 3]
+    : (AFTERMATH[index]?.[choice] ?? '')
   const account =
     perspective === 'villain'
       ? `${speaker} takes responsibility for what the squad ordered. ${opponent} will not let the story become a simple victory speech.`
       : `${speaker} stays until the last witnesses finish speaking. ${opponent} has a different account of the same night.`
   return {
-    title: `${chapter?.title ?? 'Crossfire'} · ${choice === 'rescue' ? 'People First' : choice === 'evidence' ? 'The Record Survives' : 'Orders and Consequences'}`,
+    title: `${personal?.[0] ?? chapter?.title ?? 'Crossfire'} · ${choice === 'rescue' ? 'People First' : choice === 'evidence' ? 'The Record Survives' : 'Orders and Consequences'}`,
     text: `${reported} ${account}`,
     choice,
   }
@@ -145,28 +149,43 @@ export function crossfireFinale(
   const opponent = journal.foil
     ? identityFor(journal.foil).hero.alias
     : 'the rival leader'
+  const personal = ACCIDENT_CAMPAIGNS[journal.lead]?.endings
+  const close = (index: number, text: string) =>
+    personal ? text + ' ' + personal[index] : text
   if (last === 'rescue' && network.squadGuarded)
     return {
       path: 'open-doors',
       title: 'The Doors Stayed Open',
-      text: `${lead} wins something harder than a battle: the city keeps its evacuation routes open. The students, researchers and workers who were protected on earlier nights run the final rescue themselves. Even ${opponent} cannot claim those people were merely pieces on the board.`,
+      text: close(
+        0,
+        `${lead} wins something harder than a battle: the city keeps its evacuation routes open. The students, researchers and workers who were protected on earlier nights run the final rescue themselves. Even ${opponent} cannot claim those people were merely pieces on the board.`,
+      ),
     }
   if (last === 'rescue' && network.enemiesExposed)
     return {
       path: 'black-box',
       title: 'The Evidence They Could Not Burn',
-      text: `${lead} leaves the ballroom with testimony from every district. The files from earlier missions make the final broadcast impossible to discredit. ${opponent} faces a public reckoning rather than a convenient final duel, and the city gets to read its own history.`,
+      text: close(
+        1,
+        `${lead} leaves the ballroom with testimony from every district. The files from earlier missions make the final broadcast impossible to discredit. ${opponent} faces a public reckoning rather than a convenient final duel, and the city gets to read its own history.`,
+      ),
     }
   if (last === 'rescue')
     return {
       path: 'unfinished',
       title: 'No One Gets the Last Word',
-      text: `${lead} opens the exits and gets the truth into the street, but the network behind ${opponent} survives. Some neighbors remember the rescues. Others remember the missing records. Graduation becomes the beginning of an argument the city intends to finish.`,
+      text: close(
+        2,
+        `${lead} opens the exits and gets the truth into the street, but the network behind ${opponent} survives. Some neighbors remember the rescues. Others remember the missing records. Graduation becomes the beginning of an argument the city intends to finish.`,
+      ),
     }
   return {
     path: 'signed-order',
     title: 'The Signature on the Order',
-    text: `${lead} gets the emergency gates open by controlling the floor and the microphone. ${opponent} is beaten, but the city has learned to fear whoever writes its orders. The prom ends safely enough; the question of who deserves authority is left burning above the dance floor.`,
+    text: close(
+      3,
+      `${lead} gets the emergency gates open by controlling the floor and the microphone. ${opponent} is beaten, but the city has learned to fear whoever writes its orders. The prom ends safely enough; the question of who deserves authority is left burning above the dance floor.`,
+    ),
   }
 }
 

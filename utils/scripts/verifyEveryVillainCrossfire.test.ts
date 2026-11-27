@@ -16,7 +16,10 @@ import {
   retryCrossfire,
   snapshotCrossfire,
 } from '../everyVillainTactics/crossfireCampaign'
-import { PERSONAL_CASTS, personalCastFor } from '../everyVillainTactics/personalCasts'
+import {
+  PERSONAL_CASTS,
+  personalCastFor,
+} from '../everyVillainTactics/personalCasts'
 import { IDENTITY_ARCS, identityFor } from '../cometAcademy/identityArcs'
 import {
   crossfireChapterBeat,
@@ -245,12 +248,7 @@ const castCombinations = new Set<string>()
 for (const person of IDENTITY_ARCS) {
   const cast = personalCastFor(person.signature)!
   assert.ok(cast)
-  const expected = [
-    person.signature,
-    ...cast.allies,
-    cast.foil,
-    ...cast.rivals,
-  ]
+  const expected = [person.signature, ...cast.allies, cast.foil, ...cast.rivals]
   assert.equal(new Set(expected).size, 6)
   assert.ok(expected.every((id) => identityFor(id)))
   assert.ok(!castCombinations.has(expected.slice(1).join(',')))

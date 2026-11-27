@@ -861,6 +861,48 @@ for (const identity of IDENTITY_ARCS) {
 assert.equal(IDENTITY_ARCS.length, 48)
 assert.equal(allForms.size, 48, 'A role evolution never creates a new identity')
 
+const personalEvolutionLeads = [
+  'accident-fire',
+  'accident-air',
+  'accident-earth',
+  'accident-water',
+  'accident-discipline',
+  'accident-genius',
+] as const
+const personalEvolutionScenes = new Set<string>()
+const personalEvolutionOutcomes = new Set<string>()
+for (const signature of personalEvolutionLeads) {
+  for (const form of ['student', 'hero', 'villain'] as const) {
+    for (const day of [16, 23] as const) {
+      const before = { ...beginPlayerEvolution(form), protect: 2, exploit: 2 }
+      const event = evolutionEncounter(signature, before, day)
+      const other = evolutionEncounter('alien-fire', before, day)
+      assert.ok(event.scene.includes(identityFor(signature).realName))
+      assert.notEqual(event.scene, other.scene)
+      personalEvolutionScenes.add(event.scene)
+      for (const choice of event.options) {
+        const baseChoice = other.options.find((option) => option.id === choice.id)!
+        assert.equal(choice.influence, baseChoice.influence)
+        assert.equal(choice.danger, baseChoice.danger)
+        assert.ok(choice.text.length > baseChoice.text.length / 2)
+        const next = resolveEvolution(before, choice.id, day, signature)!
+        assert.ok(next)
+        assert.ok(isValidPlayerEvolution(next, signature, form))
+        assert.equal(next.milestones.length, 1)
+        assert.equal(resolveEvolution(next, choice.id, day, signature), null)
+        personalEvolutionOutcomes.add(choice.text)
+      }
+      assert.deepEqual(before, {
+        ...beginPlayerEvolution(form),
+        protect: 2,
+        exploit: 2,
+      })
+    }
+  }
+}
+assert.equal(personalEvolutionScenes.size, 36)
+assert.equal(personalEvolutionOutcomes.size, 30)
+
 // An earned New Game Plus mantle is not a new promotion. Both milestone
 // encounters must allow keeping it without re-earning its original threshold.
 for (const identity of IDENTITY_ARCS) {

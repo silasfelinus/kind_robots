@@ -54,12 +54,12 @@ const make = (seed = 45, demo = false) =>
   }) as unknown as Probe
 
 assert.equal(GARDENS.length, 8)
-assert.equal(PLAYS_PER_LAP, 43)
+assert.equal(PLAYS_PER_LAP, 44)
 assert.equal(GARDENS[4], LEAF_PILE_LANE)
 assert.equal(gardenStart(4), campaignPlay(23).index)
 assert.deepEqual(campaignPlay(28), { index: gardenStart(5), lap: 0 })
 assert.ok(CAMPAIGN[campaignPlay(33).index]!.kind === 'boss')
-assert.deepEqual(campaignPlay(44), { index: 0, lap: 1 })
+assert.deepEqual(campaignPlay(45), { index: 0, lap: 1 })
 assert.equal(CAMPAIGN.filter((step) => step.kind === 'wave').length, 40)
 assert.equal(LEAF_PILE_LANE.layout.length, ROWS)
 for (const row of LEAF_PILE_LANE.layout) assert.equal(row.length, COLS)

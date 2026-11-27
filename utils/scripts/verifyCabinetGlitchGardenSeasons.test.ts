@@ -228,7 +228,7 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
   const kinds = CAMPAIGN.map((s) => s.kind)
   assert.equal(kinds.filter((k) => k === 'wave').length, 40)
   assert.equal(kinds.filter((k) => k === 'shed').length, 8)
-  assert.equal(PLAYS_PER_LAP, 43)
+  assert.equal(PLAYS_PER_LAP, 44)
   const at11 = CAMPAIGN[campaignPlay(11).index]!
   assert.ok(at11.kind === 'boss' && at11.boss === 'queen-wiggle')
   const at22 = CAMPAIGN[campaignPlay(22).index]!
@@ -238,7 +238,7 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
   assert.deepEqual(campaignPlay(28), { index: gardenStart(5), lap: 0 })
   const at33 = CAMPAIGN[campaignPlay(33).index]!
   assert.ok(at33.kind === 'boss' && at33.boss === 'gourd-hydra')
-  assert.deepEqual(campaignPlay(44), { index: 0, lap: 1 })
+  assert.deepEqual(campaignPlay(45), { index: 0, lap: 1 })
   assert.equal(
     gardenStart(2),
     CAMPAIGN.findIndex((s) => s.kind === 'wave' && s.garden === 2),

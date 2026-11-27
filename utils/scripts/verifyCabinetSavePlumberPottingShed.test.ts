@@ -109,7 +109,9 @@ const chimneyTokens = run.tokens
 walkTo(79)
 rest(30)
 assert.equal(run.hero.y + 20, 12 * TILE)
-assert.equal(run.tokens, chimneyTokens + 2)
+walkTo(77)
+walkTo(79)
+assert.equal(run.tokens, chimneyTokens + 2, 'both floor tokens are reachable')
 walkTo(74)
 const climb = emptyInput()
 climb.held.up = true

@@ -895,7 +895,10 @@ for (const perspective of ['hero', 'villain'] as const)
 
 // Each authored origin identity has independently authored playable
 // hero and villain scenes. The actual squad member speaks, not a stale slot.
-assert.equal(Object.keys(PERSONAL_CAMPAIGNS).length, 32)
+assert.deepEqual(
+  Object.keys(PERSONAL_CAMPAIGNS).sort(),
+  IDENTITY_ARCS.map((entry) => entry.signature).sort(),
+)
 for (const [signature, campaign] of Object.entries(PERSONAL_CAMPAIGNS)) {
   assert.ok(IDENTITY_ARCS.some((entry) => entry.signature === signature))
   assert.equal(campaign.chapters.length, 6)
@@ -903,13 +906,7 @@ for (const [signature, campaign] of Object.entries(PERSONAL_CAMPAIGNS)) {
   assert.equal(campaign.endings.length, 4)
 }
 const campaignPassages = new Set<string>()
-for (const person of IDENTITY_ARCS.filter(
-  (entry) =>
-    entry.signature.startsWith('accident-') ||
-    entry.signature.startsWith('magic-') ||
-    entry.signature.startsWith('tech-') ||
-    entry.signature.startsWith('mutant-'),
-)) {
+for (const person of IDENTITY_ARCS) {
   for (const perspective of ['hero', 'villain'] as const) {
     for (let chapter = 0; chapter < 6; chapter++) {
       const flags = [
@@ -969,15 +966,9 @@ for (const person of IDENTITY_ARCS.filter(
     }
   }
 }
-assert.equal(campaignPassages.size, 1088)
+assert.equal(campaignPassages.size, 1632)
 const personalFinales = new Set<string>()
-for (const person of IDENTITY_ARCS.filter(
-  (entry) =>
-    entry.signature.startsWith('accident-') ||
-    entry.signature.startsWith('magic-') ||
-    entry.signature.startsWith('tech-') ||
-    entry.signature.startsWith('mutant-'),
-)) {
+for (const person of IDENTITY_ARCS) {
   for (const [index, [rescues, evidence, shelter, path]] of [
     [[0, 1, 2], [], true, 'open-doors'],
     [[], [0, 1], true, 'black-box'],
@@ -1003,7 +994,7 @@ for (const person of IDENTITY_ARCS.filter(
     personalFinales.add(authored)
   }
 }
-assert.equal(personalFinales.size, 128)
+assert.equal(personalFinales.size, 192)
 
 const personalScenes = new Set<string>()
 for (const person of IDENTITY_ARCS) {

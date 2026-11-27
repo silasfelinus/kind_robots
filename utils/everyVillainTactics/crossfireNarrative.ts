@@ -6,6 +6,8 @@ import { ACCIDENT_CAMPAIGNS } from './personalAccidentCampaigns'
 import { MAGIC_CAMPAIGNS } from './personalMagicCampaigns'
 import { TECH_CAMPAIGNS } from './personalTechCampaigns'
 import { MUTANT_CAMPAIGNS } from './personalMutantCampaigns'
+import { ALIEN_CAMPAIGNS } from './personalAlienCampaigns'
+import { PSYCHIC_CAMPAIGNS } from './personalPsychicCampaigns'
 import type { StoryRun } from './firstBellStory'
 import type { TrainingState } from './training'
 
@@ -14,6 +16,8 @@ export const PERSONAL_CAMPAIGNS = {
   ...MAGIC_CAMPAIGNS,
   ...TECH_CAMPAIGNS,
   ...MUTANT_CAMPAIGNS,
+  ...ALIEN_CAMPAIGNS,
+  ...PSYCHIC_CAMPAIGNS,
 }
 
 type BattleEvidence = {

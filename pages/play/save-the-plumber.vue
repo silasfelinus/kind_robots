@@ -732,7 +732,7 @@ const controls = [
     keyboard: 'E / C',
     pad: 'X',
     label: 'WRENCH',
-    does: 'Strike enemies, crates and valves. Down + Wrench mounts or parks Gurgle on dry ground, or lifts a stunned Rivet Roller. Mounted Wrench slurps a nearby roller, then spits it on the next press, or pulls in a pickup or sips water. Spit before parking.',
+    does: 'Strike enemies, crates and valves. Down + Wrench mounts or parks Gurgle on dry ground, or lifts a stunned Rivet Roller. Mounted Wrench slurps a nearby roller, then spits it on the next press. Small bugs and crabs give a token, leaping minnows refill the spout hop, and Gurgle also pulls in pickups or sips water. Spit before parking.',
   },
   {
     keyboard: 'F / V',

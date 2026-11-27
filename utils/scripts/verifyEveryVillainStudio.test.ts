@@ -69,15 +69,21 @@ for (const perspective of ['hero', 'villain'] as const) {
     const lead = battle.units[0]!
     lead.hp = lead.maxHp - 1
     assert.ok(finishScene(battle, decision, [choice], perspective))
-    assert.equal(finishScene(battle, decision, [1 - choice], perspective), false)
+    assert.equal(
+      finishScene(battle, decision, [1 - choice], perspective),
+      false,
+    )
     assert.ok(
-      battle.flags?.includes(choice === 0 ? 'vigil-memories' : 'vigil-extinguish'),
+      battle.flags?.includes(
+        choice === 0 ? 'vigil-memories' : 'vigil-extinguish',
+      ),
     )
     if (choice === 0) assert.equal(lead.hp, lead.maxHp)
     else
       assert.ok(
         battle.units.some(
-          (unit) => unit.team === 'rival' && unit.statuses.includes('suppressed'),
+          (unit) =>
+            unit.team === 'rival' && unit.statuses.includes('suppressed'),
         ),
       )
     battle.phase = 'victory'

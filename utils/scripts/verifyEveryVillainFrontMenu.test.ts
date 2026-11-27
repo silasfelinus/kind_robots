@@ -761,7 +761,9 @@ for (const perspective of ['hero', 'villain'] as const) {
   assert.ok(loadSave(JSON.stringify(checkpoint)).ok)
   assert.equal(
     loadSave(
-      JSON.stringify(createSave({ ...checkpoint, state: { ...state, flags: [] } })),
+      JSON.stringify(
+        createSave({ ...checkpoint, state: { ...state, flags: [] } }),
+      ),
     ).ok,
     false,
   )

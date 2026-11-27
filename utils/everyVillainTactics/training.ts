@@ -1623,10 +1623,7 @@ export function rivalAttackDestination(state: TrainingState, enemy: Unit) {
   const currentRisk = rivalExposure(state, enemy, enemy)
   const baseline = currentHit - currentRisk.incoming / 4
   const candidates = reachableCells(state.map, state.units, enemy)
-    .filter(
-      (point) =>
-        point.cost < enemy.ap && !rivalHazardAt(state, point),
-    )
+    .filter((point) => point.cost < enemy.ap && !rivalHazardAt(state, point))
     .map((point) => {
       const hit = bestShot(state, enemy, point)?.chance.hit ?? 0
       const risk = rivalExposure(state, enemy, point)

@@ -9,6 +9,10 @@ import prisma from '~/server/utils/prisma'
 import { requireHumanApiUser } from '~/server/utils/authGuard'
 import { errorHandler } from '~/server/utils/error'
 import { validSpectrumCloudSave } from '~/utils/arcade/superkateSpectrum/progress'
+import {
+  PLUMBER_SLUG,
+  validPlumberCloudSave,
+} from '~/utils/arcade/games/savePlumberSave'
 
 const MAX_BYTES = 8_192
 
@@ -16,8 +20,10 @@ export default defineEventHandler(async (event) => {
   setHeader(event, 'Cache-Control', 'private, no-store')
   try {
     const game = getRouterParam(event, 'game')
-    if (game !== 'superkate-spectrum')
+    if (game !== 'superkate-spectrum' && game !== PLUMBER_SLUG)
       throw createError({ statusCode: 404, message: 'Unknown cloud cabinet.' })
+    const validSave =
+      game === PLUMBER_SLUG ? validPlumberCloudSave : validSpectrumCloudSave
     const { user } = await requireHumanApiUser(event)
     if (user.isGuest || user.id === 10)
       throw createError({ statusCode: 401, message: 'Sign in to sync Arcade.' })
@@ -27,7 +33,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid save request.' })
     const input = raw as { save?: unknown; expectedRevision?: unknown }
     if (
-      !validSpectrumCloudSave(input.save) ||
+      !validSave(input.save) ||
       (input.expectedRevision !== null &&
         (!Number.isSafeInteger(input.expectedRevision) ||
           (input.expectedRevision as number) < 0))

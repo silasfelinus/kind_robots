@@ -68,12 +68,7 @@ function assertSafe(run: PlumberRun, label: string) {
   }
 }
 
-function start(
-  index: number,
-  autopilot = false,
-  suited = true,
-  def = pool,
-) {
+function start(index: number, autopilot = false, suited = true, def = pool) {
   const run = new PlumberRun(options, { customLevel: def, autopilot })
   run.heroineSeed = seedForRoster(index, () => 0.5)
   assert.equal(run.member.key, PLUMBER_ROSTER[index]!.key)
@@ -185,8 +180,7 @@ for (const index of PLUMBER_ROSTER.keys()) {
     assert.equal(run.tideKickCooldown, cooldown - 1)
     assert.equal(run.tideKick, 0)
     assertSafe(run, 'kick cooldown')
-    for (let tick = 0; tick < 40; tick++)
-      run.update(emptyInput())
+    for (let tick = 0; tick < 40; tick++) run.update(emptyInput())
     assert.equal(run.tideKickCooldown, 0)
   }
 }

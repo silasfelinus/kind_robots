@@ -55,6 +55,8 @@ import {
   setActive,
   makeSaveId,
   restoreRoyalBackup,
+  setRoyalSaveScope,
+  guestRoyalBackup,
 } from '~/utils/rulerHooked/save'
 import {
   putPortrait,
@@ -87,6 +89,7 @@ import {
   rulerHookedEndingDeeds,
 } from '~/utils/rulerHooked/achievements'
 import { useAchievementStore } from './achievementStore'
+import { useUserStore } from './userStore'
 import type {
   Card,
   CatchResult,
@@ -110,6 +113,8 @@ function award(codes: readonly string[]) {
 }
 
 export const useRulerHookedStore = defineStore('rulerHooked', () => {
+  const user = useUserStore()
+  let scopeGeneration = 0
   const bundle = BUNDLE
   const save = ref<RunSave | null>(null)
   const activeCard = ref<Card | null>(null)
@@ -194,6 +199,10 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
 
   /** Load the last active slot (or leave null for the title screen). */
   function init() {
+    scopeGeneration++
+    setRoyalSaveScope(user.authenticatedUserId)
+    save.value = null
+    clearTransientPlayState()
     refreshSlots()
     const idx = loadIndex()
     if (idx.activeSaveId) {
@@ -219,6 +228,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     honorific = 'Ruler',
     opts: { presetId?: string; customPortraitFile?: File } = {},
   ) {
+    const generation = scopeGeneration
     const stamp = nowStamp()
     const saveId = makeSaveId(stamp, rulerName + slots.value.length)
     let customPortraitId: string | undefined
@@ -227,6 +237,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
       customPortraitId =
         (await putPortrait(opts.customPortraitFile, id)) ?? undefined
     }
+    if (generation !== scopeGeneration) return
     const run = createRun(bundle, {
       saveId,
       name: name || `${honorific} ${rulerName}'s reign`,
@@ -259,6 +270,8 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     customPortraitFile?: File
   }) {
     if (!save.value) return
+    const generation = scopeGeneration
+    const activeId = save.value.saveId
     const prevPortraitId = save.value.ruler.cosmetics?.customPortraitId
     let customPortraitId: string | undefined
     if (opts.customPortraitFile) {
@@ -268,6 +281,8 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
       customPortraitId =
         (await putPortrait(opts.customPortraitFile, id)) ?? undefined
     }
+    if (generation !== scopeGeneration || save.value?.saveId !== activeId)
+      return
     save.value.ruler.cosmetics = {
       ...save.value.ruler.cosmetics,
       presetId:
@@ -511,7 +526,10 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     restoreRoyalBackup(backup)
     if (activeId) {
       const restored = loadSave(activeId)
-      if (restored) {
+      if (
+        restored &&
+        Date.parse(restored.updatedAt) > Date.parse(save.value?.updatedAt ?? '')
+      ) {
         save.value = restored
         restoreCourtState()
       }
@@ -519,6 +537,19 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     refreshSlots()
     return true
   }
+
+  function importGuestReigns(): boolean {
+    if (!user.authenticatedUserId || !canRestoreAccount.value) return false
+    return restoreAccount(guestRoyalBackup())
+  }
+
+  watch(
+    () => user.authenticatedUserId,
+    () => {
+      if (import.meta.client) init()
+    },
+    { flush: 'sync' },
+  )
 
   function persist() {
     if (save.value) {
@@ -640,6 +671,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     deleteSlot,
     refreshSlots,
     canRestoreAccount,
+    importGuestReigns,
     restoreAccount,
     purchaseGear,
     purchaseKingdomItem,

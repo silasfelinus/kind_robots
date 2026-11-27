@@ -25,6 +25,10 @@ export const useRulerHookedAccountStore = defineStore(
     const busy = ref(false)
     const message = ref('')
     let epoch = 0
+    let running = false
+    let timer: ReturnType<typeof setTimeout> | undefined
+    let pullNeeded = true
+    let retries = 0
     watch(
       () => user.authenticatedUserId,
       () => {
@@ -32,6 +36,9 @@ export const useRulerHookedAccountStore = defineStore(
         archive.value = null
         busy.value = false
         message.value = ''
+        pullNeeded = true
+        retries = 0
+        queueSync()
       },
       { flush: 'sync' },
     )
@@ -122,6 +129,108 @@ export const useRulerHookedAccountStore = defineStore(
       message.value = 'Account reigns restored. Choose a reign to continue.'
     }
 
-    return { signedIn, archive, busy, message, refresh, backup, restore }
+    function queueSync(delay = 600) {
+      if (timer !== undefined) clearTimeout(timer)
+      timer = undefined
+      if (!running || !user.authenticatedUserId) return
+      timer = setTimeout(() => {
+        timer = undefined
+        void sync()
+      }, delay)
+    }
+
+    async function sync() {
+      const owner = user.authenticatedUserId
+      if (!running || !owner) return
+      if (busy.value) {
+        queueSync()
+        return
+      }
+
+      if (pullNeeded || !archive.value) {
+        await refresh()
+        if (!running || owner !== user.authenticatedUserId) return
+        if (!archive.value) return
+      }
+
+      try {
+        if (pullNeeded) {
+          const incoming = archive.value?.save
+          if (incoming) {
+            const local = deviceRoyalBackup()
+            const restored = mergeRoyalBackups(local, incoming)
+            if (JSON.stringify(restored) !== JSON.stringify(local)) {
+              if (!game.canRestoreAccount || !game.restoreAccount(incoming))
+                return
+            }
+          }
+          pullNeeded = false
+        }
+
+        const remote = archive.value?.save
+        const local = deviceRoyalBackup()
+        const merged = remote ? mergeRoyalBackups(remote, local) : local
+        if (
+          (!remote &&
+            !local.reigns.length &&
+            !Object.keys(local.scrapbook).length) ||
+          (remote && JSON.stringify(merged) === JSON.stringify(remote))
+        ) {
+          retries = 0
+          return
+        }
+        await backup()
+        if (!running || owner !== user.authenticatedUserId) return
+        if (!archive.value && retries < 2) {
+          retries++
+          pullNeeded = true
+          queueSync(1500)
+        } else if (archive.value) {
+          retries = 0
+        }
+      } catch {
+        message.value = 'Automatic backup failed. Device reigns are safe.'
+      }
+    }
+
+    watch(
+      () => [game.slots, game.scrapbook, game.canRestoreAccount],
+      () => queueSync(),
+      { deep: true },
+    )
+
+    function start() {
+      running = true
+      pullNeeded = true
+      retries = 0
+      queueSync(0)
+    }
+
+    function stop() {
+      running = false
+      if (timer !== undefined) clearTimeout(timer)
+      timer = undefined
+      epoch++
+      busy.value = false
+    }
+
+    function reconnect() {
+      pullNeeded = true
+      retries = 0
+      queueSync(0)
+    }
+
+    return {
+      signedIn,
+      archive,
+      busy,
+      message,
+      refresh,
+      backup,
+      restore,
+      start,
+      stop,
+      reconnect,
+    }
   },
 )

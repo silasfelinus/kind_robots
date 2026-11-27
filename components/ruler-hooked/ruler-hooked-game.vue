@@ -183,6 +183,7 @@ import { useRulerHookedDisplayStore } from '~/stores/rulerHookedDisplayStore'
 import { useRulerHookedAudioStore } from '~/stores/rulerHookedAudioStore'
 import { royalThemeFor } from '~/utils/rulerHooked/audio'
 import { useRulerHookedStore } from '~/stores/rulerHookedStore'
+import { useRulerHookedAccountStore } from '~/stores/rulerHookedAccountStore'
 import { useRulerHookedQuizStore } from '~/stores/rulerHookedQuizStore'
 import { BACKDROPS } from '~/utils/rulerHooked/artLibrary'
 import {
@@ -206,6 +207,7 @@ import {
 type Screen = ConsoleScreen | 'opening' | 'settings'
 
 const store = useRulerHookedStore()
+const account = useRulerHookedAccountStore()
 const quiz = useRulerHookedQuizStore()
 const audio = useRulerHookedAudioStore()
 const display = useRulerHookedDisplayStore()
@@ -503,6 +505,8 @@ onMounted(() => {
   document.addEventListener('visibilitychange', syncAudioVisibility)
   quiz.initialize()
   store.init()
+  account.start()
+  window.addEventListener('online', account.reconnect)
   screen.value = store.showOpening ? 'opening' : 'lake'
   window.addEventListener('keydown', onKey)
   padFrame = requestAnimationFrame(pollPads)
@@ -510,6 +514,8 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('visibilitychange', syncAudioVisibility)
   audio.dispose()
+  account.stop()
+  window.removeEventListener('online', account.reconnect)
   window.removeEventListener('keydown', onKey)
   cancelAnimationFrame(padFrame)
 })

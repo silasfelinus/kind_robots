@@ -37,6 +37,7 @@ type TestGame = {
   updateBlooms(): void
   updateHail(): void
   release(): void
+  demoInput(): ReturnType<typeof emptyInput>
   volleyTimer: number
   toRelease: number
   startWave(wave: number): void
@@ -181,6 +182,22 @@ function pilot(seed: number) {
 }
 assert.deepEqual(pilot(15), pilot(15), 'seeded rain pilot is repeatable')
 assert.equal(pilot(15).score, 0, 'attract mode cannot post a score')
+for (const seed of [5, 15, 42]) {
+  const game = gameFor(seed)
+  let shots = 0
+  for (let tick = 0; tick < 18_000 && game.level < 6 && !game.over; tick++) {
+    const input = game.demoInput()
+    if (input.pressed.a) shots++
+    game.update(input)
+  }
+  assert.equal(
+    game.level,
+    6,
+    `seed ${seed}: clear all five Orchard Hills waves`,
+  )
+  assert.ok(shots > 0 && game.score > 0, `seed ${seed}: active scoring run`)
+}
+
 console.log(
   'Rain Catcher: bed growth, barrels, petal chains, snowballs and pilot',
 )

@@ -2,7 +2,7 @@
 title: 'Account'
 room: 'Account & Privacy'
 subtitle: 'Settings, consent, and creator earnings'
-description: Change your password, verify your email, tune privacy and consent, manage newsletter updates, and review creator earnings.
+description: Change your password, verify your email, choose your privacy settings, pick which newsletter emails you get and see what your creations have earned. Sign in free to open it.
 image: splash/dashboard.png
 icon: kind-icon:settings
 tooltip: Manage your account preferences and review what your creations have earned.

@@ -209,4 +209,20 @@ const messages = pageDescription('content/messages.md')
 assert.doesNotMatch(messages, /consent-aware/i)
 assert.match(messages, /only friends/)
 
+// 10. Header tooltips match what the page does (2026-11-27 PT): /chats'
+//     tooltip promised "the things bots and users have actually said" on a
+//     private page of your own chats, /dashboard read "User customizations",
+//     /register "Step through the gateway", /forum "let your ideas unfold"
+//     and /account described "tune privacy and consent".
+const pageTooltip = (file: string) =>
+  read(file).match(/^tooltip: '?(.+?)'?$/m)?.[1] ?? ''
+assert.match(pageTooltip('content/chats.md'), /your own conversations/)
+assert.doesNotMatch(pageTooltip('content/chats.md'), /users have actually said/)
+assert.doesNotMatch(pageTooltip('content/dashboard.md'), /User customizations/)
+assert.match(pageTooltip('content/register.md'), /free account/)
+assert.match(pageTooltip('content/forum.md'), /Start a topic/)
+const account = pageDescription('content/account.md')
+assert.doesNotMatch(account, /privacy and consent/)
+assert.match(account, /Sign in free/)
+
 console.log(`front door polish checks passed (${gatedCards} gated share cards)`)

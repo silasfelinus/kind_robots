@@ -253,6 +253,7 @@ for (const person of IDENTITY_ARCS) {
   assert.ok(expected.every((id) => identityFor(id)))
   assert.ok(!castCombinations.has(expected.slice(1).join(',')))
   castCombinations.add(expected.slice(1).join(','))
+  for (const version of [1, 2] as const) {
   for (const perspective of ['hero', 'villain'] as const) {
     const opening = createSave({
       slot: 'auto',
@@ -263,18 +264,18 @@ for (const person of IDENTITY_ARCS) {
       state: trainingState(123, undefined, {
         lead: person.signature,
         foil: cast.foil,
-        crossfireCast: 1,
+        crossfireCast: version,
       }),
       story: createStory(),
     })
     let personal = newCrossfireJournal(opening)!
     assert.ok(personal)
-    assert.equal(personal.active.state.crossfireCast, 1)
+    assert.equal(personal.active.state.crossfireCast, version)
     for (let chapter = 0; chapter < 6; chapter++) {
       const current = personal.active
       assert.ok(loadSave(current).ok)
-      assert.equal(current.state.crossfireCast, 1)
-      if (chapter > 0) {
+      assert.equal(current.state.crossfireCast, version)
+      if (chapter > 0 || version === 2) {
         assert.deepEqual(
           current.state.units.map((unit) => unit.identity),
           expected,
@@ -285,6 +286,13 @@ for (const person of IDENTITY_ARCS) {
           ),
           expected,
         )
+      }
+      if (chapter === 0 && version === 2) {
+        const arrival = storyMoment(perspective, 'arrival', person.signature, current.story, current.state)
+        const roster = arrival.lines.find((line) => line.speaker === 'FIELD REPORT' && line.text.includes('Opposing patrol:'))
+        assert.ok(roster)
+        for (const id of expected) assert.ok(roster.text.includes(identityFor(id).hero.alias))
+        assert.equal(arrival.lines[1]?.speaker, identityFor(cast.allies[0]).hero.alias)
       }
       const state = structuredClone(current.state)
       state.phase = 'victory'
@@ -314,6 +322,7 @@ for (const person of IDENTITY_ARCS) {
     }
     assert.ok(personal.finished)
     assert.ok(readCrossfireJournal(JSON.stringify(personal)))
+  }
   }
 }
 const personalCastStage = clonePreset('science-lab')

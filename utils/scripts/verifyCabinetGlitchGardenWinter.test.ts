@@ -301,13 +301,27 @@ assert.ok(SNOWBALL_HILL.waves.every((w) => w.snowballs > 0))
   const first = g.frostMillipede[0]!
   assert.ok(g.hitFrostMillipede(first.x, first.y))
   assert.equal(g.frostMillipede.length, 4, 'cold armor resists spray')
-  g.water(hc, hr, heater)
+  const hx = hc * CELL + CELL / 2
+  const hy = HUD + hr * CELL + CELL / 2
+  const fireHeater = () => {
+    const beam = g.newBeam(hx, hy + CELL, false)
+    for (let i = 0; i < 4; i++) if (!g.stepBeam(beam)) break
+  }
+  fireHeater()
   assert.equal(heater.lit, true)
   assert.ok(g.frostMillipede.every((p) => !p.thawed))
+  fireHeater()
+  const firstThawed = g.frostMillipede.find((p) => p.thawed)!
+  assert.ok(firstThawed, 'real beam reflects through a lit heater')
+  const shot = g.newBeam(firstThawed.x, firstThawed.y + 4, false)
+  assert.equal(g.stepBeam(shot), false, 'real beam fixes a thawed segment')
+  assert.equal(g.frostMillipede.length, 3)
+  g.afterDeath()
+  assert.equal(g.frostMillipede.length, 3, 'respawn preserves boss progress')
   for (let phase = 1; phase <= 3; phase++) {
     assert.equal(g.boss!.phase, phase)
     const count = g.frostMillipede.length
-    assert.equal(count, phase + 3)
+    assert.equal(count, phase === 1 ? 3 : phase + 3)
     for (let i = 0; i < count; i++) {
       g.water(hc, hr, heater)
       const target = g.frostMillipede.find((p) => p.thawed)!

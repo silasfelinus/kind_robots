@@ -680,6 +680,32 @@ export function makerId(level: MakerLevel): string {
   return (hash >>> 0).toString(36)
 }
 
+export function makerBrushCells(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+): { x: number; y: number }[] {
+  const cells: { x: number; y: number }[] = []
+  let { x, y } = from
+  const dx = Math.abs(to.x - x)
+  const dy = -Math.abs(to.y - y)
+  const sx = x < to.x ? 1 : -1
+  const sy = y < to.y ? 1 : -1
+  let error = dx + dy
+  while (true) {
+    cells.push({ x, y })
+    if (x === to.x && y === to.y) return cells
+    const doubled = 2 * error
+    if (doubled >= dy) {
+      error += dy
+      x += sx
+    }
+    if (doubled <= dx) {
+      error += dx
+      y += sy
+    }
+  }
+}
+
 export function paintMakerTile(
   level: MakerLevel,
   x: number,

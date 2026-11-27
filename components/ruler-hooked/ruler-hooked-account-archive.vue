@@ -68,6 +68,9 @@
         </p>
       </template>
     </template>
+    <p v-if="importMessage" role="status" class="text-sm">
+      {{ importMessage }}
+    </p>
     <p v-if="account.message" role="status" class="text-sm">
       {{ account.message }}
     </p>
@@ -77,16 +80,33 @@
 <script setup lang="ts">
 import { useRulerHookedAccountStore } from '~/stores/rulerHookedAccountStore'
 import { useRulerHookedStore } from '~/stores/rulerHookedStore'
+import { useUserStore } from '~/stores/userStore'
 
 const account = useRulerHookedAccountStore()
 const store = useRulerHookedStore()
+const user = useUserStore()
 const confirmGuestImport = ref(false)
+const importMessage = ref('')
 
 function importGuest() {
-  if (store.importGuestReigns()) account.reconnect()
+  try {
+    if (store.importGuestReigns()) {
+      account.reconnect()
+      importMessage.value = 'Legacy device reigns copied into this account.'
+    } else {
+      importMessage.value = 'Finish your active encounter before importing.'
+    }
+  } catch {
+    importMessage.value = 'Could not import the legacy archive. Originals are unchanged.'
+  }
   confirmGuestImport.value = false
 }
-watch(() => account.signedIn, () => {
-  confirmGuestImport.value = false
-})
+watch(
+  () => user.authenticatedUserId,
+  () => {
+    confirmGuestImport.value = false
+    importMessage.value = ''
+  },
+  { flush: 'sync' },
+)
 </script>

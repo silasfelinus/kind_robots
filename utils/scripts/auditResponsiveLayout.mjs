@@ -147,6 +147,12 @@ const EXTRA_TABLET_VIEWPORT = {
   height: 1024,
   mobile: true,
 }
+const RULER_SHORT_VIEWPORT = {
+  name: 'short-wide',
+  width: 1366,
+  height: 600,
+  mobile: false,
+}
 const RULER_LANDSCAPE_VIEWPORT = {
   name: 'tablet-landscape',
   width: 1180,
@@ -488,6 +494,12 @@ async function auditRulerOpening(page, vp) {
       stage: name,
       loaded: true,
       ...metrics.viewportOwnership,
+      visibleArt: await page.locator('.rh-art:visible').evaluateAll((nodes) =>
+        nodes.map((node) => ({
+          source: node.querySelector('img')?.currentSrc ?? null,
+          fallback: !!node.querySelector('.rh-art__wash'),
+        })),
+      ),
     })
     if (SHOTS) {
       await page.screenshot({
@@ -555,6 +567,93 @@ async function auditRulerOpening(page, vp) {
     await stage('lake-idle', lake.locator('.rh-cast'))
     await lake.getByRole('button', { name: /Cast a line/ }).click()
     await stage('fishing', lake.locator('.rh-lake__dock--classic'))
+
+    // Audit the real controls using the visible highlighted region, never
+    // injected saves, mocked stores, or a direct engine call. Use keyboard
+    // on desktop and touch on mobile/tablet; record every resolved beat.
+    const playfield = lake.locator('.rh-fishing__playfield')
+    const beat = lake.locator('.rh-fishing__beat')
+    const reveal = lake.locator('.rh-reveal, .rh-callout').filter({
+      has: page.getByRole('button', {
+        name: /^(Cast again|Try again|Answer the court)$/,
+      }),
+    })
+    let caught = false
+    let petitionSeen = false
+    for (let attempt = 0; attempt < 6 && (!caught || !petitionSeen); attempt++) {
+      if (attempt > 0) {
+        const crierButton = page
+          .locator('.rh-crier')
+          .getByRole('button', { name: 'Hear, hear!' })
+        if (await crierButton.isVisible()) await crierButton.click()
+        await lake.getByRole('button', { name: /Cast a line/ }).click()
+      }
+      await playfield.waitFor({ state: 'visible', timeout: 15000 })
+      for (let step = 0; step < 40 && (await playfield.isVisible()); step++) {
+        const previous = await beat.textContent()
+        // Playwright's real press/tap is scheduled when the displayed marker
+        // is within the middle of the target. The game may still escape;
+        // retries are bounded and every attempt uses the normal UI.
+        await page.waitForFunction(
+          () => {
+            const target = document.querySelector('.rh-fishing__sweetspot')
+            const marker = document.querySelector('.rh-fishing__needle')
+            if (!target || !marker) return false
+            const t = target.getBoundingClientRect()
+            const m = marker.getBoundingClientRect()
+            return (
+              Math.abs(m.left + m.width / 2 - t.left - t.width / 2) <
+              Math.max(2, t.width * 0.12)
+            )
+          },
+          undefined,
+          { timeout: 10000, polling: 'raf' },
+        )
+        if (vp.mobile) await playfield.tap()
+        else await playfield.press('Space')
+        await page.waitForFunction(
+          (prior) =>
+            document.querySelector('.rh-fishing__beat')?.textContent !== prior,
+          previous,
+          { timeout: 5000 },
+        )
+        console.log(`${label} fishing attempt ${attempt + 1}, beat ${previous}`)
+      }
+      await reveal.waitFor({ state: 'visible', timeout: 15000 })
+      const landed = await lake.locator('.rh-reveal').isVisible()
+      await stage(
+        `${landed ? 'catch' : 'escape'}-${attempt + 1}`,
+        reveal,
+      )
+      caught ||= landed
+      const answer = reveal.getByRole('button', { name: 'Answer the court' })
+      if (await answer.isVisible()) {
+        await answer.click()
+        const court = page.getByLabel('Royal Court', { exact: true })
+        await stage('petition', court.getByTestId('rh-edict'))
+        petitionSeen = true
+        break
+      }
+      await reveal.getByRole('button', { name: /^(Cast again|Try again)$/ }).click()
+    }
+    if (!caught) throw new Error('No landed catch after six guided attempts')
+    if (!petitionSeen) throw new Error('No court petition witnessed after six attempts')
+
+    async function tab(id, label, name = id) {
+      await page.getByTestId(`rh-tab-${id}`).click()
+      await stage(name, page.getByLabel(label, { exact: true }))
+    }
+    await tab('map', 'Royal Atlas')
+    await tab('gear', 'Royal tackle room')
+    await page.getByRole('tab', { name: 'Kingdom works', exact: true }).click()
+    await stage('kingdom-works', page.getByLabel('Royal tackle room'))
+    await tab('fishopedia', 'Fishopedia')
+    await page.getByRole('button', { name: 'Royal menu', exact: true }).click()
+    await page.getByRole('menuitem', { name: 'Chronicle of the reign' }).click()
+    const chronicle = page.getByLabel('Chronicle of the reign', { exact: true })
+    await stage('chronicle', chronicle)
+    await chronicle.getByRole('button', { name: 'Royal Scrapbook' }).click()
+    await stage('in-game-scrapbook', chronicle)
   } catch (error) {
     failures += 1
     console.log(`${label} ❌ opening flow: ${error.message}`)
@@ -570,11 +669,12 @@ for (const vp of [
   ...VIEWPORTS,
   EXTRA_TABLET_VIEWPORT,
   RULER_LANDSCAPE_VIEWPORT,
+  RULER_SHORT_VIEWPORT,
 ]) {
   const viewportRoutes =
     vp.name === EXTRA_TABLET_VIEWPORT.name
       ? ROUTES.filter((route) => EXTRA_TABLET_ROUTES.has(route))
-      : vp.name === RULER_LANDSCAPE_VIEWPORT.name
+      : [RULER_LANDSCAPE_VIEWPORT.name, RULER_SHORT_VIEWPORT.name].includes(vp.name)
         ? ROUTES.filter((route) => route === '/play/ruler-hooked')
         : ROUTES
   if (!viewportRoutes.length) continue

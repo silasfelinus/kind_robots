@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 import { parseShard, selectShard } from './responsiveAuditShard.mjs'
 import { rotationProblems } from './auditTabletRotation.mjs'
+import { layoutViewportWidth } from '../layoutViewport.ts'
 
 const audit = readFileSync(
   new URL('./auditResponsiveLayout.mjs', import.meta.url),
@@ -115,10 +116,22 @@ test('tablet rotation checks the same WebKit tab and the live shell width', () =
     'utf8',
   )
   const app = readFileSync(new URL('../../app.vue', import.meta.url), 'utf8')
-  assert.match(app, /\.kr-shell \{\s*width: 100vw;\s*width: 100dvw;/)
+  assert.match(app, /width: var\(--kr-layout-width, 100vw\)/)
+  assert.match(app, /width: var\(--kr-layout-width, 100dvw\)/)
+  assert.match(app, /watchLayoutViewportWidth\(window\)/)
   assert.match(rotation, /webkit\.launch\(/)
   assert.match(rotation, /await page\.setViewportSize\(/)
   assert.match(rotation, /name: 'portrait-return'/)
   assert.match(workflow, /playwright install --with-deps chromium webkit/)
   assert.match(workflow, /node utils\/scripts\/auditTabletRotation\.mjs/)
+})
+
+test('live visual viewport repairs stale layout width without pinch shrink', () => {
+  assert.equal(layoutViewportWidth(834, { width: 1194, scale: 1 }), 1194)
+  assert.equal(layoutViewportWidth(1194, { width: 834, scale: 1 }), 834)
+  assert.equal(layoutViewportWidth(1194, { width: 597, scale: 2 }), 1194)
+  assert.equal(layoutViewportWidth(600, { width: 600, scale: 1 }), 600)
+  assert.equal(layoutViewportWidth(834, null), 834)
+  assert.equal(layoutViewportWidth(834, { width: 0, scale: 1 }), 834)
+  assert.equal(layoutViewportWidth(0, null), 0)
 })

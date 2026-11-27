@@ -46,6 +46,7 @@ import {
   attemptParley,
   campAction,
   campOptions,
+  campSceneMoment,
   createRun,
   baseStat,
   chooseCourtOption,
@@ -469,8 +470,17 @@ assert.ok(
   ),
   'romance-off also hides lovers and exes support scenes',
 )
+assert.equal(campSceneMoment(supportRun, firstSupport, ''), null)
+const refusedSupport = campAction(supportRun, firstSupport, false)
+assert.equal(refusedSupport, '')
+assert.equal(campSceneMoment(supportRun, firstSupport, refusedSupport), null)
 const beforeSupport = stat(supportRun, 'idris', 'atk')
-assert.equal(campAction(supportRun, firstSupport), firstSupport.line)
+const firstLine = campAction(supportRun, firstSupport)
+assert.equal(firstLine, firstSupport.line)
+assert.equal(
+  campSceneMoment(supportRun, firstSupport, firstLine),
+  SUPPORT_MOMENTS[oldFlameKey],
+)
 assert.equal(supportRun.bonds[oldFlameKey], 1)
 assert.ok(stat(supportRun, 'idris', 'atk') > beforeSupport)
 assert.ok(
@@ -487,10 +497,17 @@ const secondSupport = campOptions(supportRun).find(
 assert.ok(secondSupport && secondSupport.kind === 'support')
 assert.equal(secondSupport.tier, 2)
 assert.match(secondSupport.label, /Old Flame/)
+const earnedMoments = [...supportRun.moments]
+const secondLine = campAction(supportRun, secondSupport)
+assert.equal(secondLine, SUPPORT_SEQUELS[oldFlameKey])
 assert.equal(
-  campAction(supportRun, secondSupport),
-  SUPPORT_SEQUELS[oldFlameKey],
+  campSceneMoment(supportRun, secondSupport, secondLine),
+  SUPPORT_MOMENTS[oldFlameKey],
 )
+assert.deepEqual(supportRun.moments, earnedMoments)
+const staleLine = campAction(supportRun, secondSupport)
+assert.equal(staleLine, '')
+assert.equal(campSceneMoment(supportRun, secondSupport, staleLine), null)
 assert.equal(supportRun.bonds[oldFlameKey], 2)
 assert.ok(
   !campOptions(supportRun).some(

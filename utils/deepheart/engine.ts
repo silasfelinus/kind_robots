@@ -1520,6 +1520,21 @@ export function campAction(
   return line
 }
 
+export function campSceneMoment(
+  run: RunState,
+  option: CampOption,
+  line: string,
+): string | null {
+  if (!line) return null
+  const moment =
+    option.kind === 'support'
+      ? SUPPORT_MOMENTS[option.key]
+      : option.kind === 'romance'
+        ? romanceMoment(option.id)
+        : null
+  return moment && run.moments.includes(moment) ? moment : null
+}
+
 export function leaveCamp(run: RunState) {
   if (run.phase !== 'camp') return
   finishRoom(run)

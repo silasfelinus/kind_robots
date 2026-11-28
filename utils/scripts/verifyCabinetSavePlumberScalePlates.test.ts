@@ -365,6 +365,73 @@ function carryFruit(run: PlumberRun, from: number, to: number) {
   assert.equal(run.hearts, 3)
 }
 
+// Moonpool Locks (2-3): the canal gates open backwards. The ground pipe
+// leads into a lock chamber whose sluice seals a cache right behind the
+// arrival pipe; the only plate lies across the lock basin. She takes the
+// Tidecoat, swims across, weighs the far plate (springfruit solo, or a
+// parked Gurgle) and swims back to the now-open cache.
+const moonpool = CAMPAIGN.find((stage) => stage.code === '2-3')!
+function swimTo(run: PlumberRun, col: number) {
+  // Basin spans columns 42-49; swim (jump held) until she lands on the far bank.
+  const right = col > 45
+  const banked = () =>
+    run.ground && (right ? run.hero.x > 50 * TILE : run.hero.x < 42 * TILE)
+  for (let i = 0; i < 400 && !banked(); i++) {
+    frame(run, [right ? 'right' : 'left', 'a'])
+    assert.equal(run.mode, 'play', 'the lock basin is safe to swim')
+  }
+  for (let i = 0; i < 30; i++) frame(run)
+  assert.ok(banked(), 'she climbs out onto the bank toward ' + col)
+  walkTo(run, col)
+}
+for (const mounted of [false, true]) {
+  const run = labRun(
+    mounted ? { ...moonpool, gurgleBarrel: { col: 6, row: 20 } } : moonpool,
+  )
+  if (mounted) {
+    walkTo(run, 6)
+    frame(run, ['down'], ['x'])
+    assert.equal(run.gurgle?.state, 'mounted')
+  }
+  assert.equal(run.plates.length, 1, 'Moonpool Locks has one lock plate')
+  walkTo(run, 10)
+  assert.ok(run.ground)
+  frame(run, [], ['down'])
+  assert.ok(run.activePipeRoom, 'the ground pipe leads into the lock')
+  assert.equal(run.hero.x, 36 * TILE + TILE / 2)
+  for (let row = 2; row <= 7; row++)
+    assert.equal(run.solidAt(34, row), SOLID_SLUICE, 'full-height lock gate')
+  // The cache is right behind her, but the shut gate keeps it.
+  const before = run.tokens
+  for (let i = 0; i < 90; i++)
+    frame(run, ['left', 'a'], i % 30 === 0 ? ['a'] : [])
+  assert.ok(run.hero.x > 35 * TILE, 'the shut lock gate seals the cache')
+  assert.equal(run.tokens, before)
+  walkTo(run, 39)
+  assert.equal(run.power, 'tidecoat', 'the lock supplies the Tidecoat')
+  swimTo(run, 52)
+  if (mounted) {
+    walkTo(run, 56)
+    frame(run, ['down'], ['x'])
+    assert.equal(run.gurgle?.state, 'parked', 'Gurgle waits on the plate')
+  } else {
+    carryFruit(run, 54, 56)
+  }
+  assert.equal(run.plates[0]!.down, true)
+  assert.equal(run.sluiceOpen, true, 'the far plate opens the gate behind')
+  walkTo(run, 62)
+  assert.equal(run.tokens, before + 2, 'the far bank holds two tokens')
+  swimTo(run, 40)
+  walkTo(run, 31)
+  assert.equal(run.tokens, before + 5, 'the cache behind the pipe pays out')
+  assert.equal(run.sluiceOpen, true, 'the weight stays on the plate')
+  walkTo(run, 36)
+  frame(run, [], ['down'])
+  assert.equal(run.activePipeRoom, undefined, 'she leaves the lock safely')
+  assert.equal(run.deaths, 0)
+  assert.equal(run.hearts, 3)
+}
+
 console.log(
-  'save-the-plumber scale plates and Rootcellar and Echo Sluice chambers ok',
+  'save-the-plumber scale plates and Rootcellar, Echo Sluice and Moonpool lock chambers ok',
 )

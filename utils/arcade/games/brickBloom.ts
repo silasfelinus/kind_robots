@@ -1063,7 +1063,7 @@ class BrickBloom implements ArcadeGameInstance {
       this.save = stored
       if (resumable(stored)) this.offer = stored
       else if (
-        (this.champion || hasAllGoldenSeeds(stored.golden)) &&
+        (this.champion || hasAllGoldenSeeds([...this.golden])) &&
         options.selectScreen
       )
         this.tourMenu = true
@@ -1464,7 +1464,8 @@ class BrickBloom implements ArcadeGameInstance {
     const tour = this.tour
     if (this.boss) {
       this.boss = null
-      const next = tour ? nextTourPos(tour, 0) : null
+      const nextHouse = tour ? HOUSES[tour.house + 1] : undefined
+      const next = tour && nextHouse ? { house: tour.house + 1, wall: nextHouse.start } : null
       // The bench's kit was for the house just finished.
       this.kit = emptyKit()
       this.kitHouse = -1

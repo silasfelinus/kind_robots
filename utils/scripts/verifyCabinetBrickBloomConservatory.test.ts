@@ -90,7 +90,7 @@ game.startTour(false, true)
 assert.equal(game.tour?.house, CONSERVATORY_INDEX)
 assert.equal(game.save.secret, true)
 assert.ok(resumable(readBloomSave(game.save)))
-game.startBoss(36, CONSERVATORY_INDEX)
+for (let n = 0; n < 5; n++) game.afterClear()
 assert.equal(game.boss?.id, 'thorn')
 game.boss!.defeated = true
 game.afterClear()

@@ -2515,9 +2515,21 @@ function baseCellDescription(cell: Cell) {
       (unit ? '. Occupied by ' + unitName(unit) + '.' : '.')
     )
   if (store.isDrytapWarning(cell))
-    return 'RED SHUTOFF VALVE, column ' + (cell.x + 1) + ', row ' + (cell.y + 1) + '. Close it for one AP from this tile or an adjacent tile.'
+    return (
+      'RED SHUTOFF VALVE, column ' +
+      (cell.x + 1) +
+      ', row ' +
+      (cell.y + 1) +
+      '. Close it for one AP from this tile or an adjacent tile.'
+    )
   if (store.isDrytapSlick(cell))
-    return 'SLICK, column ' + (cell.x + 1) + ', row ' + (cell.y + 1) + '. Landing costs one extra movement AP.'
+    return (
+      'SLICK, column ' +
+      (cell.x + 1) +
+      ', row ' +
+      (cell.y + 1) +
+      '. Landing costs one extra movement AP.'
+    )
   if (store.isHushWarning(cell))
     return (
       'VACUUM, column ' +

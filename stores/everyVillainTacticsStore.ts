@@ -1137,25 +1137,25 @@ export const useEveryVillainTacticsStore = defineStore(
               (draft.value.encounter === 'drytap-octopi'
                 ? 'Deputy Plink leads the one-hit Drytap Octopi. Add wet tiles to the arena. Close a marked red valve for one AP before the siphon resolves. Slick ground costs an extra movement AP. '
                 : draft.value.encounter === 'hushwings'
-                ? 'Nell No-Air leads the one-hit Hushwings. Leave the marked VACUUM corridor before the next enemy turn or disarm the moth to avoid suppression. '
-                : draft.value.encounter === 'quarry-lieutenant'
-                  ? 'Mags Hardpan is an independent four-HP lieutenant, not Foreman Thumpkin. Her drum warns of a 3×3 seismic blast. Move away or land a hit to interrupt it; the one-hit Warren Wreckers still burrow. '
-                  : draft.value.encounter === 'wombat-ronin'
-                    ? 'Lieutenant Teakettle’s Clockwork Wombat Ronin are one-hit teleporters. Each marks a clock-face exit beside a hero, on the side their cover misses, then phases through it next turn. Stand on the exit to jam it. '
-                    : draft.value.encounter === 'licensed-legends'
-                      ? 'Sir Cap-Permission’s Licensed Legends are one-hit wind-up mascots that swarm and block. One that starts its turn beside a hero stamps a seal that locks their signature power for a turn. '
-                      : draft.value.encounter === 'claim-cinders'
-                        ? 'Ash Invoice leads the one-hit Claim Cinders. Leave the INSURED tile before the next enemy turn, or disarm the clerk. Water prevents the stamp from burning. '
-                        : draft.value.encounter === 'warren-wreckers'
-                          ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. ' +
-                            (draft.value.waves?.length
-                              ? 'More shifts tunnel in on rounds ' +
-                                draft.value.waves
-                                  .map((w) => w.round)
-                                  .join(' and ') +
-                                ', each molehill marked a round early. Stand on one to cave it in. '
-                              : '')
-                          : '') +
+                  ? 'Nell No-Air leads the one-hit Hushwings. Leave the marked VACUUM corridor before the next enemy turn or disarm the moth to avoid suppression. '
+                  : draft.value.encounter === 'quarry-lieutenant'
+                    ? 'Mags Hardpan is an independent four-HP lieutenant, not Foreman Thumpkin. Her drum warns of a 3×3 seismic blast. Move away or land a hit to interrupt it; the one-hit Warren Wreckers still burrow. '
+                    : draft.value.encounter === 'wombat-ronin'
+                      ? 'Lieutenant Teakettle’s Clockwork Wombat Ronin are one-hit teleporters. Each marks a clock-face exit beside a hero, on the side their cover misses, then phases through it next turn. Stand on the exit to jam it. '
+                      : draft.value.encounter === 'licensed-legends'
+                        ? 'Sir Cap-Permission’s Licensed Legends are one-hit wind-up mascots that swarm and block. One that starts its turn beside a hero stamps a seal that locks their signature power for a turn. '
+                        : draft.value.encounter === 'claim-cinders'
+                          ? 'Ash Invoice leads the one-hit Claim Cinders. Leave the INSURED tile before the next enemy turn, or disarm the clerk. Water prevents the stamp from burning. '
+                          : draft.value.encounter === 'warren-wreckers'
+                            ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. ' +
+                              (draft.value.waves?.length
+                                ? 'More shifts tunnel in on rounds ' +
+                                  draft.value.waves
+                                    .map((w) => w.round)
+                                    .join(' and ') +
+                                  ', each molehill marked a round early. Stand on one to cave it in. '
+                                : '')
+                            : '') +
               draft.value.title +
               ' / ' +
               draft.value.venue +

@@ -506,12 +506,17 @@ function fieldLackeyCrew(state: TrainingState, stage?: StageDraft) {
     else if (crew.type === 'drytap') {
       unit.drytapTarget = null
       unit.drytapSlick = null
-    }
-    else unit.windupRewinding = false
+    } else unit.windupRewinding = false
   })
   if (crew.type === 'drytap') {
-    state.log = species.captain + ' leads the ' + species.name + '. A marked wet tile is siphoned next turn. Stand on or beside the red valve and shut it off for one AP.'
-    state.events = [species.captain + ': The emergency supply to the households stays open.']
+    state.log =
+      species.captain +
+      ' leads the ' +
+      species.name +
+      '. A marked wet tile is siphoned next turn. Stand on or beside the red valve and shut it off for one AP.'
+    state.events = [
+      species.captain + ': The emergency supply to the households stays open.',
+    ]
     return
   }
   if (crew.type === 'hush') {
@@ -1770,7 +1775,9 @@ function rivalHazardAt(state: TrainingState, point: Point): boolean {
     state.rules?.hazards.some(
       (hazard) =>
         cellKey(hazard) === cellKey(point) &&
-        ((hazard.kind === 'water' && isWaterLive(state.turn) && !drytapSlickAt(state, hazard)) ||
+        ((hazard.kind === 'water' &&
+          isWaterLive(state.turn) &&
+          !drytapSlickAt(state, hazard)) ||
           (hazard.kind === 'collapse' && hazard.round === state.turn)),
     )
   )
@@ -2057,7 +2064,11 @@ export function drytapPlan(state: TrainingState, enemy: Unit): boolean {
     enemy.ap = 0
     enemy.drytapSlick = { ...enemy.drytapTarget }
     enemy.drytapTarget = null
-    note(state, aliasFor(enemy) + ' siphons the marked water. Slick ground costs an extra movement AP.')
+    note(
+      state,
+      aliasFor(enemy) +
+        ' siphons the marked water. Slick ground costs an extra movement AP.',
+    )
     return true
   }
   const wet = (state.rules?.hazards ?? [])
@@ -2068,9 +2079,7 @@ export function drytapPlan(state: TrainingState, enemy: Unit): boolean {
         !drytapSlickAt(state, h) &&
         !state.units.some(
           (u) =>
-            u.hp > 0 &&
-            u.drytapTarget?.x === h.x &&
-            u.drytapTarget?.y === h.y,
+            u.hp > 0 && u.drytapTarget?.x === h.x && u.drytapTarget?.y === h.y,
         ),
     )
     .sort(
@@ -2084,13 +2093,24 @@ export function drytapPlan(state: TrainingState, enemy: Unit): boolean {
   )
   if (target) {
     enemy.drytapTarget = { x: target.x, y: target.y }
-    note(state, aliasFor(enemy) + ' marks a red SHUTOFF valve. Close it before the next enemy turn.')
+    note(
+      state,
+      aliasFor(enemy) +
+        ' marks a red SHUTOFF valve. Close it before the next enemy turn.',
+    )
   } else if (wet.length) {
     // Use the ordinary movement budget, path, and reaction system.
-    const distance = (p: Cell) => Math.min(...wet.map((h) => gridDistance(p, h)))
+    const distance = (p: Cell) =>
+      Math.min(...wet.map((h) => gridDistance(p, h)))
     const move = reachableCells(state.map, state.units, enemy)
       .filter((p) => !rivalHazardAt(state, p))
-      .sort((a, b) => distance(a) - distance(b) || a.cost - b.cost || a.y - b.y || a.x - b.x)[0]
+      .sort(
+        (a, b) =>
+          distance(a) - distance(b) ||
+          a.cost - b.cost ||
+          a.y - b.y ||
+          a.x - b.x,
+      )[0]
     if (move && distance(move) < distance(enemy)) {
       enemy.x = move.x
       enemy.y = move.y
@@ -2123,7 +2143,10 @@ export function closeDrytapValve(state: TrainingState): boolean {
   if (!enemy || !ally) return false
   ally.ap--
   enemy.drytapTarget = null
-  note(state, aliasFor(ally) + ' closes the red shutoff valve. The water supply is safe.')
+  note(
+    state,
+    aliasFor(ally) + ' closes the red shutoff valve. The water supply is safe.',
+  )
   return true
 }
 
@@ -2220,7 +2243,11 @@ function roundEnd(state: TrainingState) {
   const round = state.turn
   const burning = new Set(field.fire.map(cellKey))
   const live = isWaterLive(round)
-    ? new Set(rules.hazards.filter((h) => h.kind === 'water' && !drytapSlickAt(state, h)).map(cellKey))
+    ? new Set(
+        rules.hazards
+          .filter((h) => h.kind === 'water' && !drytapSlickAt(state, h))
+          .map(cellKey),
+      )
     : new Set<string>()
   for (const unit of state.units.filter((u) => u.hp > 0)) {
     const fire = burning.has(cellKey(unit))

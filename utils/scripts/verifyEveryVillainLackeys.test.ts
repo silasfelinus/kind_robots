@@ -362,7 +362,9 @@ assert.equal(loadSave(serializeSave(forgedVacuum)).ok, false)
 
 const dryStage = clonePreset('college-quad')
 dryStage.encounter = 'drytap-octopi'
-assert.ok(stageProblems(dryStage).some((issue) => issue.includes('water hazard')))
+assert.ok(
+  stageProblems(dryStage).some((issue) => issue.includes('water hazard')),
+)
 dryStage.activeHazards = [{ id: 'wet-valve', kind: 'water', x: 2, y: 1 }]
 assert.deepEqual(stageProblems(dryStage), [])
 function dryBattle() {
@@ -389,7 +391,10 @@ const beforeSlick = movementCost(siphon.state, siphon.hero, { x: 2, y: 1 })
 endTurn(siphon.state)
 assert.equal(siphon.octopus.drytapTarget, null)
 assert.ok(drytapSlickAt(siphon.state, { x: 2, y: 1 }))
-assert.equal(movementCost(siphon.state, siphon.hero, { x: 2, y: 1 }), beforeSlick + 1)
+assert.equal(
+  movementCost(siphon.state, siphon.hero, { x: 2, y: 1 }),
+  beforeSlick + 1,
+)
 const drySave = createSave({
   slot: 'slot-1',
   perspective: 'hero',
@@ -416,7 +421,10 @@ farValve.octopus.hp = 0
 assert.ok(drytapPlan(farValve.state, farValve.octopus))
 assert.equal(drytapSlickAt(farValve.state, { x: 2, y: 1 }), false)
 const falseDry = structuredClone(drySave)
-falseDry.state.units.find((u) => u.id === 'backdraft')!.drytapSlick = { x: 2, y: 1 }
+falseDry.state.units.find((u) => u.id === 'backdraft')!.drytapSlick = {
+  x: 2,
+  y: 1,
+}
 const { checksum: _dry, ...falseDryPayload } = falseDry
 falseDry.checksum = saveChecksum(falseDryPayload)
 assert.equal(loadSave(serializeSave(falseDry)).ok, false)

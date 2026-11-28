@@ -921,7 +921,9 @@ class GlitchGarden implements ArcadeGameInstance {
   }
 
   get scoreBoard(): string | null {
-    return this.mode === 'endless' && this.playerCount === 1 ? 'glitch-garden' : null
+    return this.mode === 'endless' && this.playerCount === 1
+      ? 'glitch-garden'
+      : null
   }
 
   get menuOpen(): boolean {
@@ -1002,11 +1004,17 @@ class GlitchGarden implements ArcadeGameInstance {
     }
     if (this.selectEnabled && this.playerCount === 1)
       items.splice(-1, 0, {
-        label: 'DAILY GARDEN', garden: 0, resume: false, mode: 'daily',
+        label: 'DAILY GARDEN',
+        garden: 0,
+        resume: false,
+        mode: 'daily',
       })
     if (this.selectEnabled && this.playerCount === 2)
       items.splice(-1, 0, {
-        label: 'GARDEN RIVALS', garden: 0, resume: false, mode: 'rivals',
+        label: 'GARDEN RIVALS',
+        garden: 0,
+        resume: false,
+        mode: 'rivals',
       })
     if (items.length) {
       if (!items.some((i) => !i.resume))
@@ -2069,8 +2077,7 @@ class GlitchGarden implements ArcadeGameInstance {
     }
     this.updateSplashes()
     this.checkHits()
-    if (this.playerCount === 2 && this.dead === 0)
-      this.checkHits(1)
+    if (this.playerCount === 2 && this.dead === 0) this.checkHits(1)
     if (
       !this.worms.length &&
       this.dead === 0 &&
@@ -2160,7 +2167,12 @@ class GlitchGarden implements ArcadeGameInstance {
 
   /** Both sprayers use the same collision and ice movement rules. */
   private withSecondSprayer(action: () => void) {
-    const first = { x: this.px, y: this.py, glideX: this.glideX, glideY: this.glideY }
+    const first = {
+      x: this.px,
+      y: this.py,
+      glideX: this.glideX,
+      glideY: this.glideY,
+    }
     this.px = this.p2.x
     this.py = this.p2.y
     this.glideX = this.p2.glideX
@@ -2168,7 +2180,12 @@ class GlitchGarden implements ArcadeGameInstance {
     try {
       action()
     } finally {
-      this.p2 = { x: this.px, y: this.py, glideX: this.glideX, glideY: this.glideY }
+      this.p2 = {
+        x: this.px,
+        y: this.py,
+        glideX: this.glideX,
+        glideY: this.glideY,
+      }
       this.px = first.x
       this.py = first.y
       this.glideX = first.glideX
@@ -2245,8 +2262,22 @@ class GlitchGarden implements ArcadeGameInstance {
     return false
   }
 
-  private newBeam(x: number, y: number, child: boolean, player: 0 | 1 = 0): Beam {
-    return { x, y, powers: [], pierce: 0, child, lastMoth: null, lastCell: -1, player }
+  private newBeam(
+    x: number,
+    y: number,
+    child: boolean,
+    player: 0 | 1 = 0,
+  ): Beam {
+    return {
+      x,
+      y,
+      powers: [],
+      pierce: 0,
+      child,
+      lastMoth: null,
+      lastCell: -1,
+      player,
+    }
   }
 
   /** The patch multiplier shown on the nozzle. */
@@ -2344,7 +2375,8 @@ class GlitchGarden implements ArcadeGameInstance {
       if (
         this.mode === 'rivals' &&
         (beam.x < W / 2 ? 0 : 1) !== (beam.player ?? 0)
-      ) return false
+      )
+        return false
       const col = Math.floor(beam.x / CELL)
       const row = Math.floor((beam.y - HUD) / CELL)
       this.pickUpPower(beam, col, row)
@@ -2359,7 +2391,12 @@ class GlitchGarden implements ArcadeGameInstance {
       if (this.hitCrow(beam.x, beam.y)) return false
       // A bee bot in the way soaks up the spray (and the wave's Kind bonus with it).
       if (this.sprayBee(beam.x, beam.y)) return false
-      const worm = this.hitWorm(beam.x, beam.y, beam.powers.includes('cyan'), beam.player ?? 0)
+      const worm = this.hitWorm(
+        beam.x,
+        beam.y,
+        beam.powers.includes('cyan'),
+        beam.player ?? 0,
+      )
       const mower = this.hitMower(beam.x, beam.y)
       if (worm === 'plink' || mower === 'body') {
         if (this.volley) this.volley.landed = true
@@ -2599,7 +2636,8 @@ class GlitchGarden implements ArcadeGameInstance {
     if (this.playerCount !== 2) return
     const prior = w.crossfire
     if (
-      prior && prior.player !== player &&
+      prior &&
+      prior.player !== player &&
       this.tick - prior.tick <= CROSSFIRE_TICKS
     ) {
       this.crossfires++
@@ -2922,7 +2960,9 @@ class GlitchGarden implements ArcadeGameInstance {
       a.y += APPLE_FALL
       if (
         (Math.abs(a.x - this.px) < 7 && Math.abs(a.y - this.py) < 8) ||
-        (this.playerCount === 2 && Math.abs(a.x - this.p2.x) < 7 && Math.abs(a.y - this.p2.y) < 8)
+        (this.playerCount === 2 &&
+          Math.abs(a.x - this.p2.x) < 7 &&
+          Math.abs(a.y - this.p2.y) < 8)
       ) {
         this.catchApple(a)
         continue
@@ -3664,7 +3704,12 @@ class GlitchGarden implements ArcadeGameInstance {
           this.glideX = 0
           this.glideY = 0
         } else {
-          this.p2 = { x: W * 0.75, y: HUD + (ROWS - 2) * CELL, glideX: 0, glideY: 0 }
+          this.p2 = {
+            x: W * 0.75,
+            y: HUD + (ROWS - 2) * CELL,
+            glideX: 0,
+            glideY: 0,
+          }
         }
         this.beams = this.beams.filter((beam) => (beam.player ?? 0) !== player)
         this.sound.play('die')
@@ -3674,10 +3719,7 @@ class GlitchGarden implements ArcadeGameInstance {
     for (const w of this.worms) {
       for (let k = 0; k < w.segments; k++) {
         const p = this.segmentPos(w, k)
-        if (
-          Math.abs(p.x + 4 - px) < 6 &&
-          Math.abs(p.y + 4 - py) < 6
-        ) {
+        if (Math.abs(p.x + 4 - px) < 6 && Math.abs(p.y + 4 - py) < 6) {
           lose()
           return
         }
@@ -3685,8 +3727,7 @@ class GlitchGarden implements ArcadeGameInstance {
     }
     if (
       this.snowballs.some(
-        (ball) =>
-          Math.abs(ball.x - px) < 8 && Math.abs(ball.y - py) < 8,
+        (ball) => Math.abs(ball.x - px) < 8 && Math.abs(ball.y - py) < 8,
       )
     )
       return lose()
@@ -3697,11 +3738,9 @@ class GlitchGarden implements ArcadeGameInstance {
     )
       return lose()
     const b = this.beetle
-    if (b && Math.abs(b.x - px) < 7 && Math.abs(b.y - py) < 6)
-      return lose()
+    if (b && Math.abs(b.x - px) < 7 && Math.abs(b.y - py) < 6) return lose()
     const m = this.moth
-    if (m && Math.abs(m.x - px) < 6 && Math.abs(m.y - py) < 6)
-      return lose()
+    if (m && Math.abs(m.x - px) < 6 && Math.abs(m.y - py) < 6) return lose()
     const touch = (x: number, y: number, rx: number, ry: number) =>
       Math.abs(x - px) < rx && Math.abs(y - py) < ry
     if (
@@ -4944,7 +4983,12 @@ class GlitchGarden implements ArcadeGameInstance {
   }
 
   private renderSprayer(g: CanvasRenderingContext2D, player: 0 | 1 = 0) {
-    if (this.mode === 'rivals' && this.rivalsShield[player] > 0 && this.tick % 8 < 4) return
+    if (
+      this.mode === 'rivals' &&
+      this.rivalsShield[player] > 0 &&
+      this.tick % 8 < 4
+    )
+      return
     const x = Math.round(player === 0 ? this.px : this.p2.x)
     const y = Math.round(player === 0 ? this.py : this.p2.y)
     // A little gardening bot with a spray nozzle on top.
@@ -4954,7 +4998,9 @@ class GlitchGarden implements ArcadeGameInstance {
     drawHd(g, SPRAYER_SPRITES[frame]!, x, y - 1)
     if (this.playerCount === 2)
       drawText(g, String(player + 1), x, y + 8, {
-        align: 'center', color: player === 0 ? RAMPS.teal[4] : RAMPS.pink[3], outline: INK,
+        align: 'center',
+        color: player === 0 ? RAMPS.teal[4] : RAMPS.pink[3],
+        outline: INK,
       })
     // The patch multiplier lives on the nozzle: its tip warms from teal to pink, one pip a step.
     const mult = this.multiplier
@@ -5072,9 +5118,20 @@ class GlitchGarden implements ArcadeGameInstance {
     }
     if (this.mode === 'rivals') {
       hudPanel(g, 0, 0, W, HUD - 1, HEDGE)
-      drawText(g, `P1 ${this.rivalsFixed[0]}`, 4, 3, { color: RAMPS.teal[4], outline: INK })
-      drawText(g, `${Math.ceil(this.rivalsTicks / 60)}S`, W / 2, 3, { align: 'center', color: '#ffffff', outline: INK })
-      drawText(g, `P2 ${this.rivalsFixed[1]}`, W - 4, 3, { align: 'right', color: RAMPS.pink[3], outline: INK })
+      drawText(g, `P1 ${this.rivalsFixed[0]}`, 4, 3, {
+        color: RAMPS.teal[4],
+        outline: INK,
+      })
+      drawText(g, `${Math.ceil(this.rivalsTicks / 60)}S`, W / 2, 3, {
+        align: 'center',
+        color: '#ffffff',
+        outline: INK,
+      })
+      drawText(g, `P2 ${this.rivalsFixed[1]}`, W - 4, 3, {
+        align: 'right',
+        color: RAMPS.pink[3],
+        outline: INK,
+      })
     }
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, H / 2 - 20, {

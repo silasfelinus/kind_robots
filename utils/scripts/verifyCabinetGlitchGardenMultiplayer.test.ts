@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict'
 import { mulberry32 } from '../arcade/curve'
 import { create } from '../arcade/games/glitchGarden'
-import { CROSSFIRE_POINTS, CROSSFIRE_TICKS, RIVALS_TICKS } from '../arcade/games/glitchGardenModes'
+import {
+  CROSSFIRE_POINTS,
+  CROSSFIRE_TICKS,
+  RIVALS_TICKS,
+} from '../arcade/games/glitchGardenModes'
 import { emptyInput } from '../arcade/types'
 import type { InputFrame } from '../arcade/types'
 
@@ -12,7 +16,13 @@ type Worm = {
   dy: 1 | -1
   crossfire?: { player: 0 | 1; tick: number }
 }
-type Beam = { x: number; y: number; player?: 0 | 1; powers: string[]; child: boolean }
+type Beam = {
+  x: number
+  y: number
+  player?: 0 | 1
+  powers: string[]
+  child: boolean
+}
 type Probe = {
   px: number
   py: number
@@ -44,10 +54,15 @@ type Probe = {
   withSecondSprayer(action: () => void): void
   advance(): void
 }
-const make = (players: number) => create({
-  rng: mulberry32(91), sound: { play: () => {} }, demo: false,
-  hiScore: 0, players, selectScreen: true,
-}) as unknown as Probe
+const make = (players: number) =>
+  create({
+    rng: mulberry32(91),
+    sound: { play: () => {} },
+    demo: false,
+    hiScore: 0,
+    players,
+    selectScreen: true,
+  }) as unknown as Probe
 function choose(g: Probe, mode?: string) {
   g.menu!.cursor = g.menu!.items.findIndex((item) => item.mode === mode)
   assert.ok(g.menu!.cursor >= 0)
@@ -71,7 +86,10 @@ const before = [coop.px, coop.p2.x]
 coop.update(left, [left, right])
 assert.ok(coop.px < before[0]!)
 assert.ok(coop.p2.x > before[1]!)
-assert.deepEqual(coop.beams.map((beam) => beam.player), [0, 1])
+assert.deepEqual(
+  coop.beams.map((beam) => beam.player),
+  [0, 1],
+)
 const flower = { col: 5, row: 20, prism: 'pink' }
 coop.flowers = [flower]
 for (const player of [0, 1] as const) {
@@ -81,7 +99,9 @@ for (const player of [0, 1] as const) {
   assert.ok(coop.beams.some((b) => b.child && b.player === player))
 }
 const worm: Worm = {
-  segments: 3, dx: 1, dy: 1,
+  segments: 3,
+  dx: 1,
+  dy: 1,
   trail: Array.from({ length: 25 }, (_, i) => ({ x: 80 - i, y: 80 })),
 }
 coop.worms = [worm]
@@ -97,7 +117,14 @@ assert.equal(coop.crossfires, 1)
 coop.tick += CROSSFIRE_TICKS + 1
 coop.creditWorm(fragment, 0, 80, 80)
 assert.equal(coop.crossfires, 1)
-coop.worms = [{ segments: 1, dx: 1, dy: 1, trail: [{ x: coop.p2.x - 4, y: coop.p2.y - 4 }] }]
+coop.worms = [
+  {
+    segments: 1,
+    dx: 1,
+    dy: 1,
+    trail: [{ x: coop.p2.x - 4, y: coop.p2.y - 4 }],
+  },
+]
 const lives = coop.lives
 coop.checkHits(1)
 assert.equal(coop.lives, lives - 1)
@@ -119,7 +146,14 @@ rival.worms = [worm]
 rival.creditWorm(worm, 1, 80, 80)
 assert.deepEqual(rival.rivalsFixed, [0, 1])
 assert.equal(rival.score, 0)
-rival.worms = [{ segments: 1, dx: 1, dy: 1, trail: [{ x: rival.p2.x - 4, y: rival.p2.y - 4 }] }]
+rival.worms = [
+  {
+    segments: 1,
+    dx: 1,
+    dy: 1,
+    trail: [{ x: rival.p2.x - 4, y: rival.p2.y - 4 }],
+  },
+]
 const rivalLives = rival.lives
 rival.checkHits(1)
 assert.equal(rival.lives, rivalLives)

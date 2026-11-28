@@ -2243,7 +2243,7 @@ for (const person of IDENTITY_ARCS) {
       if (stage) story.current = null
       // Independent starts keep later missions covered when an earlier
       // chapter defeats the bot. A surviving campaign uses earned carryover.
-      const opening =
+      const opening: EvtSave =
         campaign?.active ??
         createSave({
           slot: 'auto',

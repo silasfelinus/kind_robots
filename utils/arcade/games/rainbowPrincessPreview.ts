@@ -3789,7 +3789,7 @@ export function createRainbowPrincessPreview(
       if (reef.health <= 0) defeat(i, seat, false)
     }
     if (kind === 2) {
-      haloRevive(ships, activePlayers, seat)
+      haloRevive(ships, activePlayers, seat, kind)
       for (const ally of ships.slice(0, activePlayers)) {
         ally.shield = Math.min(shieldCap, ally.shield + 1)
         ally.invulnerable = Math.max(ally.invulnerable, 60)

@@ -35,17 +35,26 @@ export function availableCoopTargets<T extends CoopShipState>(
     .filter((ship) => ship.lives > 0)
 }
 
+/** Solenne's Halo Fin (RAINBOW_PILOTS index), whichever seat flies it. */
+export const HALO_PILOT = 2
+
 /**
  * Solenne's earned Halo Harbor super can bring back one fallen active ally.
- * No charge means no super; no live caster means no revive; inactive players
- * are never revived on the bench. The consumer spends earned charge first.
+ * The caster is a seat; the revive belongs to the Halo Fin pilot flying it, in
+ * any seat. No charge means no super; no live caster means no revive; inactive
+ * players are never revived on the bench. The consumer spends earned charge first.
  */
 export function haloRevive<T extends CoopShipState>(
   roster: readonly T[],
   active: number,
   caster: number,
+  casterPilot: number,
 ): number | null {
-  if (caster !== 2 || caster >= active || (roster[caster]?.lives ?? 0) <= 0)
+  if (
+    casterPilot !== HALO_PILOT ||
+    caster >= active ||
+    (roster[caster]?.lives ?? 0) <= 0
+  )
     return null
   const seat = roster.findIndex(
     (ship, index) => index < active && index !== caster && ship.lives <= 0,

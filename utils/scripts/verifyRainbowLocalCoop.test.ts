@@ -10,8 +10,77 @@ import {
   availableCoopTargets,
   boundedCoopSeats,
   coopEnemyHealth,
+  HALO_PILOT,
   haloRevive,
 } from '../arcade/games/rainbowLocalCoop'
+
+function seeded(seed: number) {
+  let state = seed
+  return () => {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0
+    return state / 0x100000000
+  }
+}
+
+/**
+ * Fly a real cabinet select (row 0 rotates the crew) and let one partner ram the
+ * field until it falls, while every other seat holds fire. Once it is down the
+ * Halo Fin seat (or, in the control crew, seat 0) fires each charged super.
+ * Returns whether the fallen partner came back.
+ */
+function flyRevive(players: number, rotate: number, caster: number) {
+  const game = createRainbowPrincessPreview({
+    rng: seeded(7),
+    sound: { play() {} },
+    demo: false,
+    hiScore: 0,
+    players,
+    selectScreen: true,
+  })
+  const seats = () => Array.from({ length: players }, () => emptyInput())
+  for (let i = 0; i < rotate; i++) {
+    const step = seats()
+    step[0]!.pressed.right = true
+    game.update(step[0]!, step)
+    game.update(emptyInput(), seats())
+  }
+  for (let i = 0; i < 30; i++) game.update(emptyInput(), seats())
+  const start = seats()
+  start[0]!.pressed.a = true
+  game.update(start[0]!, start)
+  const pilots = [...game.snapshot.pilots]
+  const partner = caster === 0 ? 1 : 0
+  let fell = false
+  let supers = 0
+  for (let frame = 0; frame < 12000; frame++) {
+    const snap = game.snapshot
+    const keys = seats()
+    for (let seat = 0; seat < players; seat++) {
+      const input = keys[seat]!
+      if (seat === partner && !fell) {
+        input.held.right = true
+        input.held.down = frame % 120 < 60
+        input.held.up = frame % 120 >= 60
+        continue
+      }
+      input.held.a = true
+      input.held.up = snap.ships[seat]!.y > 60 + seat * 40
+      input.held.down = snap.ships[seat]!.y < 50 + seat * 40
+    }
+    if (fell && snap.ships[caster]!.charge >= 100 && frame % 30 === 0) {
+      keys[caster]!.pressed.b = true
+      keys[caster]!.held.b = true
+      supers++
+    }
+    game.update(keys[0]!, keys)
+    const after = game.snapshot
+    if (!fell && after.ships[partner]!.lives <= 0) fell = true
+    if (fell && after.ships[partner]!.lives > 0)
+      return { pilots, fell, supers, revived: true }
+    if (after.continueLeft > 0 || game.over || (fell && supers >= 3)) break
+  }
+  return { pilots, fell, supers, revived: false }
+}
 
 const start = (seat: number) => ({
   lives: 3,
@@ -47,10 +116,18 @@ assert.deepEqual(
   [0, 2, 3],
 )
 
-assert.equal(haloRevive(ships, 2, 2), null, 'inactive caster cannot revive')
-assert.equal(haloRevive(ships, 4, 0), null, 'non-Halo pilots cannot revive')
 assert.equal(
-  haloRevive(ships, 4, 2),
+  haloRevive(ships, 2, 2, HALO_PILOT),
+  null,
+  'inactive caster cannot revive',
+)
+assert.equal(
+  haloRevive(ships, 4, 2, 0),
+  null,
+  'non-Halo pilots cannot revive, even from the third seat',
+)
+assert.equal(
+  haloRevive(ships, 4, 2, HALO_PILOT),
   1,
   'Halo revives the first fallen active seat',
 )
@@ -58,10 +135,52 @@ assert.equal(ships[1]!.lives, 1)
 assert.equal(ships[1]!.shield, 2)
 assert.equal(ships[1]!.invulnerable, 150)
 assert.equal(ships[1]!.power, 2)
-assert.equal(haloRevive(ships, 4, 2), null, 'revival is not a free refill')
+assert.equal(
+  haloRevive(ships, 4, 2, HALO_PILOT),
+  null,
+  'revival is not a free refill',
+)
+ships[1]!.lives = 0
+assert.equal(
+  haloRevive(ships, 4, 0, HALO_PILOT),
+  1,
+  'Halo Fin revives from the first seat',
+)
+ships[1]!.lives = 0
+assert.equal(
+  haloRevive(ships, 4, 3, HALO_PILOT),
+  1,
+  'Halo Fin revives from the fourth seat',
+)
 ships[2]!.lives = 0
 ships[3]!.lives = 0
-assert.equal(haloRevive(ships, 4, 2), null, 'a dead Halo cannot cast')
+assert.equal(
+  haloRevive(ships, 4, 2, HALO_PILOT),
+  null,
+  'a dead Halo cannot cast',
+)
+
+// Gameplay critic r2 G1: the revive follows the Halo Fin pilot, not the third seat.
+for (const [players, rotate, halo] of [
+  [2, 2, 0],
+  [2, 1, 1],
+  [4, 2, 0],
+  [4, 1, 1],
+  [4, 3, 3],
+  [4, 0, 2],
+] as const) {
+  const run = flyRevive(players, rotate, halo)
+  assert.equal(run.pilots[halo], HALO_PILOT, 'the select seats Halo Fin')
+  assert.ok(run.fell, `${players}p: the partner falls first`)
+  assert.ok(
+    run.revived,
+    `${players}p: Halo Fin in seat ${halo + 1} revives a fallen partner`,
+  )
+}
+const control = flyRevive(2, 0, 0)
+assert.deepEqual(control.pilots, [0, 1])
+assert.ok(control.fell && control.supers > 0)
+assert.equal(control.revived, false, 'a crew without Halo Fin never revives')
 
 assert.equal(coopEnemyHealth(2, 1), 2)
 assert.equal(coopEnemyHealth(2, 2), 2)

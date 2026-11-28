@@ -1062,7 +1062,7 @@ class BrickBloom implements ArcadeGameInstance {
       this.trueChampion = stored.trueChampion === true
       this.save = stored
       if (resumable(stored)) this.offer = stored
-      else if (this.champion && options.selectScreen) this.tourMenu = true
+      else if ((this.champion || hasAllGoldenSeeds(stored.golden)) && options.selectScreen) this.tourMenu = true
     }
     this.startStage(1)
     if (!this.offer && options.selectScreen && !this.demo)
@@ -1190,7 +1190,7 @@ class BrickBloom implements ArcadeGameInstance {
     this.kit = emptyKit()
     this.kitHouse = -1
     this.bed = newBed()
-    this.level = 0
+    this.level = secret ? 30 : 0
     this.clear = 0
     this.lost = 0
     this.enterHouse(secret ? CONSERVATORY_INDEX : 0)
@@ -1357,7 +1357,7 @@ class BrickBloom implements ArcadeGameInstance {
 
   /** The Lily Pond House's water fills the lower wall, boss pond included. */
   private get pond(): boolean {
-    return this.houseNow === POND
+    return this.houseNow === POND || (this.houseNow === CONSERVATORY_INDEX && this.bricks.some((b) => b.kind === 'lily' || b.kind === 'bubble'))
   }
 
   /** A seed's timer, without the catch's points (the bench's starter seed). */
@@ -3696,7 +3696,7 @@ class BrickBloom implements ArcadeGameInstance {
     const line = (text: string, y: number, color: string, scale = 1) =>
       drawText(g, text, W / 2, y, { align: 'center', color, outline: INK, scale })
     if (this.credits) {
-      line(this.credits === 'true' ? 'THE GARDEN IS WHOLE!' : 'GRAND TOUR COMPLETE!', 76, RAMPS.gold[4], 2)
+      line(this.credits === 'true' ? 'GARDEN RESTORED!' : 'TOUR COMPLETE!', 76, RAMPS.gold[4], 2)
       line('FIVE GLASSHOUSES BLOOM AGAIN', 112, RAMPS.leaf[4])
       line(this.credits === 'true' ? 'THORN WAS ONLY LONELY.' : 'THE GLOOM HAS LIFTED.', 135, RAMPS.pink[3])
       if (this.credits === 'true') {
@@ -3707,7 +3707,7 @@ class BrickBloom implements ArcadeGameInstance {
       line('A: RETURN TO TOUR MENU', 266, '#ffffff')
       return
     }
-    line('THE GLASSHOUSE TOUR', 65, RAMPS.gold[4], 2)
+    line('GLASSHOUSE TOUR', 65, RAMPS.gold[4], 2)
     const labels = { tour: 'NEW GRAND TOUR', second: 'SECOND BLOOM - NEW GAME+', secret: 'MOONFLOWER CONSERVATORY' }
     this.tourChoices.forEach((choice, i) => line(
       (this.tourCursor === i ? '> ' : '') + labels[choice], 112 + i * 30,
@@ -3767,7 +3767,7 @@ class BrickBloom implements ArcadeGameInstance {
         ? CYCLE_THEMES
         : this.houseNow === POND
           ? CYCLE_THEMES + 1
-          : this.houseNow === NIGHT
+          : this.houseNow === NIGHT || this.houseNow === CONSERVATORY_INDEX
             ? 1
             : (this.level - 1) % CYCLE_THEMES
     cachedLayer(g, `brick-bloom-garden-${theme}`, W, H, (k) =>
@@ -3795,7 +3795,7 @@ class BrickBloom implements ArcadeGameInstance {
     const lanterns = this.bricks.filter((b) => b.kind === 'lantern')
     for (const b of this.bricks) {
       g.save()
-      if (this.houseNow === NIGHT && !this.boss?.defeated) {
+      if ((this.houseNow === NIGHT || this.houseNow === CONSERVATORY_INDEX) && !this.boss?.defeated) {
         const r = this.brickRect(b)
         const nearBall = this.balls.some(
           (ball) => Math.hypot(ball.x - r.x - r.w / 2, ball.y - r.y) < 50,

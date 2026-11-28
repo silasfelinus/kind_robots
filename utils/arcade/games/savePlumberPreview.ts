@@ -7329,8 +7329,7 @@ export class PlumberRun implements ArcadeGameInstance {
           )
         g.fillStyle = p.sign === 0 ? '#76e1ad' : '#ffd98a'
         g.fillRect(p.x, p.y, p.w, 3)
-        if (p.sign !== 0)
-          this.text(g, 'X · STACK', p.x + p.w / 2, p.y - 8, 9)
+        if (p.sign !== 0) this.text(g, 'X · STACK', p.x + p.w / 2, p.y - 8, 9)
         continue
       }
       if (p.kind === 'raft') {

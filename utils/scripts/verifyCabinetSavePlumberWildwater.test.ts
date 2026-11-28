@@ -501,7 +501,10 @@ for (let i = 0; i < 80 && factory.wildwaterActive; i++) {
 }
 assert.ok(factory.pearls.has('1-f'))
 assert.equal(factory.wildwaterActive, false)
-assert.equal(factory.platforms.some((p) => p.kind === 'assembly'), false)
+assert.equal(
+  factory.platforms.some((p) => p.kind === 'assembly'),
+  false,
+)
 assert.notEqual(factory.solidAt(38, 21), SOLID_BELT_RIGHT)
 assert.equal(factory.foes.length, foesBefore)
 assert.equal(factory.save, undefined)

@@ -45,6 +45,8 @@ import {
   worldCompletion,
 } from '../arcade/games/savePlumberOverworld'
 import {
+  archivePlumberRun,
+  PLUMBER_RUN_HISTORY_LIMIT,
   readPlumberFile,
   readPlumberSave,
   validPlumberCloudSave,
@@ -317,6 +319,68 @@ const remoteOnly = reconcilePlumberSaves(cloud, progressed, cloud)
 assert.equal(remoteOnly.status, 'merged')
 if (remoteOnly.status === 'merged')
   assert.deepEqual(remoteOnly.save, progressed)
+
+const memoryId = (n: number) =>
+  '00000000-0000-4000-8000-' + n.toString(16).padStart(12, '0')
+const memorySlot = cloud.slots[1]!
+const recorded = archivePlumberRun(
+  cloud.album,
+  memorySlot,
+  'game-over',
+  memoryId(1),
+  100,
+)
+const archived = readPlumberFile({
+  ...cloud,
+  slots: [null, null, null],
+  album: recorded,
+})
+assert.equal(archived.album.runs?.length, 1)
+assert.equal(archived.album.runs?.[0]?.score, memorySlot.score)
+assert.ok(validPlumberCloudSave(archived))
+assert.deepEqual(
+  archivePlumberRun(recorded, memorySlot, 'game-over', memoryId(1), 100),
+  recorded,
+)
+const remoteHistory = readPlumberFile({
+  ...archived,
+  album: archivePlumberRun(
+    cloud.album,
+    memorySlot,
+    'rivers-run-home',
+    memoryId(2),
+    200,
+  ),
+})
+const combinedHistory = reconcilePlumberSaves(archived, remoteHistory, null)
+assert.equal(combinedHistory.status, 'merged')
+if (combinedHistory.status === 'merged') {
+  assert.deepEqual(
+    combinedHistory.save.album.runs?.map((memory) => memory.id),
+    [memoryId(2), memoryId(1)],
+  )
+  assert.ok(validPlumberCloudSave(combinedHistory.save))
+}
+let fullHistory = recorded
+for (let i = 2; i <= PLUMBER_RUN_HISTORY_LIMIT + 3; i++)
+  fullHistory = archivePlumberRun(
+    fullHistory,
+    memorySlot,
+    'game-over',
+    memoryId(i),
+    i + 100,
+  )
+assert.equal(fullHistory.runs?.length, PLUMBER_RUN_HISTORY_LIMIT)
+assert.equal(fullHistory.runs?.[0]?.id, memoryId(PLUMBER_RUN_HISTORY_LIMIT + 3))
+assert.ok(
+  validPlumberCloudSave(readPlumberFile({ ...cloud, album: fullHistory })),
+)
+assert.ok(
+  !validPlumberCloudSave({
+    ...archived,
+    album: { ...archived.album, runs: [{ id: 'invalid' }] },
+  }),
+)
 
 const options = (resume?: unknown) => ({
   rng: () => 0.5,
@@ -906,6 +970,16 @@ const before = next.deaths
 next.hero.y = next.stage.rows * 16 + 60
 for (let i = 0; i < 600 && next.deaths === before; i++) next.update(input)
 assert.equal(next.deaths, before + 1, 'a lost life is counted')
+next.lives = 1
+next.score = 12345
+next.hero.y = next.stage.rows * TILE + 60
+for (let i = 0; i < 600 && String(next.mode) !== 'over'; i++) next.update(input)
+assert.equal(next.mode, 'over')
+const lostAdventure = readPlumberFile(next.save)
+assert.equal(lostAdventure.album.runs?.[0]?.outcome, 'game-over')
+assert.equal(lostAdventure.album.runs?.[0]?.score, 12345)
+assert.equal(lostAdventure.slots[lostAdventure.active]?.score, 0)
+assert.ok(validPlumberCloudSave(lostAdventure))
 
 // Erasing takes two presses of Y, and B backs out.
 const eraser = createSavePlumberPreview(options(game.save))

@@ -66,6 +66,7 @@ import {
 } from './savePlumberRoster'
 import {
   PLUMBER_ENDING_COPY,
+  archivePlumberRun,
   PLUMBER_NAME_ALPHABET,
   PLUMBER_NAME_MAX,
   SLOT_COUNT,
@@ -76,6 +77,7 @@ import {
   readPlumberSave,
   type PlumberFile,
   type PlumberPower,
+  type PlumberRunMemory,
   type PlumberSave,
   type PlumberSlot,
 } from './savePlumberSave'
@@ -835,7 +837,8 @@ export class PlumberRun implements ArcadeGameInstance {
       this.file.album.gears.length > 0 ||
       (this.file.album.pearls?.length ?? 0) > 0 ||
       this.file.album.heroines.length > 0 ||
-      this.file.album.endings.length > 0
+      this.file.album.endings.length > 0 ||
+      (this.file.album.runs?.length ?? 0) > 0
     return empty && !this.file.endlessBest && !hasSouvenirs ? null : this.file
   }
 
@@ -921,6 +924,21 @@ export class PlumberRun implements ArcadeGameInstance {
       ...this.file,
       slots,
       album: mergePlumberAlbum(this.file.album, slots),
+    }
+  }
+
+  private archiveOutcome(outcome: PlumberRunMemory['outcome']) {
+    const slot = this.slot
+    if (!slot || this.demo || this.customLevel || this.endless) return
+    this.file = {
+      ...this.file,
+      album: archivePlumberRun(
+        this.file.album,
+        slot,
+        outcome,
+        globalThis.crypto.randomUUID(),
+        Date.now(),
+      ),
     }
   }
 
@@ -1368,7 +1386,9 @@ export class PlumberRun implements ArcadeGameInstance {
     this.progressFeats()
     if (worldBoss) {
       this.mapReveal = opened
+      const firstFinale = last && this.slot?.cleared !== true
       this.remember({ cleared: this.slot?.cleared === true || last })
+      if (firstFinale) this.archiveOutcome(plumberFinaleEnding(this.progress))
       this.setMode('victory', last ? 900 : 600)
       return
     }
@@ -4813,8 +4833,11 @@ export class PlumberRun implements ArcadeGameInstance {
       this.deaths++
     }
     if (this.lives <= 0) {
-      if (!this.customLevel)
+      if (!this.customLevel) {
+        this.remember()
+        this.archiveOutcome('game-over')
         this.remember({ lives: START_LIVES, score: 0, tokens: 0 })
+      }
       this.setMode('over', 220)
       return
     }

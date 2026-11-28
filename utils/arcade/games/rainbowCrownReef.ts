@@ -431,7 +431,10 @@ export function reefDialogue(
       },
       {
         speaker: lead,
-        text: 'High to break the relay, low to take the shields. We decide together.',
+        text:
+          crew.length === 1
+            ? 'High to break the relay, low to take the shields. My wings decide.'
+            : 'High to break the relay, low to take the shields. We decide together.',
       },
     ],
     'A06.TURN': [

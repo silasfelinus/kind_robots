@@ -78,7 +78,8 @@ export const RAINBOW_CONTINUE_LINES: readonly string[] = [
   'The Crown is listening for whether we return. Answer it.',
 ]
 
-/** Lilt's line for a continue in this Act (1-9). */
-export function rainbowContinueLine(act: number): string {
-  return RAINBOW_CONTINUE_LINES[Math.max(1, Math.min(9, act)) - 1]!
+/** Lilt's line for a continue in this Act (1-9); a lone pilot is not called "pilots" (story critic R2-7). */
+export function rainbowContinueLine(act: number, players = 2): string {
+  const line = RAINBOW_CONTINUE_LINES[Math.max(1, Math.min(9, act)) - 1]!
+  return players === 1 ? line.replace(/\bpilots\b/, 'pilot') : line
 }

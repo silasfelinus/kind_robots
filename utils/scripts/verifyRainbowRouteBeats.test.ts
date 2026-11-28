@@ -66,6 +66,7 @@ const ALL: RainbowRouteFlags = {
 }
 
 // In the real scenes (every Act shows a line each 96 frames): each beat changes only its named line, keeps the length, and keeps every other line.
+// The final choice's beat is a fourth line after the crew's, never in its place (story critic round 2, R2-9).
 type Say = (
   id: string,
   at: number,
@@ -129,6 +130,17 @@ for (const [id, frames, say] of SCENES) {
     if (!a && !b) break
     plain.push(a?.text ?? '')
     routed.push(b?.text ?? '')
+  }
+  if (beat.inserts) {
+    assert.equal(plain.length, beat.line + 1, `${id} grows by one line`)
+    assert.equal(plain[beat.line], '', `${id} line ${beat.line} is the beat's`)
+    assert.deepEqual(
+      routed.slice(0, beat.line),
+      plain.slice(0, beat.line),
+      `${id} keeps every line of its own`,
+    )
+    assert.ok(routed[beat.line], `${id} plays the beat last`)
+    continue
   }
   assert.ok(plain.length > beat.line, `${id} has its line ${beat.line}`)
   assert.equal(routed.length, plain.length, `${id} keeps its length`)

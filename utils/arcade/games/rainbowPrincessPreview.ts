@@ -364,18 +364,19 @@ import {
 } from './rainbowEclipseCrown'
 import {
   FINALE,
-  FINALE_ENDING_FRAMES,
   FINALE_LANES,
   FINALE_SECTIONS,
   finaleChoiceFor,
   finaleCredits,
   finaleDialogue,
   finaleEndingCaption,
+  finaleEndingFrames,
   finaleEndingSkip,
   finaleEndingTitle,
   finaleRescues,
   finaleScene,
   finaleStage,
+  finaleTurnLines,
   type FinaleChoice,
   type FinaleFlags,
   type FinaleSceneId,
@@ -1750,6 +1751,13 @@ export function createRainbowPrincessPreview(
     ] as ({ phase?: number } | null)[])
       phase = Math.max(phase, fight?.phase ?? 0)
     return phase
+  }
+  /** How long this crew's ending and final choice talk (story critic round 2, R2-2 and R2-9). */
+  function finaleLengths() {
+    return {
+      endingFrames: finaleEndingFrames(allegiance, partyMask()),
+      turnLines: finaleTurnLines(routeFlags()),
+    }
   }
   /** The detours this run flew and the flags they earned, for route beats and stingers (ROUTE-MAP 5-6). */
   function routeFlags(): RainbowRouteFlags {
@@ -5274,9 +5282,10 @@ export function createRainbowPrincessPreview(
       } else if (endingFrame !== null) {
         // The ending, then the credits, then THE END: A closes the run, or it closes by itself.
         endingFrame++
+        const endingFrames = finaleLengths().endingFrames
         // The credits open with the route stinger's fanfare when the run earned one (ROUTE-MAP section 6).
         if (
-          endingFrame === FINALE_ENDING_FRAMES &&
+          endingFrame === endingFrames &&
           rainbowRouteStinger(finalChoice ?? 'evacuate', routeFlags(), {
             all: finaleRescues(finaleFlags()) === 6,
             stoppedRelay: finaleFlags().stoppedRelay,
@@ -5285,18 +5294,18 @@ export function createRainbowPrincessPreview(
           options.sound.play('rainbowStinger')
         // A moves the ending on a line at a time, once each line has had a moment (t-012).
         const skipTo = [input, ...seated].some((keys) => keys?.pressed.a)
-          ? finaleEndingSkip(endingFrame)
+          ? finaleEndingSkip(endingFrame, endingFrames)
           : null
         if (skipTo !== null) endingFrame = skipTo
         // A skips the rest of the credits to THE END.
-        const credits = endingFrame - FINALE_ENDING_FRAMES
+        const credits = endingFrame - endingFrames
         if (
           credits >= CREDITS_SKIP_GRACE &&
           credits < FINALE.creditFrames &&
           [input, ...seated].some((keys) => keys?.pressed.a)
         )
-          endingFrame = FINALE_ENDING_FRAMES + FINALE.creditFrames
-        const shown = endingFrame - FINALE_ENDING_FRAMES - FINALE.creditFrames
+          endingFrame = endingFrames + FINALE.creditFrames
+        const shown = endingFrame - endingFrames - FINALE.creditFrames
         if (
           shown >= FINALE.endHoldFrames ||
           (shown >= FINALE.endMinFrames &&
@@ -6552,6 +6561,7 @@ export function createRainbowPrincessPreview(
                                     choiceFrame,
                                     escapeFrame,
                                     endingFrame,
+                                    finaleLengths().endingFrames,
                                   ),
         sceneId: cometActive()
           ? cometFrame() < COMET.openingEnds
@@ -6617,6 +6627,7 @@ export function createRainbowPrincessPreview(
                                     escapeFrame,
                                     endingFrame,
                                     pleaElapsed(),
+                                    finaleLengths(),
                                   )?.id ?? null),
         boss: boss ? { ...boss } : null,
         moonBoss: moonBoss ? { ...moonBoss } : null,
@@ -9535,6 +9546,7 @@ export function createRainbowPrincessPreview(
                                   escapeFrame,
                                   endingFrame,
                                   pleaElapsed(),
+                                  finaleLengths(),
                                 )
       const said = scene
         ? cometActive()
@@ -9930,9 +9942,15 @@ export function createRainbowPrincessPreview(
         )
         g.textAlign = 'left'
       }
-      if (endingFrame !== null && endingFrame >= FINALE_ENDING_FRAMES) {
+      const endingFrames =
+        endingFrame === null ? null : finaleLengths().endingFrames
+      if (
+        endingFrame !== null &&
+        endingFrames !== null &&
+        endingFrame >= endingFrames
+      ) {
         // The credits roll over the halo, naming the crew and the rescued; then THE END.
-        const rolled = endingFrame - FINALE_ENDING_FRAMES
+        const rolled = endingFrame - endingFrames
         g.save()
         g.fillStyle = '#05030fe6'
         g.fillRect(0, 0, W, H)
@@ -10338,7 +10356,11 @@ export function createRainbowPrincessPreview(
         g.fillText('LILT-7', W / 2, 62)
         g.fillStyle = '#fff4fa'
         g.font = '9px monospace'
-        g.fillText(rainbowContinueLine(checkpoint.act), W / 2, 76)
+        g.fillText(
+          rainbowContinueLine(checkpoint.act, activePlayers),
+          W / 2,
+          76,
+        )
         g.fillStyle = '#ffd2ef'
         g.font = 'bold 22px monospace'
         g.fillText('CONTINUE?', W / 2, 104)

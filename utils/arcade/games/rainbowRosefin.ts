@@ -413,7 +413,10 @@ export function rosefinDialogue(
       },
       {
         speaker: wing === lead ? 'Lilt-7' : wing,
-        text: 'Settlers, right behind our guns. Into the wreckyard. Stay close together.',
+        text:
+          wing === lead
+            ? 'Settlers, right behind our guns. Into the wreckyard. Stay on my light.'
+            : 'Settlers, right behind our guns. Into the wreckyard. Stay close together.',
       },
     ],
   }

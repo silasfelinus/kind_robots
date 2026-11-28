@@ -249,6 +249,7 @@ function rescueVerdict(
   rescues: number,
   captives: number,
   road: FinaleRoad,
+  solo: boolean,
 ): string {
   const palace =
     captives > 0
@@ -256,8 +257,10 @@ function rescueVerdict(
       : ''
   if (rescues === 6)
     return road === 'loyal'
-      ? 'Every rescue we chose made it home. Command will file them as cleared; I will file them by name.'
-      : 'Every rescue we chose made it home with us. Every single one.'
+      ? `Every rescue ${solo ? 'I' : 'we'} chose made it home. Command will file them as cleared; I will file them by name.`
+      : solo
+        ? 'Every rescue I chose made it home with me. Every single one.'
+        : 'Every rescue we chose made it home with us. Every single one.'
   if (rescues >= 3)
     return `${rescues} of our six rescues are flying home${palace}.`
   if (rescues > 0)
@@ -265,8 +268,15 @@ function rescueVerdict(
   return 'We could not save everyone on the way. We will keep looking, and we will keep asking first.'
 }
 
-/** The send-off: a rebel crew flies free, a loyal crew flies home, and a crew that broke its orders says so. */
-function sendOff(road: FinaleRoad, choice: FinaleChoice): string {
+/**
+ * The send-off, the ending's last line: a rebel crew flies free, a loyal crew flies home, and a crew that broke its
+ * orders says so. A lone pilot hears it from Lilt-7, so she is never told to form up.
+ */
+function sendOff(
+  road: FinaleRoad,
+  choice: FinaleChoice,
+  solo: boolean,
+): string {
   if (road === 'rebel')
     return choice === 'restore'
       ? 'C.A.T.S., the Crown asks first now, and so do we. Let us fly.'
@@ -274,13 +284,41 @@ function sendOff(road: FinaleRoad, choice: FinaleChoice): string {
         ? 'C.A.T.S., no leash on the sea and none on us. Let us fly.'
         : 'C.A.T.S., the sea is free and so are we. Let us fly.'
   if (road === 'loyal')
-    return choice === 'sever'
-      ? 'C.A.T.S., form up. We go home and tell them we said no.'
-      : 'C.A.T.S., form up. The Motherland expects us home.'
-  return 'Princesses, the sky is open. Let us go home.'
+    return solo
+      ? choice === 'sever'
+        ? 'C.A.T.S., set course for home. We tell them together that we said no.'
+        : 'C.A.T.S., set course for home. The Motherland expects us.'
+      : choice === 'sever'
+        ? 'C.A.T.S., form up. We go home and tell them we said no.'
+        : 'C.A.T.S., form up. The Motherland expects us home.'
+  return solo
+    ? 'Princess, the sky is open. Let us go home.'
+    : 'Princesses, the sky is open. Let us go home.'
 }
 
 type FinalePilot = (typeof PILOTS)[number]
+
+/**
+ * Who speaks the crew's closing lines (independent story critic round 2, R2-2 and R2-5: the road epilogue went to
+ * the highest pilot index, so Vivi closed every crew she flew in, and on the rebel road one pilot often spoke the
+ * party epilogue and the road epilogue back to back). The voices go round the crew from the party epilogue's
+ * speaker: the next pilot takes the road epilogue and the one after gives the send-off, so no pilot speaks twice
+ * in a row and every pilot closes some crews. A lone pilot speaks her epilogue and Lilt-7 sends her off.
+ */
+function closingVoices(partyMask: number): {
+  party: FinalePilot
+  road: FinalePilot
+  close: FinalePilot | 'Lilt-7'
+} {
+  const crew = PILOTS.filter((_, pilot) => partyMask & (1 << pilot))
+  const party = rainbowPartyTrack(partyMask).epilogue.speaker
+  const at = crew.indexOf(party)
+  return {
+    party,
+    road: crew[(at + 1) % crew.length]!,
+    close: crew.length === 1 ? 'Lilt-7' : crew[(at + 2) % crew.length]!,
+  }
+}
 
 /**
  * Each pilot's own epilogue on each road (independent story critic S7, 2026-11-23 PT: seat renaming handed one
@@ -332,20 +370,10 @@ export function finaleDialogue(
   /** A loyal crew that flew high through the Crown's plea and turned at the last (story critic S4). */
   stoodDown = false,
 ): FinaleDialogue | null {
-  const party = partyMask === null ? null : rainbowPartyTrack(partyMask)
   const crew = PILOTS.slice(0, Math.max(1, Math.min(4, players)))
   const lead = crew[0]!
   const wing = crew[crew.length - 1]!
   const rescues = finaleRescues(flags)
-  // Epilogues belong to a pilot, not a seat (story critic S7): with the party mask, the flown pilot speaks her own.
-  const voice =
-    partyMask !== null && partyMask > 0
-      ? PILOTS[Math.min(3, 31 - Math.clz32(partyMask))]!
-      : null
-  const epilogue = (lines: Record<FinalePilot, string>): FinaleDialogue =>
-    voice
-      ? { speaker: voice, text: lines[voice], partyAuthored: true }
-      : { speaker: wing, text: lines[wing] }
   const road = roadOf(allegiance)
   const ending = choice ?? 'evacuate'
   const lines: Record<FinaleSceneId, FinaleDialogue[]> = {
@@ -438,7 +466,12 @@ export function finaleDialogue(
       { speaker: 'Lilt-7', text: FINALE_ENDINGS[road][ending].world },
       {
         speaker: lead,
-        text: rescueVerdict(rescues, flags.captivesFreed, road),
+        text: rescueVerdict(
+          rescues,
+          flags.captivesFreed,
+          road,
+          crew.length === 1,
+        ),
       },
       {
         speaker: 'Lilt-7',
@@ -446,19 +479,7 @@ export function finaleDialogue(
           ? 'You were ordered to take it and you chose to ask. That is the rule I helped write, flown at last.'
           : LILT_RESOLUTION[road][ending],
       },
-      // The crew's own line, then the close (blind story critic S2, 2026-11-23 PT). The fifteen party epilogues
-      // are written for a crew that freed the Ocean, so they play on the rebel and unsworn roads; a loyal crew
-      // says what it will carry home. A rebel crew then closes on what it became.
-      road === 'loyal'
-        ? epilogue(ROAD_EPILOGUE.loyal)
-        : party
-          ? { ...party.epilogue, partyAuthored: true }
-          : road === 'unsworn'
-            ? epilogue(EPILOGUE)
-            : epilogue(ROAD_EPILOGUE.rebel),
-      road === 'rebel' && party
-        ? epilogue(ROAD_EPILOGUE.rebel)
-        : { speaker: lead, text: sendOff(road, ending) },
+      ...crewClose(road, ending, partyMask, crew),
     ],
   }
   const frames =
@@ -474,11 +495,88 @@ export function finaleDialogue(
   )
 }
 
+/**
+ * The crew's own lines that close the ending (blind story critic S2, 2026-11-23 PT; round 2, R2-2 and R2-5). The
+ * fifteen party epilogues are written for a crew that freed the Ocean, so they play on the rebel and unsworn
+ * roads; a loyal crew says what it will carry home instead. On the rebel road a second pilot then says what the
+ * crew became, and the choice's own send-off always plays last, from a voice that did not speak the line before.
+ */
+function crewClose(
+  road: FinaleRoad,
+  ending: FinaleChoice,
+  partyMask: number | null,
+  crew: readonly FinalePilot[],
+): FinaleDialogue[] {
+  if (partyMask === null || partyMask <= 0) {
+    const solo = crew.length === 1
+    const wing = crew[crew.length - 1]!
+    const lines = road === 'unsworn' ? EPILOGUE : ROAD_EPILOGUE[road]
+    return [
+      { speaker: wing, text: lines[wing] },
+      {
+        speaker: solo ? 'Lilt-7' : crew[0]!,
+        text: sendOff(road, ending, solo),
+      },
+    ]
+  }
+  const voices = closingVoices(partyMask)
+  const alone = voices.close === 'Lilt-7'
+  const said = (
+    speaker: FinalePilot | 'Lilt-7',
+    text: string,
+  ): FinaleDialogue => ({ speaker, text, partyAuthored: true })
+  const partyLine = said(
+    voices.party,
+    rainbowPartyTrack(partyMask).epilogue.text,
+  )
+  if (road === 'loyal')
+    return [
+      said(voices.road, ROAD_EPILOGUE.loyal[voices.road]),
+      said(voices.close, sendOff(road, ending, alone)),
+    ]
+  if (road === 'unsworn')
+    return [
+      partyLine,
+      said(alone ? 'Lilt-7' : voices.road, sendOff(road, ending, alone)),
+    ]
+  return [
+    partyLine,
+    ...(alone ? [] : [said(voices.road, ROAD_EPILOGUE.rebel[voices.road])]),
+    said(voices.close, sendOff(road, ending, alone)),
+  ]
+}
+
 /** The plea's three lines share the Crown's plea window evenly. */
 const PLEA_LINE_FRAMES = Math.floor(CROWN_PLEA.frames / 3)
 
-/** The ending's length in frames: every AFTER line, read in full. */
+/** The ending's usual length in frames: five AFTER lines, read in full. */
 export const FINALE_ENDING_FRAMES = 5 * FINALE.endingLineFrames
+
+/**
+ * This crew's ending length in frames: every AFTER line, read in full. A rebel crew of two or more pilots hears a
+ * sixth line, a second pilot's road epilogue before the send-off.
+ */
+export function finaleEndingFrames(
+  allegiance: RainbowAllegiance | null,
+  partyMask: number | null,
+): number {
+  const pilots =
+    partyMask === null || partyMask <= 0
+      ? 0
+      : PILOTS.filter((_, pilot) => partyMask & (1 << pilot)).length
+  return (
+    (allegiance === 'rebel' && pilots > 1 ? 6 : 5) * FINALE.endingLineFrames
+  )
+}
+
+/** How many lines A09.TURN holds: a flown route's beat is a fourth line, after the crew's (story critic R2-9). */
+export function finaleTurnLines(route?: RainbowRouteFlags): number {
+  const turn: FinaleDialogue[] = [0, 1, 2].map(() => ({
+    speaker: '',
+    text: '',
+  }))
+  return withRainbowRouteBeat(turn, 'A09.TURN', route, PILOTS).length
+}
 
 /** Frames an ending line shows before A moves on to the next one. */
 export const FINALE_SKIP_GRACE = 30
@@ -487,8 +585,11 @@ export const FINALE_SKIP_GRACE = 30
  * Where A moves the ending to from this ending frame: the next line (the credits after the last), once the
  * current line has shown for FINALE_SKIP_GRACE frames; null when A does nothing here.
  */
-export function finaleEndingSkip(endingFrame: number): number | null {
-  if (endingFrame < 0 || endingFrame >= FINALE_ENDING_FRAMES) return null
+export function finaleEndingSkip(
+  endingFrame: number,
+  endingFrames: number = FINALE_ENDING_FRAMES,
+): number | null {
+  if (endingFrame < 0 || endingFrame >= endingFrames) return null
   const into = endingFrame % FINALE.endingLineFrames
   if (into < FINALE_SKIP_GRACE) return null
   return endingFrame - into + FINALE.endingLineFrames
@@ -535,7 +636,11 @@ export function finaleCredits(
       flags.stoppedRelay && 'The reef nursery, safe from the relay',
       flags.rescuedNavigator && 'The Lost Navigator',
     ].filter((line): line is string => Boolean(line)),
-    `${flags.captivesFreed} ${flags.captivesFreed === 1 ? 'captive' : 'captives'} of the Eclipse Palace`,
+    ...(flags.captivesFreed > 0
+      ? [
+          `${flags.captivesFreed} ${flags.captivesFreed === 1 ? 'captive' : 'captives'} of the Eclipse Palace`,
+        ]
+      : []),
     'The whale fleet',
     'Every rescuer who was never named',
     '',
@@ -544,10 +649,13 @@ export function finaleCredits(
     'B03 Clawburst · B04 Delphion',
     'B05 Sawtooth Regent · B06 Lantern Ray',
     'B07 Glass Eel · B08 Prism Leviathan',
-    allegiance === 'loyal' && choice === 'restore'
-      ? 'B09 Eclipse Crown · under the Motherland flag'
-      : 'B09 Eclipse Crown',
-    ...(allegiance === 'rebel'
+    flown.stoodDown
+      ? 'SPARED · B09 Eclipse Crown'
+      : allegiance === 'loyal' && choice === 'restore'
+        ? 'B09 Eclipse Crown · under the Motherland flag'
+        : 'B09 Eclipse Crown',
+    // A crew that stood down met only the pleading Crown; the flagship never came (story critic R2-1).
+    ...(allegiance === 'rebel' && !flown.stoodDown
       ? ['', 'DEFEATED', 'B09 Motherland Flagship']
       : []),
     '',
@@ -579,10 +687,12 @@ export function finaleScene(
   endingFrame: number | null,
   /** Frames into the Crown's plea, while it pleads. */
   plea: number | null = null,
+  /** This crew's ending length (finaleEndingFrames) and A09.TURN's line count (finaleTurnLines). */
+  lengths: { endingFrames?: number; turnLines?: number } = {},
 ): { id: FinaleSceneId; elapsed: number } | null {
   if (plea !== null) return { id: 'A09.PLEA', elapsed: plea }
   if (endingFrame !== null)
-    return endingFrame < FINALE_ENDING_FRAMES
+    return endingFrame < (lengths.endingFrames ?? FINALE_ENDING_FRAMES)
       ? { id: 'A09.AFTER', elapsed: endingFrame }
       : null
   if (escapeFrame !== null)
@@ -590,7 +700,7 @@ export function finaleScene(
       ? { id: 'A09.ESCAPE', elapsed: escapeFrame }
       : null
   if (choiceFrame !== null)
-    return choiceFrame < 3 * FINALE.lineFrames
+    return choiceFrame < (lengths.turnLines ?? 3) * FINALE.lineFrames
       ? { id: 'A09.TURN', elapsed: choiceFrame }
       : null
   if (frame < FINALE.openingEnds) return { id: 'A09.OPEN', elapsed: frame }
@@ -613,11 +723,12 @@ export function finaleStage(
   choiceFrame: number | null,
   escapeFrame: number | null,
   endingFrame: number | null,
+  endingFrames: number = FINALE_ENDING_FRAMES,
 ): FinaleStage {
   if (endingFrame !== null)
-    return endingFrame < FINALE_ENDING_FRAMES
+    return endingFrame < endingFrames
       ? 'ending'
-      : endingFrame < FINALE_ENDING_FRAMES + FINALE.creditFrames
+      : endingFrame < endingFrames + FINALE.creditFrames
         ? 'credits'
         : 'end'
   if (escapeFrame !== null) return 'escape'

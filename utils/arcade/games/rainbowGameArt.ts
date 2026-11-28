@@ -116,6 +116,7 @@ export function rainbowDoodleLoadedArt(path: string): HTMLImageElement | null {
 export const RAINBOW_IDLE_ATLASES: Readonly<Record<string, number>> = {
   'bosses/b01-phase1': 8,
   'bosses/b01-phase2': 8,
+  'bosses/b01-phase3': 8,
   'bosses/b03-phase2': 8,
   'bosses/b03-phase3': 8,
   'bosses/b04-phase2': 8,

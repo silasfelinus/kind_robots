@@ -642,8 +642,8 @@ assert.match(
 assert.match(scene, /data-testid="monstrique-ending-route"/)
 assert.match(
   scene,
-  /\.mc-ending-card \{\s+max-height: 100%;\s+overflow-y: auto;/,
-  'a long ending scrolls inside its card so NEW CASE stays reachable on phones',
+  /class="mc-ending-card max-h-full[^"]*overflow-y-auto/,
+  'a long ending scrolls inside its bounded card so NEW CASE stays reachable on phones',
 )
 
 console.log(

@@ -568,7 +568,7 @@
           class="mc-ending-plate absolute inset-0 size-full object-cover"
         />
         <div
-          class="mc-ending-card kr-scroll max-w-lg space-y-4 text-center"
+          class="mc-ending-card max-h-full max-w-lg space-y-4 overflow-y-auto text-center"
           data-testid="monstrique-ending-card"
         >
           <p class="mc-eyebrow">CHAPTER ONE · THE LAST CALL</p>
@@ -1504,8 +1504,6 @@ function verbIcon(verb: Verb): string {
   line-height: 1.6;
 }
 .mc-ending-card {
-  max-height: 100%;
-  overflow-y: auto;
   position: relative;
   background: #342338e8;
   border: 2px solid #e2a5ba;

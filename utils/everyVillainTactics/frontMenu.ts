@@ -338,6 +338,8 @@ export const ORIGIN_STAGE_LEADS: Readonly<Record<string, string>> = {
   'candle-that-wouldnt-die': 'magic-fire',
   'orchard-under-asphalt': 'magic-earth',
   'future-in-the-glass': 'magic-water',
+  'overdue-thunder': 'magic-air',
+  'bell-and-the-door': 'magic-discipline',
 }
 export const canStartOneShot = (stageId: string, lead: string): boolean =>
   !ORIGIN_STAGE_LEADS[stageId] || ORIGIN_STAGE_LEADS[stageId] === lead
@@ -402,6 +404,16 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     id: 'future-in-the-glass',
     art: 'districts/botanical-conservatory',
     tag: 'Reflection origin · reframe the vision and evacuate the rooftop',
+  },
+  {
+    id: 'overdue-thunder',
+    art: 'districts/student-commons',
+    tag: 'The Weathervane origin · fold the storm and rescue both readers',
+  },
+  {
+    id: 'bell-and-the-door',
+    art: 'districts/student-commons',
+    tag: 'The Abbess origin · break the obedience ward and evacuate two people',
   },
   {
     id: 'college-quad',

@@ -39,6 +39,8 @@ export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   'candle-that-wouldnt-die': 265015,
   'orchard-under-asphalt': 265015,
   'future-in-the-glass': 265017,
+  'overdue-thunder': 265015,
+  'bell-and-the-door': 265015,
   ...verifiedArenaImageIds,
 }
 

@@ -1151,7 +1151,10 @@ assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
   )
   assert.match(picker, /id: 'faction', name: 'Faction'/)
   assert.match(picker, /id: 'alliance', name: 'Alliance'/)
-  assert.doesNotMatch(picker, /name: 'Faction Classic'|name: 'Faction Constructed'/)
+  assert.doesNotMatch(
+    picker,
+    /name: 'Faction Classic'|name: 'Faction Constructed'/,
+  )
   assert.match(picker, /v-model="factionDeck"/)
   assert.match(picker, /Your saved deck/)
   assert.match(picker, /Faction starter/)

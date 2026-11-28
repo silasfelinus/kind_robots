@@ -34,11 +34,7 @@
       </select>
     </label>
     <p v-if="hint" class="sc-duel-hint">{{ hint }}</p>
-    <NuxtLink
-      v-if="!setup"
-      to="/play/slime-city"
-      class="link"
-    >
+    <NuxtLink v-if="!setup" to="/play/slime-city" class="link">
       Build a legal deck in Collection
     </NuxtLink>
   </section>

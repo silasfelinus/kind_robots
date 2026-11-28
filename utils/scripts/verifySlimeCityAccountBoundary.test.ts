@@ -60,8 +60,8 @@ for (const route of [
   assert.match(
     source,
     route === 'progress.get.ts' ||
-    route === 'pack.post.ts' ||
-    route === 'claim.post.ts'
+      route === 'pack.post.ts' ||
+      route === 'claim.post.ts'
       ? /requireSlimeCityPlayer\(event\)/
       : /requireSlimeCityPreviewUser\(event\)/,
     route + ' must verify authenticated account access',

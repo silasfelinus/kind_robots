@@ -528,7 +528,12 @@ async function settleDuelMeat(
     const receipt = 'pvp:' + row.id
     if (before.receipts.includes(receipt)) continue
     const questOutcome = {
-      victor: outcome === 'draw' ? ('draw' as const) : outcome === seat ? ('player' as const) : ('enemy' as const),
+      victor:
+        outcome === 'draw'
+          ? ('draw' as const)
+          : outcome === seat
+            ? ('player' as const)
+            : ('enemy' as const),
       mode: 'clash',
       format: state.allies?.[seat] ? ('alliance' as const) : ('solo' as const),
       teamId: state.teams[seat],

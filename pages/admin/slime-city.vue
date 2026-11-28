@@ -102,13 +102,15 @@
               class="sc-wallet-link"
               aria-label="Open Meat quests and pack shop"
               @click="lab.showRewards()"
-            >{{
-              lab.progressLoaded
-                ? lab.progress.meat + ' MEAT'
-                : lab.accountPreviewOnly
-                  ? 'LOCAL PLAY'
-                  : 'SIGN IN'
-            }}</button>
+            >
+              {{
+                lab.progressLoaded
+                  ? lab.progress.meat + ' MEAT'
+                  : lab.accountPreviewOnly
+                    ? 'LOCAL PLAY'
+                    : 'SIGN IN'
+              }}
+            </button>
           </div>
         </div>
       </header-page-bar>
@@ -1071,8 +1073,8 @@
                 Signed-in fights against the CPU (VS, Journey and Tower) pay XP
                 and Meat: the server replays every move before it pays, and
                 those fights and fair player duels fill your daily and weekly
-                bounties. Spend Meat on
-                packs for cards beyond your base collection.
+                bounties. Spend Meat on packs for cards beyond your base
+                collection.
               </p>
             </div>
             <div class="sc-progress-hud">

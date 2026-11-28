@@ -254,7 +254,8 @@ export const CHALLENGES: Challenge[] = [
     id: 'weekly-victories',
     period: 'weekly',
     title: 'Prime Cut Champion',
-    description: 'Win five eligible matches. The Exchange weighs every victory.',
+    description:
+      'Win five eligible matches. The Exchange weighs every victory.',
     metric: 'wins',
     target: 5,
     meat: 125,
@@ -520,7 +521,10 @@ export function awardBattle(
 /** Update a period from a server-verified match, independently of base pay. */
 export function recordChallengeBattle(
   win: ChallengeWindow,
-  outcome: Pick<BattleOutcome, 'victor' | 'mode' | 'format' | 'teamId' | 'plays'>,
+  outcome: Pick<
+    BattleOutcome,
+    'victor' | 'mode' | 'format' | 'teamId' | 'plays'
+  >,
   paid = false,
 ): ChallengeWindow {
   const victory = outcome.victor === 'player'

@@ -189,6 +189,13 @@
                     >INSURED</span
                   >
                   <span
+                    v-if="store.isHushWarning(cell)"
+                    class="evt-hush-stamp"
+                    data-testid="tactics-hush-warning"
+                    aria-hidden="true"
+                    >VACUUM</span
+                  >
+                  <span
                     v-if="store.isBurrowWarning(cell)"
                     class="evt-burrow-ring"
                     data-testid="tactics-burrow-warning"
@@ -1251,6 +1258,14 @@
                 ONE-HIT CLAIM CLERKS · Ash Invoice stamps an INSURED tile that
                 ignites next enemy turn. Vacate the tile or disarm the clerk;
                 water prevents ignition.
+              </small>
+              <small
+                v-else-if="store.draft.encounter === 'hushwings'"
+                data-testid="studio-encounter"
+              >
+                ONE-HIT HUSHWINGS · Nell No-Air marks a three-tile corridor.
+                Heroes still in that lane next enemy turn are suppressed.
+                Change lanes or disarm the moth.
               </small>
               <small
                 v-else-if="store.draft.encounter === 'warren-wreckers'"
@@ -2466,6 +2481,15 @@ function baseCellDescription(cell: Cell) {
       (cell.y + 1) +
       (unit ? '. Occupied by ' + unitName(unit) + '.' : '.')
     )
+  if (store.isHushWarning(cell))
+    return (
+      'VACUUM, column ' +
+      (cell.x + 1) +
+      ', row ' +
+      (cell.y + 1) +
+      '. Heroes in this lane are suppressed next enemy turn. Move away or disarm the moth.' +
+      (unit ? ' Occupied by ' + unitName(unit) + '.' : '')
+    )
   if (store.isCinderWarning(cell))
     return (
       'INSURED, column ' +
@@ -2699,6 +2723,7 @@ onBeforeUnmount(() => {
     transparent 70%
   );
 }
+.evt-hush-stamp,
 .evt-cinder-stamp {
   position: absolute;
   top: 2px;
@@ -2711,6 +2736,12 @@ onBeforeUnmount(() => {
   font-weight: 900;
   text-align: center;
   pointer-events: none;
+}
+.evt-hush-stamp {
+  background: #155e75;
+}
+.evt-tile.hush-warning {
+  box-shadow: inset 0 0 0 2px rgb(34 211 238 / 0.85);
 }
 .evt-tile.cinder-warning,
 .evt-tile.fire-next {

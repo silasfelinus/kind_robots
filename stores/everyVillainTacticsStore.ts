@@ -19,6 +19,7 @@ import {
   moveSelected,
   overwatchSelected,
   hunkerSelected,
+  hushLaneContains,
   elevationAt,
   previewShot,
   previewSelectedPower,
@@ -1078,6 +1079,15 @@ export const useEveryVillainTacticsStore = defineStore(
           unit.cinderTarget?.y === point.y,
       )
     }
+    function isHushWarning(point: Cell) {
+      return state.value.units.some(
+        (unit) =>
+          unit.hp > 0 &&
+          unit.henchmanType === 'hush' &&
+          unit.hushTarget &&
+          hushLaneContains(state.value, unit.hushTarget, point),
+      )
+    }
     function isBurrowWarning(point: Cell) {
       return state.value.units.some(
         (unit) =>
@@ -1100,7 +1110,9 @@ export const useEveryVillainTacticsStore = defineStore(
             ...PERSPECTIVES[perspective.value],
             headline: draft.value.objective,
             opening:
-              (draft.value.encounter === 'quarry-lieutenant'
+              (draft.value.encounter === 'hushwings'
+                ? 'Nell No-Air leads the one-hit Hushwings. Leave the marked VACUUM corridor before the next enemy turn or disarm the moth to avoid suppression. '
+                : draft.value.encounter === 'quarry-lieutenant'
                 ? 'Mags Hardpan is an independent four-HP lieutenant, not Foreman Thumpkin. Her drum warns of a 3×3 seismic blast. Move away or land a hit to interrupt it; the one-hit Warren Wreckers still burrow. '
                 : draft.value.encounter === 'wombat-ronin'
                   ? 'Lieutenant Teakettle’s Clockwork Wombat Ronin are one-hit teleporters. Each marks a clock-face exit beside a hero, on the side their cover misses, then phases through it next turn. Stand on the exit to jam it. '
@@ -1471,6 +1483,7 @@ export const useEveryVillainTacticsStore = defineStore(
         exposed: threatAt(point) > 0,
         ...fieldClasses(point),
         'cinder-warning': isCinderWarning(point),
+        'hush-warning': isHushWarning(point),
         elevated: heightAt(point) > 0,
       }
     }
@@ -1491,6 +1504,7 @@ export const useEveryVillainTacticsStore = defineStore(
       isBurrowWarning,
       isPhaseWarning,
       isCinderWarning,
+      isHushWarning,
       oneShotScene,
       civilianCounts,
       canRescue,

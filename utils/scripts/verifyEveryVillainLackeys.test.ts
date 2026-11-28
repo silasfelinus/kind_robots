@@ -16,6 +16,8 @@ import {
 } from '../everyVillainTactics/studio'
 import {
   cinderPlan,
+  hushLaneContains,
+  hushPlan,
   endTurn,
   fireSelected,
   selectedPowerTargets,
@@ -31,6 +33,7 @@ assert.deepEqual(
     'wombat-ronin',
     'licensed-legends',
     'claim-cinders',
+    'hushwings',
     'quarry-lieutenant',
   ],
 )
@@ -286,12 +289,78 @@ const { checksum: _stamp, ...falseStampPayload } = falseStamp
 falseStamp.checksum = saveChecksum(falseStampPayload)
 assert.equal(loadSave(serializeSave(falseStamp)).ok, false)
 
+const hushStage = clonePreset('college-quad')
+hushStage.encounter = 'hushwings'
+assert.deepEqual(stageProblems(hushStage), [])
+function hushBattle() {
+  const state = trainingState(31, hushStage, { lead: 'magic-fire' })
+  const moth = state.units.find((u) => u.team === 'rival')!
+  const hero = state.units.find((u) => u.id === 'backdraft')!
+  moth.x = 3
+  moth.y = 1
+  hero.x = 2
+  hero.y = 1
+  for (const unit of state.units)
+    if (unit.team === 'rival' && unit.id !== moth.id) unit.hp = 0
+  return { state, moth, hero }
+}
+const vacuum = hushBattle()
+assert.equal(vacuum.moth.henchmanName, 'Nell No-Air')
+assert.equal(vacuum.moth.identity, 'accident-air')
+assert.equal(vacuum.moth.hp, 1)
+assert.equal(vacuum.moth.power, undefined)
+assert.match(vacuum.state.log, /Vacuum/)
+const beforeVacuum = vacuum.hero.hp
+endTurn(vacuum.state)
+assert.deepEqual(vacuum.moth.hushTarget, { x: 2, y: 1 })
+assert.ok(!vacuum.hero.statuses.includes('suppressed'))
+assert.ok(hushLaneContains(vacuum.state, vacuum.moth.hushTarget!, vacuum.hero))
+assert.ok(!hushLaneContains(vacuum.state, vacuum.moth.hushTarget!, { x: 2, y: 0 }))
+const vacuumSave = createSave({
+  slot: 'slot-1',
+  perspective: 'hero',
+  leadSignature: 'magic-fire',
+  stage: hushStage,
+  state: vacuum.state,
+  story: { ...createStory(), current: null },
+})
+const vacuumLoad = loadSave(serializeSave(vacuumSave))
+assert.ok(vacuumLoad.ok, vacuumLoad.ok ? '' : vacuumLoad.reason)
+assert.deepEqual(
+  vacuumLoad.save.state.units.find((u) => u.id === vacuum.moth.id)
+    ?.hushTarget,
+  { x: 2, y: 1 },
+)
+endTurn(vacuum.state)
+assert.ok(vacuum.hero.statuses.includes('suppressed'))
+assert.equal(vacuum.hero.hp, beforeVacuum)
+assert.equal(vacuum.moth.hushTarget, null)
+const changedLane = hushBattle()
+endTurn(changedLane.state)
+changedLane.hero.y = 0
+endTurn(changedLane.state)
+assert.ok(!changedLane.hero.statuses.includes('suppressed'))
+const hushedDisarm = hushBattle()
+endTurn(hushedDisarm.state)
+hushedDisarm.moth.hp = 0
+assert.equal(hushPlan(hushedDisarm.state, hushedDisarm.moth), true)
+assert.ok(!hushedDisarm.hero.statuses.includes('suppressed'))
+const forgedVacuum = structuredClone(vacuumSave)
+forgedVacuum.state.units.find((u) => u.id === 'backdraft')!.hushTarget = {
+  x: 2,
+  y: 1,
+}
+const { checksum: _vacuum, ...forgedVacuumPayload } = forgedVacuum
+forgedVacuum.checksum = saveChecksum(forgedVacuumPayload)
+assert.equal(loadSave(serializeSave(forgedVacuum)).ok, false)
+
 const page = readFileSync(
   new URL('../../pages/admin/every-villain-tactics.vue', import.meta.url),
   'utf8',
 )
 assert.match(page, /data-testid="tactics-phase-warning"/)
 assert.match(page, /data-testid="tactics-cinder-warning"/)
+assert.match(page, /data-testid="tactics-hush-warning"/)
 assert.match(page, /data-testid="studio-encounter-select"/)
 console.log(
   'Every Villain lackeys: teleporting Wombat Ronin exits and jams, wind-up Licensed Legends swarm and seals, one-hit SPECIES crews, saves and studio line-ups verified.',

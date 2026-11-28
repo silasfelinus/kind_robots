@@ -82,10 +82,11 @@ const crests = Object.values(HENCHMAN_TELLS).map((tell) => tell.crest)
 assert.deepEqual(Object.keys(HENCHMAN_TELLS).sort(), [
   'burrow',
   'cinder',
+  'hush',
   'phase',
   'windup',
 ])
-assert.equal(new Set(crests).size, 4, 'each tier has its own crest')
+assert.equal(new Set(crests).size, 5, 'each tier has its own crest')
 assert.ok(!crests.includes('✦') && !crests.includes('◆'), 'never hero/boss')
 for (const tell of Object.values(HENCHMAN_TELLS))
   assert.match(

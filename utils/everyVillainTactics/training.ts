@@ -67,8 +67,9 @@ export type Unit = Fighter & {
   team: Team
   maxHp: number
   henchmanName?: string
-  henchmanType?: 'burrow' | 'phase' | 'windup' | 'cinder'
+  henchmanType?: 'burrow' | 'phase' | 'windup' | 'cinder' | 'hush'
   cinderTarget?: Cell | null
+  hushTarget?: Cell | null
   burrowTarget?: Cell | null
   /** Clock-face exit a teleporting ronin will phase into next turn. */
   phaseTarget?: Cell | null
@@ -198,6 +199,11 @@ export const HENCHMAN_TELLS: Record<
     label: 'CLAIM CINDER',
     tell: 'Stamps an INSURED tile within three tiles and sight. It ignites on the next enemy turn. Leave the tile, find water, or disarm the one-hit clerk.',
   },
+  hush: {
+    crest: '≈',
+    label: 'HUSHWING',
+    tell: 'Marks a three-tile corridor within sight. Next turn, heroes still in that lane are suppressed. Step away or disarm the one-hit moth.',
+  },
   windup: {
     crest: '⚙',
     label: 'WIND-UP TOY',
@@ -262,6 +268,7 @@ export function exposureAt(
         u.hp > 0 &&
         u.henchmanType !== 'windup' &&
         u.henchmanType !== 'cinder' &&
+        u.henchmanType !== 'hush' &&
         !u.lieutenantName &&
         !u.signatureBoss,
     )
@@ -440,7 +447,7 @@ const LACKEY_CREWS: Partial<
     NonNullable<StageDraft['encounter']>,
     {
       signature: SignaturePowerId
-      type: 'phase' | 'windup' | 'cinder'
+      type: 'phase' | 'windup' | 'cinder' | 'hush'
       ranks: string[]
     }
   >
@@ -454,6 +461,11 @@ const LACKEY_CREWS: Partial<
     signature: 'accident-fire',
     type: 'cinder',
     ranks: ['Claims Adjuster', 'Policy Clerk'],
+  },
+  hushwings: {
+    signature: 'accident-air',
+    type: 'hush',
+    ranks: ['Breath Courier', 'Mask Collector'],
   },
   'licensed-legends': {
     signature: 'accident-birthright',
@@ -477,8 +489,20 @@ function fieldLackeyCrew(state: TrainingState, stage?: StageDraft) {
       unit.phaseTarget = null
       unit.phaseVictim = null
     } else if (crew.type === 'cinder') unit.cinderTarget = null
+    else if (crew.type === 'hush') unit.hushTarget = null
     else unit.windupRewinding = false
   })
+  if (crew.type === 'hush') {
+    state.log =
+      species.captain +
+      ' leads the ' +
+      species.name +
+      '. Vacuum warnings mark a corridor for the next enemy turn. Change lanes or disarm the moth.'
+    state.events = [
+      species.captain + ': One breath stays in reserve for the trapped civilians.',
+    ]
+    return
+  }
   if (crew.type === 'cinder') {
     state.log =
       species.captain +
@@ -1904,6 +1928,89 @@ export function cinderPlan(state: TrainingState, enemy: Unit): boolean {
   return true
 }
 
+export function hushLaneContains(
+  state: TrainingState,
+  center: Cell,
+  point: Cell,
+): boolean {
+  return (
+    inside(state.map, point) &&
+    !tileAt(state.map, point).wall &&
+    point.y === center.y &&
+    Math.abs(point.x - center.x) <= 1
+  )
+}
+
+export function hushPlan(state: TrainingState, enemy: Unit): boolean {
+  if (enemy.henchmanType !== 'hush') return false
+  if (enemy.hp <= 0) return true
+  const center = enemy.hushTarget
+  const targets = state.units.filter((u) => u.team === 'squad' && u.hp > 0)
+  if (center) {
+    enemy.hushTarget = null
+    enemy.ap = 0
+    const victims = targets.filter((u) => hushLaneContains(state, center, u))
+    for (const victim of victims)
+      if (!victim.statuses.includes('suppressed'))
+        victim.statuses.push('suppressed')
+    note(
+      state,
+      aliasFor(enemy) +
+        ' vacuums the marked corridor. ' +
+        (victims.length
+          ? victims.map(aliasFor).join(', ') + ' suppressed.'
+          : 'The lane is empty.'),
+    )
+    return true
+  }
+  const reserved = state.units.filter((u) => u.hp > 0 && u.hushTarget)
+  const target = targets
+    .filter(
+      (u) =>
+        gridDistance(enemy, u) <= 3 &&
+        lineOfSight(state.map, enemy, u) &&
+        !reserved.some((other) =>
+          hushLaneContains(state, other.hushTarget!, u),
+        ),
+    )
+    .sort(
+      (a, b) =>
+        gridDistance(enemy, a) - gridDistance(enemy, b) ||
+        a.id.localeCompare(b.id),
+    )[0]
+  if (target) {
+    enemy.hushTarget = { x: target.x, y: target.y }
+    note(
+      state,
+      aliasFor(enemy) +
+        ' marks a VACUUM corridor in row ' +
+        (target.y + 1) +
+        '. Change lanes before the next enemy turn.',
+    )
+  } else if (targets.length) {
+    const distance = (p: Cell) =>
+      Math.min(...targets.map((u) => gridDistance(p, u)))
+    const move = reachableCells(state.map, state.units, enemy)
+      .filter((p) => !rivalHazardAt(state, p))
+      .sort(
+        (a, b) =>
+          distance(a) - distance(b) ||
+          a.cost - b.cost ||
+          a.y - b.y ||
+          a.x - b.x,
+      )[0]
+    if (move && distance(move) < distance(enemy)) {
+      enemy.x = move.x
+      enemy.y = move.y
+      enemy.ap -= move.cost
+      enemy.moved = true
+      triggerReactions(state, enemy)
+    }
+  }
+  enemy.ap = 0
+  return true
+}
+
 function enemyPlan(state: TrainingState, enemy: Unit) {
   if (
     signatureLieutenantPlan(state, enemy) ||
@@ -1911,7 +2018,8 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
     burrowPlan(state, enemy) ||
     phasePlan(state, enemy) ||
     windupPlan(state, enemy) ||
-    cinderPlan(state, enemy)
+    cinderPlan(state, enemy) ||
+    hushPlan(state, enemy)
   )
     return
   if (retreatRival(state, enemy)) return

@@ -139,6 +139,7 @@ export type StageEncounter =
   | 'wombat-ronin'
   | 'licensed-legends'
   | 'claim-cinders'
+  | 'hushwings'
 export const STAGE_ENCOUNTERS: ReadonlyArray<{
   id: StageEncounter | null
   label: string
@@ -148,6 +149,7 @@ export const STAGE_ENCOUNTERS: ReadonlyArray<{
   { id: 'wombat-ronin', label: 'Clockwork Wombat Ronin · teleporting' },
   { id: 'licensed-legends', label: 'Licensed Legends · wind-up toys' },
   { id: 'claim-cinders', label: 'Claim Cinders · delayed fire' },
+  { id: 'hushwings', label: 'Hushwings · vacuum corridor' },
   { id: 'quarry-lieutenant', label: 'Mags Hardpan · lieutenant' },
 ]
 

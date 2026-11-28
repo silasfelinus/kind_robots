@@ -209,7 +209,7 @@ export function walkPhase(distance: number, stride: number): number {
 /** Width over height of the stage painting (1344x768). */
 export const STAGE_ASPECT = 1344 / 768
 /** Walk pace on the stage: milliseconds per stage-percentage unit of path. */
-export const STAGE_WALK_MS_PER_UNIT = 16
+export const STAGE_WALK_MS_PER_UNIT = 30
 
 /**
  * Stage units per walk cycle for a figure `heightPct` of the stage tall.
@@ -432,32 +432,60 @@ export function sourcesOf(art: RigArt): RigSource[] {
   return art.kind === 'swap' ? Object.values(art.states) : [art]
 }
 
+/** A part whose pixels the painting keeps inside a neighbour (Iris's back hair in her head, Norb's glasses on his face). */
+export const MERGED = 'merged' as const
+export type RigPaint =
+  RigImageSource | Partial<Record<string, RigImageSource>> | typeof MERGED
+
+/** Where the painting puts each cut: its own frame, boxes and joints. */
+export interface RigLayout {
+  frame?: CutoutRig['frame']
+  parts?: Partial<Record<string, { box?: RigBox; pivot?: RigPoint }>>
+}
+
+const EMPTY: RigVectorSource = { kind: 'svg', shapes: [] }
+
 /**
- * The data-only swap: replace parts' art with painted crops, keeping boxes,
- * pivots, z-order and clips. Swap parts take one source per mouth or eye state.
+ * Swap parts' art for painted crops, keeping z-order and clips. Without a
+ * layout the boxes and pivots stay too (a data-only swap); a painting cut
+ * from its own A-pose passes its frame and each cut's box and joint. Swap
+ * parts take one source per mouth or eye state; unpainted parts and states
+ * keep their vector art.
  */
 export function withPaintedParts(
   rig: CutoutRig,
-  painted: Partial<
-    Record<string, RigImageSource | Partial<Record<string, RigImageSource>>>
-  >,
+  painted: Partial<Record<string, RigPaint>>,
+  layout: RigLayout = {},
 ): CutoutRig {
   return {
     ...rig,
+    frame: layout.frame ?? rig.frame,
     parts: rig.parts.map((part) => {
+      const placed = { ...part, ...layout.parts?.[part.id] }
       const paint = painted[part.id]
-      if (!paint) return part
+      if (!paint) return placed
+      if (paint === MERGED)
+        return part.art.kind === 'swap' ? placed : { ...placed, art: EMPTY }
       if (part.art.kind !== 'swap')
         return 'kind' in paint && paint.kind === 'image'
-          ? { ...part, art: paint as RigImageSource }
-          : part
+          ? { ...placed, art: paint as RigImageSource }
+          : placed
       const states = { ...part.art.states } as Record<string, RigSource>
       for (const [state, source] of Object.entries(paint))
         if (state in states && source && typeof source === 'object')
           states[state] = source as RigImageSource
-      return { ...part, art: { ...part.art, states } as RigSwap }
+      return { ...placed, art: { ...part.art, states } as RigSwap }
     }),
   }
+}
+
+/** Every painted file a rig draws. */
+export function paintedFiles(rig: CutoutRig): string[] {
+  const files = new Set<string>()
+  for (const part of rig.parts)
+    for (const source of sourcesOf(part.art))
+      if (source.kind === 'image') files.add(source.src)
+  return [...files].sort()
 }
 
 /** Ordered list of a part's ancestors, nearest first. Throws on a cycle. */

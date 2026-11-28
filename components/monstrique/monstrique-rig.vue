@@ -7,6 +7,7 @@
     :data-mouth="pose.mouth"
     :data-eyes="pose.eyes"
     :data-motion="reduced ? 'reduced' : 'full'"
+    :data-art="paintFailed ? 'vector' : 'painted'"
     :style="{ aspectRatio: rig.frame.w + ' / ' + rig.frame.h }"
     role="img"
     :aria-label="rig.name"
@@ -76,6 +77,7 @@
                   ? 'url(#' + clipIds.get(part.source) + ')'
                   : undefined
               "
+              @error="paintFailed = true"
             />
           </svg>
         </g>
@@ -115,7 +117,14 @@ const props = defineProps<{
   rig?: CutoutRig
 }>()
 
-const rig = computed(() => props.rig ?? leadRigFor(props.character)!)
+const paintFailed = ref(false)
+const rig = computed(
+  () =>
+    props.rig ??
+    leadRigFor(props.character, {
+      painted: !paintFailed.value,
+    })!,
+)
 const uid = 'mq-rig-' + useId()
 const clipIds = computed(() => {
   const ids = new Map<RigImageSource, string>()

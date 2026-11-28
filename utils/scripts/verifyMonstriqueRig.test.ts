@@ -1,12 +1,21 @@
 // MONSTRIQUE cut-out character rig (conductor monstress-convention/t-018):
 // rig format, pivots and z-order, clip timing, the distance-synced walk,
-// reduced-motion fallbacks, Norb's no-contact rule and the data-only swap to
-// painted parts.
+// reduced-motion fallbacks, Norb's no-contact rule, the painted parts cut from
+// the delivered A-poses and head sheets, and the vector fallback.
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { newCase, type CaseState } from '../monstressConvention/prologue'
-import { IRIS_RIG, LEAD_RIGS, NORB_RIG } from '../monstrique/leadRigs'
 import {
+  IRIS_RIG,
+  IRIS_VECTOR_RIG,
+  LEAD_RIGS,
+  LEAD_VECTOR_RIGS,
+  NORB_RIG,
+  NORB_VECTOR_RIG,
+  leadRigFor,
+} from '../monstrique/leadRigs'
+import {
+  MERGED,
   BLINK_GAP,
   BLINK_MS,
   EYE_STATES,
@@ -20,6 +29,7 @@ import {
   gesturePhase,
   leadGestures,
   mouthAt,
+  paintedFiles,
   poseRig,
   sampleChannel,
   sourcesOf,
@@ -34,8 +44,30 @@ import {
   type RigShape,
 } from '../monstrique/rig'
 
-const read = (path: string) =>
-  readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
+const repo = (path: string) => new URL('../../' + path, import.meta.url)
+const read = (path: string) => readFileSync(repo(path), 'utf8')
+const PAINTED_RIGS = [IRIS_RIG, NORB_RIG]
+const VECTOR_RIGS = [IRIS_VECTOR_RIG, NORB_VECTOR_RIG]
+const ALL_RIGS = [...PAINTED_RIGS, ...VECTOR_RIGS]
+
+/** Width and height of a webp from its header (VP8, VP8L or VP8X). */
+function webpSize(path: string): { w: number; h: number } {
+  const b = readFileSync(repo('public' + path))
+  assert.equal(b.toString('ascii', 0, 4), 'RIFF', path + ' is RIFF')
+  assert.equal(b.toString('ascii', 8, 12), 'WEBP', path + ' is webp')
+  const chunk = b.toString('ascii', 12, 16)
+  if (chunk === 'VP8X')
+    return {
+      w: 1 + b.readUIntLE(24, 3),
+      h: 1 + b.readUIntLE(27, 3),
+    }
+  if (chunk === 'VP8L') {
+    const bits = b.readUInt32LE(21)
+    return { w: (bits & 0x3fff) + 1, h: ((bits >> 14) & 0x3fff) + 1 }
+  }
+  assert.equal(chunk, 'VP8 ', path + ' chunk')
+  return { w: b.readUInt16LE(26) & 0x3fff, h: b.readUInt16LE(28) & 0x3fff }
+}
 const near = (a: number, b: number, tolerance = 1e-6) =>
   Math.abs(a - b) <= tolerance
 const inside = ([x, y]: readonly [number, number], box: RigBox, pad = 0) =>
@@ -109,7 +141,7 @@ const at = (
     point ?? rig.parts.find((part) => part.id === id)!.pivot,
   )
 
-for (const rig of [IRIS_RIG, NORB_RIG]) {
+for (const rig of ALL_RIGS) {
   const ids = rig.parts.map((part) => part.id)
   assert.equal(new Set(ids).size, ids.length, rig.id + ' part ids are unique')
   assert.equal(
@@ -132,7 +164,6 @@ for (const rig of [IRIS_RIG, NORB_RIG]) {
       rig.id + '/' + part.id + ' box sits in the frame',
     )
     for (const source of sourcesOf(part.art)) {
-      assert.equal(source.kind, 'svg', 'vector stand-ins until painted parts')
       if (source.kind !== 'svg') continue
       for (const shape of source.shapes) {
         const bounds = shapeBounds(shape)!
@@ -383,7 +414,7 @@ assert.equal(IRIS_RIG.gestures.reach, 'reach')
 assert.equal(NORB_RIG.handlesItems, false)
 assert.equal(NORB_RIG.clips.reach, undefined, 'Norb has no item-contact reach')
 assert.equal(NORB_RIG.gestures.reach, 'gloves-up')
-for (const rig of [IRIS_RIG, NORB_RIG]) {
+for (const rig of ALL_RIGS) {
   const reachClip = rig.clips[rig.gestures.reach]!
   const rest = poseRig(rig, play())
   for (const side of ['armFrontLower', 'armBackLower']) {
@@ -430,7 +461,7 @@ for (const rig of [IRIS_RIG, NORB_RIG]) {
 
 // Frame timing: deterministic blinks inside the gap window, about nine mouth
 // shapes a second while talking, the walk phase proportional to distance.
-for (const rig of [IRIS_RIG, NORB_RIG]) {
+for (const rig of ALL_RIGS) {
   let blinks = 0
   let previous = 'open'
   let lastStart = -Infinity
@@ -525,7 +556,7 @@ const crop = (x: number, y: number, w: number, h: number): RigImageSource => ({
   sheet,
   rect: { x, y, w, h },
 })
-const painted = withPaintedParts(IRIS_RIG, {
+const painted = withPaintedParts(IRIS_VECTOR_RIG, {
   torso: crop(250, 230, 330, 380),
   head: {
     ...crop(280, 20, 300, 290),
@@ -544,7 +575,10 @@ const painted = withPaintedParts(IRIS_RIG, {
   eyes: { blink: crop(0, 40, 120, 40) },
 })
 const paintedPose = poseRig(painted, play({ timeMs: 1234, talking: true }))
-const vectorPose = poseRig(IRIS_RIG, play({ timeMs: 1234, talking: true }))
+const vectorPose = poseRig(
+  IRIS_VECTOR_RIG,
+  play({ timeMs: 1234, talking: true }),
+)
 assert.deepEqual(
   paintedPose.parts.map((p) => p.matrix),
   vectorPose.parts.map((p) => p.matrix),
@@ -562,11 +596,170 @@ assert.equal(
   'unpainted states keep vector art',
 )
 assert.equal(
-  IRIS_RIG.parts.find((p) => p.id === 'torso')!.art.kind,
+  IRIS_VECTOR_RIG.parts.find((p) => p.id === 'torso')!.art.kind,
   'svg',
   'the swap copies',
 )
 assert.deepEqual(Object.keys(LEAD_RIGS).sort(), ['iris', 'norb'])
+
+// Painted leads: every part of both leads draws a painted cut (or is merged
+// into a neighbour's painting), every cut file exists at the size the rig
+// declares, every file in the rig folders is drawn, each joint sits inside
+// its own cut and its parent's, and the parts stay small.
+const MAX_PAINTED_BYTES = 600 * 1024
+for (const rig of PAINTED_RIGS) {
+  const vector = LEAD_VECTOR_RIGS[rig.id]
+  assert.deepEqual(
+    rig.parts.map((p) => p.id),
+    vector.parts.map((p) => p.id),
+    rig.id + ' painted rig keeps the vector part ids',
+  )
+  assert.deepEqual(rig.clips, vector.clips, rig.id + ' keeps the clips')
+  assert.deepEqual(
+    rig.parts.map((p) => p.z),
+    vector.parts.map((p) => p.z),
+    rig.id + ' keeps the z-order',
+  )
+  const merged: string[] = []
+  for (const part of rig.parts) {
+    const sources = sourcesOf(part.art)
+    if (sources.every((s) => s.kind === 'svg' && s.shapes.length === 0)) {
+      merged.push(part.id)
+      continue
+    }
+    for (const source of sources) {
+      assert.equal(source.kind, 'image', rig.id + '/' + part.id + ' painted')
+      if (source.kind !== 'image') continue
+      assert.ok(
+        source.src.startsWith('/monstress-convention/rig/' + rig.id + '/'),
+        source.src,
+      )
+      const size = webpSize(source.src)
+      assert.deepEqual(size, source.sheet, source.src + ' size')
+      assert.ok(source.rect.w > 0 && source.rect.h > 0)
+      assert.ok(
+        source.rect.x <= 0.01 &&
+          source.rect.y <= 0.01 &&
+          source.rect.x + source.rect.w >= source.sheet.w - 0.01 &&
+          source.rect.y + source.rect.h >= source.sheet.h - 0.01,
+        source.src + ' is drawn whole inside its part',
+      )
+    }
+    assert.ok(
+      inside(part.pivot, part.box),
+      rig.id + '/' + part.id + ' pivot inside its painted cut',
+    )
+  }
+  assert.deepEqual(
+    merged.sort(),
+    rig.id === 'iris' ? ['hairBack'] : ['glasses'],
+    rig.id + ' merges only the parts its painting keeps in a neighbour',
+  )
+  const files = paintedFiles(rig)
+  const folder = 'public/monstress-convention/rig/' + rig.id
+  const onDisk = readdirSync(repo(folder))
+    .filter((name) => name.endsWith('.webp'))
+    .map((name) => '/monstress-convention/rig/' + rig.id + '/' + name)
+    .sort()
+  assert.deepEqual(onDisk, files, rig.id + ' draws every cut on disk')
+  const bytes = files.reduce(
+    (sum, file) => sum + statSync(repo('public' + file)).size,
+    0,
+  )
+  assert.ok(
+    bytes < MAX_PAINTED_BYTES,
+    rig.id + ' painted parts weigh ' + Math.round(bytes / 1024) + ' KB',
+  )
+  for (const id of [
+    'head',
+    'torso',
+    'hips',
+    'armBackUpper',
+    'armBackLower',
+    'handBack',
+    'armFrontUpper',
+    'armFrontLower',
+    'handFront',
+    'thighBack',
+    'shinBack',
+    'footBack',
+    'thighFront',
+    'shinFront',
+    'footFront',
+  ])
+    assert.ok(
+      files.includes(
+        '/monstress-convention/rig/' + rig.id + '/' + id + '.webp',
+      ),
+      rig.id + ' has a painted ' + id,
+    )
+  const mouth = rig.parts.find((p) => p.id === 'mouth')!.art
+  const eyes = rig.parts.find((p) => p.id === 'eyes')!.art
+  assert.ok(mouth.kind === 'swap' && eyes.kind === 'swap')
+  if (mouth.kind === 'swap')
+    for (const shape of MOUTH_SHAPES)
+      assert.equal(
+        (mouth.states as Record<string, { kind: string }>)[shape]!.kind,
+        'image',
+        rig.id + ' mouth ' + shape + ' is painted',
+      )
+  if (eyes.kind === 'swap')
+    for (const eye of EYE_STATES)
+      assert.equal(
+        (eyes.states as Record<string, { kind: string }>)[eye]!.kind,
+        'image',
+        rig.id + ' eyes ' + eye + ' are painted',
+      )
+  const talking = poseRig(rig, play({ timeMs: FLAP_MS * 3, talking: true }))
+  assert.equal(partOf(talking, 'mouth').source.kind, 'image')
+}
+assert.ok(NORB_RIG.frame.w > IRIS_RIG.frame.w, 'Norb is painted wider')
+assert.equal(NORB_RIG.frame.h, NORB_VECTOR_RIG.frame.h)
+assert.equal(NORB_RIG.frame.ground, NORB_VECTOR_RIG.frame.ground)
+for (const file of [...paintedFiles(IRIS_RIG), ...paintedFiles(NORB_RIG)])
+  assert.ok(existsSync(repo('public' + file)), file + ' exists')
+
+// Merged parts draw nothing and stay attached; an unpainted part or a
+// painted rig given no file keeps its vector art (the fallback).
+const mergedPart = withPaintedParts(IRIS_VECTOR_RIG, {
+  hairBack: MERGED,
+}).parts.find((p) => p.id === 'hairBack')!
+assert.ok(mergedPart.art.kind === 'svg' && mergedPart.art.shapes.length === 0)
+const halfPainted = withPaintedParts(
+  IRIS_VECTOR_RIG,
+  { head: IRIS_RIG.parts.find((p) => p.id === 'head')!.art as RigImageSource },
+  { parts: { head: { pivot: [52, 55] } } },
+)
+assert.equal(halfPainted.parts.find((p) => p.id === 'head')!.art.kind, 'image')
+assert.deepEqual(
+  halfPainted.parts.find((p) => p.id === 'head')!.pivot,
+  [52, 55],
+)
+assert.equal(
+  halfPainted.parts.find((p) => p.id === 'torso')!.art.kind,
+  'svg',
+  'a part with no painted cut keeps its vector art',
+)
+assert.deepEqual(
+  halfPainted.parts.find((p) => p.id === 'torso')!.box,
+  IRIS_VECTOR_RIG.parts.find((p) => p.id === 'torso')!.box,
+)
+
+// Both editions draw the same general-edition leads: the rig takes no
+// audience, the painted files are the private general round's cuts, and a
+// failed image swaps the whole lead to its vector rig instead of a hole.
+for (const id of ['iris', 'norb'] as const) {
+  assert.equal(leadRigFor(id), LEAD_RIGS[id])
+  assert.equal(leadRigFor(id, { painted: true }), LEAD_RIGS[id])
+  assert.equal(leadRigFor(id, { painted: false }), LEAD_VECTOR_RIGS[id])
+  assert.ok(
+    sourcesOf(LEAD_VECTOR_RIGS[id].parts[0]!.art).every(
+      (s) => s.kind === 'svg',
+    ),
+  )
+}
+assert.equal(leadRigFor('nico'), null)
+assert.equal(leadRigFor.length, 1, 'leadRigFor takes no audience')
 
 // The stage drives both leads through the rig player.
 const scene = read(
@@ -587,6 +780,16 @@ assert.match(scene, /leadGestures\(action, before, story\.value\.state\)/)
 assert.doesNotMatch(
   scene,
   /<MonstriqueCharacterSprite[^>]*character="(iris|norb)"/,
+)
+assert.doesNotMatch(
+  scene,
+  /<MonstriqueRig[^>]*(audience|edition|mature)/,
+  'both editions draw the same lead rigs',
+)
+assert.match(player, /@error="paintFailed = true"/)
+assert.match(
+  player,
+  /leadRigFor\(props\.character, \{\s*painted: !paintFailed\.value/,
 )
 assert.match(player, /prefers-reduced-motion: reduce/)
 assert.match(player, /visibilitychange/)

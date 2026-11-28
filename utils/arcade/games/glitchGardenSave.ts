@@ -28,6 +28,8 @@ export type GardenSave = {
   run: GardenRun | null
   champion?: boolean
   trueChampion?: boolean
+  medals?: Record<string, number>
+  dailyBest?: { day: string; score: number; cleared: boolean }
 }
 
 export const MAX_SAVED_LIVES = 99
@@ -82,6 +84,22 @@ export function readGardenSave(raw: unknown): GardenSave | null {
       ]
     : []
   const midnight = hasAllTrowels(new Set(trowels))
+  const medals: Record<string, number> = {}
+  if (r.medals && typeof r.medals === 'object' && !Array.isArray(r.medals)) {
+    for (const [key, value] of Object.entries(r.medals)) {
+      if (/^(?:[0-9]|[1-5][0-9])$/.test(key) && whole(value, 7) && value > 0)
+        medals[key] = value
+    }
+  }
+  const daily = r.dailyBest as Record<string, unknown> | undefined
+  const dailyBest =
+    daily &&
+    typeof daily.day === 'string' &&
+    /^\d{4}-\d{2}-\d{2}$/.test(daily.day) &&
+    whole(daily.score, 99_999_999) &&
+    typeof daily.cleared === 'boolean'
+      ? { day: daily.day, score: daily.score, cleared: daily.cleared }
+      : undefined
   return {
     v: 1,
     reached: r.reached,
@@ -91,5 +109,7 @@ export function readGardenSave(raw: unknown): GardenSave | null {
       ? { champion: true }
       : {}),
     ...(r.trueChampion === true && midnight ? { trueChampion: true } : {}),
+    ...(Object.keys(medals).length ? { medals } : {}),
+    ...(dailyBest ? { dailyBest } : {}),
   }
 }

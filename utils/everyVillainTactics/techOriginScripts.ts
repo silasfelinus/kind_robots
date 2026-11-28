@@ -7,7 +7,7 @@ export const FURNACE_ORIGIN_SCRIPT: SceneScript = {
       id: 'furnace-origin-opening',
       title: 'The Furnace Lift',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -17,7 +17,7 @@ export const FURNACE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'A melt crane hangs over the exit while the apprentices wait underneath. The emergency switch has been disconnected.',
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -29,11 +29,11 @@ export const FURNACE_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -41,7 +41,7 @@ export const FURNACE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The gauntlet is for cutting people free, not impressing the patent office.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -49,16 +49,16 @@ export const FURNACE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: 'The owners wanted my patent. They can watch me decide who gets the bridge.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'furnace-origin-choice',
       title: 'Save the apprentices?',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -76,12 +76,12 @@ export const FURNACE_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'furnace-choice-a'
+                  flag: 'furnace-choice-a',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Preserve the machine logs',
@@ -89,14 +89,14 @@ export const FURNACE_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'furnace-choice-b'
+                  flag: 'furnace-choice-b',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -104,7 +104,7 @@ export const FURNACE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The crane operator hands the squad a first-aid kit while the apprentices prepare to cross.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -112,16 +112,16 @@ export const FURNACE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The machine's tampered log is copied and the factory patrol loses its orders.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'furnace-origin-victory',
       title: 'After the Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -135,11 +135,11 @@ export const FURNACE_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'furnace-choice-a'
+              flag: 'furnace-choice-a',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -147,7 +147,7 @@ export const FURNACE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'The apprentices reach safety. A repair is worth more than a patent in a locked filing cabinet.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -155,16 +155,16 @@ export const FURNACE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The original logs survive the rescue. The whistleblower can decide who sees them.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'furnace-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -174,11 +174,11 @@ export const FURNACE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: "The support failed before the apprentices reached it. I won't certify an unfinished weld.",
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const SKYWAY_ORIGIN_SCRIPT: SceneScript = {
@@ -188,7 +188,7 @@ export const SKYWAY_ORIGIN_SCRIPT: SceneScript = {
       id: 'skyway-origin-opening',
       title: 'The Last Skyway',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -198,7 +198,7 @@ export const SKYWAY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'A hacked traffic beacon keeps a rescue helicopter circling a tram station. The dispatcher cannot cancel its landing order.',
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -210,11 +210,11 @@ export const SKYWAY_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -222,7 +222,7 @@ export const SKYWAY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'Eleven minutes in the air is enough if the ground crew has a safe route.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -230,16 +230,16 @@ export const SKYWAY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: 'The contractor thinks it owns the sky. I can prove otherwise before my battery runs out.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'skyway-origin-choice',
       title: 'Restore public traffic control?',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -257,12 +257,12 @@ export const SKYWAY_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'skyway-choice-a'
+                  flag: 'skyway-choice-a',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Use the emergency flight loophole',
@@ -270,14 +270,14 @@ export const SKYWAY_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'skyway-choice-b'
+                  flag: 'skyway-choice-b',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -285,7 +285,7 @@ export const SKYWAY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The dispatcher restores the public channel and sends medical assistance.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -293,16 +293,16 @@ export const SKYWAY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The loophole diverts the patrol drone, leaving the rescue approach clear.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'skyway-origin-victory',
       title: 'After the Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -316,11 +316,11 @@ export const SKYWAY_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'skyway-choice-a'
+              flag: 'skyway-choice-a',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -328,7 +328,7 @@ export const SKYWAY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'The station has its public channel back. Ground crews should control their own clearances.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -336,16 +336,16 @@ export const SKYWAY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The pilot is safe. The loophole belongs in an open safety review, not an exclusive flight permit.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'skyway-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -355,11 +355,11 @@ export const SKYWAY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'My flight timer ran out while the pilot was still waiting. A speed record cannot make that a rescue.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const FOUNDATION_ORIGIN_SCRIPT: SceneScript = {
@@ -369,7 +369,7 @@ export const FOUNDATION_ORIGIN_SCRIPT: SceneScript = {
       id: 'foundation-origin-opening',
       title: 'Foundation Day',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -379,7 +379,7 @@ export const FOUNDATION_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'A demolition rig starts while the tenants are carrying boxes down the only usable stairway. Rain is washing the survey marks away.',
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -391,11 +391,11 @@ export const FOUNDATION_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -403,7 +403,7 @@ export const FOUNDATION_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'I lost two classmates to a missing brace. Nobody else should have to wait under that floor.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -411,16 +411,16 @@ export const FOUNDATION_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: 'The builder signed off on this. I want the original order, but not another name on the casualty report.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'foundation-origin-choice',
       title: 'Prioritize the remaining tenants?',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -438,12 +438,12 @@ export const FOUNDATION_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'foundation-choice-a'
+                  flag: 'foundation-choice-a',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Secure the demolition order',
@@ -451,14 +451,14 @@ export const FOUNDATION_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'foundation-choice-b'
+                  flag: 'foundation-choice-b',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -466,7 +466,7 @@ export const FOUNDATION_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The volunteer brings treatment supplies and clears the stair landing.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -474,16 +474,16 @@ export const FOUNDATION_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The demolition order is copied and the rig crew hesitates.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'foundation-origin-victory',
       title: 'After the Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -497,11 +497,11 @@ export const FOUNDATION_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'foundation-choice-a'
+              flag: 'foundation-choice-a',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -509,7 +509,7 @@ export const FOUNDATION_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'The tenants have crossed. They deserve their own building inspector.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -517,16 +517,16 @@ export const FOUNDATION_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The order survives the rain. The tenants can take it to the inquiry themselves.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'foundation-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -536,11 +536,11 @@ export const FOUNDATION_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'The brace network did not hold long enough. A signed drawing cannot change that.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const PLATFORM_ORIGIN_SCRIPT: SceneScript = {
@@ -550,7 +550,7 @@ export const PLATFORM_ORIGIN_SCRIPT: SceneScript = {
       id: 'platform-origin-opening',
       title: 'The Flooded Platform',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -560,7 +560,7 @@ export const PLATFORM_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'Water fills the subway channel while the emergency pumps sit idle. A commuter and technician wait in the stranded car.',
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -572,11 +572,11 @@ export const PLATFORM_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -584,7 +584,7 @@ export const PLATFORM_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The rescue budget is not their problem. Get the tow line ready.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -592,16 +592,16 @@ export const PLATFORM_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: 'The captain cut the pump budget. I can take control of the emergency circuit, but the passengers come first.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'platform-origin-choice',
       title: 'Evacuate the commuters immediately?',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -619,12 +619,12 @@ export const PLATFORM_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'platform-choice-a'
+                  flag: 'platform-choice-a',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Restart the emergency pumps',
@@ -632,14 +632,14 @@ export const PLATFORM_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'platform-choice-b'
+                  flag: 'platform-choice-b',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -647,7 +647,7 @@ export const PLATFORM_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The technician brings medical supplies to the evacuation ledge.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -655,16 +655,16 @@ export const PLATFORM_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The pump circuit comes back online and disrupts the patrol's coordination.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'platform-origin-victory',
       title: 'After the Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -678,11 +678,11 @@ export const PLATFORM_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'platform-choice-a'
+              flag: 'platform-choice-a',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -690,7 +690,7 @@ export const PLATFORM_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'The commuters have reached the stairs. The city must repair the pumps before the next storm.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -698,16 +698,16 @@ export const PLATFORM_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The pumps are running again. Their maintenance records must remain accessible to the volunteer crews.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'platform-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -717,11 +717,11 @@ export const PLATFORM_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'The water has reached the ledge. I cannot call an unanswered distress signal a successful tow.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const PARADE_ORIGIN_SCRIPT: SceneScript = {
@@ -731,7 +731,7 @@ export const PARADE_ORIGIN_SCRIPT: SceneScript = {
       id: 'parade-origin-opening',
       title: "The Parade That Couldn't Stop",
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -741,7 +741,7 @@ export const PARADE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "A timed implant failure drives the drill team toward the crowd. The marshal's stop signal no longer works.",
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -753,11 +753,11 @@ export const PARADE_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -765,7 +765,7 @@ export const PARADE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'They are veterans, not targets. Give me an opening to change the rhythm.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -773,16 +773,16 @@ export const PARADE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: "Someone bought a demonstration of control. I'll make their parade stop on my terms.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'parade-origin-choice',
       title: 'Treat the wounded veteran?',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -800,12 +800,12 @@ export const PARADE_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'parade-choice-a'
+                  flag: 'parade-choice-a',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Trace the implant sabotage',
@@ -813,14 +813,14 @@ export const PARADE_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'parade-choice-b'
+                  flag: 'parade-choice-b',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -828,7 +828,7 @@ export const PARADE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The marshal brings medical supplies without demanding another demonstration.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -836,16 +836,16 @@ export const PARADE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The sabotage signal is recorded, interrupting the formation's orders.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'parade-origin-victory',
       title: 'After the Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -859,11 +859,11 @@ export const PARADE_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'parade-choice-a'
+              flag: 'parade-choice-a',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -871,7 +871,7 @@ export const PARADE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'The veteran can choose the next step of recovery. No performance is owed.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -879,16 +879,16 @@ export const PARADE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The implant records are preserved. The veterans should decide how the inquiry uses them.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'parade-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -898,11 +898,11 @@ export const PARADE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'The formation continued into the crowd. I cannot count speed alone as a victory.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const BAKERY_ORIGIN_SCRIPT: SceneScript = {
@@ -912,7 +912,7 @@ export const BAKERY_ORIGIN_SCRIPT: SceneScript = {
       id: 'bakery-origin-opening',
       title: "Grandma's Password",
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -922,7 +922,7 @@ export const BAKERY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'An automated oven locks the bakery while a school group waits inside. Its recipe memory still recognizes a familiar voice.',
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -934,11 +934,11 @@ export const BAKERY_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -946,7 +946,7 @@ export const BAKERY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: "A kitchen assistant is not a disposable experiment. Let's find the override that preserves its memory.",
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -954,16 +954,16 @@ export const BAKERY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: 'The surveillance buyer wants the logs erased. I can take the controller without deleting its witnesses.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'bakery-origin-choice',
       title: 'Free the students first?',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -981,12 +981,12 @@ export const BAKERY_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'bakery-choice-a'
+                  flag: 'bakery-choice-a',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Preserve the baking logs',
@@ -994,14 +994,14 @@ export const BAKERY_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'bakery-choice-b'
+                  flag: 'bakery-choice-b',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -1009,7 +1009,7 @@ export const BAKERY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The assistant distributes first aid while the class waits near the door.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -1017,16 +1017,16 @@ export const BAKERY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The surveillance entries are copied and the patrol's access commands fail.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'bakery-origin-victory',
       title: 'After the Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -1040,11 +1040,11 @@ export const BAKERY_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'bakery-choice-a'
+              flag: 'bakery-choice-a',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -1052,7 +1052,7 @@ export const BAKERY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'The class is out. The kitchen AI can keep the recipes it learned from Grandma.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -1060,16 +1060,16 @@ export const BAKERY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The baking logs survive, with customer details protected. No serum or leap stunt was necessary.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'bakery-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -1079,11 +1079,11 @@ export const BAKERY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: "The oven's doors are still sealed. My clever override is not an excuse for leaving the class inside.",
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const MUSEUM_ORIGIN_SCRIPT: SceneScript = {
@@ -1093,7 +1093,7 @@ export const MUSEUM_ORIGIN_SCRIPT: SceneScript = {
       id: 'museum-origin-opening',
       title: 'The Museum of Tomorrow',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -1103,7 +1103,7 @@ export const MUSEUM_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The warranty officer has ordered a prototype repossessed while students are in its elevator. The guide cannot release the cable.',
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -1115,11 +1115,11 @@ export const MUSEUM_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -1127,7 +1127,7 @@ export const MUSEUM_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The suit is only useful if those students get out of it alive.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -1135,16 +1135,16 @@ export const MUSEUM_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: "My board thinks ownership gives it a veto over safety. I'll take that veto away.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'museum-origin-choice',
       title: 'Evacuate the scholarship students?',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -1162,12 +1162,12 @@ export const MUSEUM_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'museum-choice-a'
+                  flag: 'museum-choice-a',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Preserve the free-school patents',
@@ -1175,14 +1175,14 @@ export const MUSEUM_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'museum-choice-b'
+                  flag: 'museum-choice-b',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -1190,7 +1190,7 @@ export const MUSEUM_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The guide brings treatment supplies and opens the receiving area.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -1198,16 +1198,16 @@ export const MUSEUM_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The patent transfer is stopped and the repossession crew loses its orders.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'museum-origin-victory',
       title: 'After the Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -1221,11 +1221,11 @@ export const MUSEUM_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'museum-choice-a'
+              flag: 'museum-choice-a',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -1233,7 +1233,7 @@ export const MUSEUM_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'The students reach the lobby. They need an elevator that works without a Sterling on call.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -1241,16 +1241,16 @@ export const MUSEUM_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The patents survive. The scholarship board should hold them independently of my family.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'museum-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -1260,11 +1260,11 @@ export const MUSEUM_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: "The elevator is still hanging above the lobby. The museum's publicity cannot rescue its passengers.",
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const EDIT_ORIGIN_SCRIPT: SceneScript = {
@@ -1274,7 +1274,7 @@ export const EDIT_ORIGIN_SCRIPT: SceneScript = {
       id: 'edit-origin-opening',
       title: 'The Edited Rescue',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -1284,7 +1284,7 @@ export const EDIT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'An edited rescue clip accuses the rescuer of starting the disaster. Security traps the student interviewee and camera operator behind the studio doors.',
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -1296,11 +1296,11 @@ export const EDIT_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -1308,7 +1308,7 @@ export const EDIT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: "A million followers do not entitle me to the witness's name. Find the missing angle.",
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -1316,16 +1316,16 @@ export const EDIT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: "The producer owns the cut. I can take back the feed without selling the student's privacy.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'edit-origin-choice',
       title: "Keep the witness's source private?",
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -1343,12 +1343,12 @@ export const EDIT_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'edit-choice-a'
+                  flag: 'edit-choice-a',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Expose the manipulated footage',
@@ -1356,14 +1356,14 @@ export const EDIT_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'edit-choice-b'
+                  flag: 'edit-choice-b',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -1371,7 +1371,7 @@ export const EDIT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The operator arranges private support and treatment for the student.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -1379,16 +1379,16 @@ export const EDIT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The original angle is preserved and the security feed loses its orders.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'edit-origin-victory',
       title: 'After the Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -1402,11 +1402,11 @@ export const EDIT_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'edit-choice-a'
+              flag: 'edit-choice-a',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -1414,7 +1414,7 @@ export const EDIT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'The witness chooses whether to appear. The footage can wait.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -1422,16 +1422,16 @@ export const EDIT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The manipulation is documented without revealing unrelated private details.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'edit-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -1441,10 +1441,9 @@ export const EDIT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'The feed is still running while the witnesses are trapped. A viral clip is not a rescue.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
-

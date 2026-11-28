@@ -136,13 +136,7 @@ for (const [stageId, lead, prefix, flagA, flagB] of [
     'applause-cancel',
     'applause-expose',
   ],
-  [
-    'ashes-of-the-ledger',
-    'mutant-fire',
-    'ash',
-    'ash-choice-a',
-    'ash-choice-b',
-  ],
+  ['ashes-of-the-ledger', 'mutant-fire', 'ash', 'ash-choice-a', 'ash-choice-b'],
   [
     'balcony-witness',
     'mutant-air',
@@ -199,13 +193,7 @@ for (const [stageId, lead, prefix, flagA, flagB] of [
     'furnace-choice-a',
     'furnace-choice-b',
   ],
-  [
-    'last-skyway',
-    'tech-air',
-    'skyway',
-    'skyway-choice-a',
-    'skyway-choice-b',
-  ],
+  ['last-skyway', 'tech-air', 'skyway', 'skyway-choice-a', 'skyway-choice-b'],
   [
     'foundation-day',
     'tech-earth',
@@ -241,13 +229,7 @@ for (const [stageId, lead, prefix, flagA, flagB] of [
     'museum-choice-a',
     'museum-choice-b',
   ],
-  [
-    'edited-rescue',
-    'tech-social',
-    'edit',
-    'edit-choice-a',
-    'edit-choice-b',
-  ],
+  ['edited-rescue', 'tech-social', 'edit', 'edit-choice-a', 'edit-choice-b'],
 ] as const) {
   for (const perspective of ['hero', 'villain'] as const) {
     for (const choice of [0, 1]) {

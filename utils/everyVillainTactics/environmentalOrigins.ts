@@ -5,7 +5,15 @@ type EnvironmentalOrigin = {
   flag: string
   target: Point
   range: number
-  family: 'undertow' | 'strike' | 'analyze' | 'blaze' | 'bulwark' | 'glide' | 'aegis' | 'rally'
+  family:
+    | 'undertow'
+    | 'strike'
+    | 'analyze'
+    | 'blaze'
+    | 'bulwark'
+    | 'glide'
+    | 'aegis'
+    | 'rally'
   even: boolean
   fire: boolean
   msg: string

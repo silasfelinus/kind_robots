@@ -977,8 +977,9 @@ for (const [stageId, lead, target, start, flag] of [
       'museum-of-tomorrow': { x: 0, y: 1 },
       'edited-rescue': { x: 0, y: 3 },
     }
-    const blockedStart = originBlocked[stageId] ??
-      (      stageId === 'orchard-under-asphalt'
+    const blockedStart =
+      originBlocked[stageId] ??
+      (stageId === 'orchard-under-asphalt'
         ? { x: 3, y: 2 }
         : stageId === 'overdue-thunder'
           ? { x: 0, y: 2 }

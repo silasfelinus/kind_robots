@@ -7,7 +7,7 @@ export const PROOF_ORIGIN_SCRIPT: SceneScript = {
       id: 'proof-origin-opening',
       title: 'When Two Plus Two Screamed',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -17,7 +17,7 @@ export const PROOF_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'A chalk proof has opened a gap in the symposium floor. Two students cling to a floating staircase that never quite reaches its landing.',
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -29,11 +29,11 @@ export const PROOF_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -41,7 +41,7 @@ export const PROOF_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'A proof that leaves people falling is incomplete. Keep their landing clear.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -49,16 +49,16 @@ export const PROOF_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: 'The professor wants my proof to belong to her. Let her see who can finish it. Get those students out.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'proof-origin-choice',
       title: 'The Unfinished Equation',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -76,12 +76,12 @@ export const PROOF_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'proof-close'
+                  flag: 'proof-close',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Rescue the sentient shape',
@@ -89,14 +89,14 @@ export const PROOF_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'proof-shape'
+                  flag: 'proof-shape',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -104,7 +104,7 @@ export const PROOF_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The closure plan is agreed. Symposium staff distribute first aid.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -112,16 +112,16 @@ export const PROOF_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The shape marks a stable vertex; the patrol hesitates at its changing geometry.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'proof-origin-victory',
       title: 'A Proof With Exceptions',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -135,11 +135,11 @@ export const PROOF_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'proof-close'
+              flag: 'proof-close',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -147,7 +147,7 @@ export const PROOF_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'The breach is sealed. I will record the cost of that conclusion beside the proof.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -155,16 +155,16 @@ export const PROOF_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The shape has crossed. A living exception belongs in the theorem, not in its margins.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'proof-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -174,11 +174,11 @@ export const PROOF_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'The stairs still lead nowhere. A beautiful proof has failed the only test that mattered.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const HEARTH_ORIGIN_SCRIPT: SceneScript = {
@@ -188,7 +188,7 @@ export const HEARTH_ORIGIN_SCRIPT: SceneScript = {
       id: 'hearth-origin-opening',
       title: 'The Heir Who Said No',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -198,7 +198,7 @@ export const HEARTH_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The greenhouse doors seal as an ancestor reads the household pact aloud. A gardener and a witness are trapped among the glass and vines.',
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -210,11 +210,11 @@ export const HEARTH_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -222,7 +222,7 @@ export const HEARTH_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: "My mother's grimoire may know the way out. The people here owe our family nothing.",
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -230,16 +230,16 @@ export const HEARTH_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: 'My ancestors want a ruler. I want the terms in my own hands. Get the witnesses clear.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'hearth-origin-choice',
       title: 'A Name Is Not a Debt',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -257,12 +257,12 @@ export const HEARTH_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'hearth-title'
+                  flag: 'hearth-title',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Renounce the title',
@@ -270,14 +270,14 @@ export const HEARTH_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'hearth-renounce'
+                  flag: 'hearth-renounce',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -285,7 +285,7 @@ export const HEARTH_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The household stores open to the wounded. The title still carries obligations.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -293,16 +293,16 @@ export const HEARTH_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The witnesses hear the refusal. The ancestor's patrol loses its coordinated command.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'hearth-origin-victory',
       title: 'An Open Hearth',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -316,11 +316,11 @@ export const HEARTH_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'hearth-title'
+              flag: 'hearth-title',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -328,7 +328,7 @@ export const HEARTH_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'I accepted the title. I will use its resources to keep the hearth open without demanding loyalty.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -336,16 +336,16 @@ export const HEARTH_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The title stays in the grimoire. I can look for my mother without inheriting her obligations.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'hearth-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -355,11 +355,11 @@ export const HEARTH_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'The glass is falling and the witnesses are still inside. No title can make that a rescue.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const APPLAUSE_ORIGIN_SCRIPT: SceneScript = {
@@ -369,7 +369,7 @@ export const APPLAUSE_ORIGIN_SCRIPT: SceneScript = {
       id: 'applause-origin-opening',
       title: 'The Empty Applause',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -379,7 +379,7 @@ export const APPLAUSE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The theater's closing monologue becomes a contract. The lead performer cannot leave the stage, and the stagehand is bound to the next cue.",
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -391,11 +391,11 @@ export const APPLAUSE_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -403,7 +403,7 @@ export const APPLAUSE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'Nobody has to finish a show to deserve a way out. Hold the wings.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -411,16 +411,16 @@ export const APPLAUSE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: 'The broker wants a captive audience. I can take the stage from him without keeping his contracts.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'applause-origin-choice',
       title: 'No Encore Owed',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -438,12 +438,12 @@ export const APPLAUSE_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'applause-cancel'
+                  flag: 'applause-cancel',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Expose the binder during the finale',
@@ -451,14 +451,14 @@ export const APPLAUSE_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'applause-expose'
+                  flag: 'applause-expose',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -466,7 +466,7 @@ export const APPLAUSE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The house lights rise and the stage manager brings first aid.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -474,16 +474,16 @@ export const APPLAUSE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The final cue names the binder. The patrol falters as its contract is challenged.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'applause-origin-victory',
       title: 'The Unbound Curtain',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -497,11 +497,11 @@ export const APPLAUSE_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'applause-cancel'
+              flag: 'applause-cancel',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -509,7 +509,7 @@ export const APPLAUSE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: "The production is canceled. No audience deserves another person's coerced performance.",
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -517,16 +517,16 @@ export const APPLAUSE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The binder has been named. The performers can decide whether there will ever be an encore.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'applause-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -536,10 +536,9 @@ export const APPLAUSE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'The stage lights go out with the cast still bound. Applause cannot turn that into a victory.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
-

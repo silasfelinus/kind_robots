@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - 'utils/arcade/**'
-      - 'utils/scripts/verifyCabinetGlitchGarden*.test.ts'
+      - 'utils/scripts/**'
       - '.github/workflows/glitch-garden-campaign-contract.yml'
       - 'package.json'
       - 'package-lock.json'

@@ -451,6 +451,7 @@ class RibbonRiders implements ArcadeGameInstance {
   /** The order each cell was laid in, for the rainbow, the tube links and the Eraser. */
   private order = new Uint32Array(GRID * GRID)
   private ribbonBorn = new Uint32Array(GRID * GRID)
+  private ribbonHeading = new Uint8Array(GRID * GRID)
   private bikes: Bike[] = []
   private pickups: Pickup[] = []
   private pickupTimer = 0
@@ -734,7 +735,7 @@ class RibbonRiders implements ArcadeGameInstance {
       rank >= 0 &&
       rank <
         this.spiralCount +
-          (lookahead && this.shrinkTimer < 90 ? SPIRAL_STEP : 0)
+          (lookahead && this.shrinkTimer < 90 && this.spiralCount < (this.arena.spec.shrink?.max ?? 0) * SPIRAL_STEP ? SPIRAL_STEP : 0)
     )
       return true
     const t = this.arena.terrain[i]!
@@ -753,6 +754,23 @@ class RibbonRiders implements ArcadeGameInstance {
     return this.terrainSolid(i)
   }
 
+  /** Bell flare is transient geometry derived from every existing ribbon's heading.
+   * Do not overwrite real trail cells or trap a rider against its own live head. */
+  private flareSourceAt(x: number, y: number): number {
+    if (this.roundTicks >= this.bellUntil || !this.inside(x, y)) return -1
+    if (this.cells[idx(x, y)]) return -1
+    for (let side = 0; side < 4; side++) {
+      const p = this.next(x, y, reverse(side as Dir))
+      if (!p || !this.inside(p[0], p[1])) continue
+      const source = idx(p[0], p[1])
+      if (!this.cells[source] || this.fill[source]) continue
+      if (turnRight(this.ribbonHeading[source] as Dir) !== side) continue
+      if (this.bikes.some((b) => b.alive && b.x === p[0] && b.y === p[1])) continue
+      return source
+    }
+    return -1
+  }
+
   private blocked(x: number, y: number, lookahead = false): boolean {
     // Riders who can see the wall flashing keep clear of the next line in.
     const m =
@@ -764,7 +782,7 @@ class RibbonRiders implements ArcadeGameInstance {
         : 0)
     if (!this.inside(x, y, m)) return true
     const i = idx(x, y)
-    return this.cells[i] !== 0 || this.terrainSolid(i, lookahead)
+    return this.cells[i] !== 0 || this.terrainSolid(i, lookahead) || this.flareSourceAt(x, y) >= 0
   }
 
   /** Blocked for a Snowplow: ribbons are no wall to it, but gifts, terrain and bikes are. */
@@ -796,6 +814,7 @@ class RibbonRiders implements ArcadeGameInstance {
     this.fill[i] = 0
     this.order[i] = order
     this.ribbonBorn[i] = this.roundTicks
+    this.ribbonHeading[i] = b.dir
     this.brushSnow(x, y)
   }
 
@@ -1187,17 +1206,6 @@ class RibbonRiders implements ArcadeGameInstance {
       }
     }
     this.lay(b)
-    if (!this.harmless(b) && this.roundTicks < this.bellUntil) {
-      const side = this.next(b.x, b.y, turnRight(b.dir))
-      if (
-        side &&
-        !this.blocked(side[0], side[1]) &&
-        !this.bikes.some(
-          (other) => other.alive && other.x === side[0] && other.y === side[1],
-        )
-      )
-        this.lay(b, side[0], side[1], b.laid - 1)
-    }
     if (b.kind === 'dasher') {
       // Every other cell is left open: the Dasher's own wall leaks.
       if (b.dash && this.cells[prev] === b.id && !this.fill[prev])
@@ -1215,11 +1223,12 @@ class RibbonRiders implements ArcadeGameInstance {
     if (b.seat < 0 || b.snips <= 0) return false
     if (!this.inside(x, y)) return false
     const i = idx(x, y)
-    if (this.cells[i] === 0 || this.terrainSolid(i)) return false
-    if (this.bikes.some((o) => o.alive && o.x === x && o.y === y)) return false
+    const source = this.cells[i] ? i : this.flareSourceAt(x, y)
+    if (source < 0 || this.terrainSolid(i)) return false
+    if (this.bikes.some((o) => o.alive && idx(o.x, o.y) === source)) return false
     b.snips--
-    this.cells[i] = 0
-    this.fill[i] = 0
+    this.cells[source] = 0
+    this.fill[source] = 0
     const px = x * CELL + CELL / 2
     const py = ARENA_Y + y * CELL + CELL / 2
     this.fx.burst(px, py, this.fxRng, {
@@ -1228,14 +1237,14 @@ class RibbonRiders implements ArcadeGameInstance {
     })
     this.floaters.push({ x: px, y: py - 8, text: 'SNIP!', life: 40 })
     this.sound.play('pop')
-    return true
+    return this.flareSourceAt(x, y) < 0
   }
 
   /** A rider's cell laid: distance, the Spool, slipstream, pickups and the wrap-up. */
   private rode(b: Bike) {
     this.distance++
     if (this.distance % 4 === 0) this.addScore(1)
-    if (b.spool > 0 && this.roundTicks >= this.bellUntil) {
+    if (b.spool > 0) {
       const s = this.next(b.x, b.y, turnRight(b.dir))
       if (s && !this.blocked(s[0], s[1])) {
         if (!this.bikes.some((o) => o.alive && o.x === s[0] && o.y === s[1])) {
@@ -1523,7 +1532,8 @@ class RibbonRiders implements ArcadeGameInstance {
       side: (x, y) => {
         if (!this.inside(x, y)) return true
         const i = idx(x, y)
-        return team(this.cells[i]!) || this.sideSolid(i)
+        const flare = this.flareSourceAt(x, y)
+        return team(this.cells[i]!) || (flare >= 0 && team(this.cells[flare]!)) || this.sideSolid(i)
       },
       forbid: (i) =>
         this.bikes.some(
@@ -1731,8 +1741,10 @@ class RibbonRiders implements ArcadeGameInstance {
       if (this.spiralCount >= s.max * SPIRAL_STEP) return
       this.spiralCount += SPIRAL_STEP
       this.sound.play('warn')
-      for (const b of this.bikes)
-        if (b.alive && this.terrainSolid(idx(b.x, b.y))) this.crash(b)
+      for (const b of this.bikes) {
+        const rank = this.arena.spiralRank[idx(b.x, b.y)]!
+        if (b.alive && rank >= 0 && rank < this.spiralCount) this.crash(b)
+      }
       return
     }
     if (this.margin >= s.max) return
@@ -2321,6 +2333,7 @@ class RibbonRiders implements ArcadeGameInstance {
     this.renderWalls(g)
     this.renderWraps(g)
     this.renderRibbons(g)
+    this.renderBellFlare(g)
     this.renderWarning(g)
     this.renderPickups(g)
     this.marshal?.render(g, this.tick)
@@ -2738,6 +2751,24 @@ class RibbonRiders implements ArcadeGameInstance {
         alpha = dissolve * (Math.floor(this.tick / 3) % 2 ? 1 : 0.6)
       }
       this.renderRibbon(g, b, alpha, dissolve)
+    }
+  }
+
+  private renderBellFlare(g: CanvasRenderingContext2D) {
+    if (this.roundTicks >= this.bellUntil) return
+    for (let y = this.margin; y < GRID - this.margin; y++) {
+      for (let x = this.margin; x < GRID - this.margin; x++) {
+        const source = this.flareSourceAt(x, y)
+        if (source < 0 || this.terrainSolid(idx(x, y))) continue
+        const b = this.bikes.find((bike) => bike.id === this.cells[source])
+        if (!b) continue
+        const ramps = this.ribbonRamps(b)
+        const ramp = ramps[Math.floor(this.order[source]! / 4) % ramps.length]!
+        g.fillStyle = rgba(ramp[3], 0.65)
+        g.fillRect(x * CELL, ARENA_Y + y * CELL, CELL, CELL)
+        g.fillStyle = ramp[4]
+        g.fillRect(x * CELL + 2, ARENA_Y + y * CELL + 2, 2, 2)
+      }
     }
   }
 

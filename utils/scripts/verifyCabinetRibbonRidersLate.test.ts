@@ -357,4 +357,31 @@ function host() {
   assert.deepEqual(restored.save?.goldenBows, bows)
 }
 
+{
+  const game = create({
+    rng: mulberry32(88),
+    sound: { play: () => {} },
+    demo: false,
+    hiScore: 0,
+  }) as unknown as {
+    playArena: (arena: (typeof FAIRGROUNDS)[number]['arenas'][number]) => void
+    marshal: LoomSpinner
+    player: { id: number }
+    cells: Uint8Array
+    fill: Uint8Array
+    dyn: Uint8Array
+    paintDyn(): void
+    giftWrap(bike: { id: number }, region: number[]): void
+  }
+  game.playArena(arenaById(FAIRGROUNDS[3]!, 'marshal'))
+  const loom = game.marshal
+  assert.ok(loom.wrapped(new Set(loom.targets())))
+  assert.ok(loom.wrapped(new Set(loom.targets())))
+  game.paintDyn()
+  const knot = loom.threadKnots()[0]!
+  assert.ok(knot.every((i) => game.dyn[i] === 2))
+  game.giftWrap(game.player, knot)
+  assert.ok(knot.every((i) => game.dyn[i] === 0 && game.cells[i] === game.player.id && game.fill[i] === 1), 'claimed shuttles become player-owned gifts in the real engine')
+}
+
 console.log('ribbon riders late circuit and Grand Marshals: ok')

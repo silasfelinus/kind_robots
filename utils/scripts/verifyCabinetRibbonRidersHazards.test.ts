@@ -40,6 +40,7 @@ type Probe = {
   playArena(arena: FairArena): void
   stepBikes(bikes: Bike[]): void
   terrainSolid(i: number): boolean
+  blocked(x: number, y: number): boolean
   shrink(): void
 }
 const game = create({
@@ -112,7 +113,16 @@ assert.equal(game.cells[idx(20, 30)], p.id)
 place(24, 31, 0)
 game.stepBikes([p])
 assert.equal(game.bellUntil, game.roundTicks + BELL_TICKS)
-assert.equal(game.cells[idx(25, 30)], p.id)
+assert.equal(game.cells[idx(25, 30)], 0, 'flare does not write permanent cells')
+// The conveyor entry was laid before ringing the bell. Its right side is now solid.
+assert.ok(game.blocked(21, 30), 'older ribbon flares')
+// Move off the bell so the ribbon behind the live head can expand.
+p.acc = 1
+game.stepBikes([p])
+assert.ok(game.blocked(25, 30), 'new ribbon flares without a persistent cell')
+assert.equal(game.cells[idx(25, 30)], 0)
+game.roundTicks = game.bellUntil
+assert.equal(game.blocked(25, 30), false, 'all temporary width disappears after two seconds')
 place(30, 31, 0)
 game.stepBikes([p])
 assert.deepEqual([p.x, p.y], [10, 10])

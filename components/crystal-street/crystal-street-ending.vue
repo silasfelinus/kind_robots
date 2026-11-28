@@ -39,9 +39,12 @@
         <h2 class="cs-display text-3xl leading-tight">
           {{ collapse ? special!.title : ending.title }}
         </h2>
-        <p class="leading-relaxed">
-          {{ collapse ? special!.text : ending.text }}
-        </p>
+        <crystal-street-reading-text
+          class="leading-relaxed"
+          :text="collapse ? special!.text : ending.text"
+          :speed="store.settings.readingSpeed"
+          :reduced="store.settings.motion === 'reduced'"
+        />
         <p
           v-if="run.ending.special === 'final-girl' && special"
           class="cs-card p-3 text-sm leading-relaxed"

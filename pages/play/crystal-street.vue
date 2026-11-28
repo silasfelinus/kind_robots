@@ -19,7 +19,11 @@
     </p>
 
     <header-page-bar
-      v-if="store.loaded && (menuScreen || (run && view !== 'title'))"
+      v-if="
+        store.loaded &&
+        store.accountReady &&
+        (menuScreen || (run && view !== 'title'))
+      "
       console-theme="crystal-street"
     >
       <div
@@ -113,6 +117,24 @@
 
     <crystal-street-tip v-if="store.loaded && view === 'stage'" />
     <div v-if="!store.loaded" class="kr-stage" aria-hidden="true" />
+    <div
+      v-else-if="!store.accountReady"
+      class="kr-stage grid place-items-center"
+    >
+      <div class="cs-frame space-y-3 p-4 text-center">
+        <h2 class="cs-display text-xl">Restoring your week</h2>
+        <p role="status" class="text-sm">
+          {{ store.accountStatus || 'Checking your account save…' }}
+        </p>
+        <button
+          type="button"
+          class="btn btn-outline btn-sm"
+          @click="store.retryAccount()"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
     <div v-else class="kr-stage">
       <crystal-street-credits
         v-if="view === 'credits'"

@@ -76,11 +76,26 @@
         </fieldset>
 
         <fieldset class="cs-card space-y-2 p-3 @3xl:col-span-2">
-          <legend class="cs-kicker px-1">Saved on this device</legend>
+          <legend class="cs-kicker px-1">Saved progress</legend>
           <p class="text-xs opacity-80">
-            Your week in progress and your scrapbook live in this browser only.
+            {{
+              store.accountOwner
+                ? 'Your week and scrapbook sync to your account across devices.'
+                : 'Your week and scrapbook are saved in this browser. Sign in to sync.'
+            }}
+          </p>
+          <p v-if="store.accountOwner" role="status" class="text-xs opacity-80">
+            {{ store.accountStatus }}
           </p>
           <div class="flex flex-wrap gap-2">
+            <button
+              v-if="store.canImportDevice"
+              type="button"
+              class="btn btn-sm btn-outline rounded-2xl"
+              @click="store.importDeviceProgress()"
+            >
+              Import this browser’s guest progress
+            </button>
             <button
               type="button"
               class="btn btn-sm btn-outline rounded-2xl"
@@ -153,6 +168,16 @@ const GROUPS: Group[] = [
       { value: 'small', label: 'Small' },
       { value: 'medium', label: 'Medium' },
       { value: 'large', label: 'Large' },
+    ],
+  },
+  {
+    key: 'readingSpeed',
+    label: 'Reading speed',
+    hint: 'Reveal story text at your pace, or show it all at once.',
+    options: [
+      { value: 'normal', label: 'Normal' },
+      { value: 'fast', label: 'Fast' },
+      { value: 'instant', label: 'Instant' },
     ],
   },
   {

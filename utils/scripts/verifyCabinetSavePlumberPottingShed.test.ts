@@ -55,6 +55,11 @@ function rest(frames: number) {
   }
 }
 
+// The greenhouse gate stands ahead of the pipes: turn its valve first.
+walkTo(3)
+press('x')
+rest(20)
+assert.equal(run.valves[0]?.open, true, 'the wrench turns the greenhouse valve')
 walkTo(entrance.col)
 assert.ok(run.ground)
 press('down')

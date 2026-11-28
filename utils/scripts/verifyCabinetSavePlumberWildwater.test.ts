@@ -182,6 +182,11 @@ assert.notEqual(
   garden.platformAt(pistons[0]!, 0).y,
   garden.platformAt(pistons[0]!, 110).y,
 )
+// The greenhouse gate stands ahead of the pipes and pistons: turn its valve.
+walkTo(garden, 3)
+frame(garden, [], ['x'])
+for (let i = 0; i < 20; i++) frame(garden)
+assert.equal(garden.valves[0]?.open, true)
 walkTo(garden, 9)
 frame(garden, [], ['down'])
 assert.ok(garden.activePipeRoom)

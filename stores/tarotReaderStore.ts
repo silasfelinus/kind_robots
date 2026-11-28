@@ -2,11 +2,25 @@
 //
 // Public tarot reader (/play/tarot): automatic daily readings from the Kind
 // Oracle engine, birth profiles with natal charts and daily transits. All
-// reading and chart work is pure client-side code; the only API call is the
-// public deck list (approved art). Birth profiles stay in this browser.
-import { computed, ref } from 'vue'
+// reading and chart work is pure client-side code. Progress (birth profiles,
+// settings, studied cards, deck) lives in browser storage and, for signed-in
+// players with account sync on, in their account via /api/tarot/account-save.
+import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from '~/stores/utils'
+import { useUserStore } from '~/stores/userStore'
+import {
+  DEFAULT_TAROT_SETTINGS,
+  REVEAL_DELAY_MS,
+  emptyTarotSave,
+  isBirthProfile,
+  newerTarotSave,
+  parseTarotAccountSave,
+  sanitizeSettings,
+  type BirthProfile,
+  type TarotAccountSave,
+  type TarotSettings,
+} from '~/utils/tarot/accountSave'
 import { useAchievementStore } from '~/stores/achievementStore'
 import { useCollectibleStore, type OpenedCard } from '~/stores/collectibleStore'
 import { useTarotSoundStore } from '~/stores/tarotSoundStore'
@@ -47,17 +61,6 @@ export type TarotReaderDeck = {
   cards: TarotReaderCard[]
 }
 
-export type BirthProfile = {
-  id: string
-  name: string
-  date: string
-  time: string | null
-  cityId: string | null
-  latitude: number
-  longitude: number
-  timeZone: string
-}
-
 export type AutoReadingId = 'daily' | 'path' | 'heart'
 
 export type AutoReading = {
@@ -73,62 +76,8 @@ const SETTINGS_KEY = 'kr.tarot.settings'
 const PROGRESS_KEY = 'kr.tarot.progress'
 export const TAROT_COLLECTION = 'tarot'
 
-export type TarotSettings = {
-  musicOn: boolean
-  musicVolume: number
-  sfxOn: boolean
-  sfxVolume: number
-  textSize: 'sm' | 'md' | 'lg'
-  revealSpeed: 'slow' | 'normal' | 'fast'
-  reducedMotion: boolean
-  highContrast: boolean
-}
-
-export const DEFAULT_TAROT_SETTINGS: TarotSettings = {
-  musicOn: false,
-  musicVolume: 0.5,
-  sfxOn: true,
-  sfxVolume: 0.7,
-  textSize: 'md',
-  revealSpeed: 'normal',
-  reducedMotion: false,
-  highContrast: false,
-}
-
-export const REVEAL_DELAY_MS: Record<TarotSettings['revealSpeed'], number> = {
-  slow: 700,
-  normal: 380,
-  fast: 150,
-}
-
-function sanitizeSettings(value: unknown): TarotSettings {
-  const raw = (value ?? {}) as Partial<TarotSettings>
-  const volume = (v: unknown, fallback: number) =>
-    typeof v === 'number' && Number.isFinite(v)
-      ? Math.max(0, Math.min(1, v))
-      : fallback
-  const pick = <T extends string>(v: unknown, options: T[], fallback: T) =>
-    options.includes(v as T) ? (v as T) : fallback
-  const d = DEFAULT_TAROT_SETTINGS
-  return {
-    musicOn: typeof raw.musicOn === 'boolean' ? raw.musicOn : d.musicOn,
-    musicVolume: volume(raw.musicVolume, d.musicVolume),
-    sfxOn: typeof raw.sfxOn === 'boolean' ? raw.sfxOn : d.sfxOn,
-    sfxVolume: volume(raw.sfxVolume, d.sfxVolume),
-    textSize: pick(raw.textSize, ['sm', 'md', 'lg'], d.textSize),
-    revealSpeed: pick(
-      raw.revealSpeed,
-      ['slow', 'normal', 'fast'],
-      d.revealSpeed,
-    ),
-    reducedMotion:
-      typeof raw.reducedMotion === 'boolean'
-        ? raw.reducedMotion
-        : d.reducedMotion,
-    highContrast:
-      typeof raw.highContrast === 'boolean' ? raw.highContrast : d.highContrast,
-  }
-}
+const SAVED_AT_KEY = 'kr.tarot.savedAt'
+const ACCOUNT_PUSH_DELAY_MS = 1500
 const ACTIVE_PROFILE_KEY = 'kr.tarot.activeProfile'
 const DECK_KEY = 'kr.tarot.deck'
 
@@ -185,18 +134,6 @@ function writeStorage(key: string, value: unknown) {
   }
 }
 
-function isBirthProfile(value: unknown): value is BirthProfile {
-  const entry = value as BirthProfile
-  return (
-    typeof entry?.id === 'string' &&
-    typeof entry.name === 'string' &&
-    typeof entry.date === 'string' &&
-    typeof entry.latitude === 'number' &&
-    typeof entry.longitude === 'number' &&
-    typeof entry.timeZone === 'string'
-  )
-}
-
 export const useTarotReaderStore = defineStore('tarotReader', () => {
   const decks = ref<TarotReaderDeck[]>([FALLBACK_TAROT_DECK])
   const activeDeckSlug = ref(FALLBACK_TAROT_DECK.slug)
@@ -217,6 +154,14 @@ export const useTarotReaderStore = defineStore('tarotReader', () => {
   const achievementStore = useAchievementStore()
   const collectibleStore = useCollectibleStore()
   const sound = useTarotSoundStore()
+  const userStore = useUserStore()
+  const savedAt = ref(new Date(0).toISOString())
+  const accountRevision = ref<number | null>(null)
+  const accountKnown = ref(false)
+  const accountStatus = ref<'off' | 'idle' | 'syncing' | 'synced' | 'error'>(
+    'off',
+  )
+  let pushTimer: ReturnType<typeof setTimeout> | null = null
 
   const collection = computed(() => collectibleStore.set(TAROT_COLLECTION))
   const selectedBackUrl = computed(() => {
@@ -320,9 +265,141 @@ export const useTarotReaderStore = defineStore('tarotReader', () => {
     return moon ? signAt(moon.longitude).tarotKey : null
   })
 
-  function persistProfiles() {
+  function snapshot(): TarotAccountSave {
+    return {
+      version: 1,
+      savedAt: savedAt.value,
+      profiles: profiles.value,
+      activeProfileId: activeProfileId.value,
+      settings: settings.value,
+      majorsStudied: majorsStudied.value,
+      deck: activeDeckSlug.value,
+    }
+  }
+
+  function writeLocal() {
     writeStorage(PROFILES_KEY, profiles.value)
     writeStorage(ACTIVE_PROFILE_KEY, activeProfileId.value)
+    writeStorage(SETTINGS_KEY, settings.value)
+    touch()
+    writeStorage(DECK_KEY, activeDeckSlug.value)
+    writeStorage(SAVED_AT_KEY, savedAt.value)
+  }
+
+  function applySave(save: TarotAccountSave) {
+    profiles.value = save.profiles
+    activeProfileId.value = save.activeProfileId
+    settings.value = save.settings
+    majorsStudied.value = save.majorsStudied
+    if (save.deck) activeDeckSlug.value = save.deck
+    savedAt.value = save.savedAt
+    writeLocal()
+    sound.apply(settings.value)
+  }
+
+  function syncEnabled() {
+    return userStore.isLoggedIn && settings.value.accountSync
+  }
+
+  /** Stamp a change, keep it locally, and queue it for the account. */
+  function touch() {
+    savedAt.value = new Date().toISOString()
+    writeLocal()
+    if (!syncEnabled() || typeof window === 'undefined') return
+    if (pushTimer) clearTimeout(pushTimer)
+    pushTimer = setTimeout(() => void pushAccount(), ACCOUNT_PUSH_DELAY_MS)
+  }
+
+  function persistProfiles() {
+    touch()
+  }
+
+  async function pushAccount(retry = true): Promise<boolean> {
+    if (!syncEnabled()) return false
+    if (!accountKnown.value) return pullAccount()
+    accountStatus.value = 'syncing'
+    const response = await performFetch<{ revision: number }>(
+      '/api/tarot/account-save',
+      {
+        method: 'PUT',
+        body: JSON.stringify({
+          save: snapshot(),
+          expectedRevision: accountRevision.value,
+        }),
+      },
+    )
+    if (response.success && typeof response.data?.revision === 'number') {
+      accountRevision.value = response.data.revision
+      accountStatus.value = 'synced'
+      return true
+    }
+    if (response.status === 409 && retry) {
+      accountKnown.value = false
+      return pullAccount()
+    }
+    accountStatus.value = 'error'
+    return false
+  }
+
+  function readRemoteSave(value: unknown): TarotAccountSave | null {
+    if (!value) return null
+    try {
+      return parseTarotAccountSave(value)
+    } catch {
+      return null
+    }
+  }
+
+  /** Read the account copy, keep whichever side changed last, sync the other. */
+  async function pullAccount(): Promise<boolean> {
+    if (!syncEnabled()) {
+      accountStatus.value = 'off'
+      return false
+    }
+    accountStatus.value = 'syncing'
+    const response = await performFetch<{
+      save: unknown
+      revision: number | null
+    }>('/api/tarot/account-save', { cache: 'no-store' })
+    if (!response.success || !response.data) {
+      accountStatus.value = 'error'
+      return false
+    }
+    accountKnown.value = true
+    accountRevision.value = response.data.revision ?? null
+    const remote = readRemoteSave(response.data.save)
+    const local = snapshot()
+    if (remote && newerTarotSave(local, remote) === remote) {
+      applySave(remote)
+      accountStatus.value = 'synced'
+      return true
+    }
+    if (remote && remote.savedAt === local.savedAt) {
+      accountStatus.value = 'synced'
+      return true
+    }
+    if (!remote && !local.profiles.length && !local.majorsStudied.length) {
+      accountStatus.value = 'synced'
+      return true
+    }
+    return pushAccount(false)
+  }
+
+  async function setAccountSync(enabled: boolean) {
+    updateSettings({ accountSync: enabled })
+    if (enabled) {
+      accountKnown.value = false
+      return pullAccount()
+    }
+    accountStatus.value = 'off'
+    if (!userStore.isLoggedIn) return true
+    const response = await performFetch<{ removed: number }>(
+      '/api/tarot/account-save',
+      { method: 'DELETE' },
+    )
+    accountRevision.value = null
+    accountKnown.value = false
+    return response.success
   }
 
   function init() {
@@ -345,39 +422,45 @@ export const useTarotReaderStore = defineStore('tarotReader', () => {
           (key): key is string => typeof key === 'string',
         )
       : []
+    const stamp = readStorage<string | null>(SAVED_AT_KEY, null)
+    savedAt.value =
+      stamp && !Number.isNaN(Date.parse(stamp))
+        ? stamp
+        : new Date(0).toISOString()
     sound.apply(settings.value)
     ready.value = true
+    void pullAccount()
   }
+
+  watch(
+    () => userStore.isLoggedIn,
+    (loggedIn) => {
+      accountKnown.value = false
+      accountRevision.value = null
+      if (loggedIn && ready.value) void pullAccount()
+      else accountStatus.value = 'off'
+    },
+  )
 
   function updateSettings(patch: Partial<TarotSettings>) {
     settings.value = sanitizeSettings({ ...settings.value, ...patch })
-    writeStorage(SETTINGS_KEY, settings.value)
     sound.unlock()
     sound.apply(settings.value)
+    touch()
   }
 
   function resetProgress() {
-    profiles.value = []
+    const empty = emptyTarotSave()
+    profiles.value = empty.profiles
     activeProfileId.value = null
     majorsStudied.value = []
-    settings.value = { ...DEFAULT_TAROT_SETTINGS }
-    seeds.value = { daily: '', path: '', heart: '' }
-    try {
-      if (typeof window !== 'undefined') {
-        for (const key of [
-          PROFILES_KEY,
-          ACTIVE_PROFILE_KEY,
-          DECK_KEY,
-          SETTINGS_KEY,
-          PROGRESS_KEY,
-        ]) {
-          window.localStorage.removeItem(key)
-        }
-      }
-    } catch {
-      // Storage may be unavailable; in-memory state is already reset.
+    settings.value = {
+      ...DEFAULT_TAROT_SETTINGS,
+      accountSync: settings.value.accountSync,
     }
+    seeds.value = { daily: '', path: '', heart: '' }
     sound.apply(settings.value)
+    touch()
   }
 
   function award(code: string) {
@@ -468,7 +551,7 @@ export const useTarotReaderStore = defineStore('tarotReader', () => {
   function selectDeck(slug: string) {
     if (!decks.value.some((deck) => deck.slug === slug)) return
     activeDeckSlug.value = slug
-    writeStorage(DECK_KEY, slug)
+    touch()
   }
 
   function selectReading(id: AutoReadingId) {
@@ -608,5 +691,8 @@ export const useTarotReaderStore = defineStore('tarotReader', () => {
     notePackOpened,
     noteBacksUnlocked,
     noteChatSent,
+    accountStatus,
+    setAccountSync,
+    pullAccount,
   }
 })

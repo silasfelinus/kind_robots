@@ -360,7 +360,11 @@ assert.ok(SNOWBALL_HILL.waves.every((w) => w.snowballs > 0))
   const lives = g.lives
   g.checkHits()
   assert.equal(g.lives, lives - 1, 'the final coil costs a life on contact')
-  assert.equal(g.frostMillipede.length, 6, 'collision does not reset boss armor')
+  assert.equal(
+    g.frostMillipede.length,
+    6,
+    'collision does not reset boss armor',
+  )
 }
 
 console.log('glitch garden winter mechanics: ok')

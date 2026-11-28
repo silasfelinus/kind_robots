@@ -1468,7 +1468,9 @@
                 </ul>
                 <details data-testid="studio-private-account-shelf">
                   <summary>ACCOUNT-PRIVATE SHELF</summary>
-                  <p v-if="!store.accountSignedIn">Sign in to use account drafts.</p>
+                  <p v-if="!store.accountSignedIn">
+                    Sign in to use account drafts.
+                  </p>
                   <template v-else>
                     <div class="evt-draft-row">
                       <button
@@ -1494,7 +1496,9 @@
                         <span>
                           {{ entry.name }} · v{{ entry.version ?? 1 }}
                           <small v-if="entry.forkedFrom">
-                            Forked from {{ entry.forkedFrom.name }} v{{ entry.forkedFrom.version }}
+                            Forked from {{ entry.forkedFrom.name }} v{{
+                              entry.forkedFrom.version
+                            }}
                           </small>
                         </span>
                         <button
@@ -1518,7 +1522,12 @@
                             :key="revision.version"
                             type="button"
                             :disabled="store.accountBusy"
-                            @click="store.restoreAccountDraft(entry.name, revision.version)"
+                            @click="
+                              store.restoreAccountDraft(
+                                entry.name,
+                                revision.version,
+                              )
+                            "
                           >
                             RESTORE v{{ revision.version }}
                           </button>

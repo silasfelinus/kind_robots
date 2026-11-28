@@ -1188,14 +1188,20 @@ const secondDraft = applyPrivateDraftCommand(
 )
 assert.ok(secondDraft.ok)
 assert.equal(secondDraft.library.drafts[0]!.version, 2)
-assert.equal(secondDraft.library.drafts[0]!.history?.[0]?.stage.title, shelfStage.title)
+assert.equal(
+  secondDraft.library.drafts[0]!.history?.[0]?.stage.title,
+  shelfStage.title,
+)
 const forked = applyPrivateDraftCommand(
   secondDraft.library,
   { operation: 'fork', source: 'Arena', name: 'Independent' },
   shelfTime,
 )
 assert.ok(forked.ok)
-assert.deepEqual(forked.library.drafts[0]!.forkedFrom, { name: 'Arena', version: 2 })
+assert.deepEqual(forked.library.drafts[0]!.forkedFrom, {
+  name: 'Arena',
+  version: 2,
+})
 const restored = applyPrivateDraftCommand(
   forked.library,
   { operation: 'restore', name: 'Arena', version: 1 },
@@ -1205,14 +1211,34 @@ assert.ok(restored.ok)
 assert.equal(restored.library.drafts[0]!.version, 3)
 assert.equal(restored.library.drafts[0]!.stage.title, shelfStage.title)
 assert.equal(restored.library.drafts[1]!.stage.title, editedStage.title)
-assert.deepEqual(parsePrivateDraftLibrary(JSON.stringify(restored.library)), restored.library)
-assert.equal(applyPrivateDraftCommand(shelf.library, { operation: 'fork', source: 'Arena', name: 'Stolen' }, shelfTime).ok, false)
-assert.equal(applyPrivateDraftCommand(shelf.library, { operation: 'save', name: 'Bad', code: 'not a stage' }, shelfTime).ok, false)
+assert.deepEqual(
+  parsePrivateDraftLibrary(JSON.stringify(restored.library)),
+  restored.library,
+)
+assert.equal(
+  applyPrivateDraftCommand(
+    shelf.library,
+    { operation: 'fork', source: 'Arena', name: 'Stolen' },
+    shelfTime,
+  ).ok,
+  false,
+)
+assert.equal(
+  applyPrivateDraftCommand(
+    shelf.library,
+    { operation: 'save', name: 'Bad', code: 'not a stage' },
+    shelfTime,
+  ).ok,
+  false,
+)
 assert.throws(() => parsePrivateDraftLibrary('{"version":1,"drafts":[{}]}'))
 assert.equal(PRIVATE_DRAFT_SLUG, 'every-villain-tactics-drafts')
 for (const method of ['get', 'put']) {
   const route = readFileSync(
-    new URL('../../server/api/every-villain-tactics/private-drafts.' + method + '.ts', import.meta.url),
+    new URL(
+      '../../server/api/every-villain-tactics/private-drafts.' + method + '.ts',
+      import.meta.url,
+    ),
     'utf8',
   )
   assert.match(route, /requireHumanApiUser\(event\)/)

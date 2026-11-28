@@ -393,7 +393,8 @@ export const useEveryVillainTacticsStore = defineStore(
       } catch {
         if (token === accountEpoch) {
           accountShelf.value = null
-          accountMessage.value = 'Private shelf unavailable. Device drafts are safe.'
+          accountMessage.value =
+            'Private shelf unavailable. Device drafts are safe.'
         }
         return false
       } finally {
@@ -413,7 +414,9 @@ export const useEveryVillainTacticsStore = defineStore(
       }
     }
     function loadAccountDraft(name: string) {
-      const entry = accountShelf.value?.library.drafts.find((d) => d.name === name)
+      const entry = accountShelf.value?.library.drafts.find(
+        (d) => d.name === name,
+      )
       if (!accountSignedIn.value || !entry || accountBusy.value) return
       const parsed = importStage(exportStage(entry.stage))
       if (!parsed.ok) return
@@ -781,7 +784,8 @@ export const useEveryVillainTacticsStore = defineStore(
     )
     function saveTo(slot: EvtSaveSlot): boolean {
       if (isPlaytest.value && accountDraftLoaded) {
-        saveMessage.value = 'Private draft playtests are not saved on this device.'
+        saveMessage.value =
+          'Private draft playtests are not saved on this device.'
         return false
       }
       const save = createSave({

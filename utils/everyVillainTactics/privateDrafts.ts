@@ -48,9 +48,7 @@ export function parsePrivateDraftLibrary(payload: string): DraftLibrary {
 }
 
 const validName = (value: unknown): value is string =>
-  typeof value === 'string' &&
-  value.length <= 60 &&
-  value.trim().length > 0
+  typeof value === 'string' && value.length <= 60 && value.trim().length > 0
 
 export function applyPrivateDraftCommand(
   library: DraftLibrary,

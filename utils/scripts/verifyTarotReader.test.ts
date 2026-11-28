@@ -19,6 +19,8 @@ import {
   TAROT_DESIGN_PRESETS,
   TAROT_SAMPLE_CARD_KEYS,
   cardScenePrompt,
+  currentSeedPrompt,
+  priorSeedPrompts,
   composeFacePrompt,
   legacySeedPrompt,
   parseLoraLines,
@@ -230,6 +232,27 @@ for (const seed of TAROT_DECK_SEEDS) {
       cardScenePrompt(seed.slug, { key: card.key, prompt: legacy }),
       card.prompt,
     )
+    // Every earlier seed (including the 2026-11-27 production bootstrap)
+    // upgrades to the current recipe; the current recipe is stable.
+    const prior = priorSeedPrompts(seed.slug, card.key)
+    assert.equal(prior.length, 2)
+    for (const old of prior) {
+      assert.notEqual(old, card.prompt)
+      assert.equal(
+        cardScenePrompt(seed.slug, { key: card.key, prompt: old }),
+        card.prompt,
+      )
+    }
+    assert.equal(currentSeedPrompt(seed.slug, card.key), card.prompt)
+    assert.equal(
+      cardScenePrompt(seed.slug, { key: card.key, prompt: card.prompt }),
+      card.prompt,
+    )
+    // The recipe stages one named cast: the plural style leads that filled
+    // the first samples with background crowds stay out of the face recipe.
+    assert.ok(card.prompt.includes('Only the figures named in this scene'))
+    assert.ok(!/friendly robots and mechanical creatures/i.test(card.prompt))
+    assert.ok(!/frontier towns/i.test(card.prompt))
     for (const design of designs) {
       const prompt = composeFacePrompt(card.prompt, design.stylePrompt)
       assert.deepEqual(

@@ -10,7 +10,8 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       statusCode: 200,
-      message: 'Starter decks and designs seeded without overwriting edits.',
+      message:
+        'Starter decks and designs seeded; untouched card prompts moved to the current recipe, edits kept.',
       data: created,
     }
   } catch (error) {

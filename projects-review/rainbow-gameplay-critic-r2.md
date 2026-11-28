@@ -186,3 +186,39 @@ zero. Seed variety (round-1 D9) was not re-checked.
 **Verdict: not ready for human playtesting.** Halo Fin's revive never works in 2p, keyboard and touch co-op seats
 have no special or evade, and solo Petal Wing (the default ship) is weak enough to skew the first impression. Fix
 G1–G3, then hand it to humans.
+
+## Follow-up: fixes on this branch (2026-11-28)
+
+- **G1 fixed** (`c93e30a8`). `haloRevive` takes the caster's pilot separately from its seat (`HALO_PILOT`).
+  - Re-run of the revive probe: 2p with Halo as P1 now revives 8 of 8 (was 0 of 15); 3p with Halo as P3 is
+    unchanged (4 of 4).
+  - New unit cases cover Halo in seats 0 and 3.
+- **G2 fixed** (`e3712131`). Co-op keyboard and touch seats now have X and Y.
+  - Keyboard: P1 presses X/Y with C/V; P2 with `,`/M (or numpad 1/2). The co-op hint lists both players' keys.
+  - Touch: co-op clusters show X/Y above B/A wherever the taller clusters keep at least 85% of the stage the
+    A/B-only layout would give. A crowded landscape phone (844×390, 4 pilots) falls back to A/B.
+  - Tests: `verifyArcadeEngine` checks both key maps carry all four buttons. `verifyRainbowCoopCabinet` checks four
+    tablet touch pilots each fire their own special from X. The Rainbow touch layout, touch replay and Superkate
+    cabinet browser tests pass.
+  - `verifyArcadeEngine` still fails later in the file, at a Superkate Spectrum how-to text-width check
+    (`:446`). It fails the same way on unmodified main.
+- **G3 proposed, not merged:** `projects-review/rainbow-g3-balance-proposal.patch`.
+  - The change: Petal Wing's unfocused main shot becomes a parallel pair at a 12-frame cadence, which matches
+    Prism Lance's single-target rate. Halo Link's focus cooldown goes from 8 to 10 frames.
+  - Typical solo Petal, seed 7: **72.2 → 52.2 min, B09 731 → 312 s, escaped guardians 6 → 1**. Expert Petal B09
+    204 → 142 s.
+  - Expert Halo B09 went 110 → 447 s on one sample. That is far more than a 20% cooldown change should do, so it
+    needs more seeds before the Halo half is trusted.
+  - Five demo-timeline verifiers change outcome because the attract demo flies Petal unfocused:
+    - Finale: the demo's Crown fight is 1.98 min, under the 2.00 min floor.
+    - EclipsePalace and Wreckyard: the demo now earns X4 and X2, and a detour reward lands on an Act transition.
+    - GlassCurrent: the demo no longer meets a bubble.
+    - NemiRescue: pilot 2 falls in Nemi's lane.
+  - These are pacing and route consequences, not crashes. Accepting them means re-baselining those tests,
+    including the Finale floor, which is an owner decision.
+- **New observation while tuning G3:** `verifyRainbowFirstClear`'s 4-pilot "B01 lasts at least 30 s" check passes
+  on main only because two pilots fall before the boss.
+  - When all four arrive alive at power 2–3, the crew deals about 65 HP/s and B01 dies in about 20 s.
+  - Small changes swing this one seed between 20 and 89 s.
+  - Either co-op hull scaling (2.5 + 2 × (n − 1)) is a little low for a full-strength crew, or the floor needs
+    more than one seed.

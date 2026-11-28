@@ -1,0 +1,45 @@
+diff --git a/utils/arcade/games/rainbowLoadouts.ts b/utils/arcade/games/rainbowLoadouts.ts
+index a42a6548..c597198e 100644
+--- a/utils/arcade/games/rainbowLoadouts.ts
++++ b/utils/arcade/games/rainbowLoadouts.ts
+@@ -80,7 +80,7 @@ export const RAINBOW_FOCUS = {
+   /** Prism Lance: a thread that passes through this many craft before it stops. */
+   thread: { speed: 11, damage: 2, pierce: 2, cooldown: 9 },
+   /** Halo Fin: the two orbit drones fire inward and their shots cross this far ahead. */
+-  link: { speed: 9, offset: 9, crossAt: 72, cooldown: 8 },
++  link: { speed: 9, offset: 9, crossAt: 72, cooldown: 10 },
+   /** Comet Crown: two sparks thrown up and down that glance off the walls this many times. */
+   arc: { speed: 9, rise: 2.6, bounces: 2, cooldown: 7 },
+ } as const
+diff --git a/utils/arcade/games/rainbowPrincessPreview.ts b/utils/arcade/games/rainbowPrincessPreview.ts
+index fafba860..812fffba 100644
+--- a/utils/arcade/games/rainbowPrincessPreview.ts
++++ b/utils/arcade/games/rainbowPrincessPreview.ts
+@@ -3572,7 +3572,17 @@ export function createRainbowPrincessPreview(
+     const power = ship.power
+     const speed = kind === 1 ? 10 : kind === 3 ? 9 : 8
+     const damage = kind === 1 ? 2 : 1
+-    shots.push({ x: ship.x + 15, y: ship.y, vx: speed, vy: 0, seat, damage })
++    // Petal Wing's main shot is a pair of petals, so her wide spray still lands on one big target
++    // (gameplay critic r2 G3: unfocused, she dealt half of any other ship's damage to a boss).
++    for (const dy of kind === 0 ? [-3, 3] : [0])
++      shots.push({
++        x: ship.x + 15,
++        y: ship.y + dy,
++        vx: speed,
++        vy: 0,
++        seat,
++        damage,
++      })
+     if (!ship.focus && power >= 2) {
+       const spread = kind === 0 ? 1.8 : 1.1
+       shots.push({
+@@ -3610,7 +3620,7 @@ export function createRainbowPrincessPreview(
+         damage: 1,
+       })
+     }
+-    ship.cooldown = ship.focus ? 8 : kind === 3 ? 7 : 11
++    ship.cooldown = ship.focus ? 8 : kind === 3 ? 7 : kind === 0 ? 12 : 11
+   }
+ 
+   /** X: the pilot's special, on its cooldown. */

@@ -320,7 +320,7 @@ assert.ok(SNOWBALL_HILL.waves.every((w) => w.snowballs > 0))
   assert.equal(g.frostMillipede.length, 3, 'respawn preserves boss progress')
   for (let phase = 1; phase <= 3; phase++) {
     assert.equal(g.boss!.phase, phase)
-    const count = g.frostMillipede.length
+    const count: number = g.frostMillipede.length
     assert.equal(count, phase === 1 ? 3 : phase + 3)
     for (let i = 0; i < count; i++) {
       g.water(hc, hr, heater)

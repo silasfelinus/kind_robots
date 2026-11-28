@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict'
 import { mulberry32 } from '../arcade/curve'
-import { LEAF_GUST_TICKS, create } from '../arcade/games/glitchGarden'
+import {
+  CROW_EVERY,
+  CROW_SWOOP_TICKS,
+  CROW_TELL_TICKS,
+  LEAF_GUST_TICKS,
+  create,
+} from '../arcade/games/glitchGarden'
 import {
   CAMPAIGN,
   GARDENS,
@@ -20,6 +26,8 @@ const CELL = 8
 const HUD = 16
 const BED_TOP = 30
 type Leaf = { col: number; row: number }
+type Flower = Leaf & { prism: string }
+type Crow = { x: number; y: number; phase: string; ticks: number }
 type Probe = {
   score: number
   level: number
@@ -27,6 +35,9 @@ type Probe = {
   lap: number
   garden: { id: string }
   leafPiles: Leaf[]
+  flowers: Flower[]
+  crow: Crow | null
+  crowTimer: number
   rakedLeaves: number
   leafGust: number
   leafWind: 1 | -1
@@ -38,6 +49,9 @@ type Probe = {
   startWave(wave: number): void
   update(input: InputFrame): void
   updateLeaves(): void
+  updateCrow(): void
+  hitCrow(x: number, y: number): boolean
+  afterDeath(): void
   newBeam(x: number, y: number, child: boolean): unknown
   stepBeam(beam: unknown): boolean
   hitLeaf(col: number, row: number): boolean
@@ -54,12 +68,12 @@ const make = (seed = 45, demo = false) =>
   }) as unknown as Probe
 
 assert.equal(GARDENS.length, 8)
-assert.equal(PLAYS_PER_LAP, 43)
+assert.equal(PLAYS_PER_LAP, 44)
 assert.equal(GARDENS[4], LEAF_PILE_LANE)
 assert.equal(gardenStart(4), campaignPlay(23).index)
 assert.deepEqual(campaignPlay(28), { index: gardenStart(5), lap: 0 })
 assert.ok(CAMPAIGN[campaignPlay(33).index]!.kind === 'boss')
-assert.deepEqual(campaignPlay(44), { index: 0, lap: 1 })
+assert.deepEqual(campaignPlay(45), { index: 0, lap: 1 })
 assert.equal(CAMPAIGN.filter((step) => step.kind === 'wave').length, 40)
 assert.equal(LEAF_PILE_LANE.layout.length, ROWS)
 for (const row of LEAF_PILE_LANE.layout) assert.equal(row.length, COLS)
@@ -162,6 +176,39 @@ assert.ok(layoutCells(LEAF_PILE_LANE, LAYOUT_LEAF).length >= 9)
   demo.startWave(23)
   for (let i = 0; i < 1800; i++) demo.update(emptyInput())
   assert.equal(demo.score, 0, 'attract-mode scores remain excluded')
+}
+
+{
+  const game = make(92)
+  game.startWave(24)
+  const flower = { col: 4, row: 16, prism: 'cyan' }
+  game.flowers = [flower]
+  game.crowTimer = 1
+  game.updateCrow()
+  assert.equal(game.crow?.phase, 'tell', 'a marked flower warns of a swoop')
+  for (let i = 0; i < CROW_TELL_TICKS; i++) game.updateCrow()
+  assert.equal(game.crow?.phase, 'swoop')
+  for (let i = 0; i < CROW_SWOOP_TICKS; i++) game.updateCrow()
+  assert.deepEqual(game.flowers, [], 'an unopposed crow plucks the prism')
+  assert.equal(game.crow?.phase, 'exit')
+  game.afterDeath()
+  assert.equal(game.crow, null)
+  assert.equal(game.crowTimer, CROW_EVERY)
+
+  game.flowers = [flower]
+  game.crowTimer = 1
+  game.updateCrow()
+  for (let i = 0; i < CROW_TELL_TICKS + 20; i++) game.updateCrow()
+  const crow = game.crow as Crow | null
+  assert.ok(crow)
+  assert.equal(game.stepBeam(game.newBeam(crow.x, crow.y + 4, false)), false)
+  assert.equal(game.crow, null, 'a real beam intercepts the swoop')
+  assert.deepEqual(game.flowers, [flower], 'interception preserves the prism')
+  assert.equal(game.hitCrow(crow.x, crow.y), false, 'cannot score twice')
+  game.startWave(28)
+  game.crowTimer = 1
+  game.updateCrow()
+  assert.equal(game.crow, null, 'crow does not leak into the next garden')
 }
 
 console.log('Glitch Garden Autumn: fifth garden, gusts, Rake Up and replay OK')

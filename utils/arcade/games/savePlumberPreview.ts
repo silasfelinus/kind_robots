@@ -417,6 +417,23 @@ export type BrassKey = {
   homeY: number
   state: 'waiting' | 'held' | 'used'
 }
+/**
+ * Springfruit: a ripe orchard fruit. Dropping onto one from above bounces her
+ * high (walking past does not); with free hands X lifts it overhead, X tosses
+ * it and Down+X sets it at her feet. One at rest weighs a scale plate, and one
+ * lost down a pit grows back where it started.
+ */
+export type Springfruit = {
+  x: number
+  /** The surface it rests on (its bottom). */
+  y: number
+  vx: number
+  vy: number
+  homeX: number
+  homeY: number
+  state: 'resting' | 'held' | 'flying'
+  squash: number
+}
 type Cargo = {
   x: number
   /** Where its crates start falling from. */
@@ -475,6 +492,33 @@ const isWall = (s: number) =>
   s === SOLID_CRATE ||
   s === SOLID_BELT_LEFT ||
   s === SOLID_BELT_RIGHT
+
+/** A ripe springfruit resting on (x, y): a blushed apricot with a leaf. */
+function drawSpringfruit(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  squash: number,
+) {
+  const ry = 7 * squash
+  const rx = 7 * (2 - squash)
+  g.fillStyle = '#f39a3d'
+  g.beginPath()
+  g.ellipse(x, y - ry, rx, ry, 0, 0, Math.PI * 2)
+  g.fill()
+  g.fillStyle = '#e4573d'
+  g.beginPath()
+  g.ellipse(x + rx * 0.3, y - ry * 0.8, rx * 0.45, ry * 0.55, 0, 0, Math.PI * 2)
+  g.fill()
+  g.fillStyle = 'rgba(255, 240, 200, 0.7)'
+  g.beginPath()
+  g.ellipse(x - rx * 0.4, y - ry * 1.35, rx * 0.2, ry * 0.18, 0, 0, Math.PI * 2)
+  g.fill()
+  g.fillStyle = '#4e9a3f'
+  g.beginPath()
+  g.ellipse(x + 3, y - ry * 2 - 1, 4, 2, -0.5, 0, Math.PI * 2)
+  g.fill()
+}
 
 /** A small brass key: a ring bow, a shaft and two bits, centred on (x, y). */
 function drawBrassKey(g: CanvasRenderingContext2D, x: number, y: number) {
@@ -638,7 +682,7 @@ export class PlumberRun implements ArcadeGameInstance {
   secretGoal: { x: number; y: number } | null = null
   private clearExit: 'normal' | 'secret' = 'normal'
   valves: { x: number; y: number; open: boolean }[] = []
-  /** Scale plates: each is down while Ballast Boots, a parked Gurgle or a set-down crate rests on it. */
+  /** Scale plates: each is down while Ballast Boots, a parked Gurgle, a set-down crate or a resting springfruit weighs it. */
   plates: { x: number; y: number; down: boolean }[] = []
   /** Sluice gates lift while every scale plate is down (and stay up over the heroine). */
   sluiceOpen = false
@@ -650,6 +694,9 @@ export class PlumberRun implements ArcadeGameInstance {
   /** Brass keys on this stage, and the one she holds (if any). */
   keys: BrassKey[] = []
   heldKey: BrassKey | null = null
+  /** Springfruit on this stage, and the one held overhead (if any). */
+  fruits: Springfruit[] = []
+  heldFruit: Springfruit | null = null
   /** Padlocked bolts opened on this stage. */
   boltsOpened = 0
   gusts: Gust[] = []
@@ -1428,6 +1475,8 @@ export class PlumberRun implements ArcadeGameInstance {
     this.pickups = []
     this.keys = []
     this.heldKey = null
+    this.fruits = []
+    this.heldFruit = null
     this.boltsOpened = 0
     this.gear = null
     this.gusts = []
@@ -1667,6 +1716,18 @@ export class PlumberRun implements ArcadeGameInstance {
           break
         case 'scale-plate':
           this.plates.push({ x: cx, y: bottom, down: false })
+          break
+        case 'springfruit':
+          this.fruits.push({
+            x: cx,
+            y: bottom,
+            vx: 0,
+            vy: 0,
+            homeX: cx,
+            homeY: bottom,
+            state: 'resting',
+            squash: 0,
+          })
           break
         case 'boss': {
           const world = stageWorld(stage.code)
@@ -2045,7 +2106,13 @@ export class PlumberRun implements ArcadeGameInstance {
         (gurgle?.state === 'parked' &&
           Math.abs(gurgle.x - plate.x) < TILE * 0.75 &&
           Math.abs(gurgle.y - plate.y) < 4) ||
-        this.plateCrated(plate)
+        this.plateCrated(plate) ||
+        this.fruits.some(
+          (fruit) =>
+            fruit.state === 'resting' &&
+            Math.abs(fruit.x - plate.x) < TILE * 0.75 &&
+            Math.abs(fruit.y - plate.y) < 4,
+        )
       if (plate.down && !was) this.sound.play('pickup')
       if (!plate.down) all = false
     }
@@ -2431,6 +2498,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.collectTokens()
     this.collectPickups()
     this.updateKeys()
+    this.updateFruits()
     this.collectAirCanisters()
     this.updateFoes(prevBottom)
     this.updateWinterHazards(prevBottom)
@@ -3078,6 +3146,21 @@ export class PlumberRun implements ArcadeGameInstance {
         playPlumberCue(this.sound, 'spring')
       }
     }
+    if (hero.vy < 0) return
+    for (const fruit of this.fruits) {
+      if (fruit.state !== 'resting') continue
+      if (Math.abs(hero.x - fruit.x) > 11) continue
+      const top = fruit.y - 10
+      if (prevBottom > top + 1 || hero.y + TALL < top) continue
+      hero.y = top - TALL
+      hero.vy = SPRING
+      this.sprung = true
+      this.ground = false
+      this.riding = null
+      fruit.squash = 12
+      playPlumberCue(this.sound, 'spring')
+      return
+    }
   }
 
   private tryDoor() {
@@ -3168,6 +3251,11 @@ export class PlumberRun implements ArcadeGameInstance {
       this.kick(roller, this.facing)
       return
     }
+    if (this.heldFruit) {
+      this.tossFruit(grab)
+      return
+    }
+    if (!this.mounted && !this.carrying && this.liftFruit()) return
     if (!grab && this.mounted && !this.carrying) {
       if (this.grabRoller(true) || this.slurpSmallFoe() || this.slurpSupply())
         return
@@ -3250,6 +3338,121 @@ export class PlumberRun implements ArcadeGameInstance {
       struck = true
     }
     playPlumberCue(this.sound, struck ? 'strike' : 'wrench')
+  }
+
+  /** With free hands, X lifts a resting springfruit within reach. */
+  private liftFruit(): boolean {
+    const hero = this.hero
+    const box = this.toolBox()
+    const fruit = this.fruits.find(
+      (candidate) =>
+        candidate.state === 'resting' &&
+        candidate.x >= Math.min(box.left, hero.x) - 8 &&
+        candidate.x <= Math.max(box.right, hero.x) + 8 &&
+        candidate.y >= hero.y + 4 &&
+        candidate.y <= hero.y + TALL + 6 &&
+        this.toolPathClear(candidate.x, candidate.y - 8),
+    )
+    if (!fruit) return false
+    fruit.state = 'held'
+    fruit.vx = fruit.vy = 0
+    this.heldFruit = fruit
+    this.score += 20
+    this.sound.play('pickup')
+    return true
+  }
+
+  /** X tosses the held springfruit ahead in an arc; Down+X sets it at her feet. */
+  private tossFruit(gentle: boolean) {
+    const fruit = this.heldFruit
+    if (!fruit) return
+    const hero = this.hero
+    this.heldFruit = null
+    fruit.state = 'flying'
+    const ahead = hero.x + this.facing * 12
+    const clear = !this.fruitWall(ahead, hero.y + TALL - 2)
+    fruit.x = clear ? ahead : hero.x
+    if (gentle) {
+      fruit.y = hero.y + TALL - 1
+      fruit.vx = 0
+      fruit.vy = 0
+      this.sound.play('pop')
+    } else {
+      fruit.y = hero.y + 2
+      fruit.vx = clear ? this.facing * 3.4 + hero.vx * 0.3 : 0
+      fruit.vy = -3
+      this.sound.play('shoot')
+    }
+  }
+
+  /** A hit loosens her grip: the fruit drops where she stands. */
+  private dropFruit() {
+    const fruit = this.heldFruit
+    if (!fruit) return
+    this.heldFruit = null
+    fruit.state = 'flying'
+    fruit.x = this.hero.x
+    fruit.y = this.hero.y + 2
+    fruit.vx = 0
+    fruit.vy = 0
+  }
+
+  private fruitWall(x: number, y: number): boolean {
+    return isWall(this.solidAt(Math.floor(x / TILE), Math.floor(y / TILE)))
+  }
+
+  private fruitRestsOn(s: number): boolean {
+    return isWall(s) || s === SOLID_LEDGE || s === SOLID_WATER
+  }
+
+  private updateFruits() {
+    const hero = this.hero
+    for (const fruit of this.fruits) {
+      if (fruit.squash) fruit.squash--
+      if (fruit.state === 'held') {
+        fruit.x = hero.x
+        fruit.y = hero.y - 2
+        continue
+      }
+      if (fruit.state !== 'flying') continue
+      fruit.vy = Math.min(8, fruit.vy + GRAVITY)
+      if (fruit.vx) {
+        const nx = fruit.x + fruit.vx
+        const edge = nx + Math.sign(fruit.vx) * 7
+        if (
+          this.fruitWall(edge, fruit.y - 3) ||
+          this.fruitWall(edge, fruit.y - 12)
+        )
+          fruit.vx = 0
+        else fruit.x = nx
+      }
+      const col = Math.floor(fruit.x / TILE)
+      const ny = fruit.y + fruit.vy
+      if (fruit.vy > 0) {
+        const row = Math.floor(ny / TILE)
+        if (
+          fruit.y <= row * TILE &&
+          this.fruitRestsOn(this.solidAt(col, row))
+        ) {
+          fruit.y = row * TILE
+          fruit.vx = fruit.vy = 0
+          fruit.state = 'resting'
+          fruit.squash = 8
+          this.sound.play('pop')
+          continue
+        }
+      } else if (this.fruitWall(fruit.x, ny - 14)) {
+        fruit.vy = 0
+        continue
+      }
+      fruit.y = ny
+      if (fruit.y > this.stage.rows * TILE + 32) {
+        fruit.x = fruit.homeX
+        fruit.y = fruit.homeY
+        fruit.vx = fruit.vy = 0
+        fruit.state = 'resting'
+      }
+    }
   }
 
   private toolPathClear(x: number, y: number): boolean {
@@ -3507,7 +3710,8 @@ export class PlumberRun implements ArcadeGameInstance {
     const held = this.heldKey
     if (held) {
       held.x = hero.x
-      held.y = hero.y - (this.carrying || this.heldRoller ? 28 : 8)
+      held.y =
+        hero.y - (this.carrying || this.heldRoller || this.heldFruit ? 28 : 8)
       const left = Math.floor((hero.x - HALF - 2) / TILE)
       const right = Math.floor((hero.x + HALF + 2) / TILE)
       const top = Math.floor((hero.y - 2) / TILE)
@@ -4566,6 +4770,7 @@ export class PlumberRun implements ArcadeGameInstance {
     } else this.hearts--
     this.returnHeldRoller()
     this.sendKeyHome()
+    this.dropFruit()
     this.immune = 90
     this.hero.vx = dir * 3.2
     this.hero.vy = -4.4
@@ -4584,6 +4789,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.power = null
     this.carrying = false
     this.heldRoller = null
+    this.heldFruit = null
     playPlumberCue(this.sound, 'death')
     this.setMode('dying', 80)
   }
@@ -7226,6 +7432,10 @@ export class PlumberRun implements ArcadeGameInstance {
       }
     }
     for (const thrown of this.thrown) crate(thrown.x, thrown.y)
+    for (const fruit of this.fruits) {
+      if (fruit.state === 'held' && this.mode !== 'play') continue
+      drawSpringfruit(g, fruit.x, fruit.y, fruit.squash ? 0.72 : 1)
+    }
     if (this.carrying && this.mode === 'play')
       crate(this.hero.x, this.hero.y - 8)
     for (const key of this.keys) {

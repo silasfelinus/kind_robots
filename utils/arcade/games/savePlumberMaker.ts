@@ -75,7 +75,12 @@ export const MAKER_GROUPS: MakerGroup[] = [
       {
         key: '_',
         icon: '▁',
-        label: 'Scale plate · Ballast Boots or a parked Gurgle',
+        label: 'Scale plate · Ballast Boots, Gurgle, a crate or fruit',
+      },
+      {
+        key: 'x',
+        icon: '◍',
+        label: 'Springfruit · bounce on it, X carries and tosses it',
       },
     ],
   },

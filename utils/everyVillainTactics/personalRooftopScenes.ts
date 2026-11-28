@@ -871,17 +871,7 @@ export function personalRooftopNode(
     (unit) => unit.team === 'squad' && unit.id !== 'backdraft' && unit.hp > 0,
   )
   const supportingLine =
-    [
-    'c1',
-    'cw',
-    'cj',
-    'w1',
-    'j1',
-    't1',
-    's1',
-    'vw',
-    'vj',
-  ].includes(node.id) &&
+    ['c1', 'cw', 'cj', 'w1', 'j1', 't1', 's1', 'vw', 'vj'].includes(node.id) &&
     !LEAD_SPOKEN[lead]?.includes(node.id)
   const speaker = supportingLine ? (ally?.id ?? 'backdraft') : 'backdraft'
   return { ...node, speaker, text }

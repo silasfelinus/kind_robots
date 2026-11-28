@@ -84,6 +84,7 @@ export function allArtPrompts(content: {
         prompt: e.art,
       })),
       ...encounterPrompts(c.meet),
+      ...(c.arc ?? []).flatMap(encounterPrompts),
     ]),
     ...content.locations.flatMap((l) => [
       { key: `locations/${l.id}`, prompt: l.art },

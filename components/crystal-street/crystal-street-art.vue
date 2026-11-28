@@ -1,19 +1,17 @@
 <template>
   <div class="relative overflow-hidden bg-black" :class="frame">
-    <crystal-street-scene
-      class="absolute inset-0"
-      :seed="seed"
-      :kind="kind"
-      :palette="palette"
-      :sigil="sigil"
-      :label="alt"
+    <img
+      :src="townPainting"
+      alt=""
+      aria-hidden="true"
+      class="absolute inset-0 h-full w-full object-cover"
     />
     <img
       v-if="shown && !failed"
       :key="shown"
       :ref="settleArt"
       :src="shown"
-      :alt="alt"
+      :alt="shown === source ? alt : fallbackLabel"
       loading="lazy"
       decoding="async"
       class="absolute inset-0 h-full w-full object-cover transition-opacity duration-500"
@@ -26,7 +24,7 @@
       @error="onError"
     />
     <p
-      v-if="brief && !loaded"
+      v-if="brief && (!loaded || shown !== source)"
       class="absolute inset-x-2 bottom-2 line-clamp-2 rounded-lg bg-black/60 px-2 py-1 cs-micro italic leading-snug text-white/80"
     >
       {{ brief }}
@@ -38,6 +36,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useCrystalStreetArtStore } from '~/stores/crystalStreetArtStore'
+import { CRYSTAL_STREET_TOWN_PAINTING } from '~/utils/crystalStreet/artPresentation'
 
 const props = withDefaults(
   defineProps<{
@@ -63,6 +62,12 @@ const props = withDefaults(
   },
 )
 
+const townPainting = CRYSTAL_STREET_TOWN_PAINTING
+const fallbackLabel = computed(() =>
+  shown.value === townPainting
+    ? 'Painted view of Crystal Street'
+    : 'Alternate painting',
+)
 const art = useCrystalStreetArtStore()
 const source = computed(() => art.sourceFor(props.src))
 const fallback = computed(() => art.sourceFor(props.fallback))

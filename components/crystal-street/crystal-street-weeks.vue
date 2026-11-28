@@ -22,18 +22,24 @@
             <crystal-street-art
               frame="aspect-[3/4]"
               kind="ending"
-              :seed="`${entry.villain}:${entry.tier}`"
-              :src="`/crystal-street/villains/${entry.villain}-ending.webp`"
+              :seed="`${entry.villain}:${entry.special ?? entry.tier}`"
+              :src="weekEndingArt(entry)"
+              :fallback="`/crystal-street/villains/${entry.villain}-ending.webp`"
               :palette="villainById(entry.villain)?.palette ?? []"
               :sigil="villainById(entry.villain)?.sigil ?? ''"
-              :alt="villainById(entry.villain)?.endingPhoto"
+              :alt="weekEndingCopy(entry)?.art"
             />
             <p class="mt-2 font-semibold leading-tight">
-              {{ villainById(entry.villain)?.endings[entry.tier].title }}
+              {{ weekEndingCopy(entry)?.title }}
             </p>
             <p class="text-xs opacity-75">
               {{ entry.name }} vs {{ villainById(entry.villain)?.name }} ·
-              {{ TIER_LABELS[entry.tier] }} ·
+              {{
+                entry.special
+                  ? SPECIAL_ENDINGS[entry.special].title
+                  : TIER_LABELS[entry.tier]
+              }}
+              ·
               {{ new Date(entry.endedAt).toLocaleDateString() }}
             </p>
             <p class="text-xs opacity-75">
@@ -110,6 +116,7 @@ import {
   type ScrapbookRun,
 } from '~/stores/crystalStreetStore'
 import {
+  SPECIAL_ENDINGS,
   TIER_LABELS,
   VILLAINS,
   companionById,
@@ -119,13 +126,19 @@ import {
   type LogEntry,
 } from '~/utils/crystalStreet/rules'
 import type { VillainId } from '~/utils/crystalStreet/ids'
+import { weekEndingArt } from '~/utils/crystalStreet/artPresentation'
 
 const store = useCrystalStreetStore()
 const copied = ref('')
 const manual = ref('')
 
-// Each highlight's outcome plate (art round 3); the drawn scene fills in
-// until it is rendered.
+function weekEndingCopy(entry: ScrapbookRun) {
+  if (entry.special && entry.special !== 'final-girl')
+    return SPECIAL_ENDINGS[entry.special]
+  return villainById(entry.villain)?.endings[entry.tier]
+}
+
+// Each highlight keeps its exact success or failure painting.
 function outcomeArt(h: LogEntry): string {
   return `/crystal-street/outcomes/${h.encounterId}--${h.choiceId}-${h.success ? 'success' : 'failure'}.webp`
 }

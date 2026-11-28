@@ -36,6 +36,18 @@ async function frozen(page) {
   await wait(250)
   return (await rainbowRun(page)).tick === before
 }
+/** Each seat's special and evade cooldowns, straight from the running engine. */
+function cooldowns(page) {
+  return page.evaluate(() =>
+    (window.__games ?? [])
+      .filter((entry) => !entry.demo)
+      .at(-1)
+      .game.snapshot.ships.map((ship) => ({
+        specialCooldown: ship.specialCooldown,
+        evadeCooldown: ship.evadeCooldown,
+      })),
+  )
+}
 function touch(page, type, seat, pointerId, fx, fy) {
   return page.evaluate(
     ({ type, seat, pointerId, fx, fy }) => {
@@ -92,6 +104,22 @@ try {
       'the arrows fly the new pilot',
     )
     assert.equal(after.ships[0].y, before.ships[0].y, 'and leave pilot 1 alone')
+    // Gameplay critic r2 G2: both keyboard seats have the special (X) and the evade (Y).
+    for (const [seat, special, evade] of [
+      [0, 'KeyR', 'KeyT'],
+      [1, 'Semicolon', 'Quote'],
+    ]) {
+      await hold(page, special, 80)
+      assert.ok(
+        (await cooldowns(page))[seat].specialCooldown > 0,
+        `pilot ${seat + 1}'s ${special} fires the special`,
+      )
+      await hold(page, evade, 80)
+      assert.ok(
+        (await cooldowns(page))[seat].evadeCooldown > 0,
+        `pilot ${seat + 1}'s ${evade} evades`,
+      )
+    }
 
     await page.keyboard.press('KeyP')
     const benchedAt = (await rainbowRun(page)).ships[1]
@@ -112,7 +140,9 @@ try {
     assert.ok(!(await frozen(page)))
     assert.deepEqual(errors, [])
     await context.close()
-    summary.push('keyboard join/bench/rejoin mid-run')
+    summary.push(
+      'keyboard join/bench/rejoin mid-run, X and Y on both keyboard seats',
+    )
   }
 
   // 2. Tablet touch: four pilots, four pads on screen, four fingers at once.
@@ -178,11 +208,60 @@ try {
     }
     for (const [seat] of directions.entries())
       await touch(page, 'pointerup', seat, 31 + seat, 0.5, 0.5)
+    // Gameplay critic r2 G2: on a tablet every co-op pad has X and Y, off the stage, and they work.
+    for (const button of ['X', 'Y']) {
+      const balls = await page.evaluate(
+        (button) =>
+          [...document.querySelectorAll(`[aria-label$=" ${button} button"]`)]
+            .filter((node) => node.getClientRects().length)
+            .map((node) => {
+              const rect = node.getBoundingClientRect()
+              return { label: node.getAttribute('aria-label'), top: rect.top }
+            }),
+        button,
+      )
+      assert.equal(balls.length, 4, `four ${button} buttons on screen`)
+      for (const ball of balls)
+        assert.ok(ball.top >= stage.bottom - 1, `${ball.label} is off stage`)
+    }
+    for (let seat = 0; seat < 4; seat++)
+      for (const [button, field] of [
+        ['X', 'specialCooldown'],
+        ['Y', 'evadeCooldown'],
+      ]) {
+        await page.evaluate(
+          ({ seat, button }) => {
+            const ball = document.querySelector(
+              `[aria-label="Player ${seat + 1} ${button} button"]`,
+            )
+            const rect = ball.getBoundingClientRect()
+            const at = {
+              pointerId: 60 + seat,
+              pointerType: 'touch',
+              clientX: rect.left + rect.width / 2,
+              clientY: rect.top + rect.height / 2,
+              bubbles: true,
+              cancelable: true,
+            }
+            ball.dispatchEvent(new PointerEvent('pointerdown', at))
+            setTimeout(
+              () => ball.dispatchEvent(new PointerEvent('pointerup', at)),
+              80,
+            )
+          },
+          { seat, button },
+        )
+        await wait(160)
+        assert.ok(
+          (await cooldowns(page))[seat][field] > 0,
+          `pilot ${seat + 1}'s touch ${button} works`,
+        )
+      }
     if (shots)
       await page.screenshot({ path: path.join(shots, 'four-pilots-touch.png') })
     assert.deepEqual(errors, [])
     await context.close()
-    summary.push('4 touch pilots at once')
+    summary.push('4 touch pilots at once, each with X and Y')
   }
 } finally {
   await browser.close()

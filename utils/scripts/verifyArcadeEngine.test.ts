@@ -318,6 +318,10 @@ import {
   // The two-player key maps never share a key.
   for (const code of Object.keys(P1_KEYS))
     assert.ok(!(code in P2_KEYS), `${code} is bound for both players`)
+  // Both keyboard seats carry the four-button kit (Rainbow co-op: special and evade).
+  for (const map of [P1_KEYS, P2_KEYS])
+    for (const button of ['a', 'b', 'x', 'y'] as const)
+      assert.ok(Object.values(map).includes(button), `${button} has a key`)
 }
 
 // --- cabinet flow ------------------------------------------------------------

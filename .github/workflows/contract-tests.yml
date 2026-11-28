@@ -586,6 +586,9 @@ jobs:
       - name: Monstrique original score, cues and volume controls
         run: npx tsx utils/scripts/verifyMonstriqueSound.test.ts
 
+      - name: Monstrique cut-out rig pivots, clip timing and motion fallbacks
+        run: npx tsx utils/scripts/verifyMonstriqueRig.test.ts
+
   contract_2:
     name: Contract shard 2/4
     runs-on: ubuntu-latest

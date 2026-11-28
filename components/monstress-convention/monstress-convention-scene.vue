@@ -261,6 +261,23 @@
                   "
                 />
               </div>
+              <MonstriqueRig
+                v-else-if="
+                  actor.character === 'iris' || actor.character === 'norb'
+                "
+                class="mc-npc absolute"
+                :class="{ 'is-marked': actor.marked }"
+                :style="{
+                  left: actor.x + '%',
+                  top: actor.y + '%',
+                  height: actor.height + '%',
+                  zIndex: Math.round(actor.y),
+                }"
+                :character="actor.character"
+                :talking="speaker === actor.character"
+                :gesture="leadGesture[actor.character]"
+                :facing="actor.x > iris.x ? 'left' : 'right'"
+              />
               <MonstriqueCharacterSprite
                 v-else
                 class="mc-npc absolute"
@@ -282,23 +299,30 @@
               class="mc-germ-zone absolute"
               :style="walkerStyle(norb, 0, followMs)"
             />
-            <MonstriqueCharacterSprite
+            <MonstriqueRig
               v-if="showNorbFollower"
               class="mc-walker absolute"
-              :style="walkerStyle(norb, 0.68, followMs)"
+              data-testid="monstrique-norb-walker"
+              :style="walkerStyle(norb, NORB_STATURE, followMs)"
               character="norb"
-              :mood="speaker === 'norb' ? speakerMood : 'annoyed'"
+              :walking="walking"
+              :walk-speed="walkSpeed"
+              :stride="strideFor('norb', norb, NORB_STATURE)"
               :talking="speaker === 'norb'"
-              :facing="norb.x > iris.x ? 'left' : 'right'"
+              :gesture="leadGesture.norb"
+              :facing="norbFacing"
             />
-            <MonstriqueCharacterSprite
+            <MonstriqueRig
               class="mc-walker absolute"
               data-testid="monstrique-iris-walker"
               :data-walking="walking ? 'true' : 'false'"
               :style="walkerStyle(iris, 1, walkMs)"
               character="iris"
-              :mood="speaker === 'iris' ? speakerMood : 'smirk'"
+              :walking="walking"
+              :walk-speed="walkSpeed"
+              :stride="strideFor('iris', iris, 1)"
               :talking="speaker === 'iris'"
+              :gesture="leadGesture.iris"
               :facing="irisFacing"
             />
           </div>
@@ -484,7 +508,7 @@
             type="button"
             class="mc-verb"
             :title="verb"
-            @click="story.takeAction({ verb, target: selected! })"
+            @click="act({ verb, target: selected! })"
           >
             <Icon :name="verbIcon(verb)" class="size-4" />
             {{ verb }}
@@ -499,7 +523,7 @@
             :key="topic"
             type="button"
             class="mc-topic"
-            @click="story.takeAction({ verb: 'ask', target: selected!, topic })"
+            @click="act({ verb: 'ask', target: selected!, topic })"
           >
             <Icon name="kind-icon:book-open" class="size-3" />
             {{ TOPICS[topic] ?? topic }}
@@ -613,6 +637,7 @@ import {
   ITEMS,
   maxScore,
   TOPICS,
+  type CaseAction,
   type RoomId,
   type Verb,
 } from '~/utils/monstressConvention/prologue'
@@ -623,6 +648,14 @@ import {
   type MonstriqueCharacterId,
 } from '~/utils/monstrique/characterModels'
 import { coldOpen } from '~/utils/monstrique/cutscenes'
+import { LEAD_RIGS, type LeadId } from '~/utils/monstrique/leadRigs'
+import {
+  STAGE_ASPECT,
+  STAGE_WALK_MS_PER_UNIT,
+  leadGestures,
+  strideUnits,
+  type RigGesture,
+} from '~/utils/monstrique/rig'
 import {
   STAGE_MARKS,
   backdropFor,
@@ -661,7 +694,13 @@ const held = ref<string | null>(null)
 const iris = ref<StagePoint>(entryPoint(story.value.state.room))
 const worldEl = ref<HTMLElement | null>(null)
 const walkMs = ref(0)
+const walkSpeed = ref(0)
 const walking = ref(false)
+const NORB_STATURE = 0.68
+const leadGesture = ref<
+  Partial<Record<LeadId, { id: RigGesture; key: number }>>
+>({})
+let gestureKey = 0
 const facing = ref<'left' | 'right'>('right')
 let walkTimer: ReturnType<typeof setTimeout> | null = null
 let reducedMotion = false
@@ -750,6 +789,42 @@ const showNorbFollower = computed(
   () => !stageNpcs.value.some((actor) => actor.character === 'norb'),
 )
 const norb = computed(() => followerPoint(story.value.state.room, iris.value))
+const norbFacing = computed(() =>
+  walking.value ? facing.value : norb.value.x > iris.value.x ? 'left' : 'right',
+)
+
+function strideFor(lead: LeadId, point: StagePoint, stature: number): number {
+  return strideUnits(
+    LEAD_RIGS[lead],
+    stature * figureHeight(story.value.state.room, point.y),
+  )
+}
+
+let actedState: unknown = null
+function cueGestures(gestures: Partial<Record<LeadId, RigGesture>>): void {
+  for (const [lead, id] of Object.entries(gestures) as [LeadId, RigGesture][]) {
+    gestureKey += 1
+    leadGesture.value = {
+      ...leadGesture.value,
+      [lead]: { id, key: gestureKey },
+    }
+  }
+}
+
+function act(action: CaseAction): void {
+  const before = story.value.state
+  story.value.takeAction(action)
+  actedState = story.value.state
+  cueGestures(leadGestures(action, before, story.value.state))
+}
+
+watch(
+  () => story.value.state,
+  (next, previous) => {
+    if (previous && next !== previous && next !== actedState)
+      cueGestures(leadGestures(null, previous, next))
+  },
+)
 const followMs = computed(() => (walkMs.value ? walkMs.value + 180 : 0))
 const shortcuts = computed(() => {
   if (drawer.value !== 'map') return []
@@ -796,9 +871,14 @@ function stepAlong(path: StagePoint[]): void {
     facing.value = next.x < from.x ? 'left' : 'right'
   const ms = reducedMotion
     ? 0
-    : Math.round(Math.hypot(next.x - from.x, next.y - from.y) * 16)
+    : Math.round(
+        Math.hypot(next.x - from.x, next.y - from.y) * STAGE_WALK_MS_PER_UNIT,
+      )
   walking.value = ms > 0
   walkMs.value = ms
+  walkSpeed.value = ms
+    ? Math.hypot(next.x - from.x, (next.y - from.y) / STAGE_ASPECT) / ms
+    : 0
   iris.value = next
   walkTimer = setTimeout(() => stepAlong(path), ms)
 }
@@ -922,7 +1002,7 @@ function selectAdjacent(direction: -1 | 1): void {
 
 function pickInventory(item: string): void {
   if (held.value && held.value !== item) {
-    story.value.takeAction({ verb: 'combine', item: held.value, target: item })
+    act({ verb: 'combine', item: held.value, target: item })
     held.value = null
     return
   }
@@ -937,11 +1017,7 @@ function closeOverlay(): void {
 
 function useHeld(): void {
   if (!held.value || !selected.value) return
-  story.value.takeAction({
-    verb: 'use',
-    target: selected.value,
-    item: held.value,
-  })
+  act({ verb: 'use', target: selected.value, item: held.value })
   if (!story.value.state.inventory.includes(held.value)) held.value = null
 }
 

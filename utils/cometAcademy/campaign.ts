@@ -336,6 +336,12 @@ export const BETRAYER_VIGNETTES: Record<
     diversion: string
     repair: string
     separate: string
+    warningQuestion: string
+    warningLeave: string
+    suspicionOpen: string
+    suspicionCover: string
+    betrayalExpose: string
+    betrayalHear: string
   }
 > = {
   mina: {
@@ -349,6 +355,18 @@ export const BETRAYER_VIGNETTES: Record<
       'Mina rebuilds the bypass with the families she endangered, and signs every safety inspection in public.',
     separate:
       'Mina continues as an independent municipal safety inspector, barred from handling academy evacuation keys.',
+    warningQuestion:
+      "Mina unfolds a blacklist notice for her rescue crew. You offer to find another contractor, but she folds the notice before you can read its signature.",
+    warningLeave:
+      "Mina pockets the notice and returns to measuring stairwell clearances. The crew still has no guarantee of work tomorrow.",
+    suspicionOpen:
+      "Mina shows the witness where her bypass was disabled. She admits the rescue was delayed but refuses to identify the contractor threatening her crew.",
+    suspicionCover:
+      "The dean suppresses the bypass inspection. Mina puts the missing page in her toolbox; injured students still have no documented route.",
+    betrayalExpose:
+      "You reopen the public stairwell and file its inspection report. Mina leaves her helmet on the landing and runs before the families arrive.",
+    betrayalHear:
+      "Mina explains the blacklist while you direct the evacuation. She knows the crew was used against her and leaves the team without her rescue badge.",
   },
   sol: {
     pressure:
@@ -361,6 +379,18 @@ export const BETRAYER_VIGNETTES: Record<
       'Sol releases the original footage to the witnesses and gives an independent audit team control of every camera loop.',
     separate:
       'Sol hands the footage to a public defender and works outside the school network without privileged access.',
+    warningQuestion:
+      "Sol shows you a single blurred frame of the transit arrest. You offer to find a public defender; the sender and witness remain unnamed.",
+    warningLeave:
+      "Sol closes the footage without sending it to you. You respect the boundary, but the anonymous demand stays in the encrypted inbox.",
+    suspicionOpen:
+      "Sol demonstrates the interrupted camera loop with a witness watching. They admit to the false recording without revealing the person whose safety is at stake.",
+    suspicionCover:
+      "The dean removes the camera discrepancy from the log. Sol keeps the original recording offline, but the false distress-call timeline remains official.",
+    betrayalExpose:
+      "You restore the genuine evacuation feed and log the stolen footage without naming its witness. Sol disconnects from the school network and disappears into the crowd.",
+    betrayalHear:
+      "Sol explains why the arrest footage was hidden while you get the stranded rescuers back on course. They leave the squad before anyone can ask them to run the cameras again.",
   },
   imani: {
     pressure:
@@ -373,6 +403,18 @@ export const BETRAYER_VIGNETTES: Record<
       'Imani tells the affected students exactly what was disclosed, and lets them decide whether she may mediate again.',
     separate:
       'Imani helps fund an independent, confidential counseling cooperative without asking her former teammates for forgiveness.',
+    warningQuestion:
+      "Imani admits the sender has confidential counseling notes. You offer an independent advocate, but she will not reveal a client or the sender.",
+    warningLeave:
+      "You leave the conversation private. Imani locks her counseling notebook and watches the anonymous message light up again.",
+    suspicionOpen:
+      "With the witness present, Imani confirms that the confidential room key was used to interrupt a rescue. She protects the names in the roster, even now.",
+    suspicionCover:
+      "The dean buries the missing-room-key report. Imani keeps the affected people unnamed, but they have no official way to contest the interception.",
+    betrayalExpose:
+      "You publish the rescue diversion without publishing a single counseling disclosure. Imani withdraws before the affected students can question her.",
+    betrayalHear:
+      "While the civilians are escorted to safety, Imani describes the threat to her clients without naming them. She relinquishes her place on the team rather than claim that fear excuses the betrayal.",
   },
   ash: {
     pressure:
@@ -385,6 +427,18 @@ export const BETRAYER_VIGNETTES: Record<
       "Ash restores the workers' warning beacons and accepts their elected safety committee as her supervisor.",
     separate:
       'Ash repairs the night shift shelters from outside the academy, where the workers can reject her help.',
+    warningQuestion:
+      "Ash shows you a notice canceling the maintenance crew contracts. You offer to contact their union, but she will not identify the sender.",
+    warningLeave:
+      "Ash folds the notice into her weather notebook. You leave it private, and the night crew still faces the threatened cutoff.",
+    suspicionOpen:
+      "Ash points out the silenced warning channel while the witness records it. She acknowledges the diverted distress call but will not say who threatened the workers.",
+    suspicionCover:
+      "The dean erases the relay anomaly from the report. Ash checks the silent warning beacon again; the intercepted distress call remains unrecorded.",
+    betrayalExpose:
+      "You restore the public wind warning and document the stolen relay. Ash takes off her weather jacket and leaves before the maintenance crews reach the shelter.",
+    betrayalHear:
+      "Ash explains the threatened contracts while you guide civilians away from the headwind. She leaves the squad, knowing the workers did not authorize the diversion.",
   },
   nix: {
     pressure:
@@ -397,6 +451,18 @@ export const BETRAYER_VIGNETTES: Record<
       'Nix maps a public portal route with the stranded passengers and returns control of the anchors to transit crews.',
     separate:
       'Nix keeps the civilian portals open under union oversight and refuses to make forgiveness another trade.',
+    warningQuestion:
+      "Nix lets you see a photograph attached to the portal coordinates. They admit it concerns their father but refuse to share the address or sender.",
+    warningLeave:
+      "Nix folds the photograph back into their pocket. You respect the silence; the unverified coordinates remain on their map.",
+    suspicionOpen:
+      "Nix demonstrates the hidden anchor in front of the witness. They admit it intercepted a rescue but refuse to disclose the destination they were promised.",
+    suspicionCover:
+      "The dean strikes the anchor discrepancy from the log. Nix seals the coordinates away, leaving the diverted distress call without an independent record.",
+    betrayalExpose:
+      "You reopen the public route and record the false platform coordinates. Nix abandons their academy anchor and leaves through an ordinary exit.",
+    betrayalHear:
+      "Nix explains the promised reunion while you return the stranded travelers to the public platform. They leave the team without asking you to follow them.",
   },
   kit: {
     pressure:
@@ -409,6 +475,18 @@ export const BETRAYER_VIGNETTES: Record<
       'Kit distributes the antidote through a free neighborhood clinic and invites patients to oversee every dose.',
     separate:
       'Kit keeps treating the abandoned civilians at an independent field clinic but does not return to the squad.',
+    warningQuestion:
+      "Kit shows you a threat against the seed clinic and offers to move the plants. You offer independent protection, but they do not identify the sender.",
+    warningLeave:
+      "Kit checks the clinic inventory and leaves the message unanswered. You respect their privacy; the threatened shipment remains unprotected.",
+    suspicionOpen:
+      "Kit identifies the medicine-locker key with a clinician present. They admit the interrupted rescue but will not name the person threatening the clinic.",
+    suspicionCover:
+      "The dean removes the locker incident from the log. Kit counts the remaining antidote vials, knowing the missing distress call still has no record.",
+    betrayalExpose:
+      "You restore the triage route and file the missing-antidote report. Kit leaves their field-medical bag with the replacement crew and departs.",
+    betrayalHear:
+      "Kit explains the threat to the seed clinic while you restore the medical evacuation. They leave the squad after handing the patients over to independent care.",
   },
 }
 
@@ -539,14 +617,14 @@ export function campaignPlotEvent(
         {
           id: 'plot-warning-question',
           label: 'Ask what the message is offering',
-          text: `${betrayerName} admits someone knows their family's worst secret. You offer help, but they do not surrender the sender's name.`,
+          text: vignette.warningQuestion,
           influence: 1,
           danger: 0,
         },
         {
           id: 'plot-warning-leave',
           label: 'Respect their privacy and watch from afar',
-          text: `You refuse to turn friendship into surveillance. ${betrayerName} thanks you, then deletes a reply before you can read it.`,
+          text: vignette.warningLeave,
           influence: 0,
           danger: 1,
         },
@@ -561,14 +639,14 @@ export function campaignPlotEvent(
         {
           id: 'plot-suspicion-open',
           label: 'Confront them with a witness present',
-          text: `${betrayerName} admits the key was used to intercept a rescue. They refuse to explain who is holding them to the agreement.`,
+          text: vignette.suspicionOpen,
           influence: 1,
           danger: -1,
         },
         {
           id: 'plot-suspicion-cover',
           label: 'Shield them from an immediate investigation',
-          text: `The dean lets the incident vanish from the log. ${betrayerName} is relieved and ashamed, but the intercepted call is still missing.`,
+          text: vignette.suspicionCover,
           influence: -1,
           danger: 1,
         },
@@ -578,19 +656,19 @@ export function campaignPlotEvent(
     return {
       title: 'The Hero Turns at the Gate',
       location: 'Academy / Shield Relay',
-      scene: `${betrayerName} diverts the academy rescue team into a dead-end corridor and transfers its emergency access keys to ${villain.name}. ${vignette.diversion} Their betrayal is real. They say the villain threatened someone they love, but the abandoned civilians still had to wait for rescue. You cannot undo this night by choosing a softer accusation.`,
+      scene: `${betrayerName} diverts the academy rescue team into a dead-end corridor and transfers its emergency access keys to ${villain.name}. ${vignette.diversion} Their betrayal is real. The coercion was real, but the abandoned civilians still had to wait for rescue. You cannot undo this night by choosing a softer accusation.`,
       options: [
         {
           id: 'plot-betrayal-expose',
           label: 'Expose the betrayal and secure the public exits',
-          text: `The civilians reach safety and the missing rescue keys are named in a public report. ${betrayerName} flees rather than face the people they endangered.`,
+          text: vignette.betrayalExpose,
           influence: 2,
           danger: 0,
         },
         {
           id: 'plot-betrayal-hear',
           label: 'Hear the threat while protecting civilians',
-          text: `You listen without excusing the deception. ${betrayerName} tells you whom ${villain.name} threatened, then walks away from the team before the next call.`,
+          text: vignette.betrayalHear,
           influence: 0,
           danger: 1,
         },

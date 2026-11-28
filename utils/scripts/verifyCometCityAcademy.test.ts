@@ -1398,6 +1398,72 @@ for (let seed = 1; seed <= 12; seed++) {
   assert.ok(warning.scene.includes(motive.pressure), id)
   assert.ok(suspicion.scene.includes(motive.evidence), id)
   assert.ok(turn.scene.includes(motive.diversion), id)
+  assert.deepEqual(
+    warning.options.map(({ text, id, influence, danger }) => ({
+      text,
+      id,
+      influence,
+      danger,
+    })),
+    [
+      {
+        text: motive.warningQuestion,
+        id: 'plot-warning-question',
+        influence: 1,
+        danger: 0,
+      },
+      {
+        text: motive.warningLeave,
+        id: 'plot-warning-leave',
+        influence: 0,
+        danger: 1,
+      },
+    ],
+  )
+  assert.deepEqual(
+    suspicion.options.map(({ text, id, influence, danger }) => ({
+      text,
+      id,
+      influence,
+      danger,
+    })),
+    [
+      {
+        text: motive.suspicionOpen,
+        id: 'plot-suspicion-open',
+        influence: 1,
+        danger: -1,
+      },
+      {
+        text: motive.suspicionCover,
+        id: 'plot-suspicion-cover',
+        influence: -1,
+        danger: 1,
+      },
+    ],
+  )
+  assert.deepEqual(
+    turn.options.map(({ text, id, influence, danger }) => ({
+      text,
+      id,
+      influence,
+      danger,
+    })),
+    [
+      {
+        text: motive.betrayalExpose,
+        id: 'plot-betrayal-expose',
+        influence: 2,
+        danger: 0,
+      },
+      {
+        text: motive.betrayalHear,
+        id: 'plot-betrayal-hear',
+        influence: 0,
+        danger: 1,
+      },
+    ],
+  )
   assert.ok(turn.scene.includes('betrayal is real'), id)
   assert.ok(returnDay.scene.includes(motive.repair), id)
   assert.ok(
@@ -1425,6 +1491,12 @@ for (const field of [
   'diversion',
   'repair',
   'separate',
+  'warningQuestion',
+  'warningLeave',
+  'suspicionOpen',
+  'suspicionCover',
+  'betrayalExpose',
+  'betrayalHear',
 ] as const)
   assert.equal(
     new Set(BETRAYER_CANDIDATES.map((id) => BETRAYER_VIGNETTES[id][field]))

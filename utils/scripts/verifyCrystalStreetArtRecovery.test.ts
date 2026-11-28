@@ -21,12 +21,16 @@ assert.equal(
   262576,
 )
 assert.equal(
-  renderedArtImageId('/crystal-street/scenes/frieda-krueger-clue-microfiche.webp'),
+  renderedArtImageId(
+    '/crystal-street/scenes/frieda-krueger-clue-microfiche.webp',
+  ),
   null,
   'explicitly rejected scene is not linked',
 )
 assert.equal(
-  renderedArtImageId('/crystal-street/scenes/frieda-krueger-clue-wig-room.webp'),
+  renderedArtImageId(
+    '/crystal-street/scenes/frieda-krueger-clue-wig-room.webp',
+  ),
   null,
   'already delivered artwork remains on its static path',
 )
@@ -47,7 +51,10 @@ for (const invalid of [
   'https://elsewhere.invalid/crystal-street/endings/frieda-krueger-good.webp',
 ])
   assert.equal(renderedArtImageId(invalid), null)
-const store = readFileSync(file('../../stores/crystalStreetArtStore.ts'), 'utf8')
+const store = readFileSync(
+  file('../../stores/crystalStreetArtStore.ts'),
+  'utf8',
+)
 assert.match(store, /user\.isAdmin && !!sessionToken\.value/)
 assert.match(store, /\/api\/art\/images\/\$\{id\}\/file/)
 assert.match(store, /watch\(\[sessionToken, canLoad\], clear/)
@@ -62,4 +69,6 @@ const encounter = readFileSync(
   'utf8',
 )
 assert.match(encounter, /image: art\.sourceFor\(choiceArtPath/)
-console.log('Crystal Street: 3,040 existing render links; known rejects excluded.')
+console.log(
+  'Crystal Street: 3,040 existing render links; known rejects excluded.',
+)

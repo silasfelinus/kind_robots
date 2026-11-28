@@ -1,6 +1,10 @@
 <template>
-  <section class="sc-duel-decks" aria-label="Choose duel deck">
-    <b>{{ cpu ? 'YOUR CPU DECK' : 'YOUR DUEL DECK' }}</b>
+  <section
+    class="sc-duel-decks"
+    :class="{ 'is-cpu': cpu }"
+    :aria-label="cpu ? 'Choose CPU deck' : 'Choose duel deck'"
+  >
+    <b v-if="!cpu">YOUR DUEL DECK</b>
     <div class="sc-duel-modes" role="group" aria-label="Deck format">
       <button
         v-for="item in modes"
@@ -60,6 +64,7 @@ const modes = [
   { id: 'alliance', name: 'Alliance' },
 ] as const
 const mode = ref<(typeof modes)[number]['id']>('alliance')
+if (props.cpu && lab.clashFormat === 'solo') mode.value = 'faction'
 const deckId = ref('')
 const factionDeck = ref('starter')
 const constructed = computed(() =>
@@ -119,6 +124,11 @@ watch(setup, (value) => emit('update:modelValue', value), { immediate: true })
   border-radius: 0.6rem;
   background: #112933;
   font-size: 0.8rem;
+}
+.sc-duel-decks.is-cpu {
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 .sc-duel-modes {
   display: grid;

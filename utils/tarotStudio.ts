@@ -25,6 +25,10 @@ export type TarotDeckSeed = {
   defaultLoras: string
   backPrompt: string
   subject: string
+  /** The one character every face centers on (the scene recipe's opening). */
+  figure: string
+  /** The deck's world in one sentence, phrased around a single scene. */
+  world: string
   isPublic: boolean
 }
 
@@ -299,6 +303,10 @@ export const TAROT_DECK_SEEDS: TarotDeckSeed[] = [
       'Intricate symmetrical braids of rainbow-colored hair ribbons, iridescent combs, stars and curling leaves surrounding a central luminous jewel, deep plum background, elegant ornamental symmetry, vertical composition',
     subject:
       'An expressive fantasy character with an imaginative hairstyle and beautifully dyed rainbow colors',
+    figure:
+      'An expressive adult fantasy character with an imaginative hairstyle and beautifully dyed rainbow colors',
+    world:
+      'Grown-up fantasy illustration with vivid rainbow hair color, salon artistry and richly textured pigments',
     isPublic: false,
   },
   {
@@ -314,6 +322,9 @@ export const TAROT_DECK_SEEDS: TarotDeckSeed[] = [
     backPrompt:
       'A perfectly symmetric botanical gearwork mandala with small fireflies, teal enamel and gold brass details, dark midnight-blue background, vertical composition',
     subject: 'A unique kindhearted robot with visible articulated mechanisms',
+    figure: 'A unique kindhearted robot with visible articulated mechanisms',
+    world:
+      'A gentle storybook landscape of tactile metal and recycled materials, kindness shown through physical actions',
     isPublic: true,
   },
   {
@@ -330,20 +341,62 @@ export const TAROT_DECK_SEEDS: TarotDeckSeed[] = [
       'Symmetrical weathered copper filigree with twin coyote silhouettes, desert wildflowers, small bones and an amber sun, deep indigo background, vertical composition',
     subject:
       'An expressive anthropomorphic frontier animal wearing practical weathered clothing',
+    figure:
+      'An expressive anthropomorphic frontier animal wearing practical weathered clothing',
+    world:
+      'A weird western fairy-tale frontier of open dusty plains and distant ruins under dramatic cinematic light',
     isPublic: false,
   },
 ]
 
+/**
+ * Staging shared by every face. The first style samples (2026-11-28) filled
+ * Kind Robots and Zuzu backgrounds with crowds, because the old recipe ended
+ * on the deck's plural style lead ("friendly robots and mechanical
+ * creatures", "animal characters, dusty frontier towns").
+ */
+const SCENE_STAGING =
+  'Only the figures named in this scene appear, with calm open space around them.'
+
 function seedScenePrompt(deck: TarotDeckSeed, card: TarotCatalogCard) {
-  return `${deck.subject}. ${card.scene}. ${deck.styleBible.split('.')[0]}.`
+  return `${deck.figure}. ${card.scene}. ${deck.world}. ${SCENE_STAGING}`
 }
 
-/** The prompt the 2026-11-20 seed wrote, so untouched rows can be upgraded. */
-export function legacySeedPrompt(deckSlug: string, cardKey: string) {
+/** Recipes earlier seeds wrote, oldest first; matching rows count as untouched. */
+const PRIOR_SEED_RECIPES: ((
+  deck: TarotDeckSeed,
+  card: TarotCatalogCard,
+) => string)[] = [
+  // 2026-11-20 seed.
+  (deck, card) =>
+    `${deck.subject}. ${card.scene}. ${deck.styleBible.split('.')[0]}. Portrait 2:3 composition, strong readable silhouette and cinematic lighting.`,
+  // 2026-11-27 production bootstrap (the first style samples).
+  (deck, card) =>
+    `${deck.subject}. ${card.scene}. ${deck.styleBible.split('.')[0]}.`,
+]
+
+function findSeed(deckSlug: string, cardKey: string) {
   const deck = TAROT_DECK_SEEDS.find((entry) => entry.slug === deckSlug)
   const card = TAROT_CATALOG.find((entry) => entry.key === cardKey)
-  if (!deck || !card) return null
-  return `${deck.subject}. ${card.scene}. ${deck.styleBible.split('.')[0]}. Portrait 2:3 composition, strong readable silhouette and cinematic lighting.`
+  return deck && card ? { deck, card } : null
+}
+
+/** Every prompt an earlier seed wrote for this card, so untouched rows can be upgraded. */
+export function priorSeedPrompts(deckSlug: string, cardKey: string) {
+  const found = findSeed(deckSlug, cardKey)
+  if (!found) return []
+  return PRIOR_SEED_RECIPES.map((recipe) => recipe(found.deck, found.card))
+}
+
+/** The prompt the 2026-11-20 seed wrote (the oldest prior seed). */
+export function legacySeedPrompt(deckSlug: string, cardKey: string) {
+  return priorSeedPrompts(deckSlug, cardKey)[0] ?? null
+}
+
+/** The current seed recipe for a catalog card, or null for an unknown deck/card. */
+export function currentSeedPrompt(deckSlug: string, cardKey: string) {
+  const found = findSeed(deckSlug, cardKey)
+  return found ? seedScenePrompt(found.deck, found.card) : null
 }
 
 /** The card's scene recipe: its edited prompt, or the current seed if untouched. */
@@ -352,14 +405,12 @@ export function cardScenePrompt(
   card: { key: string; prompt: string },
 ) {
   const prompt = card.prompt.trim()
-  const deck = TAROT_DECK_SEEDS.find((entry) => entry.slug === deckSlug)
-  const catalog = TAROT_CATALOG.find((entry) => entry.key === card.key)
+  const current = currentSeedPrompt(deckSlug, card.key)
   if (
-    deck &&
-    catalog &&
-    (!prompt || prompt === legacySeedPrompt(deckSlug, card.key))
+    current &&
+    (!prompt || priorSeedPrompts(deckSlug, card.key).includes(prompt))
   ) {
-    return seedScenePrompt(deck, catalog)
+    return current
   }
   return prompt
 }

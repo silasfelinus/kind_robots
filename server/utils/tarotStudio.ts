@@ -9,7 +9,9 @@ import prisma from '~/server/utils/prisma'
 import { artRequestKeyFingerprint } from '~/server/utils/artRequestKey'
 import {
   TAROT_DECK_SEEDS,
+  currentSeedPrompt,
   parseLoraLines,
+  priorSeedPrompts,
   seedTarotCards,
   seedTarotDesigns,
   tarotArtRequestKey,
@@ -59,7 +61,38 @@ export function tarotEnqueueRequest(art: TarotArtRequestSource) {
   }
 }
 
-/** Seed the starter decks, cards and designs without overwriting edits. */
+type TarotCardPromptClient = Pick<typeof prisma, 'tarotCard'>
+
+/**
+ * Move cards still holding an earlier seed recipe onto the current one. A card
+ * whose prompt was edited in the studio never matches a prior seed, and each
+ * update re-checks the old prompt so a concurrent edit wins.
+ */
+export async function upgradeUntouchedCardPrompts(
+  client: TarotCardPromptClient,
+  deckId: number,
+  deckSlug: string,
+) {
+  const cards = await client.tarotCard.findMany({
+    where: { deckId },
+    select: { id: true, key: true, prompt: true },
+  })
+  let upgraded = 0
+  for (const card of cards) {
+    const current = currentSeedPrompt(deckSlug, card.key)
+    if (!current || card.prompt === current) continue
+    if (!priorSeedPrompts(deckSlug, card.key).includes(card.prompt.trim()))
+      continue
+    const result = await client.tarotCard.updateMany({
+      where: { id: card.id, prompt: card.prompt },
+      data: { prompt: current },
+    })
+    upgraded += result.count
+  }
+  return upgraded
+}
+
+/** Seed the starter decks, cards and designs, upgrading only untouched prompts. */
 export async function bootstrapTarotStudio() {
   return prisma.$transaction(
     async (tx) => {
@@ -87,7 +120,14 @@ export async function bootstrapTarotStudio() {
           })),
           skipDuplicates: true,
         })
-        results.push(seed.slug)
+        const upgraded = await upgradeUntouchedCardPrompts(
+          tx,
+          deck.id,
+          seed.slug,
+        )
+        results.push(
+          upgraded ? `${seed.slug} (${upgraded} prompts upgraded)` : seed.slug,
+        )
       }
       const decks = await tx.tarotDeck.findMany({
         select: { id: true, slug: true, _count: { select: { Designs: true } } },

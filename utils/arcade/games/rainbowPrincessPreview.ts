@@ -1089,6 +1089,19 @@ export const RAINBOW_DIFFICULTY: Record<
 /** HUD text clears the cabinet's corner chips (close/fullscreen left, pause right). */
 const HUD_LEFT = 44
 const HUD_RIGHT = W - 26
+/**
+ * A boss's name on or under its health bar, centred, with a dark outline so it reads over any fill colour once a
+ * phase suffix makes it long enough to cross the fill (presentation critic R2-06).
+ */
+function bossBarLabel(g: CanvasRenderingContext2D, text: string, y: number) {
+  g.save()
+  g.strokeStyle = '#160b34'
+  g.lineWidth = 3
+  g.lineJoin = 'round'
+  g.strokeText(text, 240, y)
+  g.restore()
+  g.fillText(text, 240, y)
+}
 /** A comms line replaces the HUD bar: this tall, from the top edge, for as long as it plays. */
 const COMMS_HEIGHT = 51
 /** The ending plate fills the playfield under the comms box: 340 wide is 194 tall for a 640x366 plate. */
@@ -7915,7 +7928,7 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#fff7cf'
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
-        g.fillText('B01 PEARL SEAHORSE', 240, 53)
+        bossBarLabel(g, 'B01 PEARL SEAHORSE', 53)
         g.textAlign = 'left'
       }
       if (moonBoss) {
@@ -7992,7 +8005,7 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillStyle = '#fff4c4'
-        g.fillText('B02 AURELIA ARRAY', 240, 53)
+        bossBarLabel(g, 'B02 AURELIA ARRAY', 53)
         g.textAlign = 'left'
       }
       if (crown && crown.target === 'flagship' && eclipseCrownWarning(crown)) {
@@ -8115,7 +8128,8 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillStyle = '#ffffff'
-        g.fillText(
+        bossBarLabel(
+          g,
           crown.target === 'flagship'
             ? crown.phase === 2
               ? 'B09 MOTHERLAND FLAGSHIP · CLAMPS OPEN'
@@ -8125,7 +8139,6 @@ export function createRainbowPrincessPreview(
               : crown.phase === 2
                 ? 'B09 ECLIPSE CROWN · HEART FREE'
                 : 'B09 ECLIPSE CROWN',
-          240,
           41,
         )
         g.textAlign = 'left'
@@ -8281,9 +8294,9 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillStyle = '#ffffff'
-        g.fillText(
+        bossBarLabel(
+          g,
           exposed ? 'B08 PRISM LEVIATHAN · GEM OPEN' : 'B08 PRISM LEVIATHAN',
-          240,
           41,
         )
         g.textAlign = 'left'
@@ -8372,9 +8385,9 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillStyle = '#ffffff'
-        g.fillText(
+        bossBarLabel(
+          g,
           exposed ? 'B07 GLASS EEL · CORE OPEN' : 'B07 GLASS EEL',
-          240,
           41,
         )
         g.textAlign = 'left'
@@ -8475,9 +8488,9 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillStyle = '#fff4c4'
-        g.fillText(
+        bossBarLabel(
+          g,
           exposed ? 'B06 LANTERN RAY · BEACON OPEN' : 'B06 LANTERN RAY',
-          240,
           41,
         )
         g.textAlign = 'left'
@@ -8569,9 +8582,9 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillStyle = '#fff4c4'
-        g.fillText(
+        bossBarLabel(
+          g,
           exposed ? 'B05 SAWTOOTH REGENT · JAW OPEN' : 'B05 SAWTOOTH REGENT',
-          240,
           41,
         )
         g.textAlign = 'left'
@@ -8675,9 +8688,9 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillStyle = '#fff4c4'
-        g.fillText(
+        bossBarLabel(
+          g,
           exposed ? 'B04 DELPHION · LINK CORE OPEN' : 'B04 DELPHION',
-          240,
           41,
         )
         g.textAlign = 'left'
@@ -8763,9 +8776,9 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillStyle = '#fff4c4'
-        g.fillText(
+        bossBarLabel(
+          g,
           exposed ? 'B03 CLAWBURST · CANNON OPEN' : 'B03 CLAWBURST',
-          240,
           53,
         )
         g.textAlign = 'left'

@@ -54,7 +54,10 @@ export type ArenaSpec = {
   wrap?: { x?: boolean; y?: boolean }
   /** The closing wall: a cell in from every side each `every` ticks, to `max`; null for none. */
   shrink?: { every: number; max: number; shape?: 'spiral' } | null
-  portals?: readonly (readonly [readonly [number, number], readonly [number, number]])[]
+  portals?: readonly (readonly [
+    readonly [number, number],
+    readonly [number, number],
+  ])[]
   crew: readonly RivalKind[]
   pickups?: { first: number; every: number; kinds?: readonly PickupKind[] }
   /** Where rivals line up, in crew order (the default lines otherwise). */
@@ -116,13 +119,25 @@ export function spiralCells(): number[] {
   const add = () => out.push(idx(x, y))
   add()
   while (left < right && top < bottom) {
-    while (x < right) { x++; add() }
+    while (x < right) {
+      x++
+      add()
+    }
     top += 3
-    while (y < bottom) { y++; add() }
+    while (y < bottom) {
+      y++
+      add()
+    }
     right -= 3
-    while (x > left) { x--; add() }
+    while (x > left) {
+      x--
+      add()
+    }
     bottom -= 3
-    while (y > top) { y--; add() }
+    while (y > top) {
+      y--
+      add()
+    }
     left += 3
   }
   return out
@@ -268,17 +283,23 @@ export function buildArena(spec: ArenaSpec): BuiltArena {
   for (const [a, b] of spec.portals ?? []) {
     const [ax, ay] = a
     const [bx, by] = b
-    if ([ax, ay, bx, by].some((n) => n < 0 || n >= GRID || !Number.isInteger(n))) continue
+    if (
+      [ax, ay, bx, by].some((n) => n < 0 || n >= GRID || !Number.isInteger(n))
+    )
+      continue
     const one = idx(ax, ay)
     const two = idx(bx, by)
-    if (one === two || terrain[one] !== T.FLOOR || terrain[two] !== T.FLOOR) continue
+    if (one === two || terrain[one] !== T.FLOOR || terrain[two] !== T.FLOOR)
+      continue
     terrain[one] = T.PORTAL
     terrain[two] = T.PORTAL
     portalAt[one] = two
     portalAt[two] = one
   }
   if (spec.shrink?.shape === 'spiral')
-    spiralCells().forEach((cell, i) => { spiralRank[cell] = i })
+    spiralCells().forEach((cell, i) => {
+      spiralRank[cell] = i
+    })
   return { spec, terrain, gates, gateAt, banks, bankAt, portalAt, spiralRank }
 }
 

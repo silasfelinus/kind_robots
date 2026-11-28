@@ -519,7 +519,16 @@ const STARLIGHT: Fairground = {
     {
       id: 'sl-sky',
       name: 'SKY BRIDGE',
-      portals: [[[10, 12], [36, 34]], [[37, 12], [11, 34]]],
+      portals: [
+        [
+          [10, 12],
+          [36, 34],
+        ],
+        [
+          [37, 12],
+          [11, 34],
+        ],
+      ],
       ribbonLifetime: S * 6,
       floor: 'violet',
       wrap: { x: true },
@@ -537,7 +546,12 @@ const STARLIGHT: Fairground = {
     {
       id: 'sl-stars',
       name: 'FALLING STARS',
-      portals: [[[9, 18], [38, 29]]],
+      portals: [
+        [
+          [9, 18],
+          [38, 29],
+        ],
+      ],
       floor: 'teal',
       features: [
         { kind: 'pillar', x: 12, y: 12, w: 2, h: 2 },
@@ -575,7 +589,12 @@ const STARLIGHT: Fairground = {
     {
       id: 'sl-comets',
       name: 'COMET CROSSING',
-      portals: [[[8, 12], [39, 34]]],
+      portals: [
+        [
+          [8, 12],
+          [39, 34],
+        ],
+      ],
       ribbonLifetime: S * 6,
       floor: 'teal',
       features: [
@@ -614,7 +633,12 @@ const STARLIGHT: Fairground = {
       id: 'marshal',
       name: 'THE LOOM SPINNER',
       floor: 'violet',
-      portals: [[[8, 14], [39, 33]]],
+      portals: [
+        [
+          [8, 14],
+          [39, 33],
+        ],
+      ],
       wrap: { x: true },
       features: [
         { kind: 'pad', x: 12, y: 24, dir: 1 },
@@ -655,7 +679,10 @@ export function encoreArena(a: FairArena): FairArena {
           ? { ...f, x: GRID - f.x - (f.w ?? 1), dir: turn(f.dir) }
           : { ...f, x: GRID - f.x - (f.w ?? 1) },
     ),
-    portals: a.portals?.map(([one, two]) => [[flip(one[0]), one[1]], [flip(two[0]), two[1]]]),
+    portals: a.portals?.map(([one, two]) => [
+      [flip(one[0]), one[1]],
+      [flip(two[0]), two[1]],
+    ]),
     rivalSpawns: a.rivalSpawns?.map(([x, y, d]): Spawn => [
       flip(x),
       y,
@@ -708,7 +735,16 @@ export const RAINBOW_SPOOL: Fairground = {
       id: 'spool-itself',
       name: 'THE SPOOL ITSELF',
       floor: 'violet',
-      portals: [[[8, 10], [39, 33]], [[39, 10], [8, 33]]],
+      portals: [
+        [
+          [8, 10],
+          [39, 33],
+        ],
+        [
+          [39, 10],
+          [8, 33],
+        ],
+      ],
       wrap: { x: true },
       ribbonLifetime: S * 6,
       features: [

@@ -730,7 +730,13 @@ class RibbonRiders implements ArcadeGameInstance {
     if (this.dyn[i]) return true
     if (lookahead && this.soon[i]) return true
     const rank = this.arena.spiralRank[i]!
-    if (rank >= 0 && rank < this.spiralCount + (lookahead && this.shrinkTimer < 90 ? SPIRAL_STEP : 0)) return true
+    if (
+      rank >= 0 &&
+      rank <
+        this.spiralCount +
+          (lookahead && this.shrinkTimer < 90 ? SPIRAL_STEP : 0)
+    )
+      return true
     const t = this.arena.terrain[i]!
     if (t === T.PILLAR || t === T.SNOW) return true
     if (t === T.GATE) {
@@ -749,7 +755,13 @@ class RibbonRiders implements ArcadeGameInstance {
 
   private blocked(x: number, y: number, lookahead = false): boolean {
     // Riders who can see the wall flashing keep clear of the next line in.
-    const m = this.margin + (this.arena.spec.shrink?.shape !== 'spiral' && lookahead && this.shrinkTimer < 90 ? 1 : 0)
+    const m =
+      this.margin +
+      (this.arena.spec.shrink?.shape !== 'spiral' &&
+      lookahead &&
+      this.shrinkTimer < 90
+        ? 1
+        : 0)
     if (!this.inside(x, y, m)) return true
     const i = idx(x, y)
     return this.cells[i] !== 0 || this.terrainSolid(i, lookahead)
@@ -757,7 +769,13 @@ class RibbonRiders implements ArcadeGameInstance {
 
   /** Blocked for a Snowplow: ribbons are no wall to it, but gifts, terrain and bikes are. */
   private plowBlocked(x: number, y: number, lookahead = false): boolean {
-    const m = this.margin + (this.arena.spec.shrink?.shape !== 'spiral' && lookahead && this.shrinkTimer < 90 ? 1 : 0)
+    const m =
+      this.margin +
+      (this.arena.spec.shrink?.shape !== 'spiral' &&
+      lookahead &&
+      this.shrinkTimer < 90
+        ? 1
+        : 0)
     if (!this.inside(x, y, m)) return true
     const i = idx(x, y)
     if (this.fill[i] || this.terrainSolid(i, lookahead)) return true
@@ -1088,10 +1106,18 @@ class RibbonRiders implements ArcadeGameInstance {
         b.conveyorSteps = (b.conveyorSteps ?? 0) + 1
         if (b.conveyorSteps >= CONVEYOR_CELLS) {
           b.conveyorSteps = 0
-          const dir = ((t - T.CONVEYOR + (this.marshal?.kind === 'conductor' && this.beat % 2 ? 2 : 0)) % 4) as Dir
+          const dir = ((t -
+            T.CONVEYOR +
+            (this.marshal?.kind === 'conductor' && this.beat % 2 ? 2 : 0)) %
+            4) as Dir
           const shift = this.next(nx, ny, dir)
-          if (!shift || (shift[0] === b.x && shift[1] === b.y) ||
-              (plow ? this.plowBlocked(shift[0], shift[1]) : this.blocked(shift[0], shift[1]))) {
+          if (
+            !shift ||
+            (shift[0] === b.x && shift[1] === b.y) ||
+            (plow
+              ? this.plowBlocked(shift[0], shift[1])
+              : this.blocked(shift[0], shift[1]))
+          ) {
             this.crash(b)
             continue
           }
@@ -1118,8 +1144,7 @@ class RibbonRiders implements ArcadeGameInstance {
         targets.set(cell, [...(targets.get(cell) ?? []), b])
     }
     for (const group of targets.values())
-      if (group.length > 1)
-        for (const b of group) this.crash(b)
+      if (group.length > 1) for (const b of group) this.crash(b)
     for (const [b, path] of routes) {
       if (!b.alive) continue
       for (const cell of path.slice(0, -1)) {
@@ -1155,13 +1180,22 @@ class RibbonRiders implements ArcadeGameInstance {
     if (t === T.BELL) {
       this.bellUntil = this.roundTicks + BELL_TICKS
       this.sound.play('pickup')
-      this.banner = { text: 'BELL FLARE!', sub: 'WIDE RIBBONS', ticks: BELL_TICKS }
+      this.banner = {
+        text: 'BELL FLARE!',
+        sub: 'WIDE RIBBONS',
+        ticks: BELL_TICKS,
+      }
     }
     this.lay(b)
     if (!this.harmless(b) && this.roundTicks < this.bellUntil) {
       const side = this.next(b.x, b.y, turnRight(b.dir))
-      if (side && !this.blocked(side[0], side[1]) &&
-          !this.bikes.some((other) => other.alive && other.x === side[0] && other.y === side[1]))
+      if (
+        side &&
+        !this.blocked(side[0], side[1]) &&
+        !this.bikes.some(
+          (other) => other.alive && other.x === side[0] && other.y === side[1],
+        )
+      )
         this.lay(b, side[0], side[1], b.laid - 1)
     }
     if (b.kind === 'dasher') {
@@ -2443,7 +2477,10 @@ class RibbonRiders implements ArcadeGameInstance {
         continue
       }
       if (isConveyor(t)) {
-        const d = ((t - T.CONVEYOR + (this.marshal?.kind === 'conductor' && this.beat % 2 ? 2 : 0)) % 4) as Dir
+        const d = ((t -
+          T.CONVEYOR +
+          (this.marshal?.kind === 'conductor' && this.beat % 2 ? 2 : 0)) %
+          4) as Dir
         g.fillStyle = rgba(RAMPS.teal[3], 0.45)
         g.fillRect(x, y, CELL, CELL)
         drawSprite(g, padArrow(d, RAMPS.teal[4]), x + 3, y + 3)
@@ -2538,7 +2575,15 @@ class RibbonRiders implements ArcadeGameInstance {
       for (let i = 0; i < this.arena.spiralRank.length; i++) {
         const rank = this.arena.spiralRank[i]!
         if (rank < 0 || rank >= this.spiralCount) continue
-        bevel(g, (i % GRID) * CELL, ARENA_Y + Math.floor(i / GRID) * CELL, CELL, CELL, RAMPS.purple, { depth: 1 })
+        bevel(
+          g,
+          (i % GRID) * CELL,
+          ARENA_Y + Math.floor(i / GRID) * CELL,
+          CELL,
+          CELL,
+          RAMPS.purple,
+          { depth: 1 },
+        )
       }
     }
     this.renderRim(g, x0, y0, x1, y1, warn)
@@ -2596,7 +2641,12 @@ class RibbonRiders implements ArcadeGameInstance {
       for (let i = 0; i < this.arena.spiralRank.length; i++) {
         const rank = this.arena.spiralRank[i]!
         if (rank >= this.spiralCount && rank < this.spiralCount + SPIRAL_STEP)
-          g.fillRect((i % GRID) * CELL, ARENA_Y + Math.floor(i / GRID) * CELL, CELL, CELL)
+          g.fillRect(
+            (i % GRID) * CELL,
+            ARENA_Y + Math.floor(i / GRID) * CELL,
+            CELL,
+            CELL,
+          )
       }
       return
     }
@@ -2729,7 +2779,13 @@ class RibbonRiders implements ArcadeGameInstance {
         const py = ARENA_Y + y * CELL
         P.outline.add(INK, px - 1, py - 1, CELL + 2, CELL + 3)
         const flare = this.roundTicks < this.bellUntil ? 2 : 0
-        P.glow.add(ramp[2], px - 3 - flare, py - 3 - flare, CELL + 6 + flare * 2, CELL + 6 + flare * 2)
+        P.glow.add(
+          ramp[2],
+          px - 3 - flare,
+          py - 3 - flare,
+          CELL + 6 + flare * 2,
+          CELL + 6 + flare * 2,
+        )
         const stripe = pattern === 'stripes' && (o >> 1) % 2 === 1
         P.body.add(stripe ? ramp[4] : ramp[2], px, py, CELL, CELL)
         if ((pattern === 'hearts' || pattern === 'stars') && o % 6 === 3)

@@ -690,7 +690,7 @@ export const LEAF_PILE_LANE: Garden = {
       crawlers: true,
       cans: 1,
       leaves: 5,
-      sub: 'WIND CHANGES DIRECTION',
+      sub: 'WATCH THE FLOWER-PLUCKING CROW',
     }),
     wave({
       segments: 9,

@@ -182,6 +182,10 @@ export const KIND_BONUS = 1000
 export const PAD_EVERY = 45
 /** Autumn leaves can be blown one cell sideways every three seconds. */
 export const LEAF_GUST_TICKS = 180
+export const CROW_EVERY = 360
+export const CROW_TELL_TICKS = 45
+export const CROW_SWOOP_TICKS = 70
+export const CROW_POINTS = 700
 export const PUMPKIN_HP = 8
 export const GIANT_PUMPKIN_HP = 24
 export const ROLLER_HP = 4
@@ -388,6 +392,15 @@ type Pumpkin = {
 type Inchworm = { x: number; y: number; vx: number }
 type Snowball = { x: number; y: number; hp: number; vy: number }
 type FrostSprite = { x: number; y: number; vx: number }
+type CrowBot = {
+  x: number
+  y: number
+  startX: number
+  startY: number
+  target: Flower
+  phase: 'tell' | 'swoop' | 'exit'
+  ticks: number
+}
 type FrostSegment = { slot: number; x: number; y: number; thawed: boolean }
 type FrostRay = { x: number; y: number; tx: number; ty: number; ticks: number }
 type MoleBot = { x: number; y: number; phase: 'tell' | 'up'; ticks: number }
@@ -825,6 +838,8 @@ class GlitchGarden implements ArcadeGameInstance {
   private padShift = 0
   private leafPiles: Array<{ col: number; row: number }> = []
   private leafGust = LEAF_GUST_TICKS
+  private crow: CrowBot | null = null
+  private crowTimer = CROW_EVERY
   private leafWind: 1 | -1 = 1
   private rakedLeaves = 0
   private pumpkins: Pumpkin[] = []
@@ -1213,6 +1228,72 @@ class GlitchGarden implements ArcadeGameInstance {
     }
   }
 
+  private updateCrow() {
+    if (this.garden.id !== 'leaf-pile-lane' || this.wave.leaves < 5) return
+    if (!this.crow) {
+      if (--this.crowTimer > 0) return
+      this.crowTimer = CROW_EVERY
+      if (!this.flowers.length) return
+      const target = this.flowers[Math.floor(this.rng() * this.flowers.length)]!
+      const x = target.col < COLS / 2 ? W - 8 : 8
+      const y = HUD + 16
+      this.crow = {
+        x,
+        y,
+        startX: x,
+        startY: y,
+        target,
+        phase: 'tell',
+        ticks: CROW_TELL_TICKS,
+      }
+      this.sound.play('warn')
+      return
+    }
+    const crow = this.crow
+    if (crow.phase === 'tell') {
+      if (--crow.ticks <= 0) {
+        crow.phase = 'swoop'
+        crow.ticks = CROW_SWOOP_TICKS
+      }
+      return
+    }
+    if (crow.phase === 'swoop') {
+      const progress = 1 - --crow.ticks / CROW_SWOOP_TICKS
+      const x = crow.target.col * CELL + CELL / 2
+      const y = HUD + crow.target.row * CELL + CELL / 2
+      crow.x = crow.startX + (x - crow.startX) * progress
+      crow.y = crow.startY + (y - crow.startY) * progress
+      if (crow.ticks > 0) return
+      if (this.flowers.includes(crow.target)) {
+        this.flowers = this.flowers.filter((f) => f !== crow.target)
+        this.banner = {
+          text: 'PRISM PLUCKED!',
+          sub: 'FIX THE CROW DURING ITS SWOOP',
+          ticks: 80,
+        }
+        this.sound.play('warn')
+      }
+      crow.phase = 'exit'
+      return
+    }
+    crow.y -= 3
+    crow.x += crow.startX < W / 2 ? 2 : -2
+    if (crow.y < HUD - 8 || crow.x < -8 || crow.x > W + 8) this.crow = null
+  }
+
+  private hitCrow(x: number, y: number): boolean {
+    const crow = this.crow
+    if (!crow || crow.phase !== 'swoop') return false
+    if (Math.hypot(crow.x - x, crow.y - y) > 7) return false
+    this.crow = null
+    this.crowTimer = CROW_EVERY
+    this.registerHit()
+    this.addScore(CROW_POINTS * this.multiplier, x, y)
+    this.burst(x, y, 10, RAMPS.gold[3])
+    this.sound.play('extra')
+    return true
+  }
+
   /** A leaf absorbs the first spray so the player must rake a lane clear. */
   private hitLeaf(col: number, row: number): boolean {
     const index = this.leafPiles.findIndex(
@@ -1494,6 +1575,8 @@ class GlitchGarden implements ArcadeGameInstance {
     this.kindLost = false
     this.sprayersLost = 0
     this.rakedLeaves = 0
+    this.crow = null
+    this.crowTimer = CROW_EVERY
     this.leafGust = LEAF_GUST_TICKS
     this.leafWind = plan.leaves > 0 ? (this.rng() < 0.5 ? 1 : -1) : 1
     this.plantLeaves(plan.leaves, plan.objective?.kind === 'clear-leaves')
@@ -1742,6 +1825,7 @@ class GlitchGarden implements ArcadeGameInstance {
     }
     this.updateBeams()
     this.updateLeaves()
+    this.updateCrow()
     this.updateFrost()
     this.updateFrostSprite()
     this.updateSnowballs()
@@ -1970,6 +2054,7 @@ class GlitchGarden implements ArcadeGameInstance {
       if (this.hitFrostMillipede(beam.x, beam.y)) return false
       if (this.hitMole(beam.x, beam.y)) return false
       if (this.hitLeaf(col, row)) return false
+      if (this.hitCrow(beam.x, beam.y)) return false
       // A bee bot in the way soaks up the spray (and the wave's Kind bonus with it).
       if (this.sprayBee(beam.x, beam.y)) return false
       const worm = this.hitWorm(beam.x, beam.y, beam.powers.includes('cyan'))
@@ -3257,6 +3342,8 @@ class GlitchGarden implements ArcadeGameInstance {
     this.snail = null
     this.dragonflies = []
     this.bees = []
+    this.crow = null
+    this.crowTimer = CROW_EVERY
     this.frostSprite = null
     this.frostSpriteTimer = FROST_SPRITE_EVERY
     this.plantSnowballs(
@@ -3411,6 +3498,7 @@ class GlitchGarden implements ArcadeGameInstance {
     if (hydraHead) target = hydraHead
     if (this.snowballs.length) target = this.snowballs[0]!
     if (this.frostSprite) target = this.frostSprite
+    if (this.crow?.phase === 'swoop') target = this.crow
     if (this.boss?.id === 'frost-millipede' && !this.boss.defeated) {
       const part = this.frostMillipede.find((s) => s.thawed)
       const heater = layoutCells(this.garden, LAYOUT_HEATER)[1]
@@ -3498,6 +3586,7 @@ class GlitchGarden implements ArcadeGameInstance {
       }
     for (const a of this.apples) drawHd(g, APPLE_SPRITE, a.x, a.y)
     this.renderLeaves(g)
+    this.renderCrow(g)
     this.renderPumpkins(g)
     this.renderInchworms(g)
     this.renderSnowballs(g)
@@ -3652,6 +3741,23 @@ class GlitchGarden implements ArcadeGameInstance {
         g.fillRect(x + dx, y + dy, 3, 2)
       }
     }
+  }
+
+  private renderCrow(g: CanvasRenderingContext2D) {
+    const crow = this.crow
+    if (!crow) return
+    if (crow.phase === 'tell') {
+      const x = crow.target.col * CELL + CELL / 2
+      const y = HUD + crow.target.row * CELL + CELL / 2
+      g.strokeStyle = RAMPS.gold[4]
+      g.strokeRect(x - 6, y - 6, 12, 12)
+      glow(g, x, y, 12, RAMPS.gold[3], 0.45)
+    }
+    const frame = Math.floor(this.tick / 6) % 2
+    drawHd(g, MOTH_SPRITES[frame]!, crow.x, crow.y, {
+      flipX: crow.startX > W / 2,
+    })
+    glow(g, crow.x, crow.y, 10, RAMPS.ember[3], 0.45)
   }
 
   private renderMole(g: CanvasRenderingContext2D) {

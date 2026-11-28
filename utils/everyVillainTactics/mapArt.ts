@@ -60,6 +60,14 @@ export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   'grandmas-password': 265015,
   'museum-of-tomorrow': 265019,
   'edited-rescue': 265023,
+  'refuge-in-orbit': 265018,
+  'treaty-in-the-clouds': 265022,
+  'museum-that-moved': 265019,
+  'song-for-the-drowned': 265022,
+  'orders-from-home': 265014,
+  'small-future': 265017,
+  'missing-coronation': 265015,
+  'everyone-inside': 265015,
   ...verifiedArenaImageIds,
 }
 

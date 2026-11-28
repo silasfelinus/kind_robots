@@ -359,6 +359,14 @@ export const ORIGIN_STAGE_LEADS: Readonly<Record<string, string>> = {
   'grandmas-password': 'tech-genius',
   'museum-of-tomorrow': 'tech-birthright',
   'edited-rescue': 'tech-social',
+  'refuge-in-orbit': 'alien-fire',
+  'treaty-in-the-clouds': 'alien-air',
+  'museum-that-moved': 'alien-earth',
+  'song-for-the-drowned': 'alien-water',
+  'orders-from-home': 'alien-discipline',
+  'small-future': 'alien-genius',
+  'missing-coronation': 'alien-birthright',
+  'everyone-inside': 'alien-social',
 }
 export const canStartOneShot = (stageId: string, lead: string): boolean =>
   !ORIGIN_STAGE_LEADS[stageId] || ORIGIN_STAGE_LEADS[stageId] === lead
@@ -528,6 +536,46 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     id: 'edited-rescue',
     art: 'districts/media-spire',
     tag: 'Witness origin · Trace the missing camera angle from the public livestream console',
+  },
+  {
+    id: 'refuge-in-orbit',
+    art: 'districts/industrial-foundry',
+    tag: 'Daystar origin · Shape a solar shield around the failing sail without burning the hull',
+  },
+  {
+    id: 'treaty-in-the-clouds',
+    art: 'incidents/skybridge',
+    tag: 'The Envoy origin · Translate the pressure-wave treaty at the floating relay',
+  },
+  {
+    id: 'museum-that-moved',
+    art: 'districts/labor-museum',
+    tag: 'Monolith origin · Read the mineral memories and raise an escape passage at the plinth',
+  },
+  {
+    id: 'song-for-the-drowned',
+    art: 'districts/waterfront-market',
+    tag: "Lighthouse origin · Redirect the tide using controlled harmony at the pontoon's acoustic beacon",
+  },
+  {
+    id: 'orders-from-home',
+    art: 'districts/student-commons',
+    tag: "Zuzu origin · Sever the command relay's capture net without touching the captives",
+  },
+  {
+    id: 'small-future',
+    art: 'districts/engineering-workshop',
+    tag: 'Uplift origin · Recalibrate the confiscation device from the diagnostic terminal',
+  },
+  {
+    id: 'missing-coronation',
+    art: 'districts/student-commons',
+    tag: 'The Exile origin · Open the royal gateway without binding anyone to the crown',
+  },
+  {
+    id: 'everyone-inside',
+    art: 'districts/student-commons',
+    tag: 'Assembly origin · Offer a reversible empathic link at the counseling table, with an explicit opt-out',
   },
   {
     id: 'college-quad',

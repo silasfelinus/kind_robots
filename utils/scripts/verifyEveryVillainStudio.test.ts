@@ -25,7 +25,7 @@ import {
   walkScene,
 } from '../everyVillainTactics/sceneGraph'
 
-assert.equal(STAGE_PRESETS.length, 45)
+assert.equal(STAGE_PRESETS.length, 53)
 assert.ok(STAGE_PRESETS.some((stage) => stage.id === 'hydrant-blue'))
 assert.ok(
   STAGE_PRESETS.some((stage) => stage.id === 'song-that-stopped'),
@@ -228,6 +228,62 @@ for (const [stageId, lead, prefix, flagA, flagB] of [
     'museum',
     'museum-choice-a',
     'museum-choice-b',
+  ],
+  [
+    'refuge-in-orbit',
+    'alien-fire',
+    'orbit',
+    'orbit-choice-a',
+    'orbit-choice-b',
+  ],
+  [
+    'treaty-in-the-clouds',
+    'alien-air',
+    'treaty',
+    'treaty-choice-a',
+    'treaty-choice-b',
+  ],
+  [
+    'museum-that-moved',
+    'alien-earth',
+    'fossil',
+    'fossil-choice-a',
+    'fossil-choice-b',
+  ],
+  [
+    'song-for-the-drowned',
+    'alien-water',
+    'tide',
+    'tide-choice-a',
+    'tide-choice-b',
+  ],
+  [
+    'orders-from-home',
+    'alien-discipline',
+    'warrant',
+    'warrant-choice-a',
+    'warrant-choice-b',
+  ],
+  [
+    'small-future',
+    'alien-genius',
+    'future',
+    'future-choice-a',
+    'future-choice-b',
+  ],
+  [
+    'missing-coronation',
+    'alien-birthright',
+    'crown',
+    'crown-choice-a',
+    'crown-choice-b',
+  ],
+  [
+    'everyone-inside',
+    'alien-social',
+    'hive',
+    'hive-choice-a',
+    'hive-choice-b',
   ],
   ['edited-rescue', 'tech-social', 'edit', 'edit-choice-a', 'edit-choice-b'],
 ] as const) {

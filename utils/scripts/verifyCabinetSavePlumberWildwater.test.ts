@@ -163,7 +163,7 @@ assert.equal(resumed.wildwaterActive, false)
 assert.equal(
   readPlumberFile({
     ...saved,
-    slots: [{ ...saved.slots[0], pearls: ['invalid', '1-3'] }],
+    slots: [{ ...saved.slots[0], pearls: ['invalid', '1-4'] }],
   }).slots[0]?.pearls,
   undefined,
 )
@@ -240,3 +240,68 @@ assert.deepEqual(
   ['1-1', '1-2'],
 )
 console.log('Save the Plumber Overgrowth bloom chain: OK')
+
+const meterDef = CAMPAIGN.find((course) => course.code === '1-3')!
+const backward = meterDef.wildwater!
+assert.equal(backward.name, 'Meter Runs Backward')
+const meter = new PlumberRun(options, { customLevel: meterDef })
+frame(meter)
+const lift = meter.platforms.find((platform) => platform.kind === 'lift')!
+assert.ok(lift)
+walkTo(meter, 9)
+frame(meter, [], ['down'])
+assert.ok(meter.activePipeRoom)
+walkTo(meter, backward.tap.col)
+const activation = meter.tick + 1
+const oldAt = meter.platformAt(lift, activation)
+const oldBefore = meter.platformAt(lift, activation - 10)
+const oldAfter = meter.platformAt(lift, activation + 10)
+frame(meter, [], ['x'])
+assert.equal(meter.wildwaterActive, true)
+assert.deepEqual(meter.platformAt(lift, activation), oldAt)
+assert.deepEqual(meter.platformAt(lift, activation + 10), oldBefore)
+assert.notEqual(oldAfter.x, oldBefore.x)
+walkTo(meter, 38)
+frame(meter, [], ['down'])
+assert.equal(meter.activePipeRoom, undefined)
+for (let i = 0; i < 8; i++) frame(meter)
+jumpTo(meter, 9, 18)
+jumpTo(meter, 11, 15)
+
+for (let i = 0; i < 120; i++) {
+  const future = meter.platformAt(lift, meter.tick + 1)
+  const target = future.x + lift.w / 2
+  const error = target - meter.hero.x - meter.hero.vx * 5
+  const held: ArcadeButton[] = ['a']
+  if (error > 3) held.push('right')
+  if (error < -3) held.push('left')
+  frame(meter, held, i === 0 ? ['a'] : [])
+  assert.equal(meter.mode, 'play')
+  if (meter.ground && Math.abs(meter.hero.y + HERO_TALL - lift.y) < 0.1)
+    break
+}
+assert.ok(meter.ground)
+assert.equal(meter.hero.y + HERO_TALL, lift.y)
+for (let i = 0; i < 300 && meter.hero.x > 120; i++) {
+  frame(meter)
+  assert.equal(meter.mode, 'play')
+  assert.ok(meter.ground, 'the reversing lift carries its rider')
+}
+assert.ok(meter.hero.x <= 120, 'lift reaches the left-hand return path')
+jumpTo(meter, 4, 9)
+for (let i = 0; i < 100 && meter.wildwaterActive; i++)
+  frame(meter, ['left'])
+assert.ok(meter.pearls.has('1-3'))
+assert.equal(meter.wildwaterActive, false)
+for (const step of backward.steps)
+  assert.equal(meter.solidAt(step.from, step.row), 0)
+assert.ok(Math.abs(lift.x - meter.platformAt(lift, meter.tick).x) < 0.1)
+assert.equal(meter.save, undefined)
+assert.deepEqual(
+  readPlumberFile({
+    ...saved,
+    slots: [{ ...saved.slots[0], pearls: ['1-1', '1-2', '1-3'] }],
+  }).slots[0]?.pearls,
+  ['1-1', '1-2', '1-3'],
+)
+console.log('Save the Plumber Meter Runs Backward: OK')

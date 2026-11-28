@@ -713,6 +713,8 @@ export class PlumberRun implements ArcadeGameInstance {
   private wildwaterSpent = false
   private wildwater: StageDef['wildwater']
   private wildwaterCells = new Set<number>()
+  private liftReverseAt: number | null = null
+  private liftPhaseOffset = 0
   /** The boss's latest line, shown under the HUD bar until its timer runs out. */
   bossLine: { words: string; timer: number } | null = null
   /** The power the heroine carries; a hit costs it instead of a heart. */
@@ -1436,6 +1438,8 @@ export class PlumberRun implements ArcadeGameInstance {
     this.wildwaterActive = false
     this.wildwaterSpent = false
     this.wildwaterCells.clear()
+    this.liftReverseAt = null
+    this.liftPhaseOffset = 0
     this.inactiveSwitchBlocks.clear()
     if (!this.customLevel && !this.endless && !this.autopilot) {
       for (const block of def.switchBlocks ?? []) {
@@ -3647,6 +3651,7 @@ export class PlumberRun implements ArcadeGameInstance {
     if (Math.abs(this.hero.x - x) > 12 || Math.abs(this.hero.y + TALL - y) > 3)
       return false
     this.wildwaterActive = true
+    if (wild.reverseLifts) this.liftReverseAt = this.tick
     for (const step of wild.steps) {
       for (let col = step.from; col <= step.to; col++) {
         if (this.solidAt(col, step.row)) continue
@@ -3659,6 +3664,10 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   private stopWildwater() {
+    if (this.liftReverseAt !== null) {
+      this.liftPhaseOffset += 2 * (this.liftReverseAt - this.tick)
+      this.liftReverseAt = null
+    }
     for (const cell of this.wildwaterCells) this.solid[cell] = 0
     this.wildwaterCells.clear()
     this.wildwaterActive = false
@@ -5300,8 +5309,11 @@ export class PlumberRun implements ArcadeGameInstance {
         x: p.baseX,
         y: p.baseY + 64 * (0.5 - 0.5 * Math.cos((t * Math.PI * 2) / 220)),
       }
+    const phase =
+      (this.liftReverseAt === null ? t : 2 * this.liftReverseAt - t) +
+      this.liftPhaseOffset
     return {
-      x: p.baseX + p.sign * 80 * Math.sin((t * Math.PI * 2) / 280),
+      x: p.baseX + p.sign * 80 * Math.sin((phase * Math.PI * 2) / 280),
       y: p.baseY,
     }
   }

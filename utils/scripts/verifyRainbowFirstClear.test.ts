@@ -189,8 +189,10 @@ for (const { players, seed } of [
       [1, 2, 3],
       `${players} pilots see every ${key} phase`,
     )
+    // A real fight, not a melt: 30 s until gameplay critic r2 G3 nearly doubled the default Petal Wing's gun
+    // (it had half the others' damage), which brought the scripted crews' B01 under it.
     assert.ok(
-      fight.frames >= 30 * 60,
+      fight.frames >= 20 * 60,
       `${players} pilots fight ${key} for ${(fight.frames / 60).toFixed(0)}s`,
     )
   }

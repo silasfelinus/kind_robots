@@ -217,6 +217,7 @@ function seeded(seed = 1234) {
   }
 }
 const summary: string[] = []
+const seenByAny = { phantom: 0, split: 0, bolt: 0, bubble: 0, prismFan: 0 }
 for (const players of [1, 2]) {
   const create = () =>
     createRainbowPrincessPreview({
@@ -342,9 +343,9 @@ for (const players of [1, 2]) {
   )
   assert.equal(a.snapshot.guardians[7], 'defeated')
   const minutes = (cleared - entered + 1 + GLASS.aftermathFrames) / 3600
+  for (const [what, count] of Object.entries(seen))
+    seenByAny[what as keyof typeof seen] += count
   if (players === 1) {
-    for (const [what, count] of Object.entries(seen))
-      assert.ok(count > 0, `the solo run saw a ${what}`)
     assert.ok(
       minutes >= 3.5 && minutes <= 7, // t-023's recut aims at 4-6 (10-15 before Silas's 2026-10-17 playtest)
       `a clean solo Act VII takes ${minutes.toFixed(2)} minutes`,
@@ -356,6 +357,10 @@ for (const players of [1, 2]) {
   )
   console.log(`  ${players}p: ${JSON.stringify(seen)}`)
 }
+// Every craft's mechanic shows in a flown Act VII. Since Petal Wing's gun was retuned (gameplay critic r2 G3) the
+// solo demo can down a craft before it fires, so the solo and pair runs share the duty.
+for (const [what, count] of Object.entries(seenByAny))
+  assert.ok(count > 0, `a flown Act VII saw a ${what}`)
 
 console.log(
   `rainbow Glass Current: ok (${summary.join('; ')}; director, craft, echo, navigator, Glass Eel telegraphs, phantoms)`,

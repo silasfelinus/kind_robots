@@ -503,6 +503,17 @@ const POPUP_FRAMES = 50
 /** Frames before the continue/new menu takes an A press. */
 const RESUME_MENU_GRACE = 20
 /**
+ * Frames between unfocused volleys, by pilot. Petal Wing (the default ship) and Halo Fin once shared Prism's 11
+ * with half its damage, so a new solo pilot flew the weakest gun (gameplay critic r2 G3).
+ */
+const HALO_FIRE_FRAMES = 7
+export const UNFOCUSED_FIRE_FRAMES: readonly number[] = [
+  6,
+  11,
+  HALO_FIRE_FRAMES,
+  7,
+]
+/**
  * Act I after Silas's first playtest: tougher craft (urchins take a real beating), and craft that keep
  * firing while they cross the screen, every this many frames at Pilot (slower for a Cadet, faster for an Ace).
  */
@@ -3550,7 +3561,7 @@ export function createRainbowPrincessPreview(
     const damage = kind === 1 ? 2 : 1
     shots.push({ x: ship.x + 15, y: ship.y, vx: speed, vy: 0, seat, damage })
     if (!ship.focus && power >= 2) {
-      const spread = kind === 0 ? 1.8 : 1.1
+      const spread = kind === 0 ? 1.4 : 1.1
       shots.push({
         x: ship.x + 12,
         y: ship.y - 3,
@@ -3568,7 +3579,12 @@ export function createRainbowPrincessPreview(
         damage: 1,
       })
     }
-    if (power >= 3 && (kind === 2 || kind === 3)) {
+    // Halo Fin's side guns join every other volley (gameplay critic r2 G3: with her faster main gun, all
+    // five streams every volley made her the strongest ship at full power as well as the support).
+    const sideGuns =
+      kind === 3 ||
+      (kind === 2 && tick % (2 * HALO_FIRE_FRAMES) < HALO_FIRE_FRAMES)
+    if (power >= 3 && (kind === 2 || kind === 3) && sideGuns) {
       shots.push({
         x: ship.x + 10,
         y: ship.y - 10,
@@ -3586,7 +3602,7 @@ export function createRainbowPrincessPreview(
         damage: 1,
       })
     }
-    ship.cooldown = ship.focus ? 8 : kind === 3 ? 7 : 11
+    ship.cooldown = UNFOCUSED_FIRE_FRAMES[kind] ?? 11
   }
 
   /** X: the pilot's special, on its cooldown. */

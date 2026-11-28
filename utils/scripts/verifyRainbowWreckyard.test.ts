@@ -295,7 +295,13 @@ for (const players of [1, 2]) {
           })),
           'lives, shields and power carry into Act V',
         )
-        assert.equal(after.score, before.score)
+        // The score carries over; an X2 flight that brings its whole cadet wing home adds the FULL WING
+        // bonus on the frame Act V opens (the solo demo does since Petal Wing's gun was retuned, r2 G3).
+        const bonus = after.score - before.score
+        assert.ok(
+          bonus === 0 || (before.act === 'X2' && bonus === 3000),
+          `the score carries into Act V (+${bonus} from ${before.act})`,
+        )
         assert.equal(a.level, 5)
       }
       if (

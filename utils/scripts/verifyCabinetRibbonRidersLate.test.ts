@@ -14,7 +14,11 @@ import type {
   ClockworkConductor,
   LoomSpinner,
 } from '../arcade/ribbonRiders/lateMarshals'
-import { makeMarshal, type MarshalHost, type Marshal } from '../arcade/ribbonRiders/marshals'
+import {
+  makeMarshal,
+  type MarshalHost,
+  type Marshal,
+} from '../arcade/ribbonRiders/marshals'
 import { RIVALS } from '../arcade/ribbonRiders/rivals'
 import { readFestivalSave, newKit, SHOP } from '../arcade/ribbonRiders/festival'
 import type { FestivalSave } from '../arcade/ribbonRiders/festival'
@@ -413,7 +417,16 @@ console.log('ribbon riders late circuit and Grand Marshals: ok')
 // checkpoint paths, with deterministic staging of actors (not a free-running bot).
 // No direct writes to cleared, wrappedCount, defeated, trophy or credit flags.
 {
-  type Bike = { id: number; seat: number; kind: string | null; x: number; y: number; alive: boolean; bugs: number; arch: number }
+  type Bike = {
+    id: number
+    seat: number
+    kind: string | null
+    x: number
+    y: number
+    alive: boolean
+    bugs: number
+    arch: number
+  }
   type Campaign = {
     menu: { kind: string; cursor: number } | null
     titleChoices: string[]
@@ -431,12 +444,12 @@ console.log('ribbon riders late circuit and Grand Marshals: ok')
     roundClear: number
     arches: number[][]
     outline: number[]
-    bugs: Array<{x: number; y: number; vx: number; vy: number}>
+    bugs: Array<{ x: number; y: number; vx: number; vy: number }>
     goldenBows: string[]
     trueEnding: boolean
     encore: boolean
     save: FestivalSave | null
-    arena: {spec: {tier?: number}}
+    arena: { spec: { tier?: number } }
     score: number
     lives: number
     update(input: ReturnType<typeof emptyInput>): void
@@ -447,20 +460,31 @@ console.log('ribbon riders late circuit and Grand Marshals: ok')
     paintDyn(): void
     updateBugs(): void
   }
-  const run = (resume?: FestivalSave) => create({
-    rng: mulberry32(2026), sound: {play: () => {}}, demo: false, hiScore: 0,
-    selectScreen: true, resume,
-  }) as unknown as Campaign
+  const run = (resume?: FestivalSave) =>
+    create({
+      rng: mulberry32(2026),
+      sound: { play: () => {} },
+      demo: false,
+      hiScore: 0,
+      selectScreen: true,
+      resume,
+    }) as unknown as Campaign
   const press = (g: Campaign, key: 'a' | 'right' | 'down') => {
     for (let n = 0; n < 10; n++) g.update(emptyInput())
     const input = emptyInput()
     input.pressed[key] = true
     g.update(input)
   }
-  const choose = (g: Campaign, options: string[], id: string, direction: 'right' | 'down') => {
+  const choose = (
+    g: Campaign,
+    options: string[],
+    id: string,
+    direction: 'right' | 'down',
+  ) => {
     const index = options.indexOf(id)
     assert.ok(index >= 0, `missing menu option ${id}`)
-    for (let n = 0; g.menu!.cursor !== index && n < options.length; n++) press(g, direction)
+    for (let n = 0; g.menu!.cursor !== index && n < options.length; n++)
+      press(g, direction)
     assert.equal(g.menu!.cursor, index)
     press(g, 'a')
   }
@@ -469,7 +493,13 @@ console.log('ribbon riders late circuit and Grand Marshals: ok')
     g.giftWrap(g.player, cells)
   }
   const rivals = (g: Campaign, onlyPonies = false) => {
-    for (const b of g.bikes.filter(b => b.alive && b.seat < 0 && b.kind !== 'lanternKid' && (!onlyPonies || b.kind === 'pony'))) {
+    for (const b of g.bikes.filter(
+      (b) =>
+        b.alive &&
+        b.seat < 0 &&
+        b.kind !== 'lanternKid' &&
+        (!onlyPonies || b.kind === 'pony'),
+    )) {
       wrap(g, [idx(b.x, b.y)])
       assert.equal(b.alive, false)
     }
@@ -488,22 +518,27 @@ console.log('ribbon riders late circuit and Grand Marshals: ok')
           }
         }
         g.paintDyn()
-        const target = m.kind === 'loom' && m.phase === 3
-          ? ((m as LoomSpinner).threadKnots()[0] ?? m.targets())
-          : m.targets()
+        const target =
+          m.kind === 'loom' && m.phase === 3
+            ? ((m as LoomSpinner).threadKnots()[0] ?? m.targets())
+            : m.targets()
         wrap(g, target)
       }
     }
     assert.ok(m.defeated, `${m.kind}: all phases captured`)
   }
   const complete = (g: Campaign, id: string) => {
-    const fair = g.fair === SECRET_FAIR_INDEX ? RAINBOW_SPOOL : FAIRGROUNDS[g.fair]!
+    const fair =
+      g.fair === SECRET_FAIR_INDEX ? RAINBOW_SPOOL : FAIRGROUNDS[g.fair]!
     choose(g, openEvents(fair, g.cleared), id, 'right')
     assert.equal(g.node?.id, id)
     g.ready = 0
     const a = g.node!
     switch (a.objective) {
-      case 'last': case 'giftwrap': rivals(g); break
+      case 'last':
+      case 'giftwrap':
+        rivals(g)
+        break
       case 'glowbug':
         for (let n = 0; g.player.bugs < a.glowbugs!.target && n < 100; n++) {
           g.updateBugs()
@@ -526,11 +561,13 @@ console.log('ribbon riders late circuit and Grand Marshals: ok')
         rivals(g)
         // Cross all 38 columns, letting the real collision check see each.
         for (let n = 0; n <= 37; n++) {
-          g.timeLeft = Math.max(0, a.limit! - Math.ceil(n * a.limit! / 37))
+          g.timeLeft = Math.max(0, a.limit! - Math.ceil((n * a.limit!) / 37))
           g.checkRoundOver()
         }
         break
-      case 'marshal': boss(g); break
+      case 'marshal':
+        boss(g)
+        break
     }
     if (!g.roundClear) g.checkRoundOver()
     assert.ok(g.roundClear > 0, `${fair.id}/${id}: objective cleared`)
@@ -550,7 +587,12 @@ console.log('ribbon riders late circuit and Grand Marshals: ok')
       for (const id of route) complete(g, id)
       assert.equal(g.menu?.kind, 'shop')
       assert.equal(g.goldenBows.length, g.encore ? 4 : fair + 1)
-      choose(g, SHOP.map(s => s.id), 'leave', 'down')
+      choose(
+        g,
+        SHOP.map((s) => s.id),
+        'leave',
+        'down',
+      )
       if (fair < 3) {
         assert.equal(g.menu?.kind, 'board')
         assert.equal(g.save?.fair, fair + 1)
@@ -566,7 +608,9 @@ console.log('ribbon riders late circuit and Grand Marshals: ok')
   assert.equal(game.trueEnding, false)
   assert.equal(game.goldenBows.length, 4)
   press(game, 'a')
-  assert.ok(game.titleChoices.includes('spool') && game.titleChoices.includes('encore'))
+  assert.ok(
+    game.titleChoices.includes('spool') && game.titleChoices.includes('encore'),
+  )
   const restored = run(JSON.parse(JSON.stringify(game.save)))
   choose(restored, restored.titleChoices, 'spool', 'right')
   assert.equal(restored.fair, SECRET_FAIR_INDEX)
@@ -578,14 +622,25 @@ console.log('ribbon riders late circuit and Grand Marshals: ok')
   choose(restored, restored.titleChoices, 'encore', 'right')
   assert.equal(restored.encore, true)
   tour(restored)
-  assert.equal(restored.save?.trueChampion, true, 'Encore preserves the true trophy')
+  assert.equal(
+    restored.save?.trueChampion,
+    true,
+    'Encore preserves the true trophy',
+  )
   assert.ok(restored.score > 0)
-  console.log('ribbon riders scripted campaign: 16 events, 5 secret events, 16 Encore events, all 12 Marshal fights, 4 bows and both endings')
+  console.log(
+    'ribbon riders scripted campaign: 16 events, 5 secret events, 16 Encore events, all 12 Marshal fights, 4 bows and both endings',
+  )
 }
 
 // A saturated arena cannot spawn a glowbug; the game must return instead of looping.
 {
-  const game = create({rng: mulberry32(1), sound: {play: () => {}}, demo: false, hiScore: 0}) as unknown as {
+  const game = create({
+    rng: mulberry32(1),
+    sound: { play: () => {} },
+    demo: false,
+    hiScore: 0,
+  }) as unknown as {
     playArena(a: (typeof FAIRGROUNDS)[number]['arenas'][number]): void
     cells: Uint8Array
     bugs: unknown[]

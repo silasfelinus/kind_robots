@@ -53,7 +53,12 @@ export type ArenaSpec = {
   /** Edges that wrap round: ride off one side, come in on the other. */
   wrap?: { x?: boolean; y?: boolean }
   /** The closing wall: a cell in from every side each `every` ticks, to `max`; null for none. */
-  shrink?: { every: number; max: number; shape?: 'spiral'; mirrorSpiral?: boolean } | null
+  shrink?: {
+    every: number
+    max: number
+    shape?: 'spiral'
+    mirrorSpiral?: boolean
+  } | null
   portals?: readonly (readonly [
     readonly [number, number],
     readonly [number, number],

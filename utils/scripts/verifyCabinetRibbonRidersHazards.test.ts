@@ -91,7 +91,10 @@ for (const a of [
   if (a.shrink?.shape === 'spiral') {
     const original = buildArena(a)
     for (let i = 0; i < GRID * GRID; i++) {
-      assert.equal(mirrored.spiralRank[idx(GRID - 1 - (i % GRID), Math.floor(i / GRID))], original.spiralRank[i])
+      assert.equal(
+        mirrored.spiralRank[idx(GRID - 1 - (i % GRID), Math.floor(i / GRID))],
+        original.spiralRank[i],
+      )
     }
   }
   for (const [p, q] of a.portals ?? []) {

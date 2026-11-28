@@ -1136,7 +1136,11 @@ class RibbonRiders implements ArcadeGameInstance {
           b.conveyorSteps = 0
           const dir = ((t -
             T.CONVEYOR +
-            (this.marshal?.kind === 'conductor' && this.marshal.phase === 2 && this.beat % 2 ? 2 : 0)) %
+            (this.marshal?.kind === 'conductor' &&
+            this.marshal.phase === 2 &&
+            this.beat % 2
+              ? 2
+              : 0)) %
             4) as Dir
           const shift = this.next(nx, ny, dir)
           if (
@@ -2512,7 +2516,11 @@ class RibbonRiders implements ArcadeGameInstance {
       if (isConveyor(t)) {
         const d = ((t -
           T.CONVEYOR +
-          (this.marshal?.kind === 'conductor' && this.marshal.phase === 2 && this.beat % 2 ? 2 : 0)) %
+          (this.marshal?.kind === 'conductor' &&
+          this.marshal.phase === 2 &&
+          this.beat % 2
+            ? 2
+            : 0)) %
           4) as Dir
         g.fillStyle = rgba(RAMPS.teal[3], 0.45)
         g.fillRect(x, y, CELL, CELL)

@@ -913,7 +913,7 @@ export const FROST_FRAME_GREENHOUSE: Garden = {
     wave({
       segments: 9,
       heads: 5,
-      speed: 2.8,
+      speed: 2.9,
       beetleEvery: 390,
       moth: true,
       snail: true,
@@ -928,7 +928,7 @@ export const FROST_FRAME_GREENHOUSE: Garden = {
     wave({
       segments: 8,
       heads: 6,
-      speed: 2.92,
+      speed: 2.98,
       beetleEvery: 372,
       moth: true,
       snail: true,
@@ -943,7 +943,7 @@ export const FROST_FRAME_GREENHOUSE: Garden = {
     wave({
       segments: 7,
       heads: 7,
-      speed: 3.04,
+      speed: 3.06,
       beetleEvery: 354,
       moth: true,
       snail: true,
@@ -1048,7 +1048,7 @@ export const SNOWBALL_HILL: Garden = {
     wave({
       segments: 9,
       heads: 5,
-      speed: 2.8,
+      speed: 3,
       beetleEvery: 390,
       moth: true,
       snail: true,
@@ -1063,7 +1063,7 @@ export const SNOWBALL_HILL: Garden = {
     wave({
       segments: 8,
       heads: 6,
-      speed: 2.92,
+      speed: 3.08,
       beetleEvery: 372,
       moth: true,
       snail: true,
@@ -1079,7 +1079,7 @@ export const SNOWBALL_HILL: Garden = {
     wave({
       segments: 7,
       heads: 7,
-      speed: 3.04,
+      speed: 3.16,
       beetleEvery: 354,
       moth: true,
       snail: true,
@@ -1106,7 +1106,7 @@ export const SNOWBALL_HILL: Garden = {
     wave({
       segments: 7,
       heads: 7,
-      speed: 3.16,
+      speed: 3.24,
       beetleEvery: 336,
       moth: true,
       snail: true,
@@ -1122,7 +1122,7 @@ export const SNOWBALL_HILL: Garden = {
     wave({
       segments: 7,
       heads: 7,
-      speed: 3.28,
+      speed: 3.34,
       beetleEvery: 318,
       moth: true,
       snail: true,

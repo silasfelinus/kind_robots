@@ -656,6 +656,66 @@ export function encoreArena(a: FairArena): FairArena {
   }
 }
 
+/** The hidden fifth fairground is separate from the four standard campaign acts. */
+export const SECRET_FAIR_INDEX = FAIRGROUNDS.length
+
+const SPOOL_PHASES = ['keeper', 'swan', 'conductor', 'loom'] as const
+const spoolRematches: FairArena[] = FAIRGROUNDS.map((fair, i) => {
+  const source = fair.arenas.find((a) => a.marshal)!
+  const phase = SPOOL_PHASES[i]!
+  return {
+    ...encoreArena(source),
+    id: `spool-${phase}`,
+    name: `ECHO ${i + 1}: ${source.name.replace('THE ', '')}`,
+    at: [i % 2 === 0 ? 74 : 214, 218 - Math.floor(i / 2) * 64],
+    next: [
+      i + 1 < SPOOL_PHASES.length
+        ? `spool-${SPOOL_PHASES[i + 1]}`
+        : 'spool-itself',
+    ],
+    intro: 'THE SPOOL REMEMBERS EVERY MARSHAL',
+  }
+})
+
+export const RAINBOW_SPOOL: Fairground = {
+  id: 'rainbow-spool',
+  name: 'THE RAINBOW SPOOL',
+  tagline: 'FOUR ECHOES. ONE FINAL DUEL.',
+  music: FROSTLIGHT_MUSIC,
+  sky: ['#140c34', '#442470', '#8b43a6'],
+  string: '#f9a8d4',
+  arenas: [
+    ...spoolRematches,
+    {
+      id: 'spool-itself',
+      name: 'THE SPOOL ITSELF',
+      floor: 'violet',
+      wrap: { x: true },
+      ribbonLifetime: S * 6,
+      features: [
+        { kind: 'snow', x: 12, y: 16, w: 2, h: 3 },
+        { kind: 'ice', x: 32, y: 16, w: 5, h: 5 },
+        { kind: 'gate', x: 23, y: 18, w: 2, h: 5, every: 4, open: 3 },
+        { kind: 'pad', x: 12, y: 30, dir: 1 },
+        { kind: 'pad', x: 35, y: 30, dir: 3 },
+      ],
+      crew: ['cutter', 'snowplow', 'gatekeeper', 'glimmer'],
+      shrink: { every: 480, max: 10 },
+      objective: 'last',
+      par: S * 100,
+      tickets: 10,
+      tier: 17,
+      at: [144, 82],
+      next: [],
+      intro: 'FOUR COLOURS. ONE RIDER LEFT.',
+    },
+  ],
+}
+
+export function fairgroundAt(index: number): Fairground {
+  return index === SECRET_FAIR_INDEX ? RAINBOW_SPOOL : FAIRGROUNDS[index]!
+}
+
 export const FIRST_EVENT = 0
 
 export function arenaById(fair: Fairground, id: string): FairArena {

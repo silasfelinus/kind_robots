@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { runInNewContext } from 'node:vm'
 
 const read = (path) => readFileSync(path, 'utf8')
 const route = read('components/conductor/ruler-hooked-page.vue')
@@ -155,6 +156,107 @@ assert.doesNotMatch(
 assert.match(classic, /timingProfileFor\(props\.encounter\)/)
 assert.match(classic, /suddenShift/)
 assert.doesNotMatch(classic, /Tap to reel|Give slack|@release|@tap/)
+const timingSource = classic
+  .slice(
+    classic.indexOf('let startedAt:'),
+    classic.indexOf('defineExpose({ stop })'),
+  )
+  .replace(/: (number|string) \| null/g, '')
+  .replace('time: number', 'time')
+
+assert.match(classic, /watch\(beatKey, resetSweep, /)
+assert.match(
+  classic,
+  /document.addEventListener\('visibilitychange', resetSweep\)/,
+)
+assert.match(
+  classic,
+  /document.removeEventListener\('visibilitychange', resetSweep\)/,
+)
+
+function exerciseSweep(sweepMs, frameInterval) {
+  const encounter = { id: 'test-fish', beat: 0, phase: 'FIGHT' }
+  const marker = { value: 0 }
+  const document = { hidden: false }
+  const accepted = []
+  let now = 0
+  const { tick, stop, resetSweep } = runInNewContext(
+    timingSource + '\n;({ tick, stop, resetSweep })',
+    {
+      props: { encounter },
+      computed: (get) => ({
+        get value() {
+          return get()
+        },
+      }),
+      marker,
+      profile: { value: { sweepMs } },
+      document,
+      performance: { now: () => now },
+      requestAnimationFrame: () => 1,
+      emit: (event, position) => {
+        assert.equal(event, 'stop')
+        accepted.push(position)
+      },
+    },
+  )
+
+  stop()
+  assert.equal(accepted.length, 0, 'no input before the first frame')
+  tick(0)
+  for (let t = frameInterval; t < sweepMs / 2; t += frameInterval)
+    tick(t)
+  tick(sweepMs / 2)
+  assert.equal(marker.value, 50, 'a timestamp of zero is a valid start')
+  now = sweepMs / 2 + 240
+  stop()
+  assert.deepEqual(accepted, [50], 'score the displayed marker, not latency')
+  for (let i = 0; i < 100; i++) stop()
+  assert.equal(accepted.length, 1, 'same-beat spam is rejected')
+
+  encounter.beat++
+  resetSweep()
+  stop()
+  assert.equal(accepted.length, 1, 'a fresh beat needs a fresh frame')
+  tick(now)
+  stop()
+  assert.equal(accepted.length, 1, 'the debounce spans beat changes')
+  now += 200
+  tick(now)
+  const visible = Math.round(marker.value * 10) / 10
+  stop()
+  assert.deepEqual(accepted, [50, visible])
+
+  encounter.beat++
+  resetSweep()
+  tick(now)
+  now += 200
+  tick(now)
+  document.hidden = true
+  resetSweep()
+  now += 2000
+  tick(now)
+  stop()
+  assert.equal(accepted.length, 2, 'hidden tabs cannot score a stop')
+  document.hidden = false
+  resetSweep()
+  stop()
+  assert.equal(accepted.length, 2, 'resume needs a new visible frame')
+  tick(now)
+  now += sweepMs * 1.5
+  tick(now)
+  assert.equal(marker.value, 50, 'the return sweep is frame-independent')
+  stop()
+  assert.deepEqual(accepted, [50, visible, 50])
+}
+
+for (const sweepMs of [650, 1000, 1600, 3000]) {
+  for (const frameInterval of [16, 33, 100, 250]) {
+    exerciseSweep(sweepMs, frameInterval)
+  }
+}
+console.log('Ruler input latency and frame pacing: 16 scenarios passed')
+
 assert.match(lake, /store\.startFishing\(quiz\.mode\)/)
 assert.match(lake, /@stop="store\.classicStop\(\$event\)"/)
 assert.match(fishingStore, /startFishingEncounter\(save\.value\)/)

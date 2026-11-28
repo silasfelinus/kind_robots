@@ -170,7 +170,7 @@ const playfieldLabel = computed(
     `Fishing ${props.encounter.fishName}. ${aimLabel.value} Press Space, Enter, or click to stop the sweeping bobber.`,
 )
 
-let startedAt = 0
+let startedAt: number | null = null
 let frame: number | null = null
 let lastStop = -Infinity
 let displayedBeat: string | null = null
@@ -179,8 +179,18 @@ const beatKey = computed(
   () =>
     `${props.encounter.id}:${props.encounter.beat}:${props.encounter.phase}`,
 )
+function resetSweep() {
+  displayedBeat = null
+  startedAt = null
+  marker.value = 0
+}
 function tick(time: number) {
-  if (!startedAt) startedAt = time
+  if (document.hidden) {
+    resetSweep()
+    frame = requestAnimationFrame(tick)
+    return
+  }
+  if (startedAt === null) startedAt = time
   const fraction =
     ((time - startedAt) % (profile.value.sweepMs * 2)) / profile.value.sweepMs
   marker.value = Math.max(
@@ -193,6 +203,7 @@ function tick(time: number) {
 function stop() {
   const now = performance.now()
   if (
+    document.hidden ||
     displayedBeat !== beatKey.value ||
     acceptedBeat === beatKey.value ||
     now - lastStop < 160
@@ -236,21 +247,15 @@ function keydown(event: KeyboardEvent) {
   event.preventDefault()
   stop()
 }
-watch(
-  beatKey,
-  () => {
-    displayedBeat = null
-    startedAt = 0
-    marker.value = 0
-  },
-  { flush: 'sync' },
-)
+watch(beatKey, resetSweep, { flush: 'sync' })
 onMounted(() => {
   window.addEventListener('keydown', keydown)
+  document.addEventListener('visibilitychange', resetSweep)
   frame = requestAnimationFrame(tick)
 })
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', keydown)
+  document.removeEventListener('visibilitychange', resetSweep)
   if (frame !== null) cancelAnimationFrame(frame)
 })
 </script>

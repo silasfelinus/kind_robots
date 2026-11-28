@@ -518,8 +518,9 @@ assert.ok(
   'Iris walks ' + cadence.toFixed(2) + ' cycles a second',
 )
 
-// Scene gestures: take and use reach, look and photograph point, a refused
-// action recoils, Norb's rebuffs make him flinch, ghosts startle both.
+// Scene gestures: take, use and photograph reach, look points, a refused
+// action recoils, Norb's rebuffs and contact jokes make him flinch, ghosts
+// startle both (object sync: verifyMonstriqueObjects).
 const base = newCase(3)
 const state = (patch: Partial<CaseState>): CaseState => ({ ...base, ...patch })
 const moved = state({ transcript: [...base.transcript, 'x'] })
@@ -527,15 +528,15 @@ assert.deepEqual(leadGestures({ verb: 'take' }, base, moved), { iris: 'reach' })
 assert.deepEqual(leadGestures({ verb: 'use' }, base, moved), { iris: 'reach' })
 assert.deepEqual(leadGestures({ verb: 'look' }, base, moved), { iris: 'point' })
 assert.deepEqual(leadGestures({ verb: 'photograph' }, base, moved), {
-  iris: 'point',
+  iris: 'reach',
 })
 assert.deepEqual(leadGestures({ verb: 'talk' }, base, moved), {})
 assert.deepEqual(leadGestures({ verb: 'take' }, base, base), { iris: 'recoil' })
 const nicoActs = state({ actor: 'nico' })
 assert.deepEqual(
   leadGestures({ verb: 'take' }, nicoActs, { ...nicoActs, transcript: ['y'] }),
-  {},
-  'Nico is not a rigged lead',
+  { norb: 'recoil' },
+  'Norb asked to touch something recoils and never reaches',
 )
 assert.deepEqual(
   leadGestures({ verb: 'flirt' }, base, state({ rebuffs: base.rebuffs + 1 })),
@@ -776,7 +777,10 @@ assert.match(
 )
 assert.match(scene, /:walk-speed="walkSpeed"/)
 assert.match(scene, /:gesture="leadGesture\.iris"/)
-assert.match(scene, /leadGestures\(action, before, story\.value\.state\)/)
+assert.match(
+  scene,
+  /interactionBeat\(action, before, story\.value\.state,[\s\S]*?cueGestures\(beat\.gestures\)/,
+)
 assert.doesNotMatch(
   scene,
   /<MonstriqueCharacterSprite[^>]*character="(iris|norb)"/,

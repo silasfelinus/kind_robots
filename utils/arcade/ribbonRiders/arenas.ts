@@ -36,6 +36,8 @@ export type Feature =
     }
   /** A turn pad: a bike entering it turns to `dir`. */
   | { kind: 'pad'; x: number; y: number; dir: Dir }
+  | { kind: 'conveyor'; x: number; y: number; w?: number; h?: number; dir: Dir }
+  | { kind: 'bell'; x: number; y: number; w?: number; h?: number }
 
 /** How features are copied: across x, across y, both (four copies), or turned four ways. */
 export type Mirror = 'none' | 'x' | 'y' | 'xy' | 'rot'
@@ -51,7 +53,8 @@ export type ArenaSpec = {
   /** Edges that wrap round: ride off one side, come in on the other. */
   wrap?: { x?: boolean; y?: boolean }
   /** The closing wall: a cell in from every side each `every` ticks, to `max`; null for none. */
-  shrink?: { every: number; max: number } | null
+  shrink?: { every: number; max: number; shape?: 'spiral' } | null
+  portals?: readonly (readonly [readonly [number, number], readonly [number, number]])[]
   crew: readonly RivalKind[]
   pickups?: { first: number; every: number; kinds?: readonly PickupKind[] }
   /** Where rivals line up, in crew order (the default lines otherwise). */
@@ -91,10 +94,39 @@ export type BuiltArena = {
   banks: Bank[]
   /** The bank (index into banks) on each snow cell, -1 elsewhere. */
   bankAt: Int16Array
+  portalAt: Int16Array
+  spiralRank: Int16Array
 }
 
 /** Ticks a brushed snowbank drips before it melts away. */
 export const MELT_TICKS = 40
+export const CONVEYOR_CELLS = 8
+export const BELL_TICKS = 120
+export const SPIRAL_STEP = 24
+
+/** An inward spiral with a two-cell corridor between its turns. */
+export function spiralCells(): number[] {
+  const out: number[] = []
+  let x = 1
+  let y = 1
+  let left = 1
+  let right = GRID - 2
+  let top = 1
+  let bottom = GRID - 2
+  const add = () => out.push(idx(x, y))
+  add()
+  while (left < right && top < bottom) {
+    while (x < right) { x++; add() }
+    top += 3
+    while (y < bottom) { y++; add() }
+    right -= 3
+    while (x > left) { x--; add() }
+    bottom -= 3
+    while (y > top) { y--; add() }
+    left += 3
+  }
+  return out
+}
 
 /** The square ring `r` cells out from (cx, cy), clockwise from its top-left corner. */
 export function ringCells(cx: number, cy: number, r: number): number[] {
@@ -187,6 +219,8 @@ export function buildArena(spec: ArenaSpec): BuiltArena {
   const gates: Gate[] = []
   const bankAt = new Int16Array(GRID * GRID).fill(-1)
   const banks: Bank[] = []
+  const portalAt = new Int16Array(GRID * GRID).fill(-1)
+  const spiralRank = new Int16Array(GRID * GRID).fill(-1)
   const mirror = spec.mirror ?? 'none'
   for (const f of spec.features) {
     const base: Rect = {
@@ -194,7 +228,7 @@ export function buildArena(spec: ArenaSpec): BuiltArena {
       y: f.y,
       w: f.kind === 'pad' ? 1 : (f.w ?? 1),
       h: f.kind === 'pad' ? 1 : (f.h ?? 1),
-      dir: f.kind === 'pad' ? f.dir : undefined,
+      dir: f.kind === 'pad' || f.kind === 'conveyor' ? f.dir : undefined,
     }
     const seen = new Set<string>()
     for (const r of copies(base, mirror)) {
@@ -214,6 +248,8 @@ export function buildArena(spec: ArenaSpec): BuiltArena {
           if (f.kind === 'pillar') terrain[i] = T.PILLAR
           else if (f.kind === 'pad') terrain[i] = T.PAD + r.dir!
           else if (f.kind === 'ice') terrain[i] = T.ICE
+          else if (f.kind === 'conveyor') terrain[i] = T.CONVEYOR + r.dir!
+          else if (f.kind === 'bell') terrain[i] = T.BELL
           else if (bank) {
             terrain[i] = T.SNOW
             bankAt[i] = banks.length
@@ -229,7 +265,21 @@ export function buildArena(spec: ArenaSpec): BuiltArena {
       if (bank?.cells.length) banks.push(bank)
     }
   }
-  return { spec, terrain, gates, gateAt, banks, bankAt }
+  for (const [a, b] of spec.portals ?? []) {
+    const [ax, ay] = a
+    const [bx, by] = b
+    if ([ax, ay, bx, by].some((n) => n < 0 || n >= GRID || !Number.isInteger(n))) continue
+    const one = idx(ax, ay)
+    const two = idx(bx, by)
+    if (one === two || terrain[one] !== T.FLOOR || terrain[two] !== T.FLOOR) continue
+    terrain[one] = T.PORTAL
+    terrain[two] = T.PORTAL
+    portalAt[one] = two
+    portalAt[two] = one
+  }
+  if (spec.shrink?.shape === 'spiral')
+    spiralCells().forEach((cell, i) => { spiralRank[cell] = i })
+  return { spec, terrain, gates, gateAt, banks, bankAt, portalAt, spiralRank }
 }
 
 /** Is a gate open on this beat? */

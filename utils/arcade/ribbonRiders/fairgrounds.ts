@@ -394,6 +394,8 @@ const CLOCKWORK: Fairground = {
       features: [
         { kind: 'pillar', x: 13, y: 13, w: 3, h: 3 },
         { kind: 'gate', x: 33, y: 23, every: 6, open: 3 },
+        { kind: 'conveyor', x: 20, y: 8, w: 1, h: 29, dir: 1 },
+        { kind: 'conveyor', x: 27, y: 8, w: 1, h: 29, dir: 3 },
       ],
       shrink: { every: 480, max: 10 },
       crew: ['hugger', 'dasher'],
@@ -404,7 +406,7 @@ const CLOCKWORK: Fairground = {
       tier: 8,
       at: [72, 178],
       next: ['cb-alleys', 'cb-arches'],
-      intro: 'WRAP THEM BETWEEN THE STALLS',
+      intro: 'BELTS SHIFT YOU EVERY EIGHT CELLS',
     },
     {
       id: 'cb-clock',
@@ -440,6 +442,9 @@ const CLOCKWORK: Fairground = {
       features: [
         { kind: 'pillar', x: 12, y: 12, w: 2, h: 12 },
         { kind: 'pillar', x: 34, y: 12, w: 2, h: 12 },
+        { kind: 'bell', x: 17, y: 27, w: 2, h: 2 },
+        { kind: 'bell', x: 29, y: 27, w: 2, h: 2 },
+        { kind: 'bell', x: 24, y: 34 },
       ],
       shrink: { every: 480, max: 10 },
       crew: ['sprinter', 'cutter'],
@@ -449,7 +454,7 @@ const CLOCKWORK: Fairground = {
       tier: 10,
       at: [72, 130],
       next: ['marshal'],
-      intro: 'RACE BETWEEN THE ALLEYS',
+      intro: 'RING BELLS: ALL RIBBONS FLARE',
     },
     {
       id: 'cb-arches',
@@ -458,6 +463,9 @@ const CLOCKWORK: Fairground = {
       features: [
         { kind: 'gate', x: 12, y: 20, every: 5, open: 3 },
         { kind: 'gate', x: 35, y: 20, every: 5, open: 3 },
+        { kind: 'conveyor', x: 15, y: 8, w: 1, h: 30, dir: 1 },
+        { kind: 'conveyor', x: 32, y: 8, w: 1, h: 30, dir: 3 },
+        { kind: 'bell', x: 24, y: 24 },
       ],
       shrink: null,
       crew: ['gatekeeper', 'sprinter'],
@@ -483,6 +491,9 @@ const CLOCKWORK: Fairground = {
       features: [
         { kind: 'gate', x: 16, y: 20, every: 4, open: 2 },
         { kind: 'gate', x: 32, y: 20, every: 4, open: 2, offset: 2 },
+        { kind: 'conveyor', x: 14, y: 8, w: 1, h: 31, dir: 1 },
+        { kind: 'conveyor', x: 33, y: 8, w: 1, h: 31, dir: 3 },
+        { kind: 'bell', x: 24, y: 35 },
       ],
       shrink: null,
       crew: [],
@@ -508,6 +519,7 @@ const STARLIGHT: Fairground = {
     {
       id: 'sl-sky',
       name: 'SKY BRIDGE',
+      portals: [[[10, 12], [36, 34]], [[37, 12], [11, 34]]],
       ribbonLifetime: S * 6,
       floor: 'violet',
       wrap: { x: true },
@@ -520,11 +532,12 @@ const STARLIGHT: Fairground = {
       tier: 7,
       at: [144, 222],
       next: ['sl-stars', 'sl-mirror'],
-      intro: 'COMET TRAILS FADE. KEEP MOVING',
+      intro: 'PORTALS PAIR. COMET TRAILS FADE.',
     },
     {
       id: 'sl-stars',
       name: 'FALLING STARS',
+      portals: [[[9, 18], [38, 29]]],
       floor: 'teal',
       features: [
         { kind: 'pillar', x: 12, y: 12, w: 2, h: 2 },
@@ -562,13 +575,14 @@ const STARLIGHT: Fairground = {
     {
       id: 'sl-comets',
       name: 'COMET CROSSING',
+      portals: [[[8, 12], [39, 34]]],
       ribbonLifetime: S * 6,
       floor: 'teal',
       features: [
         { kind: 'pad', x: 12, y: 24, dir: 1 },
         { kind: 'pad', x: 36, y: 24, dir: 3 },
       ],
-      shrink: { every: 480, max: 10 },
+      shrink: { every: 420, max: 26, shape: 'spiral' },
       crew: ['sprinter', 'shieldRider'],
       objective: 'last',
       par: S * 55,
@@ -576,7 +590,7 @@ const STARLIGHT: Fairground = {
       tier: 10,
       at: [72, 130],
       next: ['marshal'],
-      intro: 'RIBBONS FADE AFTER SIX SECONDS',
+      intro: 'SPIRAL CLOSES. RIBBONS FADE.',
     },
     {
       id: 'sl-parade',
@@ -600,6 +614,7 @@ const STARLIGHT: Fairground = {
       id: 'marshal',
       name: 'THE LOOM SPINNER',
       floor: 'violet',
+      portals: [[[8, 14], [39, 33]]],
       wrap: { x: true },
       features: [
         { kind: 'pad', x: 12, y: 24, dir: 1 },
@@ -636,8 +651,11 @@ export function encoreArena(a: FairArena): FairArena {
     features: a.features.map((f) =>
       f.kind === 'pad'
         ? { ...f, x: flip(f.x), dir: turn(f.dir) }
-        : { ...f, x: GRID - f.x - (f.w ?? 1) },
+        : f.kind === 'conveyor'
+          ? { ...f, x: GRID - f.x - (f.w ?? 1), dir: turn(f.dir) }
+          : { ...f, x: GRID - f.x - (f.w ?? 1) },
     ),
+    portals: a.portals?.map(([one, two]) => [[flip(one[0]), one[1]], [flip(two[0]), two[1]]]),
     rivalSpawns: a.rivalSpawns?.map(([x, y, d]): Spawn => [
       flip(x),
       y,
@@ -690,6 +708,7 @@ export const RAINBOW_SPOOL: Fairground = {
       id: 'spool-itself',
       name: 'THE SPOOL ITSELF',
       floor: 'violet',
+      portals: [[[8, 10], [39, 33]], [[39, 10], [8, 33]]],
       wrap: { x: true },
       ribbonLifetime: S * 6,
       features: [
@@ -698,9 +717,12 @@ export const RAINBOW_SPOOL: Fairground = {
         { kind: 'gate', x: 23, y: 18, w: 2, h: 5, every: 4, open: 3 },
         { kind: 'pad', x: 12, y: 30, dir: 1 },
         { kind: 'pad', x: 35, y: 30, dir: 3 },
+        { kind: 'conveyor', x: 18, y: 8, w: 1, h: 28, dir: 1 },
+        { kind: 'conveyor', x: 29, y: 8, w: 1, h: 28, dir: 3 },
+        { kind: 'bell', x: 24, y: 34 },
       ],
       crew: ['cutter', 'snowplow', 'gatekeeper', 'glimmer'],
-      shrink: { every: 480, max: 10 },
+      shrink: { every: 420, max: 26, shape: 'spiral' },
       objective: 'last',
       par: S * 100,
       tickets: 10,

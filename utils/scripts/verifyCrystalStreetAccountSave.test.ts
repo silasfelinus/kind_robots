@@ -24,8 +24,18 @@ const roundTrip = (save: CrystalStreetSave) =>
   parseCrystalStreetSave(JSON.stringify(save))
 
 assert.deepEqual(roundTrip(initial), initial)
-assert.equal(roundTrip({ ...initial, settings: { ...DEFAULT_SETTINGS, readingSpeed: 'fast' } }).settings.readingSpeed, 'fast')
-assert.equal(parseCrystalStreetSave(JSON.stringify({ ...initial, settings: {} })).settings.readingSpeed, 'instant')
+assert.equal(
+  roundTrip({
+    ...initial,
+    settings: { ...DEFAULT_SETTINGS, readingSpeed: 'fast' },
+  }).settings.readingSpeed,
+  'fast',
+)
+assert.equal(
+  parseCrystalStreetSave(JSON.stringify({ ...initial, settings: {} })).settings
+    .readingSpeed,
+  'instant',
+)
 assert.equal(readingDelay('normal', true), 0)
 assert.equal(readingDelay('instant', false), 0)
 assert.ok(readingDelay('normal', false) > readingDelay('fast', false))
@@ -85,7 +95,10 @@ for (const method of ['get', 'put']) {
   assert.match(route, /parseCrystalStreetSave/)
   assert.match(route, /userId: user\.id/)
 }
-const put = readFileSync('server/api/crystal-street/account-save.put.ts', 'utf8')
+const put = readFileSync(
+  'server/api/crystal-street/account-save.put.ts',
+  'utf8',
+)
 assert.match(put, /expectedRevision/)
 assert.match(put, /input\.ownerId !== user\.id/)
 assert.match(put, /revision: prior/)
@@ -97,4 +110,6 @@ assert.match(store, /generation === epoch && owner === accountOwner\.value/)
 assert.match(store, /persist\('scrapbook', 'reset'\)/)
 assert.match(store, /persist\('run'\)/)
 assert.match(store, /importDeviceProgress/)
-console.log('Crystal Street account save: round trip, isolation, merge, reset, revision guards OK')
+console.log(
+  'Crystal Street account save: round trip, isolation, merge, reset, revision guards OK',
+)

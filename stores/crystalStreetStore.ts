@@ -168,7 +168,9 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
       run: repairRun(read(RUN_KEY, 'null')),
       scrapbook: restoreScrapbook(read(SCRAPBOOK_KEY, 'null')),
       settings: restoreSettings(read(SETTINGS_KEY, 'null')),
-      tips: Array.isArray(seen) ? TIP_IDS.filter((id) => seen.includes(id)) : [],
+      tips: Array.isArray(seen)
+        ? TIP_IDS.filter((id) => seen.includes(id))
+        : [],
     }
   }
 
@@ -228,9 +230,7 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
           (!Number.isSafeInteger(revision) || Number(revision) < 0))
       )
         throw new Error('Invalid revision')
-      const remote = save
-        ? parseCrystalStreetSave(JSON.stringify(save))
-        : null
+      const remote = save ? parseCrystalStreetSave(JSON.stringify(save)) : null
       accountChecked.value = true
       if (remote) {
         const merged = accountHasSave.value
@@ -274,7 +274,8 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
       if (JSON.stringify(sent) !== JSON.stringify(snapshot())) scheduleSync()
     } catch {
       if (!current()) return
-      accountStatus.value = 'Account sync unavailable. Device progress is safe if local storage is working.'
+      accountStatus.value =
+        'Account sync unavailable. Device progress is safe if local storage is working.'
       if (retries < 3) scheduleSync(1000 * 2 ** retries++)
     } finally {
       if (current()) busy = false

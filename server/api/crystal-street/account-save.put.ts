@@ -41,7 +41,9 @@ export default defineEventHandler(async (event) => {
       })
     let payload: string
     try {
-      payload = JSON.stringify(parseCrystalStreetSave(JSON.stringify(input.save)))
+      payload = JSON.stringify(
+        parseCrystalStreetSave(JSON.stringify(input.save)),
+      )
     } catch {
       throw createError({
         statusCode: 400,

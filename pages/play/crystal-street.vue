@@ -19,7 +19,11 @@
     </p>
 
     <header-page-bar
-      v-if="store.loaded && store.accountReady && (menuScreen || (run && view !== 'title'))"
+      v-if="
+        store.loaded &&
+        store.accountReady &&
+        (menuScreen || (run && view !== 'title'))
+      "
       console-theme="crystal-street"
     >
       <div

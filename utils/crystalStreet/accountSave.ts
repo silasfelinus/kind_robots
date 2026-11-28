@@ -1,7 +1,7 @@
 import { repairRun, type LogEntry, type RunState } from './rules'
 import { normalizeVolume } from './sound'
 import { TIP_IDS } from './tips'
-import { type ReadingSpeed } from './reading'
+import type { ReadingSpeed } from './reading'
 import type { EndingTier, SpecialEnding } from './types'
 
 export const SCRAPBOOK_LIMIT = 80
@@ -96,10 +96,9 @@ export function restoreScrapbook(raw: unknown): Scrapbook {
   if (!raw || typeof raw !== 'object') return emptyScrapbook()
   const value = raw as Partial<Scrapbook>
   const runs = Array.isArray(value.runs)
-    ? value.runs.filter(
-        (r): r is ScrapbookRun =>
-          validScrapbookRun(r),
-      ).slice(0, SCRAPBOOK_LIMIT)
+    ? value.runs
+        .filter((r): r is ScrapbookRun => validScrapbookRun(r))
+        .slice(0, SCRAPBOOK_LIMIT)
     : []
   const friends = Array.isArray(value.friends)
     ? value.friends.filter((f): f is string => typeof f === 'string')
@@ -114,7 +113,6 @@ export function restoreScrapbook(raw: unknown): Scrapbook {
     friends: [...new Set([...friends, ...runs.flatMap((r) => r.crew ?? [])])],
   }
 }
-
 
 const object = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object' && !Array.isArray(value)

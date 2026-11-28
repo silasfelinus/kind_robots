@@ -225,4 +225,20 @@ const account = pageDescription('content/account.md')
 assert.doesNotMatch(account, /privacy and consent/)
 assert.match(account, /Sign in free/)
 
+// 11. Public page tooltips say what a visitor can do (2026-11-28 PT): /bots'
+//     tooltip read "generating infinite designer content", /stories "Share in
+//     a multiverse of possibilities", /dreams "bend the experience together",
+//     /wallet named karma and mana without meaning and /characters promised
+//     only "the characters behind the chaos".
+const bots = pageTooltip('content/bots.md')
+assert.doesNotMatch(bots, /infinite designer content/)
+assert.match(bots, /talk with it/)
+assert.match(pageTooltip('content/stories.md'), /illustrated Storybook story/)
+assert.doesNotMatch(pageTooltip('content/dreams.md'), /bend the experience/)
+assert.match(pageTooltip('content/dreams.md'), /other visitors/)
+assert.match(pageTooltip('content/wallet.md'), /spend to make AI art/)
+const characters = pageTooltip('content/characters.md')
+assert.doesNotMatch(characters, /behind the chaos/)
+assert.match(characters, /chat with or cast in a story/)
+
 console.log(`front door polish checks passed (${gatedCards} gated share cards)`)

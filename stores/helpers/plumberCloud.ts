@@ -294,15 +294,10 @@ export class PlumberCloud {
       if (empty === -1) skipped++
       else slots[empty] = slot
     }
-    const merged = reconcilePlumberSaves(
-      this.save,
-      { ...guest, slots },
-      null,
-    )
+    const merged = reconcilePlumberSaves(this.save, { ...guest, slots }, null)
     if (merged.status !== 'merged' || !validPlumberCloudSave(merged.save))
       return { status: 'too-large', skipped }
-    if (same(this.save, merged.save))
-      return { status: 'unchanged', skipped }
+    if (same(this.save, merged.save)) return { status: 'unchanged', skipped }
     this.record(owner, token, merged.save)
     if (this.pushing) await this.pushing
     if (epoch !== this.epoch) return { status: 'unavailable', skipped }

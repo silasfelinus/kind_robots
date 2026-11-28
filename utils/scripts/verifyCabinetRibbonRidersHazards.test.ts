@@ -115,7 +115,8 @@ game.stepBikes([p])
 assert.equal(game.bellUntil, game.roundTicks + BELL_TICKS)
 assert.equal(game.cells[idx(25, 30)], 0, 'flare does not write permanent cells')
 // The conveyor entry was laid before ringing the bell. Its right side is now solid.
-assert.ok(game.blocked(21, 30), 'older ribbon flares')
+assert.equal(game.cells[idx(22, 30)], 0)
+assert.ok(game.blocked(22, 30), 'older ribbon flares')
 // Move off the bell so the ribbon behind the live head can expand.
 p.acc = 1
 game.stepBikes([p])

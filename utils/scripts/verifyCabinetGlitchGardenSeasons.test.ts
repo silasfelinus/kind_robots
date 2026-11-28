@@ -703,15 +703,19 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
       set: () => true,
     },
   ) as CanvasRenderingContext2D
-  const g = make(26)
-  for (const n of [1, 3, 6, 8, 11, 12, 14, 16, 19, 22, 23]) {
+  for (let n = 1; n <= PLAYS_PER_LAP; n++) {
+    const g = make(26 + n)
     g.startWave(n)
+    const step = CAMPAIGN[campaignPlay(n).index]!
+    assert.equal(g.garden.id, GARDENS[step.garden]!.id)
+    if (step.kind === 'boss') assert.equal(g.boss?.id, step.boss)
     for (let i = 0; i < 120; i++) {
       g.update(g.demoInput())
       g.lives = 3
     }
     g.render(ctx)
   }
+  const g = make(26)
   g.startWave(5)
   g.worms = []
   for (let i = 0; i < 200 && !g.shed; i++) g.update(emptyInput())

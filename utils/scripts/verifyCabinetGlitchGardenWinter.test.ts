@@ -44,6 +44,11 @@ type Probe = {
   frostMillipede: Array<{ x: number; y: number; thawed: boolean }>
   score: number
   clear: number
+  level: number
+  lap: number
+  shed: unknown
+  leaveShed(): void
+  startFrostPhase(): void
   frostSprite: { x: number; y: number; vx: number } | null
   frostSpriteTimer: number
   snowballs: Snowball[]
@@ -335,6 +340,27 @@ assert.ok(SNOWBALL_HILL.waves.every((w) => w.snowballs > 0))
   g.update(emptyInput())
   assert.ok(g.clear > 0, 'fourth boss advances the campaign')
   assert.deepEqual(campaignPlay(45), { index: 0, lap: 1 })
+  for (let i = 0; i < 200 && !g.shed; i++) g.update(emptyInput())
+  assert.ok(g.shed, 'the last boss leads into the final shed')
+  g.leaveShed()
+  assert.equal(g.level, 45)
+  assert.equal(g.lap, 1)
+  assert.equal(g.garden.id, GARDENS[0]!.id)
+  assert.equal(g.frostMillipede.length, 0)
+}
+
+{
+  const g = make(93)
+  g.beginStep(campaignPlay(44).index, 0, 44)
+  g.boss!.phase = 3
+  g.startFrostPhase()
+  const part = g.frostMillipede[0]!
+  g.px = part.x
+  g.py = part.y
+  const lives = g.lives
+  g.checkHits()
+  assert.equal(g.lives, lives - 1, 'the final coil costs a life on contact')
+  assert.equal(g.frostMillipede.length, 6, 'collision does not reset boss armor')
 }
 
 console.log('glitch garden winter mechanics: ok')

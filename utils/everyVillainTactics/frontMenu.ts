@@ -351,6 +351,14 @@ export const ORIGIN_STAGE_LEADS: Readonly<Record<string, string>> = {
   'probability-of-panic': 'mutant-genius',
   'keys-to-the-shelter': 'mutant-birthright',
   'friend-nobody-remembers': 'mutant-social',
+  'furnace-lift': 'tech-fire',
+  'last-skyway': 'tech-air',
+  'foundation-day': 'tech-earth',
+  'flooded-platform': 'tech-water',
+  'parade-that-couldnt-stop': 'tech-discipline',
+  'grandmas-password': 'tech-genius',
+  'museum-of-tomorrow': 'tech-birthright',
+  'edited-rescue': 'tech-social',
 }
 export const canStartOneShot = (stageId: string, lead: string): boolean =>
   !ORIGIN_STAGE_LEADS[stageId] || ORIGIN_STAGE_LEADS[stageId] === lead
@@ -480,6 +488,46 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     id: 'friend-nobody-remembers',
     art: 'districts/student-commons',
     tag: 'Common Ground origin · Retrace the trustworthy relationship at the council table without removing the blocking patch',
+  },
+  {
+    id: 'furnace-lift',
+    art: 'districts/industrial-foundry',
+    tag: 'Torchlight origin · Weld the support bridge without overheating it',
+  },
+  {
+    id: 'last-skyway',
+    art: 'incidents/skybridge',
+    tag: 'Tailwind origin · Rewrite the drone flight plan to establish a safe air corridor',
+  },
+  {
+    id: 'foundation-day',
+    art: 'districts/student-commons',
+    tag: "Rebar origin · Deploy portable braces at the building's remaining exit",
+  },
+  {
+    id: 'flooded-platform',
+    art: 'districts/industrial-foundry',
+    tag: 'Lifeline origin · Tow the train car toward the evacuation ledge with the pressure suit',
+  },
+  {
+    id: 'parade-that-couldnt-stop',
+    art: 'incidents/skybridge',
+    tag: 'Hurdler origin · Synchronize a nonviolent formation break beside the signal relay',
+  },
+  {
+    id: 'grandmas-password',
+    art: 'districts/student-commons',
+    tag: 'Dr. Frog origin · Override the door controller with the recipe-memory sequence without wiping the kitchen AI',
+  },
+  {
+    id: 'museum-of-tomorrow',
+    art: 'districts/labor-museum',
+    tag: 'Sterling origin · Brace the scholarship elevator with prototype armor',
+  },
+  {
+    id: 'edited-rescue',
+    art: 'districts/media-spire',
+    tag: 'Witness origin · Trace the missing camera angle from the public livestream console',
   },
   {
     id: 'college-quad',

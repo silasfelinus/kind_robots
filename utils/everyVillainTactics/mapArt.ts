@@ -52,6 +52,14 @@ export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   'probability-of-panic': 265017,
   'keys-to-the-shelter': 265015,
   'friend-nobody-remembers': 265015,
+  'furnace-lift': 265018,
+  'last-skyway': 265022,
+  'foundation-day': 265015,
+  'flooded-platform': 265018,
+  'parade-that-couldnt-stop': 265022,
+  'grandmas-password': 265015,
+  'museum-of-tomorrow': 265019,
+  'edited-rescue': 265023,
   ...verifiedArenaImageIds,
 }
 

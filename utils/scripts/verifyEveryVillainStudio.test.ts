@@ -25,7 +25,7 @@ import {
   walkScene,
 } from '../everyVillainTactics/sceneGraph'
 
-assert.equal(STAGE_PRESETS.length, 37)
+assert.equal(STAGE_PRESETS.length, 45)
 assert.ok(STAGE_PRESETS.some((stage) => stage.id === 'hydrant-blue'))
 assert.ok(
   STAGE_PRESETS.some((stage) => stage.id === 'song-that-stopped'),
@@ -191,6 +191,62 @@ for (const [stageId, lead, prefix, flagA, flagB] of [
     'slate',
     'slate-choice-a',
     'slate-choice-b',
+  ],
+  [
+    'furnace-lift',
+    'tech-fire',
+    'furnace',
+    'furnace-choice-a',
+    'furnace-choice-b',
+  ],
+  [
+    'last-skyway',
+    'tech-air',
+    'skyway',
+    'skyway-choice-a',
+    'skyway-choice-b',
+  ],
+  [
+    'foundation-day',
+    'tech-earth',
+    'foundation',
+    'foundation-choice-a',
+    'foundation-choice-b',
+  ],
+  [
+    'flooded-platform',
+    'tech-water',
+    'platform',
+    'platform-choice-a',
+    'platform-choice-b',
+  ],
+  [
+    'parade-that-couldnt-stop',
+    'tech-discipline',
+    'parade',
+    'parade-choice-a',
+    'parade-choice-b',
+  ],
+  [
+    'grandmas-password',
+    'tech-genius',
+    'bakery',
+    'bakery-choice-a',
+    'bakery-choice-b',
+  ],
+  [
+    'museum-of-tomorrow',
+    'tech-birthright',
+    'museum',
+    'museum-choice-a',
+    'museum-choice-b',
+  ],
+  [
+    'edited-rescue',
+    'tech-social',
+    'edit',
+    'edit-choice-a',
+    'edit-choice-b',
   ],
 ] as const) {
   for (const perspective of ['hero', 'villain'] as const) {

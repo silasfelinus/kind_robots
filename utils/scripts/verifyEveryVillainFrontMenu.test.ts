@@ -892,6 +892,62 @@ for (const [stageId, lead, target, start, flag] of [
     { x: 4, y: 2 },
     'slate-intervention',
   ],
+  [
+    'furnace-lift',
+    'tech-fire',
+    { x: 4, y: 2 },
+    { x: 3, y: 2 },
+    'furnace-intervention',
+  ],
+  [
+    'last-skyway',
+    'tech-air',
+    { x: 5, y: 1 },
+    { x: 3, y: 1 },
+    'skyway-intervention',
+  ],
+  [
+    'foundation-day',
+    'tech-earth',
+    { x: 4, y: 3 },
+    { x: 4, y: 3 },
+    'foundation-intervention',
+  ],
+  [
+    'flooded-platform',
+    'tech-water',
+    { x: 5, y: 3 },
+    { x: 3, y: 3 },
+    'platform-intervention',
+  ],
+  [
+    'parade-that-couldnt-stop',
+    'tech-discipline',
+    { x: 4, y: 2 },
+    { x: 3, y: 2 },
+    'parade-intervention',
+  ],
+  [
+    'grandmas-password',
+    'tech-genius',
+    { x: 5, y: 2 },
+    { x: 2, y: 2 },
+    'bakery-intervention',
+  ],
+  [
+    'museum-of-tomorrow',
+    'tech-birthright',
+    { x: 4, y: 3 },
+    { x: 3, y: 3 },
+    'museum-intervention',
+  ],
+  [
+    'edited-rescue',
+    'tech-social',
+    { x: 4, y: 2 },
+    { x: 4, y: 2 },
+    'edit-intervention',
+  ],
 ] as const) {
   const stage = clonePreset(stageId)
   assert.deepEqual(stageProblems(stage), [])
@@ -903,7 +959,7 @@ for (const [stageId, lead, target, start, flag] of [
     actor.y = stage.civilians![0]!.y
     actor.ap = 2
     assert.equal(rescueSelected(state), false)
-    const mutantBlocked: Record<string, { x: number; y: number }> = {
+    const originBlocked: Record<string, { x: number; y: number }> = {
       'ashes-of-the-ledger': { x: 0, y: 2 },
       'balcony-witness': { x: 0, y: 3 },
       'bridge-of-last-chances': { x: 0, y: 3 },
@@ -912,8 +968,16 @@ for (const [stageId, lead, target, start, flag] of [
       'probability-of-panic': { x: 0, y: 0 },
       'keys-to-the-shelter': { x: 0, y: 1 },
       'friend-nobody-remembers': { x: 0, y: 3 },
+      'furnace-lift': { x: 0, y: 2 },
+      'last-skyway': { x: 0, y: 4 },
+      'foundation-day': { x: 0, y: 3 },
+      'flooded-platform': { x: 0, y: 1 },
+      'parade-that-couldnt-stop': { x: 0, y: 4 },
+      'grandmas-password': { x: 0, y: 0 },
+      'museum-of-tomorrow': { x: 0, y: 1 },
+      'edited-rescue': { x: 0, y: 3 },
     }
-    const blockedStart = mutantBlocked[stageId] ??
+    const blockedStart = originBlocked[stageId] ??
       (      stageId === 'orchard-under-asphalt'
         ? { x: 3, y: 2 }
         : stageId === 'overdue-thunder'
@@ -932,7 +996,7 @@ for (const [stageId, lead, target, start, flag] of [
     assert.equal(useSelectedPower(state, target), false)
     actor.x = start.x
     actor.y = start.y
-    const cost = lead.startsWith('mutant-') ? 1 : 2
+    const cost = lead.startsWith('magic-') ? 2 : 1
     actor.ap = cost - 1
     assert.equal(useSelectedPower(state, target), false)
     actor.ap = cost
@@ -997,6 +1061,14 @@ assert.deepEqual(ORIGIN_STAGE_LEADS, {
   'probability-of-panic': 'mutant-genius',
   'keys-to-the-shelter': 'mutant-birthright',
   'friend-nobody-remembers': 'mutant-social',
+  'furnace-lift': 'tech-fire',
+  'last-skyway': 'tech-air',
+  'foundation-day': 'tech-earth',
+  'flooded-platform': 'tech-water',
+  'parade-that-couldnt-stop': 'tech-discipline',
+  'grandmas-password': 'tech-genius',
+  'museum-of-tomorrow': 'tech-birthright',
+  'edited-rescue': 'tech-social',
 })
 for (const [stage, signature] of Object.entries(ORIGIN_STAGE_LEADS)) {
   assert.equal(canStartOneShot(stage, signature), true)

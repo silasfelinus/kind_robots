@@ -46,7 +46,12 @@ const content: OracleContent = {
     five: ['Close five.'],
   },
   positionText: {
-    present: { 'card-3': { upright: 'Bespoke present text for card three.' } },
+    present: {
+      'card-3': {
+        upright:
+          'Bespoke present text for card three, written for this position and long enough to read as a real passage.',
+      },
+    },
   },
   energyPairs,
   specialPairs: { [sortedPairKey('card-1', 'card-0')]: 'Special pair text.' },

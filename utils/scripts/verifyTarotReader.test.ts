@@ -11,7 +11,7 @@ import {
   ORACLE_CONTENT,
 } from '../oracle/content'
 import { buildReading } from '../oracle/reading'
-import { ORACLE_SPREAD_IDS } from '../oracle/spreads'
+import { ORACLE_SPREAD_IDS, spreadPositionIds } from '../oracle/spreads'
 import { validateOracle } from '../oracle/validate'
 import {
   TAROT_CATALOG,
@@ -74,6 +74,34 @@ assert.equal(
 )
 assert.equal(TAROT_CATALOG[22]?.oracleTitle, 'Ace of Sparks')
 assert.equal(TAROT_CATALOG[32]?.oracleTitle, 'Apprentice of Sparks')
+
+// Every major has a bespoke passage in every position and orientation, and a
+// drawn reading actually uses them instead of the generic frame.
+const majorIds = ORACLE_CARDS.filter((card) => card.arcana === 'major').map(
+  (card) => card.id,
+)
+for (const spread of ORACLE_SPREAD_IDS) {
+  for (const position of spreadPositionIds(spread)) {
+    for (const id of majorIds) {
+      const texts = ORACLE_CONTENT.positionText[position]?.[id]
+      assert.ok(texts?.upright && texts.reversed, `${position}.${id} passages`)
+    }
+  }
+}
+const bespokeReading = buildReading(
+  ORACLE_CARDS.filter((card) => card.arcana === 'major'),
+  ORACLE_CONTENT,
+  'five',
+  'bespoke-check',
+)
+bespokeReading.cards.forEach((drawn, index) => {
+  assert.equal(
+    bespokeReading.passages[index],
+    ORACLE_CONTENT.positionText[drawn.position.id]?.[drawn.card.id]?.[
+      drawn.orientation
+    ],
+  )
+})
 
 // --- Every sign/decan/planet correspondence names a real catalog card ---
 const keys = new Set(TAROT_CATALOG.map((card) => card.key))

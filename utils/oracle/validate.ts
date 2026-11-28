@@ -50,6 +50,28 @@ export const validateOracle = (
     if (!content.closings[spread]?.length)
       problems.push(`no closings for ${spread}`)
   }
+  for (const [position, byCard] of Object.entries(content.positionText)) {
+    for (const [cardId, texts] of Object.entries(byCard ?? {})) {
+      if (!ids.has(cardId))
+        problems.push(`positionText.${position}.${cardId}: unknown card`)
+      for (const o of ['upright', 'reversed'] as const) {
+        const text = texts?.[o]
+        if (!text) continue
+        const n = wordCount(text)
+        if (n < 12 || n > 50)
+          problems.push(
+            `positionText.${position}.${cardId}.${o}: ${n} words (budget 12-50)`,
+          )
+        if (BANNED.test(text))
+          problems.push(`positionText.${position}.${cardId}.${o}: banned word`)
+      }
+    }
+  }
+  for (const key of Object.keys(content.specialPairs)) {
+    const [a, b] = key.split('|')
+    if (!a || !b || !ids.has(a) || !ids.has(b) || sortedPairKey(a, b) !== key)
+      problems.push(`special pair ${key}: unknown or unsorted card ids`)
+  }
   for (const a of ORACLE_ENERGIES) {
     for (const b of ORACLE_ENERGIES) {
       if (a > b) continue

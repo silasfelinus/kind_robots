@@ -11,6 +11,7 @@ import type {
   OracleEnergy,
   OracleSuit,
 } from './types'
+import { ORACLE_POSITION_TEXT } from './positionText'
 
 type MajorEntry = [
   id: string,
@@ -522,7 +523,7 @@ export const ORACLE_CONTENT: OracleContent = {
       'Choose one small step, and let the rest unfold.',
     ],
   },
-  positionText: {},
+  positionText: ORACLE_POSITION_TEXT,
   energyPairs,
   specialPairs: {
     'the-newly-woken|the-reboot':
@@ -545,5 +546,25 @@ export const ORACLE_CONTENT: OracleContent = {
       'Skill meets the turning wheel: you can help steer this change with your own hands.',
     'the-fair-scale|the-lighthouse-keeper':
       'Fairness and steady structure: clear, kind rules will keep everyone safe.',
+    'the-quiet-archivist|the-storyteller':
+      'The keeper of books and the teller of tales together: what you have quietly learned is ready to be shared out loud.',
+    'the-gardener|the-sunrise-engine':
+      'Patient tending meets full sunshine: what you have grown is ready to bloom in the open.',
+    'the-short-circuit|the-tangle':
+      'A jolt and a knot side by side: the shake-up is loosening something that held you too tightly.',
+    'the-lighthouse-keeper|the-wayfarer':
+      'A steady beacon and a traveler on the move: you have both a direction and the light to follow it.',
+    'the-upside-down-bot|the-wheel':
+      'A pause meets a turning wheel: loosening your grip lets the next season arrive on its own.',
+    'the-mender|the-shedding':
+      'A closing and a mending together: what ends now can be repaired into something new and whole.',
+    'the-gentle-giant|the-night-sky-bot':
+      'Quiet strength beside fresh hope: be as gentle with yourself as you are with everyone else while you heal.',
+    'the-fair-scale|the-reboot':
+      'Fairness meets a wake-up call: an honest, kind look back makes the next chapter feel lighter.',
+    'the-moon-pool|the-quiet-archivist':
+      'Dreams and deep knowing together: trust the quiet images and notes that keep returning to you.',
+    'the-newly-woken|the-whole-world':
+      'The first step and the full circle: every journey you finish makes room for a brand-new beginning.',
   },
 }

@@ -88,6 +88,12 @@ for (const a of [
   RAINBOW_SPOOL.arenas.at(-1)!,
 ]) {
   const mirrored = buildArena(encoreArena(a))
+  if (a.shrink?.shape === 'spiral') {
+    const original = buildArena(a)
+    for (let i = 0; i < GRID * GRID; i++) {
+      assert.equal(mirrored.spiralRank[idx(GRID - 1 - (i % GRID), Math.floor(i / GRID))], original.spiralRank[i])
+    }
+  }
   for (const [p, q] of a.portals ?? []) {
     assert.equal(
       mirrored.portalAt[idx(GRID - 1 - p[0], p[1])],

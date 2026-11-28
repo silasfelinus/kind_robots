@@ -278,13 +278,7 @@ for (const [stageId, lead, prefix, flagA, flagB] of [
     'crown-choice-a',
     'crown-choice-b',
   ],
-  [
-    'everyone-inside',
-    'alien-social',
-    'hive',
-    'hive-choice-a',
-    'hive-choice-b',
-  ],
+  ['everyone-inside', 'alien-social', 'hive', 'hive-choice-a', 'hive-choice-b'],
   ['edited-rescue', 'tech-social', 'edit', 'edit-choice-a', 'edit-choice-b'],
 ] as const) {
   for (const perspective of ['hero', 'villain'] as const) {

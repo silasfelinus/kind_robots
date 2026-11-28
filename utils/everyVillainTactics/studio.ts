@@ -1664,20 +1664,13 @@ export const STAGE_PRESETS: StageDraft[] = [
     id: 'refuge-in-orbit',
     title: 'A Refuge in Orbit',
     venue: 'Refugee shuttle during atmospheric reentry',
-    objective: 'Shape a solar shield around the failing sail without burning the hull. Get within 2 tiles of column 6, row 3 with clear sight with one AP free, then evacuate both civilians.',
+    objective:
+      'Shape a solar shield around the failing sail without burning the hull. Get within 2 tiles of column 6, row 3 with clear sight with one AP free, then evacuate both civilians.',
     map: {
       width: 9,
       height: 6,
       tiles: {
-        ...walls(
-          [2, 0],
-          [2, 1],
-          [2, 3],
-          [2, 5],
-          [5, 0],
-          [6, 3],
-          [7, 1],
-        ),
+        ...walls([2, 0], [2, 1], [2, 3], [2, 5], [5, 0], [6, 3], [7, 1]),
         '3,2': tile(0),
         '5,2': tile(0),
         '1,2': tile(0, false, { east: 'half' }),
@@ -1698,9 +1691,7 @@ export const STAGE_PRESETS: StageDraft[] = [
       { id: 'orbit-civilian-0', name: 'Shuttle navigator', x: 7, y: 2 },
       { id: 'orbit-civilian-1', name: 'Refugee family', x: 7, y: 5 },
     ],
-    props: [
-      { id: 'orbit-cover', x: 4, y: 3, cover: 'half', hp: 2 },
-    ],
+    props: [{ id: 'orbit-cover', x: 4, y: 3, cover: 'half', hp: 2 }],
     activeHazards: [
       { id: 'orbit-collapse', kind: 'collapse', x: 5, y: 3, round: 5 },
     ],
@@ -1712,20 +1703,13 @@ export const STAGE_PRESETS: StageDraft[] = [
     id: 'treaty-in-the-clouds',
     title: 'The Treaty in the Clouds',
     venue: 'Cloudport visitor center above the college',
-    objective: 'Translate the pressure-wave treaty at the floating relay. Get within 4 tiles of column 6, row 2 with clear sight with one AP free, then evacuate both civilians.',
+    objective:
+      'Translate the pressure-wave treaty at the floating relay. Get within 4 tiles of column 6, row 2 with clear sight with one AP free, then evacuate both civilians.',
     map: {
       width: 9,
       height: 6,
       tiles: {
-        ...walls(
-          [2, 0],
-          [2, 2],
-          [2, 4],
-          [4, 3],
-          [5, 5],
-          [6, 0],
-          [7, 3],
-        ),
+        ...walls([2, 0], [2, 2], [2, 4], [4, 3], [5, 5], [6, 0], [7, 3]),
         '3,1': tile(1),
         '5,1': tile(1),
         '1,3': tile(0, false, { east: 'half' }),
@@ -1746,9 +1730,7 @@ export const STAGE_PRESETS: StageDraft[] = [
       { id: 'treaty-civilian-0', name: 'Stranded traveler', x: 7, y: 1 },
       { id: 'treaty-civilian-1', name: 'Student interpreter', x: 7, y: 4 },
     ],
-    props: [
-      { id: 'treaty-cover', x: 5, y: 3, cover: 'half', hp: 2 },
-    ],
+    props: [{ id: 'treaty-cover', x: 5, y: 3, cover: 'half', hp: 2 }],
     activeHazards: [
       { id: 'treaty-collapse', kind: 'collapse', x: 3, y: 3, round: 6 },
     ],
@@ -1760,7 +1742,8 @@ export const STAGE_PRESETS: StageDraft[] = [
     id: 'museum-that-moved',
     title: 'The Museum That Moved',
     venue: 'Academy exhibition of living mineral fossils',
-    objective: 'Read the mineral memories and raise an escape passage at the plinth. Stand on column 5, row 4 with one AP free, then evacuate both civilians.',
+    objective:
+      'Read the mineral memories and raise an escape passage at the plinth. Stand on column 5, row 4 with one AP free, then evacuate both civilians.',
     map: {
       width: 9,
       height: 6,
@@ -1794,9 +1777,7 @@ export const STAGE_PRESETS: StageDraft[] = [
       { id: 'fossil-civilian-0', name: 'Sentient fossil', x: 7, y: 2 },
       { id: 'fossil-civilian-1', name: 'Exhibition caretaker', x: 7, y: 4 },
     ],
-    props: [
-      { id: 'fossil-cover', x: 3, y: 3, cover: 'half', hp: 2 },
-    ],
+    props: [{ id: 'fossil-cover', x: 3, y: 3, cover: 'half', hp: 2 }],
     activeHazards: [
       { id: 'fossil-collapse', kind: 'collapse', x: 5, y: 3, round: 7 },
     ],
@@ -1808,20 +1789,13 @@ export const STAGE_PRESETS: StageDraft[] = [
     id: 'song-for-the-drowned',
     title: 'A Song for the Drowned',
     venue: 'Coastal cleanup festival rescue pontoon',
-    objective: "Redirect the tide using controlled harmony at the pontoon's acoustic beacon. Get within 3 tiles of column 6, row 4 with clear sight with one AP free, then evacuate both civilians.",
+    objective:
+      "Redirect the tide using controlled harmony at the pontoon's acoustic beacon. Get within 3 tiles of column 6, row 4 with clear sight with one AP free, then evacuate both civilians.",
     map: {
       width: 9,
       height: 6,
       tiles: {
-        ...walls(
-          [2, 0],
-          [2, 2],
-          [2, 4],
-          [4, 0],
-          [4, 5],
-          [6, 1],
-          [7, 3],
-        ),
+        ...walls([2, 0], [2, 2], [2, 4], [4, 0], [4, 5], [6, 1], [7, 3]),
         '3,3': tile(1),
         '5,3': tile(1),
         '0,5': tile(0, false, { east: 'half' }),
@@ -1842,9 +1816,7 @@ export const STAGE_PRESETS: StageDraft[] = [
       { id: 'tide-civilian-0', name: 'Cleanup diver', x: 7, y: 2 },
       { id: 'tide-civilian-1', name: 'Vulnerable singer', x: 7, y: 5 },
     ],
-    props: [
-      { id: 'tide-cover', x: 4, y: 3, cover: 'half', hp: 2 },
-    ],
+    props: [{ id: 'tide-cover', x: 4, y: 3, cover: 'half', hp: 2 }],
     activeHazards: [
       { id: 'tide-collapse', kind: 'collapse', x: 6, y: 2, round: 5 },
     ],
@@ -1856,20 +1828,13 @@ export const STAGE_PRESETS: StageDraft[] = [
     id: 'orders-from-home',
     title: 'Orders From Home',
     venue: 'Academy training yard around a crashed military capsule',
-    objective: "Sever the command relay's capture net without touching the captives. Stand beside column 5, row 3 with one AP free, then evacuate both civilians.",
+    objective:
+      "Sever the command relay's capture net without touching the captives. Stand beside column 5, row 3 with one AP free, then evacuate both civilians.",
     map: {
       width: 9,
       height: 6,
       tiles: {
-        ...walls(
-          [2, 0],
-          [2, 1],
-          [2, 3],
-          [2, 5],
-          [5, 1],
-          [6, 0],
-          [7, 3],
-        ),
+        ...walls([2, 0], [2, 1], [2, 3], [2, 5], [5, 1], [6, 0], [7, 3]),
         '3,2': tile(0),
         '4,2': tile(0),
       },
@@ -1889,9 +1854,7 @@ export const STAGE_PRESETS: StageDraft[] = [
       { id: 'warrant-civilian-0', name: 'Capsule survivor', x: 7, y: 2 },
       { id: 'warrant-civilian-1', name: 'Civilian rescuer', x: 7, y: 4 },
     ],
-    props: [
-      { id: 'warrant-cover', x: 5, y: 3, cover: 'half', hp: 2 },
-    ],
+    props: [{ id: 'warrant-cover', x: 5, y: 3, cover: 'half', hp: 2 }],
     activeHazards: [
       { id: 'warrant-collapse', kind: 'collapse', x: 6, y: 3, round: 6 },
     ],
@@ -1903,20 +1866,13 @@ export const STAGE_PRESETS: StageDraft[] = [
     id: 'small-future',
     title: 'A Small Future',
     venue: 'Community energy research laboratory',
-    objective: 'Recalibrate the confiscation device from the diagnostic terminal. Get within 4 tiles of column 6, row 3 with clear sight with one AP free, then evacuate both civilians.',
+    objective:
+      'Recalibrate the confiscation device from the diagnostic terminal. Get within 4 tiles of column 6, row 3 with clear sight with one AP free, then evacuate both civilians.',
     map: {
       width: 9,
       height: 6,
       tiles: {
-        ...walls(
-          [2, 0],
-          [2, 1],
-          [2, 3],
-          [3, 5],
-          [4, 4],
-          [6, 0],
-          [7, 1],
-        ),
+        ...walls([2, 0], [2, 1], [2, 3], [3, 5], [4, 4], [6, 0], [7, 1]),
         '2,2': tile(1),
         '5,2': tile(1),
         '0,1': tile(0, false, { east: 'half' }),
@@ -1937,9 +1893,7 @@ export const STAGE_PRESETS: StageDraft[] = [
       { id: 'future-civilian-0', name: 'Human inventor', x: 7, y: 2 },
       { id: 'future-civilian-1', name: 'Lab technician', x: 7, y: 5 },
     ],
-    props: [
-      { id: 'future-cover', x: 3, y: 3, cover: 'half', hp: 2 },
-    ],
+    props: [{ id: 'future-cover', x: 3, y: 3, cover: 'half', hp: 2 }],
     activeHazards: [
       { id: 'future-collapse', kind: 'collapse', x: 4, y: 3, round: 7 },
     ],
@@ -1951,20 +1905,13 @@ export const STAGE_PRESETS: StageDraft[] = [
     id: 'missing-coronation',
     title: 'The Missing Coronation',
     venue: 'Amphitheater and mirrored royal courtyard',
-    objective: 'Open the royal gateway without binding anyone to the crown. Get within 2 tiles of column 5, row 4 with clear sight with one AP free, then evacuate both civilians.',
+    objective:
+      'Open the royal gateway without binding anyone to the crown. Get within 2 tiles of column 5, row 4 with clear sight with one AP free, then evacuate both civilians.',
     map: {
       width: 9,
       height: 6,
       tiles: {
-        ...walls(
-          [2, 0],
-          [2, 1],
-          [2, 2],
-          [2, 4],
-          [5, 0],
-          [5, 5],
-          [7, 2],
-        ),
+        ...walls([2, 0], [2, 1], [2, 2], [2, 4], [5, 0], [5, 5], [7, 2]),
         '3,3': tile(0),
         '4,3': tile(0),
         '1,1': tile(0, false, { east: 'half' }),
@@ -1985,9 +1932,7 @@ export const STAGE_PRESETS: StageDraft[] = [
       { id: 'crown-civilian-0', name: 'Transported student', x: 7, y: 1 },
       { id: 'crown-civilian-1', name: 'Council representative', x: 7, y: 4 },
     ],
-    props: [
-      { id: 'crown-cover', x: 6, y: 2, cover: 'half', hp: 2 },
-    ],
+    props: [{ id: 'crown-cover', x: 6, y: 2, cover: 'half', hp: 2 }],
     activeHazards: [
       { id: 'crown-collapse', kind: 'collapse', x: 5, y: 3, round: 5 },
     ],
@@ -1999,20 +1944,13 @@ export const STAGE_PRESETS: StageDraft[] = [
     id: 'everyone-inside',
     title: 'Everyone Inside',
     venue: 'Academy counseling lounge during a missing-person search',
-    objective: 'Offer a reversible empathic link at the counseling table, with an explicit opt-out. Stand on column 5, row 3 with one AP free, then evacuate both civilians.',
+    objective:
+      'Offer a reversible empathic link at the counseling table, with an explicit opt-out. Stand on column 5, row 3 with one AP free, then evacuate both civilians.',
     map: {
       width: 9,
       height: 6,
       tiles: {
-        ...walls(
-          [2, 0],
-          [2, 1],
-          [2, 4],
-          [2, 5],
-          [4, 0],
-          [5, 4],
-          [7, 1],
-        ),
+        ...walls([2, 0], [2, 1], [2, 4], [2, 5], [4, 0], [5, 4], [7, 1]),
         '4,2': tile(1),
         '0,0': tile(0, false, { east: 'half' }),
       },
@@ -2032,9 +1970,7 @@ export const STAGE_PRESETS: StageDraft[] = [
       { id: 'hive-civilian-0', name: 'Exchange student', x: 7, y: 2 },
       { id: 'hive-civilian-1', name: 'Missing friend', x: 7, y: 4 },
     ],
-    props: [
-      { id: 'hive-cover', x: 4, y: 3, cover: 'half', hp: 2 },
-    ],
+    props: [{ id: 'hive-cover', x: 4, y: 3, cover: 'half', hp: 2 }],
     activeHazards: [
       { id: 'hive-collapse', kind: 'collapse', x: 3, y: 3, round: 6 },
     ],

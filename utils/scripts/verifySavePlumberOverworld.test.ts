@@ -1038,7 +1038,8 @@ async function verifyAccountSync() {
   let displayed = readPlumberFile(null)
   const displayedSlot = () => displayed.slots[0]
   let status = ''
-  let conflict: import('../../stores/helpers/plumberCloud').PlumberCloudConflict | null =
+  let conflict:
+    import('../../stores/helpers/plumberCloud').PlumberCloudConflict | null =
     null
   const getConflict = () => {
     assert.ok(conflict)
@@ -1138,7 +1139,11 @@ async function verifyAccountSync() {
   assert.equal(status, 'synced')
   assert.equal(displayedSlot()?.score, 75)
   assert.equal(displayed.slots[1]?.score, 12, 'independent local file survives')
-  assert.equal(displayed.slots[2]?.score, 12, 'independent remote file survives')
+  assert.equal(
+    displayed.slots[2]?.score,
+    12,
+    'independent remote file survives',
+  )
   assert.deepEqual(displayed, remote.get('41')?.save)
   remote.delete('41')
   await cloud.sync('41', '41', first)

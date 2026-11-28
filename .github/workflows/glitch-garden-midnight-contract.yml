@@ -1,0 +1,35 @@
+name: Glitch Garden Midnight Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/arcade/games/glitchGarden.ts'
+      - 'utils/arcade/games/glitchGardenArt.ts'
+      - 'utils/arcade/games/glitchGardenGardens.ts'
+      - 'utils/arcade/games/glitchGardenSave.ts'
+      - 'utils/scripts/verifyCabinetGlitchGardenMidnight.test.ts'
+      - '.github/workflows/glitch-garden-midnight-contract.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: glitch-garden-midnight-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  midnight:
+    name: Midnight Garden unlock, four-colour beams and endings
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      CYPRESS_INSTALL_BINARY: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx --no-install tsx utils/scripts/verifyCabinetGlitchGardenMidnight.test.ts

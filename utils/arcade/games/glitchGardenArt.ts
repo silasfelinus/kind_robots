@@ -151,6 +151,12 @@ export const GARDEN_LOOKS: Record<string, GardenLook> = {
     soil: [mix(RAMPS.steel[0], RAMPS.earth[0], 0.3), RAMPS.steel[0]],
     edging: RAMPS.sky,
   },
+  'midnight-garden': {
+    lawn: ['#040619', '#0a1230', '#111a35', '#17143b'],
+    stripe: '#505a93',
+    soil: ['#100a27', '#241b44'],
+    edging: RAMPS.purple,
+  },
   'snowball-hill': {
     lawn: [
       mix(RAMPS.night[0], RAMPS.purple[0], 0.7),

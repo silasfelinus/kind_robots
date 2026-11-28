@@ -9,7 +9,7 @@
      when strained and turn chartreuse and hot pink when rotten. -->
 <template>
   <div class="rh-hud">
-    <div class="rh-crest" role="banner">
+    <div class="rh-crest">
       <svg
         class="rh-crest__crown"
         viewBox="0 0 24 16"

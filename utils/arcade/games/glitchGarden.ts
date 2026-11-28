@@ -2521,12 +2521,7 @@ class GlitchGarden implements ArcadeGameInstance {
     const col = Math.floor(b.x / CELL)
     const row = Math.floor((b.y - HUD) / CELL)
     const ob = this.at(col, row)
-    if (
-      ob &&
-      ob.kind !== 'can' &&
-      !isPermanentFixture(ob) &&
-      this.rng() < 0.05
-    )
+    if (ob && ob.kind !== 'can' && !isPermanentFixture(ob) && this.rng() < 0.05)
       this.grid[this.idx(col, row)] = null
     if (b.x < -10 || b.x > W + 10) this.beetle = null
   }

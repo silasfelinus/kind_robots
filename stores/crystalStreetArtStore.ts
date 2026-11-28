@@ -74,7 +74,7 @@ export const useCrystalStreetArtStore = defineStore('crystalStreetArt', () => {
             if (order.length > MAX_CACHED) {
               const oldest = order.shift()!
               URL.revokeObjectURL(next[oldest]!)
-              delete next[oldest]
+              Reflect.deleteProperty(next, oldest)
             }
             sources.value = next
             return

@@ -7,6 +7,7 @@
     :data-mouth="pose.mouth"
     :data-eyes="pose.eyes"
     :data-motion="reduced ? 'reduced' : 'full'"
+    :data-art="paintFailed ? 'vector' : 'painted'"
     :style="{ aspectRatio: rig.frame.w + ' / ' + rig.frame.h }"
     role="img"
     :aria-label="rig.name"
@@ -76,6 +77,7 @@
                   ? 'url(#' + clipIds.get(part.source) + ')'
                   : undefined
               "
+              @error="paintFailed = true"
             />
           </svg>
         </g>
@@ -96,6 +98,7 @@ import {
 } from 'vue'
 import { leadRigFor } from '~/utils/monstrique/leadRigs'
 import {
+  paintedFiles,
   poseRig,
   sourcesOf,
   type CutoutRig,
@@ -115,7 +118,14 @@ const props = defineProps<{
   rig?: CutoutRig
 }>()
 
-const rig = computed(() => props.rig ?? leadRigFor(props.character)!)
+const paintFailed = ref(false)
+const rig = computed(
+  () =>
+    props.rig ??
+    leadRigFor(props.character, {
+      painted: !paintFailed.value,
+    })!,
+)
 const uid = 'mq-rig-' + useId()
 const clipIds = computed(() => {
   const ids = new Map<RigImageSource, string>()
@@ -228,7 +238,19 @@ watch(
   },
 )
 
+function preloadPaint(): void {
+  if (props.rig) return
+  for (const src of paintedFiles(rig.value)) {
+    const image = new Image()
+    image.onerror = () => {
+      paintFailed.value = true
+    }
+    image.src = src
+  }
+}
+
 onMounted(() => {
+  preloadPaint()
   origin = performance.now()
   motionQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)') ?? null
   reduced.value = motionQuery?.matches === true

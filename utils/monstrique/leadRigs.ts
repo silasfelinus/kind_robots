@@ -2,18 +2,27 @@
  * Iris and Norb as cut-out rigs (conductor monstress-convention/t-018).
  *
  * Vector parts drawn over each lead's neutral A-pose in a 100x220 frame, feet
- * on y 214, three-quarter view facing right. They follow the canonical krea2
- * faces (ArtImage 280896 Iris, 280897 Norb) and stand in until the painted
- * A-pose and talk/blink head sheets of round CH1-LEADS-RIG-R1 are cut into
- * parts; that swap is `withPaintedParts` over these boxes, pivots and clips.
+ * on y 214, three-quarter view facing right, following the canonical krea2
+ * faces (ArtImage 280896 Iris, 280897 Norb). The stage draws the painted
+ * parts cut from round CH1-LEADS-RIG-R1 (bottom of this file) through
+ * `withPaintedParts`, with the same part ids, z-order and clips; the vector
+ * rigs remain the fallback when a painted part fails to load.
  */
-import type {
-  CutoutRig,
-  RigChannel,
-  RigChannelProp,
-  RigKey,
-  RigShape,
-  RigVectorSource,
+import {
+  MERGED,
+  sampleChannel,
+  withPaintedParts,
+  type CutoutRig,
+  type RigBox,
+  type RigChannel,
+  type RigChannelProp,
+  type RigImageSource,
+  type RigKey,
+  type RigLayout,
+  type RigPaint,
+  type RigPoint,
+  type RigShape,
+  type RigVectorSource,
 } from './rig'
 
 const INK = '#1a1016'
@@ -81,6 +90,60 @@ function fishnet(x: number, top: number, width: number, bottom: number) {
   return line(d.trim(), '#120c10', 0.45)
 }
 
+/** A walk's leg swing in degrees; the feet counter-turn to stay near level. */
+interface LegSwing {
+  thigh: number
+  knee: number
+}
+const FOOT_LEVEL = 0.8
+function stride({ thigh, knee }: LegSwing): RigChannel[] {
+  const legs: [string, RigKey[], RigKey[]][] = [
+    [
+      'Front',
+      [
+        [0, -thigh],
+        [0.5, thigh],
+        [1, -thigh],
+      ],
+      [
+        [0, 0],
+        [0.5, 0],
+        [0.75, knee],
+        [1, 0],
+      ],
+    ],
+    [
+      'Back',
+      [
+        [0, thigh],
+        [0.5, -thigh],
+        [1, thigh],
+      ],
+      [
+        [0, 0],
+        [0.25, knee],
+        [0.5, 0],
+        [1, 0],
+      ],
+    ],
+  ]
+  return legs.flatMap(([side, thighKeys, kneeKeys]) => {
+    const foot = Array.from({ length: 9 }, (_, i): RigKey => {
+      const phase = i / 8
+      const angle =
+        sampleChannel(thighKeys, phase) + sampleChannel(kneeKeys, phase)
+      return [phase, Math.round(-angle * FOOT_LEVEL * 10) / 10 || 0]
+    })
+    return [
+      ch('thigh' + side, 'rotate', ...thighKeys),
+      ch('shin' + side, 'rotate', ...kneeKeys),
+      ch('foot' + side, 'rotate', ...foot),
+    ]
+  })
+}
+const IRIS_LEGS: LegSwing = { thigh: 22, knee: 30 }
+const NORB_LEGS: LegSwing = { thigh: 26, knee: 30 }
+
 const IRIS_SKIN = '#e2ab92'
 const IRIS_HAIR = '#121016'
 const ROSE = '#b04a6e'
@@ -103,13 +166,13 @@ const irisEyesBlink = svg(
   line('M41 21.2 Q45 18.8 49 20.8 M54 20.4 Q58 18.4 62 20.8', IRIS_HAIR, 1.3),
 )
 
-export const IRIS_RIG: CutoutRig = {
+export const IRIS_VECTOR_RIG: CutoutRig = {
   id: 'iris',
   name: 'Iris Quill',
   frame: FRAME,
   seed: 280896,
   handlesItems: true,
-  strideHeights: 0.82,
+  strideHeights: 0.61,
   legs: ['thighBack', 'thighFront'],
   parts: [
     {
@@ -247,6 +310,15 @@ export const IRIS_RIG: CutoutRig = {
       art: svg(
         path('M29.5 86 L37.5 88 L35.5 111 L28 111 Z', ROSE, inked()),
         path('M27.8 108 L35.7 108 L35.5 112.5 L27.6 112.5 Z', PLUM, inked(0.6)),
+      ),
+    },
+    {
+      id: 'handBack',
+      parent: 'armBackLower',
+      pivot: [31.5, 112],
+      box: { x: 26, y: 110, w: 11, h: 13 },
+      z: 9,
+      art: svg(
         path(
           'M28.5 112 Q27 118 30 121 Q33 122 35 118 Q35.5 114 34.8 112 Z',
           IRIS_SKIN,
@@ -285,6 +357,15 @@ export const IRIS_RIG: CutoutRig = {
       art: svg(
         path('M62.5 88 L70.5 86 L72 111 L64.5 111 Z', ROSE, inked()),
         path('M64.3 108 L72.2 108 L72.4 112.5 L64.5 112.5 Z', PLUM, inked(0.6)),
+      ),
+    },
+    {
+      id: 'handFront',
+      parent: 'armFrontLower',
+      pivot: [68.5, 112],
+      box: { x: 64, y: 110, w: 10, h: 13 },
+      z: 16,
+      art: svg(
         path(
           'M65.2 112 Q65 118 68 121 Q71 122 72.5 118 Q73 114 71.6 112 Z',
           IRIS_SKIN,
@@ -312,6 +393,15 @@ export const IRIS_RIG: CutoutRig = {
       art: svg(
         rect(40, 166, 9, 30, NET, { ...inked(0.8), rx: 3.5 }),
         fishnet(40.5, 168, 8, 192),
+      ),
+    },
+    {
+      id: 'footBack',
+      parent: 'shinBack',
+      pivot: [44.5, 204],
+      box: { x: 38, y: 188, w: 19, h: 27 },
+      z: 3.5,
+      art: svg(
         path(
           'M39.3 190 L49.7 190 L50 207 Q55 208 55.5 213.5 L39 213.5 Z',
           '#18141a',
@@ -339,6 +429,15 @@ export const IRIS_RIG: CutoutRig = {
       art: svg(
         rect(51, 166, 9, 30, NET, { ...inked(0.8), rx: 3.5 }),
         fishnet(51.5, 168, 8, 192),
+      ),
+    },
+    {
+      id: 'footFront',
+      parent: 'shinFront',
+      pivot: [55.5, 204],
+      box: { x: 49, y: 188, w: 19, h: 27 },
+      z: 5.5,
+      art: svg(
         path(
           'M50.3 190 L60.7 190 L61 207 Q66 208 66.5 213.5 L50 213.5 Z',
           '#18141a',
@@ -369,17 +468,14 @@ export const IRIS_RIG: CutoutRig = {
       drive: 'distance',
       stillAt: 0.25,
       channels: [
-        ch('thighFront', 'rotate', [0, -30], [0.5, 30], [1, -30]),
-        ch('thighBack', 'rotate', [0, 30], [0.5, -30], [1, 30]),
-        ch('shinFront', 'rotate', [0, 0], [0.5, 0], [0.75, 35], [1, 0]),
-        ch('shinBack', 'rotate', [0, 0], [0.25, 35], [0.5, 0], [1, 0]),
+        ...stride(IRIS_LEGS),
         ch('hips', 'y', [0, 1.5], [0.25, -1], [0.5, 1.5], [0.75, -1], [1, 1.5]),
         hold('torso', 'rotate', 3),
         hold('head', 'rotate', -2),
-        ch('armFrontUpper', 'rotate', [0, 16], [0.5, -16], [1, 16]),
-        ch('armBackUpper', 'rotate', [0, -16], [0.5, 16], [1, -16]),
-        ch('armFrontLower', 'rotate', [0, -4], [0.5, -16], [1, -4]),
-        ch('armBackLower', 'rotate', [0, -16], [0.5, -4], [1, -16]),
+        ch('armFrontUpper', 'rotate', [0, 10], [0.5, -10], [1, 10]),
+        ch('armBackUpper', 'rotate', [0, -10], [0.5, 10], [1, -10]),
+        ch('armFrontLower', 'rotate', [0, -3], [0.5, -10], [1, -3]),
+        ch('armBackLower', 'rotate', [0, -10], [0.5, -3], [1, -10]),
         ch('camera', 'rotate', [0, 3], [0.5, -3], [1, 3]),
       ],
     },
@@ -466,13 +562,13 @@ const norbBags = line(
   0.7,
 )
 
-export const NORB_RIG: CutoutRig = {
+export const NORB_VECTOR_RIG: CutoutRig = {
   id: 'norb',
   name: 'Norb Vale',
   frame: FRAME,
   seed: 280897,
   handlesItems: false,
-  strideHeights: 0.72,
+  strideHeights: 0.48,
   legs: ['thighBack', 'thighFront'],
   parts: [
     {
@@ -654,10 +750,15 @@ export const NORB_RIG: CutoutRig = {
       pivot: [31, 108],
       box: { x: 22, y: 104, w: 18, h: 37 },
       z: 17,
-      art: svg(
-        path('M27 107 L35 109 L34.5 124 L27.5 124 Z', JACKET, inked()),
-        ...glove(31),
-      ),
+      art: svg(path('M27 107 L35 109 L34.5 124 L27.5 124 Z', JACKET, inked())),
+    },
+    {
+      id: 'handBack',
+      parent: 'armBackLower',
+      pivot: [31, 124],
+      box: { x: 23, y: 121, w: 16, h: 20 },
+      z: 17,
+      art: svg(...glove(31)),
     },
     {
       id: 'armFrontUpper',
@@ -673,10 +774,15 @@ export const NORB_RIG: CutoutRig = {
       pivot: [73, 108],
       box: { x: 64, y: 104, w: 18, h: 37 },
       z: 16,
-      art: svg(
-        path('M69 109 L77 107 L76.5 124 L69.5 124 Z', JACKET, inked()),
-        ...glove(73),
-      ),
+      art: svg(path('M69 109 L77 107 L76.5 124 L69.5 124 Z', JACKET, inked())),
+    },
+    {
+      id: 'handFront',
+      parent: 'armFrontLower',
+      pivot: [73, 124],
+      box: { x: 65, y: 121, w: 16, h: 20 },
+      z: 16,
+      art: svg(...glove(73)),
     },
     {
       id: 'thighBack',
@@ -692,8 +798,15 @@ export const NORB_RIG: CutoutRig = {
       pivot: [43, 180],
       box: { x: 34, y: 176, w: 24, h: 39 },
       z: 4,
+      art: svg(rect(38, 178, 10, 28, '#6f7178', { ...inked(0.8), rx: 3 })),
+    },
+    {
+      id: 'footBack',
+      parent: 'shinBack',
+      pivot: [43, 205],
+      box: { x: 35, y: 201, w: 22, h: 14 },
+      z: 3.5,
       art: svg(
-        rect(38, 178, 10, 28, '#6f7178', { ...inked(0.8), rx: 3 }),
         path(
           'M36 203 L49 203 L50 208 Q56 209 56.5 213.5 L35.5 213.5 Z',
           '#5a3b25',
@@ -715,8 +828,15 @@ export const NORB_RIG: CutoutRig = {
       pivot: [59, 180],
       box: { x: 50, y: 176, w: 24, h: 39 },
       z: 6,
+      art: svg(rect(54, 178, 10, 28, '#6f7178', { ...inked(0.8), rx: 3 })),
+    },
+    {
+      id: 'footFront',
+      parent: 'shinFront',
+      pivot: [59, 205],
+      box: { x: 51, y: 201, w: 22, h: 14 },
+      z: 5.5,
       art: svg(
-        rect(54, 178, 10, 28, '#6f7178', { ...inked(0.8), rx: 3 }),
         path(
           'M52 203 L65 203 L66 208 Q72 209 72.5 213.5 L51.5 213.5 Z',
           '#5a3b25',
@@ -748,10 +868,7 @@ export const NORB_RIG: CutoutRig = {
       drive: 'distance',
       stillAt: 0.25,
       channels: [
-        ch('thighFront', 'rotate', [0, -40], [0.5, 40], [1, -40]),
-        ch('thighBack', 'rotate', [0, 40], [0.5, -40], [1, 40]),
-        ch('shinFront', 'rotate', [0, 0], [0.5, 0], [0.75, 40], [1, 0]),
-        ch('shinBack', 'rotate', [0, 0], [0.25, 40], [0.5, 0], [1, 0]),
+        ...stride(NORB_LEGS),
         ch('hips', 'y', [0, 2], [0.25, -1.5], [0.5, 2], [0.75, -1.5], [1, 2]),
         hold('torso', 'rotate', 5),
         hold('head', 'rotate', 6),
@@ -794,18 +911,18 @@ export const NORB_RIG: CutoutRig = {
           'torso',
           'rotate',
           [0, 0],
-          [0.2, -12],
-          [0.3, -9],
-          [0.4, -12],
-          [0.5, -9],
-          [1, -10],
+          [0.2, -6],
+          [0.3, -4.5],
+          [0.4, -6],
+          [0.5, -4.5],
+          [1, -5],
         ),
         ch('hips', 'x', [0, 0], [0.2, -3], [1, -3]),
         ch('head', 'rotate', [0, 4], [0.2, -6], [1, -4]),
         ch('armFrontUpper', 'rotate', [0, 10], [0.2, 25], [1, 22]),
         ch('armFrontLower', 'rotate', [0, -160], [0.2, -185], [1, -180]),
-        ch('armBackUpper', 'rotate', [0, -10], [0.2, 0], [1, -2]),
-        ch('armBackLower', 'rotate', [0, -140], [0.2, -170], [1, -165]),
+        ch('armBackUpper', 'rotate', [0, -10], [0.2, 20], [1, 18]),
+        ch('armBackLower', 'rotate', [0, -140], [0.2, -180], [1, -175]),
       ],
     },
     recoil: {
@@ -829,8 +946,169 @@ export const NORB_RIG: CutoutRig = {
   },
 }
 
+/**
+ * Painted parts cut from the delivered rig source art (round
+ * monstrique-leads-rig-1: Iris A-pose ArtImage 280967 and head sheet 280968,
+ * Norb A-pose 280969 and head sheet 280970) by
+ * scripts/cut_monstrique_rig_parts.py, which prints the two blocks below. A cut
+ * is its webp's size in pixels, its box in rig space and the joint it turns
+ * on; mouth and eye states sit over the painted face. Norb's painting is wider
+ * than the vector frame, so his frame is too.
+ */
+interface Cut {
+  sheet: [number, number]
+  box: RigBox
+  pivot: RigPoint
+}
+interface Swap {
+  pivot: RigPoint
+  states: Record<string, Cut>
+}
+type Painting = Record<string, Cut | Swap | typeof MERGED>
+const cut = (
+  sheet: [number, number],
+  [x = 0, y = 0, w = 0, h = 0]: number[],
+  pivot: RigPoint,
+): Cut => ({ sheet, box: { x, y, w, h }, pivot })
+const state = (sheet: [number, number], box: number[]): Cut =>
+  cut(sheet, box, [0, 0])
+const swap = (pivot: RigPoint, states: Record<string, Cut>): Swap => ({
+  pivot,
+  states,
+})
+
+const IRIS_PAINTING: Painting = {
+  handBack: cut([81, 99], [2.01, 103.4, 19.95, 24.25], [15.08, 107.36]),
+  handFront: cut([85, 90], [77.86, 99.45, 20.98, 22.02], [84.23, 102.89]),
+  camera: cut([117, 124], [20.07, 85.86, 28.72, 30.44], [42.95, 92.57]),
+  head: cut([197, 197], [25.58, 9.32, 48.33, 48.5], [52.58, 55.07]),
+  armBackLower: cut([122, 145], [7.86, 74.85, 29.93, 35.6], [24.37, 80.53]),
+  armBackUpper: cut([91, 140], [19.21, 49.22, 22.36, 34.4], [32.97, 57.82]),
+  armFrontLower: cut([85, 106], [66.86, 77.78, 20.98, 25.97], [77.35, 81.22]),
+  armFrontUpper: cut([54, 126], [63.76, 51.29, 13.24, 30.96], [69.09, 57.14]),
+  torso: cut([195, 182], [28.33, 49.57, 47.99, 44.72], [54.3, 91.19]),
+  hips: cut([268, 290], [16.12, 84.31, 65.88, 71.21], [54.3, 124.9]),
+  thighBack: cut([98, 206], [24.72, 124.56, 24.08, 50.57], [37.44, 124.9]),
+  shinBack: cut([72, 128], [23.34, 172.2, 17.72, 31.48], [33.32, 172.38]),
+  footBack: cut([66, 59], [20.42, 200.76, 16.34, 14.62], [28.84, 201.62]),
+  thighFront: cut([90, 205], [46.9, 124.56, 22.19, 50.4], [57.05, 124.9]),
+  shinFront: cut([76, 126], [48.11, 167.56, 18.58, 30.96], [57.4, 172.03]),
+  footFront: cut([115, 65], [49.48, 193.02, 28.21, 16.0], [57.74, 197.14]),
+  eyes: swap([55.33, 30.99], {
+    open: state([63, 27], [47.42, 27.55, 15.48, 6.71]),
+    blink: state([63, 27], [47.42, 27.55, 15.48, 6.71]),
+  }),
+  mouth: swap([55.33, 39.94], {
+    rest: state([44, 23], [50.0, 37.18, 10.84, 5.68]),
+    open: state([37, 30], [50.86, 36.32, 9.12, 7.4]),
+    oh: state([34, 29], [51.2, 36.5, 8.43, 7.05]),
+  }),
+  hairBack: MERGED,
+}
+
+const NORB_PAINTING: Painting = {
+  handBack: cut([134, 197], [3.36, 107.16, 33.23, 49.07], [19.54, 112.21]),
+  handFront: cut([111, 183], [95.06, 103.86, 27.67, 45.41], [104.11, 110.82]),
+  head: cut([218, 244], [34.16, 13.03, 54.29, 60.55], [70.0, 72.19]),
+  armBackLower: cut([113, 89], [5.28, 91.68, 28.19, 22.1], [20.94, 93.07]),
+  armBackUpper: cut([122, 118], [10.32, 64.88, 30.45, 29.41], [27.55, 79.15]),
+  armFrontLower: cut([68, 97], [92.1, 91.68, 16.88, 24.01], [97.5, 92.9]),
+  armFrontUpper: cut([42, 80], [92.1, 74.45, 10.44, 19.84], [92.62, 77.41]),
+  torso: cut([318, 388], [22.68, 59.66, 79.17, 96.4], [67.57, 137.96]),
+  hips: cut([316, 134], [23.37, 132.39, 78.47, 33.41], [62.0, 155.71]),
+  thighBack: cut([162, 147], [20.76, 142.49, 40.19, 36.54], [41.12, 155.71]),
+  shinBack: cut([160, 84], [20.59, 174.68, 39.67, 20.88], [40.42, 176.94]),
+  footBack: cut([139, 94], [21.46, 191.73, 34.63, 23.49], [38.68, 195.03]),
+  thighFront: cut([142, 147], [58.35, 142.49, 35.32, 36.54], [75.92, 155.71]),
+  shinFront: cut([145, 70], [58.35, 176.07, 36.02, 17.4], [75.22, 176.94]),
+  footFront: cut([184, 80], [58.52, 186.86, 45.76, 20.01], [71.74, 190.86]),
+  eyes: swap([70.0, 46.44], {
+    open: state([83, 50], [58.17, 40.7, 20.53, 12.35]),
+    blink: state([83, 50], [58.17, 40.7, 20.53, 12.35]),
+  }),
+  mouth: swap([70.35, 60.36], {
+    rest: state([80, 33], [60.43, 57.05, 20.01, 8.18]),
+    open: state([78, 47], [60.78, 55.31, 19.31, 11.66]),
+    oh: state([48, 47], [64.45, 55.31, 11.97, 11.66]),
+  }),
+  glasses: MERGED,
+}
+
+/** A cut's webp placed in `box`: its own box, or a swap's shared one. */
+function image(
+  lead: string,
+  file: string,
+  c: Cut,
+  box = c.box,
+): RigImageSource {
+  const [w, h] = c.sheet
+  const sx = w / c.box.w
+  const sy = h / c.box.h
+  return {
+    kind: 'image',
+    src: '/monstress-convention/rig/' + lead + '/' + file + '.webp',
+    sheet: { w, h },
+    rect: {
+      x: (box.x - c.box.x) * sx,
+      y: (box.y - c.box.y) * sy,
+      w: box.w * sx,
+      h: box.h * sy,
+    },
+  }
+}
+
+function union(boxes: RigBox[]): RigBox {
+  const x = Math.min(...boxes.map((b) => b.x))
+  const y = Math.min(...boxes.map((b) => b.y))
+  const right = Math.max(...boxes.map((b) => b.x + b.w))
+  const bottom = Math.max(...boxes.map((b) => b.y + b.h))
+  return { x, y, w: right - x, h: bottom - y }
+}
+
+function painted(
+  rig: CutoutRig,
+  painting: Painting,
+  frame: CutoutRig['frame'],
+): CutoutRig {
+  const art: Partial<Record<string, RigPaint>> = {}
+  const parts: NonNullable<RigLayout['parts']> = {}
+  for (const [id, entry] of Object.entries(painting)) {
+    if (entry === MERGED) {
+      art[id] = MERGED
+    } else if ('states' in entry) {
+      const box = union(Object.values(entry.states).map((c) => c.box))
+      const states: Partial<Record<string, RigImageSource>> = {}
+      for (const [name, c] of Object.entries(entry.states))
+        states[name] = image(rig.id, id + '-' + name, c, box)
+      art[id] = states
+      parts[id] = { box, pivot: entry.pivot }
+    } else {
+      art[id] = image(rig.id, id, entry)
+      parts[id] = { box: entry.box, pivot: entry.pivot }
+    }
+  }
+  return withPaintedParts(rig, art, { frame, parts })
+}
+
+export const IRIS_RIG: CutoutRig = painted(IRIS_VECTOR_RIG, IRIS_PAINTING, {
+  ...FRAME,
+})
+export const NORB_RIG: CutoutRig = painted(NORB_VECTOR_RIG, NORB_PAINTING, {
+  ...FRAME,
+  w: 124,
+})
+
 export const LEAD_RIGS = { iris: IRIS_RIG, norb: NORB_RIG } as const
+export const LEAD_VECTOR_RIGS = {
+  iris: IRIS_VECTOR_RIG,
+  norb: NORB_VECTOR_RIG,
+} as const
 export type LeadId = keyof typeof LEAD_RIGS
-export function leadRigFor(id: string): CutoutRig | null {
-  return id === 'iris' || id === 'norb' ? LEAD_RIGS[id] : null
+/** The painted rig, or the vector stand-in when a painted part fails to load. */
+export function leadRigFor(
+  id: string,
+  { painted = true }: { painted?: boolean } = {},
+): CutoutRig | null {
+  if (id !== 'iris' && id !== 'norb') return null
+  return painted ? LEAD_RIGS[id] : LEAD_VECTOR_RIGS[id]
 }

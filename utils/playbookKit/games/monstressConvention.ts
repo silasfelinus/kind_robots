@@ -127,6 +127,20 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
         alt: 'Norb hunches at a glowing motel computer while Iris covers her mouth and an angry crowd with flashlights gathers outside the rainy window.',
       },
     },
+    {
+      id: 'fifth-hexblade',
+      title: 'The Fifth Hexblade',
+      tone: 'secret',
+      summary:
+        'The full file: the lobby shrine is missing a knife, and the vanished ice bucket points to someone who still wears a stage face.',
+      hint: 'The motel keeps a few secrets after the lead is filed. Count what is missing before you leave for the convention.',
+      about: ['iris', 'nico', 'violet', 'unknown-killer'],
+      art: {
+        brief:
+          'Iris pins the last photo to a motel-room cork board while tiny gloved Norb points at a chalk outline of a fifth jewelled dagger, red string running from the shrine, bucket and fangs photos, neon noir comedy',
+        alt: 'Iris pins the last photo to a cork board of motel clues while Norb, at arm’s length with a pointer, taps a chalk outline of a fifth jewelled dagger.',
+      },
+    },
   ],
   moments: [
     {

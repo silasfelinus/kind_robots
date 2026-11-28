@@ -21,6 +21,7 @@ import {
 import { travelRoute } from '~/utils/monstressConvention/navigation'
 import {
   chooseSync,
+  mergeAccountRuns,
   mergeKitProgress,
   parseAccountSave,
   type MonstriqueAccountSave,
@@ -33,6 +34,12 @@ import {
   cutsceneTriggeredBy,
   type Cutscene,
 } from '~/utils/monstrique/cutscenes'
+import {
+  nextCaseSeed,
+  parseRuns,
+  recordRun,
+  type CaseRun,
+} from '~/utils/monstressConvention/runHistory'
 
 export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
   const user = useUserStore()
@@ -41,6 +48,12 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
   const matureState = ref<CaseState>(newCase())
   const generalSaved = ref(false)
   const matureSaved = ref(false)
+  const generalRuns = ref<CaseRun[]>([])
+  const matureRuns = ref<CaseRun[]>([])
+  const runsUnreadable: Record<MonstriqueAudience, boolean> = {
+    general: false,
+    mature: false,
+  }
   const adultVerified = ref(false)
   const verifiedUserId = ref<number | null>(null)
   let verifiedToken: string | undefined
@@ -87,6 +100,9 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
   const hasSavedCase = computed(() =>
     audience.value === 'mature' ? matureSaved.value : generalSaved.value,
   )
+  const runs = computed(() =>
+    audience.value === 'mature' ? matureRuns.value : generalRuns.value,
+  )
   const currentLine = computed(
     () =>
       feedback.value ||
@@ -100,6 +116,40 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
 
   function savedAtKey(mode: MonstriqueAudience): string {
     return key(mode) + '-saved-at'
+  }
+
+  function runsKey(mode: MonstriqueAudience): string {
+    return key(mode) + '-runs'
+  }
+
+  function runsRef(mode: MonstriqueAudience) {
+    return mode === 'mature' ? matureRuns : generalRuns
+  }
+
+  function loadRuns(mode: MonstriqueAudience): void {
+    const destination = runsRef(mode)
+    destination.value = []
+    runsUnreadable[mode] = false
+    try {
+      const raw = localStorage.getItem(runsKey(mode))
+      if (!raw) return
+      const parsed: unknown = JSON.parse(raw)
+      if (!Array.isArray(parsed)) throw new Error('unreadable case files')
+      destination.value = parseRuns(parsed, mode)
+    } catch {
+      runsUnreadable[mode] = true
+    }
+  }
+
+  // Unreadable case files are left untouched, like an unreadable case save.
+  function storeRuns(mode: MonstriqueAudience, next: CaseRun[]): void {
+    runsRef(mode).value = next
+    if (!import.meta.client || runsUnreadable[mode]) return
+    try {
+      localStorage.setItem(runsKey(mode), JSON.stringify(next))
+    } catch {
+      storageWarning.value = 'This browser cannot save case files.'
+    }
   }
 
   function readSavedAt(mode: MonstriqueAudience): string | null {
@@ -162,6 +212,16 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     )
   }
 
+  function mergeRemoteRuns(
+    mode: MonstriqueAudience,
+    remote: MonstriqueAccountSave | null,
+  ): boolean {
+    const merged = mergeAccountRuns(runsRef(mode).value, remote)
+    if (JSON.stringify(merged.runs) !== JSON.stringify(runsRef(mode).value))
+      storeRuns(mode, merged.runs)
+    return merged.upload
+  }
+
   async function syncAccount(mode: MonstriqueAudience): Promise<void> {
     const owner = syncOwner()
     if (!owner || !editionReady(mode)) return
@@ -197,10 +257,12 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
       )
       if (decision === 'adopt-remote' && remote) adoptAccountCopy(mode, remote)
       const kitDiffers = mergeAccountKit(mode, remote)
+      const runsDiffer = mergeRemoteRuns(mode, remote)
       accountStatus.value = 'synced'
       if (
         decision === 'upload' ||
         decision === 'keep-local' ||
+        runsDiffer ||
         (kitDiffers && decision !== 'adopt-remote')
       )
         scheduleAccountSave(mode, 0)
@@ -233,6 +295,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
         savedAt: readSavedAt(mode) ?? new Date().toISOString(),
         case: mode === 'mature' ? matureState.value : generalState.value,
         kit: kit.accountSnapshot(kitId(mode)),
+        runs: runsRef(mode).value,
       }
       try {
         const result = await performFetch<{ revision: number }>(
@@ -273,6 +336,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     const saved = mode === 'mature' ? matureSaved : generalSaved
     destination.value = newCase()
     saved.value = false
+    loadRuns(mode)
     try {
       const raw = localStorage.getItem(key(mode))
       if (!raw) return
@@ -299,6 +363,8 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     matureSaved.value = false
     generalState.value = newCase()
     generalSaved.value = false
+    generalRuns.value = []
+    matureRuns.value = []
     feedback.value = ''
     storageWarning.value = ''
     loadMode('general')
@@ -399,6 +465,16 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     )
       kit.unlock('moments', 'cold-kiss')
     if (result.state.ending) kit.unlock('endings', result.state.ending)
+    if (result.state.ending && !prev.ending)
+      storeRuns(
+        audience.value,
+        recordRun(
+          runs.value,
+          result.state,
+          audience.value,
+          new Date().toISOString(),
+        ),
+      )
     awardAchievements(prev, result.state)
     persist()
   }
@@ -420,6 +496,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     const mode = audience.value
     try {
       localStorage.removeItem(key(mode))
+      localStorage.removeItem(runsKey(mode))
       localStorage.setItem(savedAtKey(mode), new Date().toISOString())
     } catch {
       storageWarning.value = 'Could not erase the case on this device.'
@@ -432,6 +509,8 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
       generalState.value = newCase()
       generalSaved.value = false
     }
+    runsRef(mode).value = []
+    runsUnreadable[mode] = false
     feedback.value = ''
     activeCutscene.value = null
     storageWarning.value = ''
@@ -440,8 +519,9 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
   }
 
   function begin(): void {
-    if (audience.value === 'mature') matureState.value = newCase()
-    else generalState.value = newCase()
+    const fresh = newCase(nextCaseSeed(runs.value))
+    if (audience.value === 'mature') matureState.value = fresh
+    else generalState.value = fresh
     feedback.value = ''
     activeCutscene.value = null
     persist()
@@ -503,6 +583,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     checking,
     state,
     hasSavedCase,
+    runs,
     currentLine,
     storageWarning,
     activeCutscene,

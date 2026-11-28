@@ -591,16 +591,20 @@
           :alt="endingPlate.alt"
           class="mc-ending-plate absolute inset-0 size-full object-cover"
         />
-        <div class="mc-ending-card max-w-lg space-y-4 text-center">
+        <div
+          class="mc-ending-card max-h-full max-w-lg space-y-4 overflow-y-auto text-center"
+          data-testid="monstrique-ending-card"
+        >
           <p class="mc-eyebrow">CHAPTER ONE · THE LAST CALL</p>
-          <h2 class="text-3xl font-bold">
-            {{
-              story.state.ending === 'lead-earned'
-                ? 'The Convention Lead'
-                : 'A Headline Too Early'
-            }}
-          </h2>
-          <p class="text-lg">{{ story.currentLine }}</p>
+          <h2 class="text-3xl font-bold">{{ endingTitle }}</h2>
+          <p class="mc-ending-line">{{ story.currentLine }}</p>
+          <p
+            class="mc-ending-route text-sm"
+            data-testid="monstrique-ending-route"
+          >
+            {{ endingRoute }} This case is in your case files on the title
+            scrapbook.
+          </p>
           <button class="mc-action-primary" type="button" @click="begin">
             NEW CASE
           </button>
@@ -663,6 +667,7 @@ import {
   portraitFor,
 } from '~/utils/monstrique/stageArt'
 import { MONSTRESS_CONVENTION } from '~/utils/playbookKit/games/monstressConvention'
+import { ENDING_ROUTE_NOTES } from '~/utils/monstressConvention/runHistory'
 import { useMonstriqueSoundStore } from '~/stores/monstriqueSoundStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import { monstriqueCuesFor, monstriqueMoodFor } from '~/utils/monstrique/sound'
@@ -682,10 +687,17 @@ const screen = ref<'title' | 'intro' | 'stage'>(
   props.entry === 'continue' ? 'stage' : 'intro',
 )
 const openingScene = computed(() => coldOpen(audience.value))
-const endingPlate = computed(() => {
-  const art = MONSTRESS_CONVENTION.endings.find(
+const reachedEnding = computed(() =>
+  MONSTRESS_CONVENTION.endings.find(
     (ending) => ending.id === story.value.state.ending,
-  )?.art
+  ),
+)
+const endingTitle = computed(() => reachedEnding.value?.title ?? 'Case Closed')
+const endingRoute = computed(() =>
+  story.value.state.ending ? ENDING_ROUTE_NOTES[story.value.state.ending] : '',
+)
+const endingPlate = computed(() => {
+  const art = reachedEnding.value?.art
   return art?.src ? { src: art.src, alt: art.alt ?? '' } : null
 })
 const drawer = ref<'case' | 'map' | null>(null)
@@ -1553,10 +1565,19 @@ function verbIcon(verb: Verb): string {
   white-space: normal;
 }
 .mc-ending {
+  grid-template-rows: minmax(0, 1fr);
   background: #100f22ed;
 }
 .mc-ending-plate {
   opacity: 0.6;
+}
+.mc-ending-route {
+  color: #ffd9e4;
+  opacity: 0.85;
+}
+.mc-ending-line {
+  font-size: 1.125rem;
+  line-height: 1.6;
 }
 .mc-ending-card {
   position: relative;
@@ -1566,6 +1587,16 @@ function verbIcon(verb: Verb): string {
   padding: 2rem;
   box-shadow: 0 0 5rem #f36a9b35;
 }
+@media (max-width: 40rem) {
+  .mc-ending-card {
+    padding: 1.25rem;
+  }
+  .mc-ending-line {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+}
+
 .mc-action-primary:focus-visible,
 .mc-verb:focus-visible,
 .mc-hotspot:focus-visible,

@@ -27,6 +27,7 @@ const EVIDENCE_ACHIEVEMENTS: ReadonlyArray<readonly [string, string]> = [
 const ENDING_ACHIEVEMENTS: Readonly<Record<CaseEnding, string>> = {
   'lead-earned': 'monstress-convention-ending-lead',
   reckless: 'monstress-convention-ending-reckless',
+  'fifth-hexblade': 'monstress-convention-ending-hexblade',
 }
 
 export const MONSTRIQUE_ENDINGS = Object.keys(
@@ -87,11 +88,10 @@ export function achievementsFor(
 ): string[] {
   const before = earnedBy(prev)
   const earned = [...earnedBy(next)].filter((code) => !before.has(code))
-  if (
-    next.ending &&
-    next.ending !== prev.ending &&
-    endingsSeen >= MONSTRIQUE_ENDINGS.length
-  )
-    earned.push('monstress-convention-both-endings')
+  if (next.ending && next.ending !== prev.ending) {
+    if (endingsSeen >= 2) earned.push('monstress-convention-both-endings')
+    if (endingsSeen >= MONSTRIQUE_ENDINGS.length)
+      earned.push('monstress-convention-all-endings')
+  }
   return earned
 }

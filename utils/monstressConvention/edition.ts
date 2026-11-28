@@ -108,7 +108,11 @@ const GENERAL_APPROVED_CAST = new Set([
   'unknown-killer',
 ])
 const GENERAL_APPROVED_REVEALS = new Set(['ghost-accounts'])
-const GENERAL_APPROVED_ENDINGS = new Set(['lead-earned', 'reckless'])
+const GENERAL_APPROVED_ENDINGS = new Set([
+  'lead-earned',
+  'reckless',
+  'fifth-hexblade',
+])
 
 function isGeneralRoom(id: string): id is RoomId {
   return Object.prototype.hasOwnProperty.call(GENERAL_HOTSPOTS, id)

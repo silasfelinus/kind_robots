@@ -272,4 +272,43 @@ const plainPeak = (() => {
   assert.equal(run.hearts, 3)
 }
 
+// 9. Apricot Slope (3-1) keeps its promise: springfruit grows up the hillside,
+// each resting on solid ground, and the checkpoint fruit bounces her onto the
+// row-14 terrace that a plain jump from the same spot cannot reach.
+{
+  const apricot = CAMPAIGN.find((stage) => stage.code === '3-1')!
+  const homes = parseStage(apricot)
+    .spawns.filter((spawn) => spawn.kind === 'springfruit')
+    .sort((a, b) => a.col - b.col)
+  assert.deepEqual(
+    homes.map((spawn) => spawn.col),
+    [60, 116, 166],
+    'three fruits on the hillside',
+  )
+  for (const { col, row } of homes)
+    assert.equal(
+      apricot.rows[row + 1]![col],
+      '#',
+      `fruit ${col} rests on ground`,
+    )
+  const climb = (bounce: boolean) => {
+    const run = labRun(apricot)
+    assert.equal(run.fruits.length, 3)
+    if (!bounce) run.fruits.length = 0
+    run.hero.x = 116 * TILE + TILE / 2
+    run.hero.y = 17 * TILE - HERO_TALL - (bounce ? 48 : 0)
+    run.hero.vx = 0
+    run.hero.vy = 0
+    run.ground = !bounce
+    frame(run, ['a'], ['a'])
+    for (let i = 0; i < 5; i++) frame(run, ['a'])
+    for (let i = 0; i < 200; i++) frame(run, ['a', 'right'])
+    assert.ok(run.ground, 'she lands')
+    assert.equal(run.hearts, 3)
+    return (run.hero.y + HERO_TALL) / TILE
+  }
+  assert.equal(climb(false), 16, 'a plain jump only tops the first step')
+  assert.equal(climb(true), 14, 'the fruit bounce lands her on the terrace')
+}
+
 console.log('save-the-plumber springfruit ok')

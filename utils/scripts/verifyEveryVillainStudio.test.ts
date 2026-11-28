@@ -25,7 +25,7 @@ import {
   walkScene,
 } from '../everyVillainTactics/sceneGraph'
 
-assert.equal(STAGE_PRESETS.length, 24)
+assert.equal(STAGE_PRESETS.length, 26)
 assert.ok(STAGE_PRESETS.some((stage) => stage.id === 'hydrant-blue'))
 assert.ok(
   STAGE_PRESETS.some((stage) => stage.id === 'song-that-stopped'),
@@ -112,6 +112,20 @@ for (const [stageId, lead, prefix, flagA, flagB] of [
     'glass',
     'glass-withhold',
     'glass-reveal',
+  ],
+  [
+    'overdue-thunder',
+    'magic-air',
+    'thunder',
+    'thunder-sealed',
+    'thunder-cure',
+  ],
+  [
+    'bell-and-the-door',
+    'magic-discipline',
+    'bell',
+    'bell-obey',
+    'bell-defy',
   ],
 ] as const) {
   for (const perspective of ['hero', 'villain'] as const) {

@@ -5,13 +5,33 @@ type EnvironmentalOrigin = {
   flag: string
   target: Point
   range: number
-  family: 'undertow' | 'strike' | 'analyze' | 'blaze' | 'bulwark'
+  family: 'undertow' | 'strike' | 'analyze' | 'blaze' | 'bulwark' | 'glide'
   even: boolean
   fire: boolean
   msg: string
 }
 
 const ORIGINS: Readonly<Record<string, EnvironmentalOrigin>> = {
+  'overdue-thunder': {
+    lead: 'magic-air',
+    flag: 'thunder-cloud-folded',
+    target: { x: 5, y: 2 },
+    range: 4,
+    family: 'glide',
+    even: false,
+    fire: false,
+    msg: "The Weathervane folds the thundercloud between the book's pages. Both readers can now leave.",
+  },
+  'bell-and-the-door': {
+    lead: 'magic-discipline',
+    flag: 'bell-ward-unbound',
+    target: { x: 4, y: 3 },
+    range: 1,
+    family: 'strike',
+    even: false,
+    fire: true,
+    msg: 'The Abbess breaks the obedience spell at the safe-room threshold. Both trapped people can now evacuate.',
+  },
   'orchard-under-asphalt': {
     lead: 'magic-earth',
     flag: 'orchard-arch-stitched',

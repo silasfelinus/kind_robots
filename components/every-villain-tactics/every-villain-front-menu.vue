@@ -1002,7 +1002,12 @@ const oneShots = computed(() =>
 )
 const additionalOriginStages = computed(() =>
   oneShots.value.filter((stage) =>
-    ['orchard-under-asphalt', 'future-in-the-glass'].includes(stage.id),
+    [
+      'orchard-under-asphalt',
+      'future-in-the-glass',
+      'overdue-thunder',
+      'bell-and-the-door',
+    ].includes(stage.id),
   ),
 )
 const art = (key: string) => promArt(key)

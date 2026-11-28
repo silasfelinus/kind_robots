@@ -35,6 +35,7 @@ import {
   ORCHARD_ORIGIN_SCRIPT,
   GLASS_ORIGIN_SCRIPT,
 } from './gardenGlassScripts'
+import { THUNDER_ORIGIN_SCRIPT, BELL_ORIGIN_SCRIPT } from './thunderBellScripts'
 import { ROOFTOP_BROADCAST_SCRIPT } from './rooftopBroadcastScript'
 import { UNDER_COMET_BREACH_SCRIPT } from './underCometBreachScript'
 import { PROM_NIGHT_FINALE_SCRIPT } from './promNightFinaleScript'
@@ -673,6 +674,114 @@ export const STAGE_PRESETS: StageDraft[] = [
     ],
     victory: { kind: 'rescue', count: 2 },
     script: GLASS_ORIGIN_SCRIPT,
+  },
+  {
+    version: 1,
+    id: 'overdue-thunder',
+    title: 'Overdue Thunder',
+    venue: "Academy library's floating study annex",
+    objective: 'Fold the storm at column 6, row 3 from a clear sightline within four tiles with both AP free, then evacuate the two readers.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls(
+          [2, 0],
+          [2, 1],
+          [2, 3],
+          [2, 4],
+          [4, 0],
+          [6, 4],
+          [6, 5],
+          [7, 1],
+        ),
+        '2,2': tile(1),
+        '4,2': tile(1, false, { west: 'half' }),
+        '5,2': tile(1),
+        '6,2': tile(1, false, { east: 'half' }),
+        '7,4': tile(0, false, { south: 'half' }),
+      },
+    },
+    spawns: [
+      { id: 'backdraft', x: 0, y: 2 },
+      { id: 'priya', x: 1, y: 0 },
+      { id: 'hattie', x: 1, y: 5 },
+      { id: 'pip', x: 8, y: 0 },
+      { id: 'vee', x: 8, y: 3 },
+      { id: 'remy', x: 8, y: 5 },
+    ],
+    secrets: [{ x: 3, y: 5 }],
+    hazards: [{ x: 5, y: 2 }],
+    turnLimit: 10,
+    civilians: [
+      { id: 'thunder-reader', name: 'Injured reader', x: 7, y: 2 },
+      { id: 'thunder-librarian', name: 'Annex librarian', x: 7, y: 5 },
+    ],
+    props: [
+      { id: 'thunder-bookcase', x: 3, y: 1, cover: 'full', hp: 3 },
+      { id: 'thunder-reading-desk', x: 6, y: 0, cover: 'half', hp: 2 },
+    ],
+    activeHazards: [
+      { id: 'thunder-fallen-shelf', kind: 'collapse', x: 4, y: 3, round: 4 },
+      { id: 'thunder-rain', kind: 'water', x: 6, y: 3 },
+      { id: 'thunder-annex-edge', kind: 'collapse', x: 5, y: 4, round: 7 },
+    ],
+    victory: { kind: 'rescue', count: 2 },
+    script: THUNDER_ORIGIN_SCRIPT,
+  },
+  {
+    version: 1,
+    id: 'bell-and-the-door',
+    title: 'The Bell and the Door',
+    venue: 'Academy discipline hall during an unannounced lockdown',
+    objective: 'Use the two-AP warding gesture beside the safe-room door at column 5, row 4, then evacuate the student and shelter attendant.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls(
+          [2, 0],
+          [2, 1],
+          [2, 2],
+          [2, 4],
+          [2, 5],
+          [5, 0],
+          [5, 1],
+          [6, 5],
+        ),
+        '2,3': tile(0),
+        '3,3': tile(0, false, { north: 'half' }),
+        '4,3': tile(0),
+        '5,3': tile(0, false, { west: 'half' }),
+        '6,2': tile(1, false, { north: 'half' }),
+      },
+    },
+    spawns: [
+      { id: 'backdraft', x: 0, y: 3 },
+      { id: 'priya', x: 1, y: 0 },
+      { id: 'hattie', x: 1, y: 5 },
+      { id: 'pip', x: 8, y: 0 },
+      { id: 'vee', x: 8, y: 3 },
+      { id: 'remy', x: 8, y: 5 },
+    ],
+    secrets: [{ x: 4, y: 0 }],
+    hazards: [{ x: 4, y: 3 }],
+    turnLimit: 10,
+    civilians: [
+      { id: 'bell-outsider', name: 'Sanctuary student', x: 6, y: 2 },
+      { id: 'bell-attendant', name: 'Shelter attendant', x: 7, y: 4 },
+    ],
+    props: [
+      { id: 'bell-lectern', x: 3, y: 1, cover: 'half', hp: 2 },
+      { id: 'bell-partition', x: 5, y: 4, cover: 'full', hp: 3 },
+    ],
+    activeHazards: [
+      { id: 'bell-falling-balcony', kind: 'collapse', x: 4, y: 4, round: 5 },
+      { id: 'bell-storm-water', kind: 'water', x: 5, y: 2 },
+      { id: 'bell-cracked-threshold', kind: 'collapse', x: 6, y: 3, round: 8 },
+    ],
+    victory: { kind: 'rescue', count: 2 },
+    script: BELL_ORIGIN_SCRIPT,
   },
   {
     version: 1,

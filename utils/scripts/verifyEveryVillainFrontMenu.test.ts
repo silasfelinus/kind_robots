@@ -801,6 +801,20 @@ for (const [stageId, lead, target, start, flag] of [
     { x: 2, y: 3 },
     'glass-future-reframed',
   ],
+  [
+    'overdue-thunder',
+    'magic-air',
+    { x: 5, y: 2 },
+    { x: 2, y: 2 },
+    'thunder-cloud-folded',
+  ],
+  [
+    'bell-and-the-door',
+    'magic-discipline',
+    { x: 4, y: 3 },
+    { x: 3, y: 3 },
+    'bell-ward-unbound',
+  ],
 ] as const) {
   const stage = clonePreset(stageId)
   assert.deepEqual(stageProblems(stage), [])
@@ -812,8 +826,16 @@ for (const [stageId, lead, target, start, flag] of [
     actor.y = stage.civilians![0]!.y
     actor.ap = 2
     assert.equal(rescueSelected(state), false)
-    actor.x = stageId === 'orchard-under-asphalt' ? 3 : 2
-    actor.y = 2
+    const blockedStart =
+      stageId === 'orchard-under-asphalt'
+        ? { x: 3, y: 2 }
+        : stageId === 'overdue-thunder'
+          ? { x: 0, y: 2 }
+          : stageId === 'bell-and-the-door'
+            ? { x: 1, y: 3 }
+            : { x: 2, y: 2 }
+    actor.x = blockedStart.x
+    actor.y = blockedStart.y
     assert.equal(useSelectedPower(state, target), false)
     actor.x = start.x
     actor.y = start.y
@@ -868,6 +890,8 @@ assert.deepEqual(ORIGIN_STAGE_LEADS, {
   'candle-that-wouldnt-die': 'magic-fire',
   'orchard-under-asphalt': 'magic-earth',
   'future-in-the-glass': 'magic-water',
+  'overdue-thunder': 'magic-air',
+  'bell-and-the-door': 'magic-discipline',
 })
 for (const [stage, signature] of Object.entries(ORIGIN_STAGE_LEADS)) {
   assert.equal(canStartOneShot(stage, signature), true)

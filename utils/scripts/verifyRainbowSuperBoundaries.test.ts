@@ -226,12 +226,12 @@ const eliminatedRoster = [
 ]
 assert.equal(availableCoopTargets(eliminatedRoster, 4).length, 2)
 assert.equal(
-  haloRevive(eliminatedRoster, 4, 2),
+  haloRevive(eliminatedRoster, 4, 2, 2),
   null,
   'a fallen Halo cannot cast',
 )
 assert.equal(
-  haloRevive(eliminatedRoster, 2, 2),
+  haloRevive(eliminatedRoster, 2, 2, 2),
   null,
   'a benched Halo cannot cast',
 )

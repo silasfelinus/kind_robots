@@ -47,10 +47,10 @@ assert.deepEqual(
   [0, 2, 3],
 )
 
-assert.equal(haloRevive(ships, 2, 2), null, 'inactive caster cannot revive')
-assert.equal(haloRevive(ships, 4, 0), null, 'non-Halo pilots cannot revive')
+assert.equal(haloRevive(ships, 2, 2, 2), null, 'inactive caster cannot revive')
+assert.equal(haloRevive(ships, 4, 0, 0), null, 'non-Halo pilots cannot revive')
 assert.equal(
-  haloRevive(ships, 4, 2),
+  haloRevive(ships, 4, 2, 2),
   1,
   'Halo revives the first fallen active seat',
 )
@@ -58,10 +58,27 @@ assert.equal(ships[1]!.lives, 1)
 assert.equal(ships[1]!.shield, 2)
 assert.equal(ships[1]!.invulnerable, 150)
 assert.equal(ships[1]!.power, 2)
-assert.equal(haloRevive(ships, 4, 2), null, 'revival is not a free refill')
+assert.equal(haloRevive(ships, 4, 2, 2), null, 'revival is not a free refill')
 ships[2]!.lives = 0
 ships[3]!.lives = 0
-assert.equal(haloRevive(ships, 4, 2), null, 'a dead Halo cannot cast')
+assert.equal(haloRevive(ships, 4, 2, 2), null, 'a dead Halo cannot cast')
+
+// The revive follows Solenne's ship, not seat 3 (gameplay critic r2 G1): Halo as P1 of a pair revives P2.
+const pair = [
+  { lives: 2, shield: 3, invulnerable: 0, power: 1 },
+  { lives: 0, shield: 3, invulnerable: 0, power: 2 },
+]
+assert.equal(haloRevive(pair, 2, 1, 0), null, 'Petal in seat 1 cannot revive')
+assert.equal(haloRevive(pair, 2, 0, 2), 1, 'Halo flying seat 0 revives seat 1')
+assert.equal(pair[1]!.lives, 1)
+const halfFallen = [
+  { lives: 0, shield: 3, invulnerable: 0, power: 1 },
+  { lives: 1, shield: 3, invulnerable: 0, power: 1 },
+  { lives: 1, shield: 3, invulnerable: 0, power: 1 },
+  { lives: 2, shield: 3, invulnerable: 0, power: 1 },
+]
+assert.equal(haloRevive(halfFallen, 4, 3, 2), 0, 'Halo flying seat 3 revives')
+assert.equal(haloRevive(halfFallen, 4, 2, 3), null, 'seat 2 alone is no Halo')
 
 assert.equal(coopEnemyHealth(2, 1), 2)
 assert.equal(coopEnemyHealth(2, 2), 2)

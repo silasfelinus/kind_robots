@@ -5,8 +5,11 @@ import {
   HUSH_CEILING_ROW,
   HUSH_FLOOR_ROW,
   parseStage,
+  SLUICEGATE_STEPS,
+  SOLID_LADDER,
   SOLID_LEDGE,
   TILE,
+  WILDWATER_COURSE_CODES,
 } from '../arcade/games/savePlumberLevels'
 import {
   PLUMBER_WILDWATER_MUSIC,
@@ -355,3 +358,97 @@ assert.deepEqual(
   ['1-h'],
 )
 console.log('Save the Plumber Upside Parlour ceiling loop: OK')
+
+const spillway = SLUICEGATE_STEPS.wildwater!
+assert.equal(spillway.name, 'Spillway Opens')
+assert.ok(WILDWATER_COURSE_CODES.includes(SLUICEGATE_STEPS.code))
+const damStage = parseStage(SLUICEGATE_STEPS)
+for (const step of spillway.steps) {
+  for (let col = step.from; col <= step.to; col++)
+    assert.equal(damStage.solid[step.row * damStage.cols + col], 0)
+}
+const sheet = spillway.escalators![0]!
+for (let row = sheet.top; row <= sheet.bottom; row++) {
+  for (let col = sheet.col; col <= sheet.col + sheet.width; col++)
+    assert.equal(damStage.solid[row * damStage.cols + col], 0, 'sheet is open')
+}
+assert.notEqual(
+  damStage.solid[(sheet.bottom + 1) * damStage.cols + sheet.col],
+  0,
+  'the sheet rises from the dam crest',
+)
+assert.notEqual(
+  damStage.solid[spillway.tap.row * damStage.cols + spillway.tap.col],
+  0,
+  'the tap stands on the crest',
+)
+
+const dam = new PlumberRun(options, { customLevel: SLUICEGATE_STEPS })
+frame(dam)
+walkTo(dam, 29)
+assert.equal(dam.solidAt(29, 20), SOLID_LADDER)
+frame(dam, ['up'])
+assert.ok(dam.climbing, 'the dam rope is reachable')
+for (let i = 0; i < 120 && dam.climbing; i++) frame(dam, ['up'])
+for (let i = 0; i < 12; i++) frame(dam, ['right'])
+for (let i = 0; i < 12; i++) frame(dam)
+assert.equal(dam.hero.y + HERO_TALL, 13 * TILE, 'she stands on the dam crest')
+
+// Before the Tap, the spillway column is ordinary dry air.
+walkTo(dam, sheet.col)
+for (let i = 0; i < 30; i++) frame(dam)
+assert.equal(dam.ground, true)
+assert.equal(dam.hero.y + HERO_TALL, 13 * TILE)
+walkTo(dam, spillway.tap.col)
+frame(dam, [], ['x'])
+assert.equal(dam.wildwaterActive, true)
+assert.equal(dam.music, PLUMBER_WILDWATER_MUSIC)
+for (const step of spillway.steps)
+  assert.equal(dam.solidAt(step.from, step.row), SOLID_LEDGE)
+
+walkTo(dam, sheet.col)
+let crest = Infinity
+for (let i = 0; i < 160; i++) {
+  frame(dam)
+  assert.equal(dam.mode, 'play')
+  crest = Math.min(crest, dam.hero.y + HERO_TALL)
+}
+assert.ok(crest <= sheet.top * TILE + 4, 'the sheet carries her to its crest')
+assert.ok(crest > (sheet.top - 2) * TILE, 'she bobs at the crest, not beyond')
+assert.ok(dam.hero.y + HERO_TALL < 5 * TILE, 'she keeps riding near the top')
+assert.equal(dam.ground, false)
+
+for (let i = 0; i < 80 && !dam.ground; i++) {
+  frame(dam, ['right'])
+  assert.equal(dam.mode, 'play')
+}
+assert.equal(dam.ground, true)
+assert.equal(dam.hero.y + HERO_TALL, spillway.pearl.row * TILE)
+for (let i = 0; i < 100 && dam.wildwaterActive; i++) {
+  const target = spillway.pearl.col * TILE + TILE / 2
+  frame(dam, [dam.hero.x < target ? 'right' : 'left'])
+}
+assert.equal(dam.wildwaterActive, false)
+assert.ok(dam.pearls.has(SLUICEGATE_STEPS.code))
+for (const step of spillway.steps)
+  assert.equal(dam.solidAt(step.from, step.row), 0)
+for (let i = 0; i < 120; i++) frame(dam)
+assert.equal(dam.ground, true)
+assert.equal(dam.hero.y + HERO_TALL, 13 * TILE, 'she drops safely to the crest')
+assert.equal(dam.mode, 'play')
+
+// After the Pearl the spillway runs dry again.
+walkTo(dam, sheet.col)
+for (let i = 0; i < 30; i++) frame(dam)
+assert.equal(dam.hero.y + HERO_TALL, 13 * TILE)
+frame(dam, [], ['x'])
+assert.equal(dam.wildwaterActive, false, 'a spent tap stays spent')
+assert.equal(dam.save, undefined)
+assert.deepEqual(
+  readPlumberFile({
+    ...saved,
+    slots: [{ ...saved.slots[0], pearls: ['1-sluice', '1-4', '1-h'] }],
+  }).slots[0]?.pearls,
+  ['1-sluice', '1-h'],
+)
+console.log('Save the Plumber Spillway Opens: OK')

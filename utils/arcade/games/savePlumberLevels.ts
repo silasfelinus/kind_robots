@@ -62,6 +62,8 @@ export type WildwaterDef = {
   bloomPistons?: boolean
   reverseLifts?: boolean
   ceilingLoop?: boolean
+  /** Spillway sheets that run upward while Wildwater lasts and carry her. */
+  escalators?: { col: number; width: number; top: number; bottom: number }[]
 }
 
 export type StageDef = {
@@ -1376,6 +1378,14 @@ export const SLUICEGATE_NODE_ID = '1-4'
 export const SLUICEGATE_STEPS: StageDef = {
   code: '1-sluice',
   name: 'Sluicegate Steps',
+  wildwater: {
+    name: 'Spillway Opens',
+    tap: { col: 38, row: 13 },
+    pearl: { col: 47, row: 4 },
+    // A crest ledge appears beside the rising sheet; the Pearl waits on it.
+    steps: [{ row: 4, from: 45, to: 49 }],
+    escalators: [{ col: 42, width: 2, top: 2, bottom: 12 }],
+  },
   rows: Array.from({ length: 24 }, (_, row) => {
     const line = Array.from({ length: 76 }, () => '.')
     if (row >= 21) line.fill('#')
@@ -1462,6 +1472,7 @@ export const CAMPAIGN: StageDef[] = [
 export const WILDWATER_COURSE_CODES: readonly string[] = [
   ...CAMPAIGN.filter((course) => course.wildwater).map((course) => course.code),
   DRIP_PARLOUR.code,
+  SLUICEGATE_STEPS.code,
 ]
 
 export const GEAR_COURSE_CODES: readonly string[] = [

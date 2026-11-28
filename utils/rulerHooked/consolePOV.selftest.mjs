@@ -204,8 +204,7 @@ function exerciseSweep(sweepMs, frameInterval) {
   stop()
   assert.equal(accepted.length, 0, 'no input before the first frame')
   tick(0)
-  for (let t = frameInterval; t < sweepMs / 2; t += frameInterval)
-    tick(t)
+  for (let t = frameInterval; t < sweepMs / 2; t += frameInterval) tick(t)
   tick(sweepMs / 2)
   assert.equal(marker.value, 50, 'a timestamp of zero is a valid start')
   now = sweepMs / 2 + 240

@@ -27,6 +27,10 @@ import {
   PERSONAL_CASTS,
   personalCastFor,
 } from '../everyVillainTactics/personalCasts'
+import {
+  PERSONAL_FOIL_ENDINGS,
+  personalFoilEnding,
+} from '../everyVillainTactics/personalFoilEndings'
 import { IDENTITY_ARCS, identityFor } from '../cometAcademy/identityArcs'
 import {
   ACCIDENT_SCIENCE_LINES,
@@ -1185,6 +1189,53 @@ for (const person of IDENTITY_ARCS) {
   }
 }
 assert.equal(personalFinales.size, 192)
+
+assert.deepEqual(
+  Object.keys(PERSONAL_FOIL_ENDINGS).sort(),
+  IDENTITY_ARCS.map((entry) => entry.signature).sort(),
+)
+const foilEndings = new Set<string>()
+for (const person of IDENTITY_ARCS) {
+  const cast = personalCastFor(person.signature)!
+  const foilName = identityFor(cast.foil).hero.alias
+  for (const [index, [rescues, evidence, shelter, path]] of [
+    [[0, 1, 2], [], true, 'open-doors'],
+    [[], [0, 1], true, 'black-box'],
+    [[], [], true, 'unfinished'],
+    [[0, 1, 2], [], false, 'signed-order'],
+  ].entries()) {
+    const reply = personalFoilEnding(person.signature, cast.foil, index, 2)
+    assert.ok(reply.length > 0 && reply.length <= 300)
+    assert.ok(!foilEndings.has(reply))
+    foilEndings.add(reply)
+    assert.equal(personalFoilEnding(person.signature, cast.foil, index, 1), '')
+    assert.equal(personalFoilEnding(person.signature, cast.foil, index, undefined), '')
+    assert.equal(personalFoilEnding(person.signature, person.signature, index, 2), '')
+    const completed = chapterHistory(rescues as number[], evidence as number[])
+    for (const perspective of ['hero', 'villain'] as const) {
+      const route = { ...journal, lead: person.signature, foil: cast.foil, perspective, completed }
+      const current = {
+        ...journal.active,
+        state: {
+          ...journal.active.state,
+          crossfireCast: 2 as const,
+          flags: [shelter ? 'prom-shelter' : 'prom-command'],
+        },
+      }
+      const ending = crossfireFinale(route, current)
+      assert.equal(ending?.path, path)
+      assert.ok(ending?.text.includes(foilName + ': “' + reply + '”'))
+      assert.ok(ending?.text.endsWith(PERSONAL_CAMPAIGNS[person.signature]!.endings[index]!))
+      const legacy = crossfireFinale(route, {
+        ...current,
+        state: { ...current.state, crossfireCast: 1 },
+      })
+      assert.equal(legacy?.path, path)
+      assert.ok(!legacy?.text.includes(reply))
+    }
+  }
+}
+assert.equal(foilEndings.size, 192)
 
 const personalScenes = new Set<string>()
 const firstBellVoices = new Set<string>()

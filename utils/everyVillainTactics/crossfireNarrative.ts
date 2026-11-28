@@ -8,6 +8,7 @@ import { TECH_CAMPAIGNS } from './personalTechCampaigns'
 import { MUTANT_CAMPAIGNS } from './personalMutantCampaigns'
 import { ALIEN_CAMPAIGNS } from './personalAlienCampaigns'
 import { PSYCHIC_CAMPAIGNS } from './personalPsychicCampaigns'
+import { personalFoilEnding } from './personalFoilEndings'
 import type { StoryRun } from './firstBellStory'
 import type { TrainingState } from './training'
 
@@ -21,7 +22,7 @@ export const PERSONAL_CAMPAIGNS = {
 }
 
 type BattleEvidence = {
-  state: Pick<TrainingState, 'phase' | 'flags'>
+  state: Pick<TrainingState, 'phase' | 'flags' | 'crossfireCast'>
   story: Pick<StoryRun, 'mercy' | 'civilians' | 'evidence'>
 }
 
@@ -164,8 +165,16 @@ export function crossfireFinale(
     ? identityFor(journal.foil).hero.alias
     : 'the rival leader'
   const personal = PERSONAL_CAMPAIGNS[journal.lead]?.endings
-  const close = (index: number, text: string) =>
-    personal ? text + ' ' + personal[index] : text
+  const close = (index: number, text: string) => {
+    const reply = personalFoilEnding(
+      journal.lead,
+      journal.foil,
+      index,
+      current.state.crossfireCast,
+    )
+    const response = reply ? ' ' + opponent + ': “' + reply + '”' : ''
+    return text + response + (personal ? ' ' + personal[index] : '')
+  }
   if (last === 'rescue' && network.squadGuarded)
     return {
       path: 'open-doors',

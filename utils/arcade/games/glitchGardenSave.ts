@@ -93,8 +93,11 @@ export function readGardenSave(raw: unknown): GardenSave | null {
   }
   const daily = r.dailyBest as Record<string, unknown> | undefined
   const dailyBest =
-    daily && typeof daily.day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(daily.day) &&
-    whole(daily.score, 99_999_999) && typeof daily.cleared === 'boolean'
+    daily &&
+    typeof daily.day === 'string' &&
+    /^\d{4}-\d{2}-\d{2}$/.test(daily.day) &&
+    whole(daily.score, 99_999_999) &&
+    typeof daily.cleared === 'boolean'
       ? { day: daily.day, score: daily.score, cleared: daily.cleared }
       : undefined
   return {

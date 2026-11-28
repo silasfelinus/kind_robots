@@ -47,12 +47,41 @@ export function gardenMedals(clean: boolean, kind: boolean, full: boolean) {
 }
 
 export const GARDEN_MASTERY = [
-  { id: 'clean-patch', title: 'Clean Patch', hint: 'Finish a wave without losing a sprayer' },
-  { id: 'kind-pollinator', title: 'Kind Pollinator', hint: 'Finish a bee wave without spraying a friendly bee' },
-  { id: 'full-patch', title: 'Full Patch', hint: 'Reach a five-times patch multiplier' },
-  { id: 'golden-gardener', title: 'Golden Gardener', hint: 'Earn all eight golden trowels' },
+  {
+    id: 'clean-patch',
+    title: 'Clean Patch',
+    hint: 'Finish a wave without losing a sprayer',
+  },
+  {
+    id: 'kind-pollinator',
+    title: 'Kind Pollinator',
+    hint: 'Finish a bee wave without spraying a friendly bee',
+  },
+  {
+    id: 'full-patch',
+    title: 'Full Patch',
+    hint: 'Reach a five-times patch multiplier',
+  },
+  {
+    id: 'golden-gardener',
+    title: 'Golden Gardener',
+    hint: 'Earn all eight golden trowels',
+  },
   { id: 'four-seasons', title: 'Four Seasons', hint: 'Restore the whole year' },
-  { id: 'midnight-bloom', title: 'Midnight Bloom', hint: 'Restore the Root Kernel', secret: true },
-  { id: 'endless-twenty', title: 'Season Spinner', hint: 'Clear twenty Endless Lawn waves' },
-  { id: 'daily-bloom', title: 'Daily Bloom', hint: 'Complete a Daily Garden challenge' },
+  {
+    id: 'midnight-bloom',
+    title: 'Midnight Bloom',
+    hint: 'Restore the Root Kernel',
+    secret: true,
+  },
+  {
+    id: 'endless-twenty',
+    title: 'Season Spinner',
+    hint: 'Clear twenty Endless Lawn waves',
+  },
+  {
+    id: 'daily-bloom',
+    title: 'Daily Bloom',
+    hint: 'Complete a Daily Garden challenge',
+  },
 ] as const

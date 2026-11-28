@@ -54,7 +54,11 @@
 
 import { drawText } from '../font'
 import { mulberry32 } from '../curve'
-import { dailyGardenPlan, endlessGardenStep, gardenMedals } from './glitchGardenModes'
+import {
+  dailyGardenPlan,
+  endlessGardenStep,
+  gardenMedals,
+} from './glitchGardenModes'
 import type { GardenMode } from './glitchGardenModes'
 import {
   INK,
@@ -1727,7 +1731,9 @@ class GlitchGarden implements ArcadeGameInstance {
       trowels: [...this.trowels],
       ...(this.champion ? { champion: true } : {}),
       ...(this.trueChampion ? { trueChampion: true } : {}),
-      ...(Object.keys(this.medals).length ? { medals: { ...this.medals } } : {}),
+      ...(Object.keys(this.medals).length
+        ? { medals: { ...this.medals } }
+        : {}),
       ...(this.save?.dailyBest ? { dailyBest: this.save.dailyBest } : {}),
       run: run
         ? {
@@ -1747,7 +1753,11 @@ class GlitchGarden implements ArcadeGameInstance {
     if (this.mode === 'daily') {
       this.recordDaily(true)
       this.over = true
-      this.banner = { text: 'DAILY GARDEN FIXED!', sub: this.dailyDay, ticks: 9999 }
+      this.banner = {
+        text: 'DAILY GARDEN FIXED!',
+        sub: this.dailyDay,
+        ticks: 9999,
+      }
       return
     }
     if (this.mode === 'endless') {
@@ -2037,8 +2047,7 @@ class GlitchGarden implements ArcadeGameInstance {
     if (mask & 1) this.earn('clean-patch')
     if (mask & 2) this.earn('kind-pollinator')
     if (mask & 4) this.earn('full-patch')
-    if (this.mode === 'endless' && this.level >= 20)
-      this.earn('endless-twenty')
+    if (this.mode === 'endless' && this.level >= 20) this.earn('endless-twenty')
     if (this.mode === 'campaign' && !this.demo && this.lap === 0) {
       const key = String(this.level - 1)
       const earned = (this.medals[key] ?? 0) | mask
@@ -4426,7 +4435,12 @@ class GlitchGarden implements ArcadeGameInstance {
         i * Math.min(22, Math.floor((H - HUD - 90) / menu.items.length))
       if (on) {
         g.fillStyle = rgba(RAMPS.leaf[2], 0.35)
-        g.fillRect(14, y - 4, W - 28, Math.min(18, Math.floor((H - HUD - 90) / menu.items.length) - 1))
+        g.fillRect(
+          14,
+          y - 4,
+          W - 28,
+          Math.min(18, Math.floor((H - HUD - 90) / menu.items.length) - 1),
+        )
       }
       drawText(g, `${on ? '>' : ' '} ${item.label}`, 18, y, {
         color: item.resume ? RAMPS.gold[3] : '#ffffff',
@@ -4446,17 +4460,23 @@ class GlitchGarden implements ArcadeGameInstance {
     g.fillStyle = rgba(INK, 0.94)
     g.fillRect(0, HUD, W, H - HUD)
     drawText(g, 'GARDEN MEDALS', W / 2, HUD + 12, {
-      align: 'center', color: '#ffffff', scale: 2, outline: INK,
+      align: 'center',
+      color: '#ffffff',
+      scale: 2,
+      outline: INK,
     })
     drawText(g, 'C CLEAN   K KIND   F FULL PATCH', W / 2, HUD + 36, {
-      align: 'center', color: RAMPS.gold[3], outline: INK,
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
     })
     for (let index = 0; index < 50; index++) {
       const x = 9 + (index % 5) * 45
       const y = HUD + 55 + Math.floor(index / 5) * 19
       const bits = this.medals[String(index)] ?? 0
       drawText(g, String(index + 1).padStart(2, '0'), x, y, {
-        color: '#ffffff', outline: INK,
+        color: '#ffffff',
+        outline: INK,
       })
       for (const [i, label] of ['C', 'K', 'F'].entries())
         drawText(g, label, x + 13 + i * 8, y, {
@@ -4465,7 +4485,9 @@ class GlitchGarden implements ArcadeGameInstance {
         })
     }
     drawText(g, 'A / B RETURN', W / 2, H - 20, {
-      align: 'center', color: RAMPS.leaf[3], outline: INK,
+      align: 'center',
+      color: RAMPS.leaf[3],
+      outline: INK,
     })
   }
 
@@ -4810,11 +4832,17 @@ class GlitchGarden implements ArcadeGameInstance {
         color: RAMPS.gold[3],
         shadow: INK,
       })
-    drawText(g, this.mode === 'daily' ? 'DAILY' : `WAVE ${this.level}`, W - 4, 8, {
-      align: 'right',
-      color: RAMPS.leaf[3],
-      shadow: INK,
-    })
+    drawText(
+      g,
+      this.mode === 'daily' ? 'DAILY' : `WAVE ${this.level}`,
+      W - 4,
+      8,
+      {
+        align: 'right',
+        color: RAMPS.leaf[3],
+        shadow: INK,
+      },
+    )
     if (this.boss?.id === 'gourd-hydra' && !this.boss.defeated) {
       const heads = this.pumpkins.filter((p) => p.hydra)
       drawText(

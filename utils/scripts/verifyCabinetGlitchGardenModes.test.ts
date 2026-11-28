@@ -1,9 +1,20 @@
 import assert from 'node:assert/strict'
 import { mulberry32 } from '../arcade/curve'
 import { create } from '../arcade/games/glitchGarden'
-import { dailyGardenPlan, endlessGardenStep, gardenMedals } from '../arcade/games/glitchGardenModes'
-import { CAMPAIGN, GARDENS, gardenStart } from '../arcade/games/glitchGardenGardens'
-import { readGardenSave, type GardenSave } from '../arcade/games/glitchGardenSave'
+import {
+  dailyGardenPlan,
+  endlessGardenStep,
+  gardenMedals,
+} from '../arcade/games/glitchGardenModes'
+import {
+  CAMPAIGN,
+  GARDENS,
+  gardenStart,
+} from '../arcade/games/glitchGardenGardens'
+import {
+  readGardenSave,
+  type GardenSave,
+} from '../arcade/games/glitchGardenSave'
 import { NEW_KIT } from '../arcade/games/glitchGardenShed'
 import { emptyInput } from '../arcade/types'
 
@@ -28,13 +39,20 @@ type Probe = {
   writeSave(run: boolean): void
 }
 const original: GardenSave = {
-  v: 1, reached: 4, trowels: ['kitchen-plot'],
+  v: 1,
+  reached: 4,
+  trowels: ['kitchen-plot'],
   run: { garden: 3, lap: 0, score: 12345, lives: 3, petals: 42, kit: NEW_KIT },
 }
-const make = (seed = 10) => create({
-  rng: mulberry32(seed), demo: false, hiScore: 0, sound: { play: () => {} },
-  resume: original, selectScreen: true,
-}) as unknown as Probe
+const make = (seed = 10) =>
+  create({
+    rng: mulberry32(seed),
+    demo: false,
+    hiScore: 0,
+    sound: { play: () => {} },
+    resume: original,
+    selectScreen: true,
+  }) as unknown as Probe
 function pick(g: Probe, mode: string) {
   g.menu!.cursor = g.menu!.items.findIndex((item) => item.mode === mode)
   assert.ok(g.menu!.cursor >= 0)
@@ -43,10 +61,23 @@ function pick(g: Probe, mode: string) {
   g.update(f)
 }
 assert.deepEqual(dailyGardenPlan('2026-11-28'), dailyGardenPlan('2026-11-28'))
-assert.notDeepEqual(dailyGardenPlan('2026-11-28'), dailyGardenPlan('2026-11-29'))
+assert.notDeepEqual(
+  dailyGardenPlan('2026-11-28'),
+  dailyGardenPlan('2026-11-29'),
+)
 assert.equal(dailyGardenPlan('2026-11-28').layout.length, 36)
-assert.ok(dailyGardenPlan('2026-11-28').layout.every((row) => row.length === 30))
-for (const [n, garden, lap] of [[1,0,0],[6,2,0],[11,4,0],[16,6,0],[21,1,0],[36,7,0],[41,0,1]]) {
+assert.ok(
+  dailyGardenPlan('2026-11-28').layout.every((row) => row.length === 30),
+)
+for (const [n, garden, lap] of [
+  [1, 0, 0],
+  [6, 2, 0],
+  [11, 4, 0],
+  [16, 6, 0],
+  [21, 1, 0],
+  [36, 7, 0],
+  [41, 0, 1],
+]) {
   const step = endlessGardenStep(n!)
   assert.equal(step.index, gardenStart(garden!))
   assert.equal(step.lap, lap)

@@ -1465,7 +1465,10 @@ class BrickBloom implements ArcadeGameInstance {
     if (this.boss) {
       this.boss = null
       const nextHouse = tour ? HOUSES[tour.house + 1] : undefined
-      const next = tour && nextHouse ? { house: tour.house + 1, wall: nextHouse.start } : null
+      const next =
+        tour && nextHouse
+          ? { house: tour.house + 1, wall: nextHouse.start }
+          : null
       // The bench's kit was for the house just finished.
       this.kit = emptyKit()
       this.kitHouse = -1

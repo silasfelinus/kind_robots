@@ -11,6 +11,10 @@ import {
 } from '../cometAcademy/expandedNightCases'
 import { missionRoute, missionRouteRoster } from '../cometAcademy/missionTeams'
 import { PATROL_STORIES, patrolStoryById } from '../cometAcademy/patrolStories'
+import {
+  PATROL_IDENTITY_AFTERMATH,
+  patrolIdentityAftermath,
+} from '../cometAcademy/patrolIdentityAftermath'
 import { PATROL_ZONES, type PatrolZoneId } from '../cometAcademy/nightPatrols'
 import { patrolCrewFor } from '../cometAcademy/patrolCrews'
 import { VILLAIN_HENCHMEN } from '../cometAcademy/villainHenchmen'
@@ -600,7 +604,29 @@ console.log(
 
 // Every canonical origin gets a legal full-term patrol trace. No synthetic
 // day, roster, opponent, or grade overrides: begin at the title's new game.
+const identityGrades = [
+  'success',
+  'mixed',
+  'failure',
+  'refusal',
+  'secret',
+] as const
+assert.deepEqual(
+  Object.keys(PATROL_IDENTITY_AFTERMATH).sort(),
+  IDENTITY_ARCS.map((identity) => identity.signature).sort(),
+)
+const personalMornings = new Set<string>()
+for (const { signature } of IDENTITY_ARCS)
+  for (const grade of identityGrades) {
+    const text = patrolIdentityAftermath(signature, grade)
+    assert.ok(text.length > 40 && text.length <= 300)
+    personalMornings.add(text)
+    assert.equal(patrolIdentityAftermath(undefined, grade), '')
+  }
+assert.equal(personalMornings.size, 240)
+
 const canonicalRuns = new Set<string>()
+const witnessedIdentityMornings = new Set<string>()
 const witnessedCases = new Set<string>()
 const witnessedGrades = new Set<string>()
 const walkedZones = new Set<PatrolZoneId>()
@@ -651,12 +677,23 @@ for (const [index, identity] of IDENTITY_ARCS.entries()) {
       },
     })
     assert.equal(run.signature, signature)
+    const memory = run.patrolHistory?.at(-1)
+    if (day < 29 && memory?.day === day && memory.outcome) {
+      const line = patrolIdentityAftermath(signature, memory.outcome)
+      assert.ok(
+        run.scene.includes(line),
+        `${signature} ${memory.outcome} morning`,
+      )
+      witnessedIdentityMornings.add(signature)
+      roundTrip(run)
+    }
     assert.equal(run.phase, day === 29 ? 'finale' : 'map')
   }
   roundTrip(run)
   canonicalRuns.add(signature)
 }
 assert.equal(canonicalRuns.size, 48)
+assert.ok(witnessedIdentityMornings.size > 0)
 assert.equal(witnessedNights, 48 * 29)
 assert.equal(walkedZones.size, PATROL_ZONES.length)
 assert.ok(

@@ -19,6 +19,8 @@ import {
   WALK_AREAS,
   approachPoint,
   depthScale,
+  entryPoint,
+  figureHeight,
   findPath,
   followerPoint,
   isWalkable,
@@ -80,6 +82,33 @@ for (const room of rooms) {
   assertRoute(room, area.entry, { x: 3, y: 99 })
   assertRoute(room, area.entry, { x: 97, y: 99 })
 }
+
+for (const room of rooms) {
+  for (const [from, point] of Object.entries(WALK_AREAS[room].entries ?? {})) {
+    assert.ok(
+      HOTEL_ROOMS[room].exits.includes(from as RoomId),
+      `${room} entry from ${from} matches a real door`,
+    )
+    assert.ok(isWalkable(room, point), `${room} entry from ${from} on floor`)
+    assert.deepEqual(entryPoint(room, from as RoomId), point)
+    assertRoute(room, point, WALK_AREAS[room].entry)
+  }
+  assert.deepEqual(entryPoint(room), WALK_AREAS[room].entry)
+  assert.ok(
+    figureHeight(room, 60) <= figureHeight(room, 96),
+    `${room}: nearer characters draw larger`,
+  )
+  assert.ok(figureHeight(room, 96) > 10 && figureHeight(room, 96) <= 90)
+}
+assert.notDeepEqual(
+  entryPoint('balcony', 'odette-room'),
+  entryPoint('balcony', 'front-office'),
+  'Iris arrives at the door she used',
+)
+assert.ok(
+  Math.abs(figureHeight('city-map', 70) - 52 * depthScale(70)) < 1e-9,
+  'rooms without a painting keep the vector-set scale',
+)
 
 const around = findPath('odette-room', { x: 10, y: 82 }, { x: 90, y: 82 })
 assert.ok(around.length >= 2, 'Iris walks around the bodies, not over them')

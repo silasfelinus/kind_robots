@@ -2235,8 +2235,7 @@ function combatAct(
         ...rivals.map((target) => {
           const hit = previewShot({ ...unit, ...point }, target, state.map).hit
           return hit > 0
-            ? hit * (target.hp <= 2 ? 1.5 : 1) +
-                (target.id === boss ? hit : 0)
+            ? hit * (target.hp <= 2 ? 1.5 : 1) + (target.id === boss ? hit : 0)
             : 0
         }),
       )
@@ -2613,7 +2612,9 @@ for (const tally of combatCoverage) {
     tally.victory,
   )
   assert.ok(tally.breachVictories <= tally.breachAttempts)
-  assert.ok(tally.breachAttempts <= tally.adaptiveAttempts - tally.adaptiveVictories)
+  assert.ok(
+    tally.breachAttempts <= tally.adaptiveAttempts - tally.adaptiveVictories,
+  )
   assert.ok(tally.victory > 0, tally.chapter + ': no earned victories')
 }
 assert.equal(fullCampaignAttempts, 96)

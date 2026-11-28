@@ -15,6 +15,7 @@ import {
 } from '../arcade/games/glitchGarden'
 import {
   CAMPAIGN,
+  campaignPlay,
   FROST_FRAME_GREENHOUSE,
   GARDENS,
   LAYOUT_HEATER,
@@ -39,6 +40,15 @@ type Probe = {
   grid: Obstacle[]
   wave: { objective?: { kind: string } }
   frostTimer: number
+  boss: { id: string; phase: number; defeated: boolean } | null
+  frostMillipede: Array<{ x: number; y: number; thawed: boolean }>
+  score: number
+  clear: number
+  level: number
+  lap: number
+  shed: unknown
+  leaveShed(): void
+  startFrostPhase(): void
   frostSprite: { x: number; y: number; vx: number } | null
   frostSpriteTimer: number
   snowballs: Snowball[]
@@ -57,6 +67,8 @@ type Probe = {
   stepBeam(beam: unknown): boolean
   thawHeater(col: number, row: number): void
   updateFrost(): void
+  water(col: number, row: number, ob: NonNullable<Obstacle>): void
+  hitFrostMillipede(x: number, y: number): boolean
   updateFrostSprite(): void
   hitFrostSprite(x: number, y: number): boolean
   updateMole(): void
@@ -82,7 +94,7 @@ const at = (g: Probe, col: number, row: number) => g.grid[row * COLS + col]!
 const moleOf = (g: Probe): Mole | null => g.mole
 
 assert.equal(GARDENS.length, 8)
-assert.equal(PLAYS_PER_LAP, 43)
+assert.equal(PLAYS_PER_LAP, 44)
 assert.equal(CAMPAIGN.filter((s) => s.kind === 'wave').length, 40)
 assert.equal(GARDENS[6], FROST_FRAME_GREENHOUSE)
 assert.equal(GARDENS[7], SNOWBALL_HILL)
@@ -280,6 +292,79 @@ assert.ok(SNOWBALL_HILL.waves.every((w) => w.snowballs > 0))
   g.frostSpriteTimer = 1
   g.updateFrostSprite()
   assert.equal(g.frostSprite, null, 'sprite does not leak into Snowball Hill')
+}
+
+{
+  const g = make(91)
+  const bossStep = campaignPlay(44).index
+  assert.ok(CAMPAIGN[bossStep]?.kind === 'boss')
+  g.beginStep(bossStep, 0, 44)
+  assert.equal(g.boss?.id, 'frost-millipede')
+  const [hc, hr] = layoutCells(SNOWBALL_HILL, LAYOUT_HEATER)[1]!
+  const heater = at(g, hc, hr)!
+  assert.equal(heater.kind, 'heater')
+  const first = g.frostMillipede[0]!
+  assert.ok(g.hitFrostMillipede(first.x, first.y))
+  assert.equal(g.frostMillipede.length, 4, 'cold armor resists spray')
+  const hx = hc * CELL + CELL / 2
+  const hy = HUD + hr * CELL + CELL / 2
+  const fireHeater = () => {
+    const beam = g.newBeam(hx, hy + CELL, false)
+    for (let i = 0; i < 4; i++) if (!g.stepBeam(beam)) break
+  }
+  fireHeater()
+  assert.equal(heater.lit, true)
+  assert.ok(g.frostMillipede.every((p) => !p.thawed))
+  fireHeater()
+  const firstThawed = g.frostMillipede.find((p) => p.thawed)!
+  assert.ok(firstThawed, 'real beam reflects through a lit heater')
+  const shot = g.newBeam(firstThawed.x, firstThawed.y + 4, false)
+  assert.equal(g.stepBeam(shot), false, 'real beam fixes a thawed segment')
+  assert.equal(g.frostMillipede.length, 3)
+  g.afterDeath()
+  assert.equal(g.frostMillipede.length, 3, 'respawn preserves boss progress')
+  for (let phase = 1; phase <= 3; phase++) {
+    assert.equal(g.boss!.phase, phase)
+    const count: number = g.frostMillipede.length
+    assert.equal(count, phase === 1 ? 3 : phase + 3)
+    for (let i = 0; i < count; i++) {
+      g.water(hc, hr, heater)
+      const target = g.frostMillipede.find((p) => p.thawed)!
+      assert.ok(target, 'lit heater reflects heat onto a frozen segment')
+      assert.ok(g.hitFrostMillipede(target.x, target.y))
+    }
+  }
+  assert.ok(g.boss!.defeated)
+  assert.equal(g.frostMillipede.length, 0)
+  assert.ok(g.score >= 18000)
+  g.update(emptyInput())
+  assert.ok(g.clear > 0, 'fourth boss advances the campaign')
+  assert.deepEqual(campaignPlay(45), { index: 0, lap: 1 })
+  for (let i = 0; i < 200 && !g.shed; i++) g.update(emptyInput())
+  assert.ok(g.shed, 'the last boss leads into the final shed')
+  g.leaveShed()
+  assert.equal(g.level, 45)
+  assert.equal(g.lap, 1)
+  assert.equal(g.garden.id, GARDENS[0]!.id)
+  assert.equal(g.frostMillipede.length, 0)
+}
+
+{
+  const g = make(93)
+  g.beginStep(campaignPlay(44).index, 0, 44)
+  g.boss!.phase = 3
+  g.startFrostPhase()
+  const part = g.frostMillipede[0]!
+  g.px = part.x
+  g.py = part.y
+  const lives = g.lives
+  g.checkHits()
+  assert.equal(g.lives, lives - 1, 'the final coil costs a life on contact')
+  assert.equal(
+    g.frostMillipede.length,
+    6,
+    'collision does not reset boss armor',
+  )
 }
 
 console.log('glitch garden winter mechanics: ok')

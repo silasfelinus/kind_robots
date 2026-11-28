@@ -81,7 +81,8 @@ export type GardenWave = {
   objective?: GardenObjective
 }
 
-export type BossId = 'queen-wiggle' | 'mow-bot' | 'gourd-hydra'
+export type BossId =
+  'queen-wiggle' | 'mow-bot' | 'gourd-hydra' | 'frost-millipede'
 
 export type Boss = {
   id: BossId
@@ -113,6 +114,13 @@ export const BOSSES: Record<BossId, Boss> = {
     sub: 'SHINE ON THE LIT PUMPKIN HEAD',
     thanks: 'THREE FRIENDLY VINES TAKE ROOT',
     bonus: 15_000,
+  },
+  'frost-millipede': {
+    id: 'frost-millipede',
+    name: 'THE FROST MILLIPEDE',
+    sub: 'LIGHT HEATERS • THAW • SPRAY',
+    thanks: 'THE WINTER GARDEN THAWS',
+    bonus: 18_000,
   },
 }
 
@@ -682,7 +690,7 @@ export const LEAF_PILE_LANE: Garden = {
       crawlers: true,
       cans: 1,
       leaves: 5,
-      sub: 'WIND CHANGES DIRECTION',
+      sub: 'WATCH THE FLOWER-PLUCKING CROW',
     }),
     wave({
       segments: 9,
@@ -996,6 +1004,7 @@ export const SNOWBALL_HILL: Garden = {
   name: 'SNOWBALL HILL',
   season: 'winter',
   icyBed: true,
+  boss: 'frost-millipede',
   intro: ['WINTER IS HERE', 'KEEP THE PRISM LANES OPEN'],
   layout: [
     '..............................',
@@ -1027,7 +1036,7 @@ export const SNOWBALL_HILL: Garden = {
     '..........o...................',
     '...............o..............',
     '..............C.....o.........',
-    '..............................',
+    '....H..........H.........H....',
     '..............................',
     '..............................',
     '..............................',

@@ -77,11 +77,42 @@ import {
 import { autoplay } from '../crystalStreet/autoplay'
 import { TAGS } from '../crystalStreet/types'
 import { TIPS, tipFor } from '../crystalStreet/tips'
-import { cuesFor } from '../crystalStreet/sound'
+import { cuesFor, normalizeVolume, StreetSound } from '../crystalStreet/sound'
 import { buildPlaybook } from '../playbook/games'
 
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const asset = (path: string) => readFileSync(file(path), 'utf8')
+
+assert.equal(normalizeVolume(undefined, 60), 60)
+assert.equal(normalizeVolume('80', 60), 60)
+assert.equal(normalizeVolume(NaN, 60), 60)
+assert.equal(normalizeVolume(-20, 60), 0)
+assert.equal(normalizeVolume(200, 60), 100)
+assert.equal(normalizeVolume(42.6, 60), 43)
+const soundSettings = new StreetSound()
+soundSettings.volume = 0
+assert.equal(soundSettings.volume, 0)
+soundSettings.volume = 0.35
+assert.equal(soundSettings.volume, 0.35)
+soundSettings.volume = 2
+assert.equal(soundSettings.volume, 1)
+
+const settingsSource = asset(
+  '../../components/crystal-street/crystal-street-settings.vue',
+)
+assert.match(settingsSource, /effectsVolume/)
+assert.match(settingsSource, /musicVolume/)
+assert.match(settingsSource, /type="range"/)
+const titleSource = asset(
+  '../../components/crystal-street/crystal-street-title.vue',
+)
+assert.match(titleSource, /view: 'achievements'/)
+const consoleSource = asset('../../pages/play/crystal-street.vue')
+assert.match(
+  consoleSource,
+  /view === 'achievements' \? 'achievements' : 'weeks'/,
+)
+assert.match(consoleSource, /sound\.volume = enabled === 'on'/)
 
 // Roster sizes Silas asked for: at least twenty nightmares and twenty friends.
 assert.equal(VILLAINS.length, VILLAIN_IDS.length)

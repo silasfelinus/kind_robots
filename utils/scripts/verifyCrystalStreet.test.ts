@@ -80,6 +80,7 @@ import { TIPS, tipFor } from '../crystalStreet/tips'
 import { cuesFor, normalizeVolume, StreetSound } from '../crystalStreet/sound'
 import { buildPlaybook } from '../playbook/games'
 import './verifyCrystalStreetArtRecovery.test'
+import './verifyCrystalStreetAccountSave.test'
 
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const asset = (path: string) => readFileSync(file(path), 'utf8')

@@ -340,6 +340,9 @@ export const ORIGIN_STAGE_LEADS: Readonly<Record<string, string>> = {
   'future-in-the-glass': 'magic-water',
   'overdue-thunder': 'magic-air',
   'bell-and-the-door': 'magic-discipline',
+  'when-two-plus-two-screamed': 'magic-genius',
+  'heir-who-said-no': 'magic-birthright',
+  'empty-applause': 'magic-social',
 }
 export const canStartOneShot = (stageId: string, lead: string): boolean =>
   !ORIGIN_STAGE_LEADS[stageId] || ORIGIN_STAGE_LEADS[stageId] === lead
@@ -414,6 +417,21 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     id: 'bell-and-the-door',
     art: 'districts/student-commons',
     tag: 'The Abbess origin · break the obedience ward and evacuate two people',
+  },
+  {
+    id: 'when-two-plus-two-screamed',
+    art: 'districts/engineering-workshop',
+    tag: 'Theorem origin · complete the bridge and evacuate two students',
+  },
+  {
+    id: 'heir-who-said-no',
+    art: 'districts/botanical-conservatory',
+    tag: 'The Hearthwitch origin · unbind the household pact and rescue two witnesses',
+  },
+  {
+    id: 'empty-applause',
+    art: 'districts/student-commons',
+    tag: 'Curtain Call origin · rewrite the monologue and free two performers',
   },
   {
     id: 'college-quad',

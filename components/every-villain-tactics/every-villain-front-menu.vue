@@ -1007,6 +1007,9 @@ const additionalOriginStages = computed(() =>
       'future-in-the-glass',
       'overdue-thunder',
       'bell-and-the-door',
+      'when-two-plus-two-screamed',
+      'heir-who-said-no',
+      'empty-applause',
     ].includes(stage.id),
   ),
 )

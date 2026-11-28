@@ -5,13 +5,43 @@ type EnvironmentalOrigin = {
   flag: string
   target: Point
   range: number
-  family: 'undertow' | 'strike' | 'analyze' | 'blaze' | 'bulwark' | 'glide'
+  family: 'undertow' | 'strike' | 'analyze' | 'blaze' | 'bulwark' | 'glide' | 'aegis' | 'rally'
   even: boolean
   fire: boolean
   msg: string
 }
 
 const ORIGINS: Readonly<Record<string, EnvironmentalOrigin>> = {
+  'when-two-plus-two-screamed': {
+    lead: 'magic-genius',
+    flag: 'proof-bridge-complete',
+    target: { x: 6, y: 2 },
+    range: 5,
+    family: 'analyze',
+    even: false,
+    fire: false,
+    msg: 'Theorem completes the impossible bridge. The two students can now cross.',
+  },
+  'heir-who-said-no': {
+    lead: 'magic-birthright',
+    flag: 'hearth-pact-unbound',
+    target: { x: 4, y: 4 },
+    range: 2,
+    family: 'aegis',
+    even: false,
+    fire: false,
+    msg: 'The Hearthwitch reads the loophole aloud and raises a protective hearth. Both witnesses can now leave.',
+  },
+  'empty-applause': {
+    lead: 'magic-social',
+    flag: 'applause-contract-rewritten',
+    target: { x: 4, y: 2 },
+    range: 0,
+    family: 'rally',
+    even: false,
+    fire: false,
+    msg: 'Curtain Call rewrites the closing monologue. Both performers can now leave without a binding promise.',
+  },
   'overdue-thunder': {
     lead: 'magic-air',
     flag: 'thunder-cloud-folded',

@@ -815,6 +815,27 @@ for (const [stageId, lead, target, start, flag] of [
     { x: 3, y: 3 },
     'bell-ward-unbound',
   ],
+  [
+    'when-two-plus-two-screamed',
+    'magic-genius',
+    { x: 6, y: 2 },
+    { x: 3, y: 2 },
+    'proof-bridge-complete',
+  ],
+  [
+    'heir-who-said-no',
+    'magic-birthright',
+    { x: 4, y: 4 },
+    { x: 3, y: 4 },
+    'hearth-pact-unbound',
+  ],
+  [
+    'empty-applause',
+    'magic-social',
+    { x: 4, y: 2 },
+    { x: 4, y: 2 },
+    'applause-contract-rewritten',
+  ],
 ] as const) {
   const stage = clonePreset(stageId)
   assert.deepEqual(stageProblems(stage), [])
@@ -833,7 +854,13 @@ for (const [stageId, lead, target, start, flag] of [
           ? { x: 0, y: 2 }
           : stageId === 'bell-and-the-door'
             ? { x: 1, y: 3 }
-            : { x: 2, y: 2 }
+            : stageId === 'when-two-plus-two-screamed'
+              ? { x: 0, y: 2 }
+              : stageId === 'heir-who-said-no'
+                ? { x: 0, y: 4 }
+                : stageId === 'empty-applause'
+                  ? { x: 3, y: 2 }
+                  : { x: 2, y: 2 }
     actor.x = blockedStart.x
     actor.y = blockedStart.y
     assert.equal(useSelectedPower(state, target), false)
@@ -892,6 +919,9 @@ assert.deepEqual(ORIGIN_STAGE_LEADS, {
   'future-in-the-glass': 'magic-water',
   'overdue-thunder': 'magic-air',
   'bell-and-the-door': 'magic-discipline',
+  'when-two-plus-two-screamed': 'magic-genius',
+  'heir-who-said-no': 'magic-birthright',
+  'empty-applause': 'magic-social',
 })
 for (const [stage, signature] of Object.entries(ORIGIN_STAGE_LEADS)) {
   assert.equal(canStartOneShot(stage, signature), true)

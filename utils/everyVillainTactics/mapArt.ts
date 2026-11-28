@@ -41,6 +41,9 @@ export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   'future-in-the-glass': 265017,
   'overdue-thunder': 265015,
   'bell-and-the-door': 265015,
+  'when-two-plus-two-screamed': 265017,
+  'heir-who-said-no': 265015,
+  'empty-applause': 265015,
   ...verifiedArenaImageIds,
 }
 

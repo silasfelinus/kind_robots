@@ -638,7 +638,7 @@ export class PlumberRun implements ArcadeGameInstance {
   secretGoal: { x: number; y: number } | null = null
   private clearExit: 'normal' | 'secret' = 'normal'
   valves: { x: number; y: number; open: boolean }[] = []
-  /** Scale plates: each is down while Ballast Boots or a parked Gurgle rests on it. */
+  /** Scale plates: each is down while Ballast Boots, a parked Gurgle or a set-down crate rests on it. */
   plates: { x: number; y: number; down: boolean }[] = []
   /** Sluice gates lift while every scale plate is down (and stay up over the heroine). */
   sluiceOpen = false
@@ -2044,7 +2044,8 @@ export class PlumberRun implements ArcadeGameInstance {
           Math.abs(feet - plate.y) < 4) ||
         (gurgle?.state === 'parked' &&
           Math.abs(gurgle.x - plate.x) < TILE * 0.75 &&
-          Math.abs(gurgle.y - plate.y) < 4)
+          Math.abs(gurgle.y - plate.y) < 4) ||
+        this.plateCrated(plate)
       if (plate.down && !was) this.sound.play('pickup')
       if (!plate.down) all = false
     }
@@ -2054,6 +2055,17 @@ export class PlumberRun implements ArcadeGameInstance {
     } else if (this.sluiceOpen && !this.overlapsSluice()) {
       this.sluiceOpen = false
     }
+  }
+
+  /**
+   * A crate set down on the plate's cell (a Pocket Lift throw, or one placed
+   * there) weighs it like any carried load (GEN2-WORLDS.md 3-2: scale plates
+   * need carried weight or Gurgle). Lifting the crate off releases the plate.
+   */
+  private plateCrated(plate: { x: number; y: number }): boolean {
+    const col = Math.floor(plate.x / TILE)
+    const row = Math.floor((plate.y - 1) / TILE)
+    return this.solidAt(col, row) === SOLID_CRATE
   }
 
   private overlapsSluice(): boolean {

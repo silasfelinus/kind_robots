@@ -2,12 +2,14 @@
 // t-005, GEN2-WORLDS.md: Ballast Boots hold scale plates down; Gurgle can be
 // parked on one while she goes on alone). Played through the real update loop:
 // light feet do nothing, the boots hold a plate only while she stands on it,
-// a parked Gurgle holds it for good, two plates need both weights, and a gate
+// a parked Gurgle holds it for good, a Pocket Lift crate set down on a plate
+// holds it until lifted off again, two plates need both weights, and a gate
 // never drops onto the heroine.
 import assert from 'node:assert/strict'
 import { HERO_TALL, PlumberRun } from '../arcade/games/savePlumberPreview'
 import {
   CAMPAIGN,
+  SOLID_CRATE,
   SOLID_SLUICE,
   STAGE_GLYPHS,
   TILE,
@@ -27,7 +29,7 @@ const FLOOR = 21 * TILE
 const SLUICE = 30
 
 /** Flat floor, a sluice wall at column 30 (rows 15-20), plates on row 20. */
-function plateLab(plates: number[], barrel?: number): StageDef {
+function plateLab(plates: number[], barrel?: number, crate?: number): StageDef {
   const rows: string[] = []
   for (let row = 0; row < 24; row++) {
     const line = Array.from({ length: COLS }, () => '.')
@@ -36,6 +38,7 @@ function plateLab(plates: number[], barrel?: number): StageDef {
     if (row === 20) {
       line[3] = '@'
       for (const col of plates) line[col] = '_'
+      if (crate !== undefined) line[crate] = 'c'
       line[COLS - 3] = 'G'
     }
     rows.push(line.join(''))
@@ -182,6 +185,85 @@ assert.ok(MAKER_TILES.has('_') && MAKER_TILES.has('Z'))
   const fresh = labRun(plateLab([20]))
   assert.equal(fresh.sluiceOpen, false)
   assert.ok(fresh.plates.every((plate) => !plate.down))
+}
+
+// 7. Carried weight: a Pocket Lift crate thrown onto a plate holds it down
+// while she walks on alone; one that misses the plate does nothing, and
+// lifting the crate back off releases the plate and drops the sluice.
+const crates = (run: PlumberRun) => {
+  const found: string[] = []
+  for (let col = 0; col < COLS; col++)
+    for (let row = 0; row < 24; row++)
+      if (run.solidAt(col, row) === SOLID_CRATE) found.push(`${col},${row}`)
+  return found
+}
+function liftCrate(run: PlumberRun, crate: number) {
+  run.power = 'pocket-lift'
+  walkTo(run, crate - 2)
+  frame(run, [], ['x'])
+  for (let i = 0; i < 25; i++) frame(run)
+  assert.equal(run.carrying, true, 'the Pocket Lift picks the crate up')
+  assert.deepEqual(crates(run), [])
+}
+function throwFrom(run: PlumberRun, col: number) {
+  walkTo(run, col)
+  assert.equal(run.facing, 1)
+  frame(run, [], ['x'])
+  for (let i = 0; i < 60; i++) frame(run)
+  assert.equal(run.carrying, false)
+}
+{
+  const run = labRun(plateLab([20], undefined, 8))
+  assert.equal(
+    run.plates[0]!.down,
+    false,
+    'a crate off the plate weighs nothing',
+  )
+  liftCrate(run, 8)
+  throwFrom(run, 14)
+  assert.deepEqual(crates(run), ['20,20'], 'the crate lands on the plate')
+  assert.equal(run.plates[0]!.down, true, 'the crate weighs the plate down')
+  assert.equal(run.sluiceOpen, true)
+  assert.equal(run.solidAt(SLUICE, 20), 0, 'the sluice lifts')
+  // Climb the crate and walk on through while it holds the plate.
+  frame(run, ['right', 'a'], ['a'])
+  for (let i = 0; i < 40; i++) frame(run, ['right', 'a'])
+  walkRight(run, 240)
+  assert.ok(pastSluice(run), 'she walks on through the lifted sluice')
+  assert.equal(run.sluiceOpen, true, 'the crate keeps it open behind her')
+  assert.equal(run.hearts, 3)
+}
+{
+  const run = labRun(plateLab([20], undefined, 8))
+  liftCrate(run, 8)
+  throwFrom(run, 16)
+  const landed = crates(run)
+  assert.equal(landed.length, 1)
+  assert.ok(
+    Number(landed[0]!.split(',')[0]) > 20,
+    'an overthrow lands past the plate',
+  )
+  assert.equal(
+    run.plates[0]!.down,
+    false,
+    'a crate beside the plate does nothing',
+  )
+  assert.equal(run.sluiceOpen, false)
+}
+{
+  const run = labRun(plateLab([20], undefined, 8))
+  liftCrate(run, 8)
+  throwFrom(run, 14)
+  assert.equal(run.sluiceOpen, true)
+  // Lift it straight back off the plate: the plate rises and the gate drops.
+  walkTo(run, 18)
+  assert.equal(run.facing, 1)
+  frame(run, [], ['x'])
+  for (let i = 0; i < 25; i++) frame(run)
+  assert.equal(run.carrying, true, 'the crate comes back off the plate')
+  assert.equal(run.plates[0]!.down, false)
+  assert.equal(run.sluiceOpen, false, 'lifting the crate drops the sluice')
+  assert.ok(sluiceSolid(run))
 }
 
 const rootcellar = CAMPAIGN.find((stage) => stage.code === '3-2')!

@@ -1215,12 +1215,18 @@ assert.deepEqual(ORIGIN_STAGE_LEADS, {
   'rumor-after-midnight': 'psychic-social',
   'edited-rescue': 'tech-social',
 })
+const canonicalOriginLeads = IDENTITY_ARCS.map((identity) => identity.signature)
+assert.equal(canonicalOriginLeads.length, 48)
+assert.deepEqual(
+  Object.values(ORIGIN_STAGE_LEADS).sort(),
+  [...canonicalOriginLeads].sort(),
+  'every canonical identity has exactly one playable origin',
+)
 for (const [stage, signature] of Object.entries(ORIGIN_STAGE_LEADS)) {
-  assert.equal(canStartOneShot(stage, signature), true)
-  for (const different of ['accident-fire', 'accident-air', 'accident-earth']) {
-    if (different !== signature)
-      assert.equal(canStartOneShot(stage, different), false)
-  }
+  assert.ok(STAGE_PRESETS.some((preset) => preset.id === stage), stage)
+  assert.ok(ONE_SHOT_MENU.some((entry) => entry.id === stage), stage)
+  for (const candidate of canonicalOriginLeads)
+    assert.equal(canStartOneShot(stage, candidate), candidate === signature)
 }
 assert.equal(canStartOneShot('science-lab', 'psychic-social'), true)
 

@@ -178,7 +178,7 @@ function reset() {
           "
         />
         <span class="flex-1">Keep birth charts and progress in my account</span>
-        <span class="text-xs opacity-60" aria-live="polite">{{
+        <span class="text-xs opacity-75" aria-live="polite">{{
           syncLabel
         }}</span>
       </label>

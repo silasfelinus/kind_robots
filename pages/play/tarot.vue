@@ -205,12 +205,13 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <main
+  <section
     class="kr-surface tarot-reader flex h-full min-h-0 flex-col overflow-hidden"
     :class="surfaceClass"
     :data-contrast="store.settings.highContrast ? 'high' : undefined"
     data-layout="console-fixed"
     data-testid="tarot-reader"
+    aria-label="Kind Tarot reader"
   >
     <header-page-bar>
       <div class="flex min-w-0 flex-wrap items-center gap-2 px-2 py-1">
@@ -350,6 +351,7 @@ onBeforeUnmount(() => {
       >
         <div
           class="tarot-table kr-pane-scroll rounded-2xl border border-base-content/10 p-3 sm:p-5"
+          tabindex="0"
         >
           <p
             class="mb-3 text-center text-xs uppercase tracking-widest opacity-70"
@@ -361,6 +363,7 @@ onBeforeUnmount(() => {
         <article
           class="kr-pane-scroll rounded-2xl border border-base-content/10 bg-base-200/70 p-4 text-sm leading-relaxed"
           aria-live="polite"
+          tabindex="0"
         >
           <p class="mb-3 italic opacity-80">{{ reading.reading.opening }}</p>
           <div
@@ -368,9 +371,7 @@ onBeforeUnmount(() => {
             :key="drawn.position.id"
             class="mb-3"
           >
-            <h3
-              class="text-xs font-black uppercase tracking-wider text-primary"
-            >
+            <h3 class="tarot-label text-xs font-black uppercase tracking-wider">
               {{ drawn.position.label }}
             </h3>
             <p>{{ reading.reading.passages[index] }}</p>
@@ -411,8 +412,10 @@ onBeforeUnmount(() => {
       class="kr-panes grid-cols-1 gap-2 p-2 sm:p-3 lg:grid-cols-[minmax(280px,32%)_minmax(0,1fr)]"
       aria-label="Horoscope"
     >
-      <aside
+      <section
         class="kr-pane-scroll rounded-2xl border border-base-content/10 bg-base-200/70 p-3"
+        aria-label="People and horoscope options"
+        tabindex="0"
       >
         <div class="mb-2 flex flex-wrap gap-1">
           <button
@@ -479,10 +482,11 @@ onBeforeUnmount(() => {
             </span>
           </li>
         </ul>
-      </aside>
+      </section>
 
       <div
         class="kr-pane-scroll rounded-2xl border border-base-content/10 p-3 sm:p-4"
+        tabindex="0"
       >
         <div
           v-if="!store.natalChart"
@@ -593,7 +597,7 @@ onBeforeUnmount(() => {
               {{ pane }}
             </button>
           </div>
-          <div class="kr-pane-scroll px-3 pb-3 text-sm">
+          <div class="kr-pane-scroll px-3 pb-3 text-sm" tabindex="0">
             <template v-if="chartPane === 'placements'">
               <p class="mb-2 text-xs opacity-70">
                 {{
@@ -611,7 +615,7 @@ onBeforeUnmount(() => {
               >
                 <summary class="cursor-pointer">
                   <strong>{{ entry.title }}</strong>
-                  <span class="ml-1 text-xs opacity-60">
+                  <span class="ml-1 text-xs opacity-75">
                     {{ entry.degree }}{{ entry.point.retrograde ? ' ℞' : '' }}
                   </span>
                   <span class="block text-xs opacity-80">{{
@@ -688,7 +692,10 @@ onBeforeUnmount(() => {
       class="kr-panes grid-cols-1 p-2 sm:p-3"
       aria-label="Kind Tarot achievements"
     >
-      <div class="kr-pane-scroll rounded-2xl border border-base-content/10 p-3">
+      <div
+        class="kr-pane-scroll rounded-2xl border border-base-content/10 p-3"
+        tabindex="0"
+      >
         <game-achievement-strip game="tarot-studio" layout="list" />
       </div>
     </section>
@@ -698,7 +705,10 @@ onBeforeUnmount(() => {
       class="kr-panes grid-cols-1 p-2 sm:p-3"
       aria-label="Kind Tarot settings"
     >
-      <div class="kr-pane-scroll rounded-2xl border border-base-content/10 p-4">
+      <div
+        class="kr-pane-scroll rounded-2xl border border-base-content/10 p-4"
+        tabindex="0"
+      >
         <tarot-settings-panel />
       </div>
     </section>
@@ -708,7 +718,10 @@ onBeforeUnmount(() => {
       class="kr-panes grid-cols-1 gap-2 p-2 sm:p-3 lg:grid-cols-[minmax(0,1fr)_minmax(280px,30%)]"
       aria-label="The full deck"
     >
-      <div class="kr-pane-scroll rounded-2xl border border-base-content/10 p-2">
+      <div
+        class="kr-pane-scroll rounded-2xl border border-base-content/10 p-2"
+        tabindex="0"
+      >
         <div class="grid grid-cols-3 gap-2 sm:grid-cols-5 xl:grid-cols-8">
           <button
             v-for="card in store.activeDeck.cards"
@@ -729,17 +742,19 @@ onBeforeUnmount(() => {
           </button>
         </div>
       </div>
-      <aside
+      <section
         class="kr-pane-scroll rounded-2xl border border-base-content/10 bg-base-200/70 p-3 text-sm"
+        aria-label="Card meanings"
+        tabindex="0"
       >
         <template v-if="focusedCard">
           <h2 class="text-lg font-black">{{ focusedCard.card.title }}</h2>
           <template v-if="focusedCard.oracle">
-            <h3 class="mt-2 text-xs font-black uppercase text-primary">
+            <h3 class="tarot-label mt-2 text-xs font-black uppercase">
               Upright
             </h3>
             <p>{{ focusedCard.oracle.upright }}</p>
-            <h3 class="mt-2 text-xs font-black uppercase text-primary">
+            <h3 class="tarot-label mt-2 text-xs font-black uppercase">
               Reversed
             </h3>
             <p>{{ focusedCard.oracle.reversed }}</p>
@@ -747,9 +762,9 @@ onBeforeUnmount(() => {
           </template>
         </template>
         <p v-else class="opacity-70">Choose any card to read its meanings.</p>
-      </aside>
+      </section>
     </section>
-  </main>
+  </section>
 </template>
 
 <style scoped>
@@ -758,6 +773,16 @@ onBeforeUnmount(() => {
   --color-base-200: #f2f2f2;
   --color-base-300: #e6e6e6;
   --color-base-content: #000000;
+}
+
+/* Small uppercase labels: primary's hue, darkened toward the text color so
+   12px bold labels clear WCAG AA (plain text-primary measured 4.2:1). */
+.tarot-label {
+  color: color-mix(
+    in oklab,
+    var(--color-primary) 80%,
+    var(--color-base-content)
+  );
 }
 
 .tarot-calm :deep(*) {

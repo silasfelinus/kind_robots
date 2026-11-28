@@ -345,14 +345,14 @@ watch(
           :key="entry.id"
           class="flex items-center gap-2"
         >
-          <span class="w-20 shrink-0 opacity-60">
+          <span class="w-20 shrink-0 opacity-75">
             {{ new Date(entry.createdAt).toLocaleDateString() }}
           </span>
           <span class="flex-1 truncate font-bold">
             {{ titleFor(entry.itemKey) }}
           </span>
           <span class="capitalize opacity-70">{{ entry.rarity }}</span>
-          <span v-if="entry.duplicate" class="opacity-60">
+          <span v-if="entry.duplicate" class="opacity-75">
             duplicate +{{ entry.refund }}
           </span>
           <span v-if="entry.source === 'unlock'" class="badge badge-xs">

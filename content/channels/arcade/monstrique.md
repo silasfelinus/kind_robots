@@ -16,7 +16,11 @@ tutorial:
   image: /monstrique/front/hero.webp
   body: >-
     Explore the motel through illustrated hotspots. Inspect items, interview
-    two ghost witnesses and follow the missing Monstrique contracts. The general
+    two ghost witnesses and follow the missing Monstrique contracts. In the
+    case notebook, tap two clues to compare them. When a bulb lights on the
+    swap button, Norb has a deduction waiting in that room: swap to him and
+    look around. A topic reads as spent once everyone who can answer it has.
+    The general
     edition keeps the same clues and chapter ending without sexual material.
     A signed-in, non-CHILD adult may opt into the mature edition in the account
     menu. Mature scenes and scrapbook items never unlock for other viewers.

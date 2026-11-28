@@ -10,7 +10,9 @@
  * client. Flirting is a verb, favours earn gratitude, and gratitude never
  * gates a required clue. Story canon: conductor
  * projects/monstress-convention/STORY-BIBLE.md. Chapter Two (Beach Hex) lives
- * in chapterTwo.ts and plugs into the same engine and save.
+ * in chapterTwo.ts and plugs into the same engine and save. The shared
+ * notebook's clue comparisons, Norb's per-room deductions and the ghosts'
+ * shared reactive topics live in depth.ts.
  */
 import {
   CHAPTER_TWO_ENDING,
@@ -33,6 +35,21 @@ import {
   isChapterTwoRoom,
   type ChapterTwoRoomId,
 } from './chapterTwo'
+import {
+  COMPARE_MISSES,
+  GHOSTS_AGREE,
+  ODETTE_BACKS_VIOLET,
+  REACTIVE_TOPICS,
+  REACTIVE_TOPIC_SOURCES,
+  REACTIVE_TOPIC_TARGETS,
+  VIOLET_BACKS_ODETTE,
+  deductionsOf,
+  findComparison,
+  isDeduction,
+  norbHunch,
+  reactiveLine,
+  type DeductionGrants,
+} from './depth'
 
 export type Investigator = 'iris' | 'nico'
 export type RoomId =
@@ -120,9 +137,18 @@ export interface CaseState {
   chapter?: CaseChapter
   /** Endings of the chapters already filed in this case, oldest first. */
   filed?: CaseEnding[]
+  /**
+   * The shared notebook's deductions (depth.ts), oldest first. Absent on
+   * saves from before the notebook could compare clues.
+   */
+  deductions?: string[]
 }
 export interface CaseAction {
-  verb: Verb | 'combine'
+  /**
+   * `compare` lays two notebook clues side by side: `target` and `item`
+   * are evidence keys, and either investigator may do it.
+   */
+  verb: Verb | 'combine' | 'compare'
   target: string
   topic?: string
   /** An inventory item used on the target (giving counts as using). */
@@ -502,6 +528,7 @@ export const TOPICS: Record<string, string> = {
   'norb-shirt': 'Norb’s MONSTRIQUE T-shirt',
   'workplace-conduct': 'Workplace conduct',
   'power-structures': 'Who has power over whom',
+  ...REACTIVE_TOPICS,
   ...CHAPTER_TWO_TOPICS,
 }
 
@@ -755,6 +782,7 @@ function copyState(state: CaseState): CaseState {
     gratitude: { ...state.gratitude },
   }
   if (state.filed) next.filed = [...state.filed]
+  if (state.deductions) next.deductions = [...state.deductions]
   return next
 }
 function add(list: string[], value: string): void {
@@ -854,52 +882,127 @@ export function travel(state: CaseState, destination: RoomId): CaseResult {
   return withLine(next, HOTEL_ROOMS[destination].caption)
 }
 
-export function availableTopics(state: CaseState, target: string): string[] {
-  const supported: Record<string, string[]> = {
-    marta: [
-      'room-access',
-      'unknown-visitor',
-      'shrine',
-      'iris-neck',
-      'norb-shirt',
-    ],
-    neighbor: ['unknown-visitor', 'ice-clank', 'iris-neck', 'iris-tattoo'],
-    nico: [
-      'knife-origin',
-      'ghost-accounts',
-      'ice-clank',
-      'harker-files',
-      'norb-shirt',
-      'iris-neck',
-      'workplace-conduct',
-      'power-structures',
-    ],
-    gavin: ['fan-alibi'],
-    'odette-ghost': [
-      'agent-deals',
-      'ghost-accounts',
-      'knife-origin',
-      'harker-files',
-      'violet-fee',
-      'iris-neck',
-      'iris-tattoo',
-    ],
-    'violet-ghost': [
-      'violet-witness',
-      'ice-clank',
-      'ghost-accounts',
-      'missing-fangs',
-      'violet-fee',
-      'iris-neck',
-    ],
-  }
+/** Who answers which Chapter One topic. */
+export const CHAPTER_ONE_TOPIC_TARGETS: Record<string, string[]> = {
+  marta: [
+    'room-access',
+    'unknown-visitor',
+    'shrine',
+    'iris-neck',
+    'norb-shirt',
+  ],
+  neighbor: ['unknown-visitor', 'ice-clank', 'iris-neck', 'iris-tattoo'],
+  nico: [
+    'knife-origin',
+    'ghost-accounts',
+    'ice-clank',
+    'harker-files',
+    'norb-shirt',
+    'iris-neck',
+    'workplace-conduct',
+    'power-structures',
+  ],
+  gavin: ['fan-alibi'],
+  'odette-ghost': [
+    'agent-deals',
+    'ghost-accounts',
+    'knife-origin',
+    'harker-files',
+    'violet-fee',
+    'iris-neck',
+    'iris-tattoo',
+  ],
+  'violet-ghost': [
+    'violet-witness',
+    'ice-clank',
+    'ghost-accounts',
+    'missing-fangs',
+    'violet-fee',
+    'iris-neck',
+  ],
+}
+
+/** Every topic a character can be asked about, in any chapter. */
+export function topicsFor(target: string): string[] {
   return [
-    ...(supported[target] ?? []),
+    ...(CHAPTER_ONE_TOPIC_TARGETS[target] ?? []),
+    ...(REACTIVE_TOPIC_TARGETS[target] ?? []),
     ...(CHAPTER_TWO_TOPIC_TARGETS[target] ?? []),
-  ].filter(
+  ]
+}
+
+export function availableTopics(state: CaseState, target: string): string[] {
+  return topicsFor(target).filter(
     (topic) =>
       state.topics.includes(topic) &&
       !state.asked.includes(state.actor + ':' + target + ':' + topic),
+  )
+}
+
+/** Characters who live in a Chapter Two room answer from Chapter Two on. */
+const CHAPTER_TWO_TARGETS = new Set(
+  Object.values(HOTEL_ROOMS)
+    .filter((room) => isChapterTwoRoom(room.id))
+    .flatMap((room) => room.hotspots.map((hotspot) => hotspot.id)),
+)
+
+/** The characters who can answer a topic in the chapter being played. */
+export function topicAnswerers(
+  topic: string,
+  chapter: CaseChapter = 1,
+): string[] {
+  const targets = new Set([
+    ...Object.keys(CHAPTER_ONE_TOPIC_TARGETS),
+    ...Object.keys(REACTIVE_TOPIC_TARGETS),
+    ...Object.keys(CHAPTER_TWO_TOPIC_TARGETS),
+  ])
+  return [...targets].filter(
+    (target) =>
+      topicsFor(target).includes(topic) &&
+      (chapter === 2 || !CHAPTER_TWO_TARGETS.has(target)),
+  )
+}
+
+function askedBy(state: CaseState, target: string, topic: string) {
+  return (['iris', 'nico'] as const).filter((actor) =>
+    state.asked.includes(actor + ':' + target + ':' + topic),
+  )
+}
+
+/**
+ * How a discovered topic reads on a character's question list: `new` when
+ * nobody has asked them, `echo` when the other investigator already has
+ * (this one can still ask, for a second opinion), `spent` when this one has.
+ */
+export type TopicStatus = 'new' | 'echo' | 'spent'
+export function topicChips(
+  state: CaseState,
+  target: string,
+): Array<{ topic: string; status: TopicStatus }> {
+  return topicsFor(target)
+    .filter((topic) => state.topics.includes(topic))
+    .map((topic) => {
+      const asked = askedBy(state, target, topic)
+      const status: TopicStatus = asked.includes(state.actor)
+        ? 'spent'
+        : asked.length
+          ? 'echo'
+          : 'new'
+      return { topic, status }
+    })
+}
+
+/**
+ * Dialogue exhaustion: a discovered topic is exhausted once everyone who can
+ * answer it in this chapter has been asked by Iris or Norb. A note with no
+ * one to ask (a lead) is never exhausted.
+ */
+export function topicExhausted(state: CaseState, topic: string): boolean {
+  if (!state.topics.includes(topic)) return false
+  const answerers = topicAnswerers(topic, chapterOf(state))
+  return (
+    answerers.length > 0 &&
+    answerers.every((target) => askedBy(state, target, topic).length > 0)
   )
 }
 
@@ -920,6 +1023,11 @@ function interview(
   const key = target + ':' + topic
   const chapterTwo = chapterTwoInterview(state, next, target, topic)
   if (chapterTwo) return chapterTwo
+  const reaction = reactiveLine(next, target, topic)
+  if (reaction) {
+    if (reaction.flag) add(next.flags, reaction.flag)
+    return withLine(next, reaction.line)
+  }
 
   switch (key) {
     case 'marta:room-access':
@@ -1004,6 +1112,8 @@ function interview(
       )
     case 'odette-ghost:harker-files':
       add(next.evidence, 'harker-file')
+      add(next.evidence, 'ghost-odette')
+      add(next.topics, 'idol-schedule')
       return withLine(
         next,
         iris
@@ -1037,6 +1147,11 @@ function interview(
       )
     case 'violet-ghost:missing-fangs':
       add(next.flags, 'fangs-lost')
+      if (has(next, 'fangs-found'))
+        return withLine(
+          next,
+          'Violet: My fangs fell in the ice bucket when I laughed. Wait. Is that them in your pocket? Forty-dollar deposit, honey. Hand them over.',
+        )
       return withLine(
         next,
         'Violet: My fangs fell in the ice bucket when I laughed. Rental, forty-dollar deposit. Now the bucket’s gone, and I’d love to know who tidies up at a murder.',
@@ -1274,6 +1389,89 @@ function photographCompact(state: CaseState): CaseResult {
   )
 }
 
+/** Records a deduction and whatever it adds to the case. */
+function noteDeduction(
+  state: CaseState,
+  id: string,
+  grants?: DeductionGrants,
+): void {
+  const deductions = [...deductionsOf(state)]
+  add(deductions, id)
+  state.deductions = deductions
+  for (const clue of grants?.evidence ?? []) add(state.evidence, clue)
+  for (const flag of grants?.flags ?? []) add(state.flags, flag)
+  for (const topic of grants?.topics ?? []) add(state.topics, topic)
+}
+
+/**
+ * The shared notebook: two clues side by side. Comparing is thinking, not
+ * touching, so Norb may do it too. Misses get a joke and change nothing.
+ */
+function compareClues(
+  state: CaseState,
+  first: string,
+  second: string,
+): CaseResult {
+  if (
+    first === second ||
+    !state.evidence.includes(first) ||
+    !state.evidence.includes(second)
+  )
+    return withLine(
+      state,
+      'Pick two different clues from the notebook to compare.',
+      false,
+    )
+  const comparison = findComparison(first, second)
+  if (!comparison)
+    return withLine(
+      state,
+      COMPARE_MISSES[
+        (state.transcript.length + state.seed) % COMPARE_MISSES.length
+      ]!,
+      false,
+    )
+  if (deductionsOf(state).includes(comparison.id))
+    return withLine(
+      state,
+      'Norb: That deduction is already in the notebook, Iris. In ink.',
+      false,
+    )
+  const next = copyState(state)
+  noteDeduction(next, comparison.id, comparison.grants)
+  return withLine(next, comparison.line)
+}
+
+/**
+ * The ghosts' shared topics open as soon as the testimony they react to is
+ * in the notebook, and once each ghost has vouched for the other, their
+ * agreement is a deduction of its own.
+ */
+function noteReactions(result: CaseResult): CaseResult {
+  const state = result.state
+  const topics = Object.entries(REACTIVE_TOPIC_SOURCES)
+    .filter(
+      ([topic, source]) =>
+        state.evidence.includes(source) && !state.topics.includes(topic),
+    )
+    .map(([topic]) => topic)
+  const agree =
+    state.flags.includes(VIOLET_BACKS_ODETTE) &&
+    state.flags.includes(ODETTE_BACKS_VIOLET) &&
+    !deductionsOf(state).includes(GHOSTS_AGREE.id)
+  if (!topics.length && !agree) return result
+  return {
+    ...result,
+    state: {
+      ...state,
+      topics: [...state.topics, ...topics],
+      ...(agree
+        ? { deductions: [...deductionsOf(state), GHOSTS_AGREE.id] }
+        : {}),
+    },
+  }
+}
+
 function combineItems(
   state: CaseState,
   first: string,
@@ -1334,7 +1532,14 @@ export function performAction(
   state: CaseState,
   action: CaseAction,
 ): CaseResult {
+  const result = performCaseAction(state, action)
+  return result.changed ? noteReactions(result) : result
+}
+
+function performCaseAction(state: CaseState, action: CaseAction): CaseResult {
   if (state.ending) return withLine(state, pressLine(state), false)
+  if (action.verb === 'compare')
+    return compareClues(state, action.target, action.item ?? '')
   if (action.verb === 'combine')
     return combineItems(state, action.item ?? '', action.target)
   const hotspot = HOTEL_ROOMS[state.room].hotspots.find(
@@ -1367,6 +1572,12 @@ export function performAction(
   const iris = state.actor === 'iris'
   const chapterTwo = chapterTwoVerb(state, next, verb, target)
   if (chapterTwo) return chapterTwo
+
+  const hunch = verb === 'look' && !iris ? norbHunch(state) : null
+  if (hunch && hunch.hotspot === target) {
+    noteDeduction(next, hunch.id, hunch.grants)
+    return withLine(next, hunch.line)
+  }
 
   if (verb === 'look') {
     if (target === 'guest-ledger') {
@@ -1563,7 +1774,10 @@ export function performAction(
   }
   if (target === 'ice-machine' && verb === 'use') {
     add(next.topics, 'ice-clank')
-    if (has(next, 'fangs-lost') && !has(next, 'fangs-found')) {
+    if (
+      (has(next, 'fangs-lost') || has(next, 'bucket-traced')) &&
+      !has(next, 'fangs-found')
+    ) {
       add(next.flags, 'fangs-found')
       add(next.inventory, 'plastic-fangs')
       add(next.evidence, 'makeup-smear')
@@ -1788,6 +2002,12 @@ export function restoreCase(value: unknown): CaseState | null {
       !raw.filed.every((ending) => CASE_ENDINGS.includes(ending)))
   )
     return null
+  if (
+    raw.deductions !== undefined &&
+    (!Array.isArray(raw.deductions) ||
+      !raw.deductions.every((id) => typeof id === 'string'))
+  )
+    return null
   if (!Number.isInteger(raw.seed)) return null
   const gratitude: Record<string, number> = {}
   if (raw.version === 3) {
@@ -1838,6 +2058,8 @@ function repairCase(state: CaseState): CaseState {
   state.topics = unique(state.topics).filter((topic) => topic in TOPICS)
   state.flags = unique(state.flags)
   state.asked = unique(state.asked)
+  if (state.deductions)
+    state.deductions = unique(state.deductions).filter(isDeduction)
   repairChapter(state)
   for (let hop = 0; hop < 4; hop++) {
     const fallback = ROOM_FALLBACKS[state.room]

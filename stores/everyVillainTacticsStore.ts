@@ -346,6 +346,7 @@ export const useEveryVillainTacticsStore = defineStore(
           draftName.value = ''
           shareCode.value = ''
           accountDraftLoaded = false
+          if (isPlaytest.value) exitPlaytest()
         }
       },
       { flush: 'sync' },
@@ -453,6 +454,7 @@ export const useEveryVillainTacticsStore = defineStore(
     function loadDraft(name: string) {
       const entry = draftLibrary.value.drafts.find((d) => d.name === name)
       if (!entry) return false
+      accountDraftLoaded = false
       draft.value = structuredClone(entry.stage)
       draftName.value = entry.name
       shareMessage.value = 'Loaded draft “' + entry.name + '”.'
@@ -515,6 +517,7 @@ export const useEveryVillainTacticsStore = defineStore(
         shareMessage.value = 'Import refused: ' + result.reason
         return false
       }
+      accountDraftLoaded = false
       draft.value = result.stage
       draftName.value = result.stage.title
       importText.value = ''
@@ -767,6 +770,7 @@ export const useEveryVillainTacticsStore = defineStore(
       }
       leadSignature.value = lead
       perspective.value = view
+      accountDraftLoaded = false
       draft.value = clonePreset(presetId)
       if (!startPlaytest()) return false
       openScreen(null)
@@ -776,6 +780,10 @@ export const useEveryVillainTacticsStore = defineStore(
       saveSlots.value.some((entry) => entry.summary),
     )
     function saveTo(slot: EvtSaveSlot): boolean {
+      if (isPlaytest.value && accountDraftLoaded) {
+        saveMessage.value = 'Private draft playtests are not saved on this device.'
+        return false
+      }
       const save = createSave({
         slot,
         perspective: perspective.value,
@@ -816,7 +824,10 @@ export const useEveryVillainTacticsStore = defineStore(
       leadSignature.value = save.leadSignature
       foilSignature.value = save.foilSignature ?? null
       isPlaytest.value = save.mode === 'oneshot'
-      if (save.stage) draft.value = structuredClone(save.stage)
+      if (save.stage) {
+        accountDraftLoaded = false
+        draft.value = structuredClone(save.stage)
+      }
       restoringSave = true
       state.value = structuredClone(save.state)
       story.value = structuredClone(save.story)
@@ -860,6 +871,7 @@ export const useEveryVillainTacticsStore = defineStore(
       ),
     )
     function loadPreset(id: string) {
+      accountDraftLoaded = false
       draft.value = clonePreset(id)
     }
     function paintCell(point: Cell) {

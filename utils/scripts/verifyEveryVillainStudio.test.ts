@@ -1225,3 +1225,6 @@ for (const method of ['get', 'put']) {
   }
 }
 assert.match(page, /data-testid="studio-private-account-shelf"/)
+
+assert.match(store, /isPlaytest\.value && accountDraftLoaded/)
+assert.match(store, /if \(isPlaytest\.value\) exitPlaytest\(\)/)

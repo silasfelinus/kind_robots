@@ -589,6 +589,8 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
       'WORMS SPLIT IN TWO',
       'SPRAY LAMPS TO BLOOM',
       'MIND THE BEETLE',
+      'TWO PLAYERS: CROSSFIRE',
+      'RIVALS: MOST SEGMENTS WINS',
     ],
     width: 480,
     height: 608,
@@ -597,6 +599,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#a855f7',
     shelf: 'growing',
     controls: 'Move, spray',
+    maxPlayers: 2,
     mastery: GARDEN_MASTERY,
   },
   {

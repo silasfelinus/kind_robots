@@ -2,7 +2,12 @@
 import { mulberry32 } from '../curve'
 import { GARDENS, gardenStart } from './glitchGardenGardens'
 
-export type GardenMode = 'campaign' | 'endless' | 'daily'
+export type GardenMode = 'campaign' | 'endless' | 'daily' | 'rivals'
+
+export const CROSSFIRE_TICKS = 30
+export const CROSSFIRE_POINTS = 500
+export const RIVALS_TICKS = 90 * 60
+export const RIVALS_RESPAWN_TICKS = 90
 
 export function endlessGardenStep(level: number) {
   const n = Math.max(0, Math.floor(level) - 1)

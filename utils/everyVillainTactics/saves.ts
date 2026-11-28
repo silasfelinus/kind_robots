@@ -289,6 +289,7 @@ const MUTABLE = new Set<string>([
   'statuses',
   'burrowTarget',
   'cinderTarget',
+  'hushTarget',
   'phaseTarget',
   'phaseVictim',
   'windupRewinding',
@@ -681,6 +682,17 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
           )))
     )
       return reject(unit.id + ' insured tile is invalid.')
+    if (
+      unit.hushTarget !== undefined &&
+      (unit.henchmanType !== 'hush' ||
+        (unit.hushTarget !== null &&
+          !(
+            Number.isInteger(unit.hushTarget.x) &&
+            Number.isInteger(unit.hushTarget.y) &&
+            inside(state.map, unit.hushTarget)
+          )))
+    )
+      return reject(unit.id + ' vacuum corridor is invalid.')
     for (const point of [
       unit.phaseTarget,
       unit.burrowTarget,

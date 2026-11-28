@@ -11,6 +11,7 @@ import {
 } from '~/utils/monstressConvention/edition'
 import {
   beginChapterTwo,
+  beginRetraction,
   newCase,
   newChapterTwo,
   restoreCase,
@@ -545,6 +546,11 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     commit(beginChapterTwo(state.value))
   }
 
+  /** Fails a reckless headline forward into the retraction mini-case. */
+  function printRetraction(): void {
+    commit(beginRetraction(state.value))
+  }
+
   /** Starts Chapter Two fresh, for a player whose case files hold a lead. */
   function beginChapterTwoCase(): void {
     if (!chapterTwoUnlocked.value) return
@@ -624,6 +630,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     begin,
     chapterTwoUnlocked,
     continueChapter,
+    printRetraction,
     beginChapterTwoCase,
     forgetCase,
     takeAction,

@@ -401,6 +401,37 @@
           </header>
           <div class="kr-scroll min-h-0 flex-1 overflow-y-auto p-3">
             <template v-if="drawer === 'case'">
+              <template v-if="retraction">
+                <h3 class="mc-eyebrow" data-testid="monstrique-retraction">
+                  RETRACTION · {{ retraction.done }}/{{
+                    retraction.facts.length
+                  }}
+                  · FILE AT THE DESK IN 207
+                </h3>
+                <ul class="mc-note-list mb-4">
+                  <li
+                    v-for="fact in retraction.facts"
+                    :key="fact.key"
+                    :class="{ 'is-found': fact.found }"
+                    data-testid="monstrique-retraction-fact"
+                  >
+                    <Icon
+                      :name="
+                        fact.found
+                          ? 'kind-icon:check-circle'
+                          : 'kind-icon:circle'
+                      "
+                      class="mc-deduction-icon size-4 shrink-0"
+                    />
+                    <span class="min-w-0 flex-1">
+                      {{ fact.label }}
+                      <small v-if="!fact.found" class="block opacity-70">{{
+                        fact.where
+                      }}</small>
+                    </span>
+                  </li>
+                </ul>
+              </template>
               <h3 class="mc-eyebrow">
                 EVIDENCE · {{ story.state.evidence.length
                 }}<span v-if="story.state.evidence.length > 1">
@@ -710,6 +741,15 @@
             >
               CHAPTER TWO: BEACH HEX
             </button>
+            <button
+              v-if="canRetract"
+              class="mc-action-primary"
+              type="button"
+              data-testid="monstrique-print-retraction"
+              @click="printRetraction"
+            >
+              PRINT A RETRACTION
+            </button>
             <button class="mc-action-primary" type="button" @click="begin">
               NEW CASE
             </button>
@@ -753,7 +793,10 @@ import {
   GRACES,
   HOTEL_ROOMS,
   ITEMS,
+  RETRACTION_FACTS,
   TOPICS,
+  missingFacts,
+  retractionOpen,
   topicChips,
   topicExhausted,
   type CaseAction,
@@ -823,6 +866,21 @@ const canContinue = computed(
     !!story.value.state.ending &&
     CHAPTER_TWO_OPENERS.includes(story.value.state.ending),
 )
+const canRetract = computed(
+  () =>
+    chapterOf(story.value.state) === 1 &&
+    story.value.state.ending === 'reckless',
+)
+const retraction = computed(() => {
+  const state = story.value.state
+  if (!retractionOpen(state)) return null
+  const missing = new Set(missingFacts(state).map((fact) => fact.key))
+  const facts = RETRACTION_FACTS.map((fact) => ({
+    ...fact,
+    found: !missing.has(fact.key),
+  }))
+  return { facts, done: facts.filter((fact) => fact.found).length }
+})
 const endingPlate = computed(() => {
   const art = reachedEnding.value?.art
   return art?.src ? { src: art.src, alt: art.alt ?? '' } : null
@@ -1137,6 +1195,16 @@ function begin(): void {
   walkMs.value = 0
   iris.value = entryPoint(story.value.state.room)
   screen.value = 'intro'
+}
+
+function printRetraction(): void {
+  story.value.printRetraction()
+  selected.value = null
+  held.value = null
+  stopWalking()
+  walkMs.value = 0
+  iris.value = entryPoint(story.value.state.room)
+  drawer.value = 'case'
 }
 
 function continueChapter(): void {
@@ -1770,6 +1838,10 @@ function verbIcon(verb: Verb): string {
 .mc-clue:focus-visible {
   outline: 3px solid #ffe4c7;
   outline-offset: 2px;
+}
+.mc-note-list li.is-found > span {
+  text-decoration: line-through;
+  opacity: 0.7;
 }
 .mc-note-list li.is-spent {
   opacity: 0.55;

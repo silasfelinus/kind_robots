@@ -51,9 +51,13 @@ function run(
   }
   s = move(s, 'balcony')
   if (entrance === 'neighbor') {
+    s = move(s, 'ice-alcove')
+    s = act(s, 'look', 'maintenance-log')
+    s = move(s, 'balcony')
     s = move(s, 'neighbor-room')
     s = act(s, 'talk', 'neighbor')
     s = act(s, 'ask', 'neighbor', 'unknown-visitor')
+    s = act(s, 'use', 'fire-escape')
     s = move(s, 'balcony')
   }
   assert.ok(s.flags.includes('crime-room-access'))

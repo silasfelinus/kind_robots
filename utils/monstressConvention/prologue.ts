@@ -90,6 +90,65 @@ export const CHAPTER_ONE_ENDINGS: readonly CaseEnding[] = [
   'fifth-hexblade',
 ]
 
+/**
+ * Room 205's second way in, a legitimate emergency entry: Dolores's window
+ * opens on the fire escape, and Pip's log says 205's bathroom latch lifts
+ * from outside. Marta's key is the first way.
+ */
+export const WINDOW_LATCH = 'window-latch'
+export const FIRE_ESCAPE_ENTRY = 'fire-escape-entry'
+
+/**
+ * The fail-forward mini-case. A headline filed too early (`reckless`) is not
+ * a dead end: Norb prints a retraction, the case reopens at the desk, and
+ * these three facts, each with more than one route, file a correction that
+ * earns the convention lead after all.
+ */
+export const RETRACTION_FLAG = 'retraction'
+export const CORRECTION_FLAG = 'correction-printed'
+export const RETRACTION_FACTS = [
+  {
+    key: 'knife-photo',
+    label: 'The knife, photographed where it fell',
+    need: 'the knife on film',
+    where: 'Room 205',
+  },
+  {
+    key: 'ice-timing',
+    label: 'The double clank, timed',
+    need: 'the clock',
+    where: 'the ice machine, Pip’s log or Dolores’s clock',
+  },
+  {
+    key: 'fan-exonerated',
+    label: 'Gavin’s alibi, checked against the clock',
+    need: 'Gavin’s alibi',
+    where: 'Gavin or his camera, once the clock is set',
+  },
+] as const
+
+export type RetractionFact = (typeof RETRACTION_FACTS)[number]
+
+/** The facts a desk filing still lacks, in the order Norb lists them. */
+export function missingFacts(
+  state: Pick<CaseState, 'evidence' | 'flags'>,
+): RetractionFact[] {
+  return RETRACTION_FACTS.filter(
+    (fact) =>
+      !state.evidence.includes(fact.key) && !state.flags.includes(fact.key),
+  )
+}
+
+/** True while the retraction mini-case is open and not yet corrected. */
+export function retractionOpen(state: CaseState): boolean {
+  return (
+    chapterOf(state) === 1 &&
+    !state.ending &&
+    state.flags.includes(RETRACTION_FLAG) &&
+    !state.flags.includes(CORRECTION_FLAG)
+  )
+}
+
 /** Every ending a case file can record, Chapter One's first. */
 export const CASE_ENDINGS: readonly CaseEnding[] = [
   ...CHAPTER_ONE_ENDINGS,
@@ -353,6 +412,13 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
         x: 13,
         y: 16,
         verbs: ['look', 'photograph'],
+      },
+      {
+        id: 'fire-escape',
+        label: 'Window onto the fire escape',
+        x: 86,
+        y: 20,
+        verbs: ['look', 'use'],
       },
     ],
   },
@@ -888,10 +954,17 @@ export const CHAPTER_ONE_TOPIC_TARGETS: Record<string, string[]> = {
     'room-access',
     'unknown-visitor',
     'shrine',
+    'knife-origin',
     'iris-neck',
     'norb-shirt',
   ],
-  neighbor: ['unknown-visitor', 'ice-clank', 'iris-neck', 'iris-tattoo'],
+  neighbor: [
+    'unknown-visitor',
+    'ice-clank',
+    'knife-origin',
+    'iris-neck',
+    'iris-tattoo',
+  ],
   nico: [
     'knife-origin',
     'ghost-accounts',
@@ -1006,6 +1079,17 @@ export function topicExhausted(state: CaseState, topic: string): boolean {
   )
 }
 
+/**
+ * Witnesses who can place the knife once Iris has seen it. Asked too early,
+ * they say so and the question stays open, so nothing is spent.
+ */
+const UNSEEN_KNIFE: Record<string, string> = {
+  neighbor:
+    'Dolores: A knife? Describe it, sweetie. Better yet, go and look at it, then come back. I know every prop Monstrique ever dropped.',
+  marta:
+    'Marta: What knife, honey? Go and see whatever you’re asking about before you ask me about it.',
+}
+
 function interview(
   state: CaseState,
   target: string,
@@ -1017,6 +1101,9 @@ function interview(
       'You have not discovered that question or already asked it.',
       false,
     )
+  const unseen = UNSEEN_KNIFE[target]
+  if (topic === 'knife-origin' && unseen && !has(state, 'double-murder'))
+    return withLine(state, unseen, false)
   const next = copyState(state)
   add(next.asked, state.actor + ':' + target + ':' + topic)
   const iris = state.actor === 'iris'
@@ -1052,13 +1139,25 @@ function interview(
       )
     case 'neighbor:unknown-visitor':
       add(next.evidence, 'neighbor-testimony')
-      add(next.flags, 'crime-room-access')
       add(next.topics, 'ice-clank')
       return withLine(
         next,
         iris
-          ? 'Dolores: Two women, giggling. Room service with the ice. Then giggling of a more professional kind. Then a thump. Nobody knocked and nobody left. The fire escape goes past their window, if you’re nosy.'
-          : 'Dolores: Two voices, then none, young man. You can stand right there. I don’t bite. Unlike her costume.',
+          ? 'Dolores: Two women, giggling. Room service with the ice. Then giggling of a more professional kind. Then a thump. Nobody knocked and nobody left. My window opens on the fire escape, and it goes past theirs, if you’re nosy.'
+          : 'Dolores: Two voices, then none, young man. My window opens on the fire escape, if your girl wants to check on them. You can stand right there. I don’t bite. Unlike her costume.',
+      )
+    case 'neighbor:knife-origin':
+      add(next.evidence, 'knife-prop-mark')
+      add(next.topics, 'shrine')
+      return withLine(
+        next,
+        'Dolores: Jewelled guard, crescent hilt? Sweetie, that’s a Hexblade, from the 1964 Beach Hex pictures. Starlite Pictures stamped BEACH HEX 1964 on every guard. I have the trading card. The set came in fours. Four. Marta keeps hers in the lobby like a shrine.',
+      )
+    case 'marta:knife-origin':
+      add(next.topics, 'shrine')
+      return withLine(
+        next,
+        'Marta: Never seen it before in my life, honey. Said a little fast, didn’t I? The Hexblades in my shrine are all where they belong. Count them. Now stop leaning on my counter.',
       )
     case 'neighbor:ice-clank':
       add(next.evidence, 'ice-timing')
@@ -1365,6 +1464,39 @@ function useItem(state: CaseState, item: string, target: string): CaseResult {
 }
 
 /**
+ * The emergency way into 205: Dolores has said what she heard and pointed at
+ * the fire escape, and Pip's log says the bathroom latch lifts from outside.
+ * Either half alone gets a pointer to the other and changes nothing.
+ */
+function climbFireEscape(state: CaseState): CaseResult {
+  if (has(state, 'crime-room-access'))
+    return withLine(
+      state,
+      'Iris: 205 is already open. Norb: Then use the door, Iris. Like a person.',
+      false,
+    )
+  if (!has(state, 'neighbor-testimony'))
+    return withLine(
+      state,
+      'Dolores: That’s my window, sweetie. Ask me about last night before you go climbing out of it.',
+      false,
+    )
+  if (!has(state, WINDOW_LATCH))
+    return withLine(
+      state,
+      'Iris climbs out onto the fire escape. 205’s bathroom window is shut tight. Norb, from Dolores’s doorway: Every window at the Last Call has a maintenance history, Iris. Somebody here writes everything down.',
+      false,
+    )
+  const next = copyState(state)
+  add(next.flags, 'crime-room-access')
+  add(next.flags, FIRE_ESCAPE_ENTRY)
+  return withLine(
+    next,
+    'Iris climbs the fire escape and lifts 205’s bathroom latch, exactly the way Pip’s log complains about. A welfare check, all legal: two guests not answering after a thump. She opens the front door from inside for Norb. Dolores: I saw nothing. I saw everything.',
+  )
+}
+
+/**
  * Two-clue combination: Odette's compact, photographed beside the camera's
  * colour card, only means something once Iris has seen the bucket smear.
  */
@@ -1583,8 +1715,11 @@ function performCaseAction(state: CaseState, action: CaseAction): CaseResult {
     if (target === 'guest-ledger') {
       add(next.evidence, 'guest-ledger')
       add(next.topics, 'room-access')
-    } else if (target === 'ice-machine' || target === 'maintenance-log') {
+    } else if (target === 'ice-machine') {
       add(next.topics, 'ice-clank')
+    } else if (target === 'maintenance-log') {
+      add(next.topics, 'ice-clank')
+      add(next.flags, WINDOW_LATCH)
     } else if (target === 'memorabilia-case') {
       add(next.topics, 'shrine')
     } else if (target === 'odette-purse') {
@@ -1630,6 +1765,11 @@ function performCaseAction(state: CaseState, action: CaseAction): CaseResult {
         'Iris: A wet ring where an ice bucket stood. The bucket’s gone. Somebody came back for it. Or never left.',
       'ice-machine':
         'Norb: A distinct double clank, every few minutes. A very unromantic metronome.',
+      'maintenance-log':
+        'Iris: Pip logs every clank of the ice machine, plus everything else that breaks. In red: “205 BATHROOM WINDOW LATCH BROKEN AGAIN. Lifts from the fire escape. TELL MARTA.” Nobody told Marta.',
+      'fire-escape': has(state, 'neighbor-testimony')
+        ? 'Iris: Dolores’s window opens onto the fire escape, and the fire escape runs right past 205’s bathroom window.'
+        : 'Iris: A window onto the fire escape. It is Dolores’s window, though. I should talk to her before I climb out of it.',
       'memorabilia-case':
         'Iris: The 1964 Beach Hex line-up: vampire, werewolf, lagoon girl, mummy. Four jewelled Hexblades on velvet. Marta: Don’t smudge the glass.',
       gavin:
@@ -1767,6 +1907,7 @@ function performCaseAction(state: CaseState, action: CaseAction): CaseResult {
   }
   if (target === 'maintenance-log' && verb === 'photograph') {
     add(next.evidence, 'ice-timing')
+    add(next.flags, WINDOW_LATCH)
     return withLine(
       next,
       'Iris: Pip logs every clank like a lovesick poet. There’s last night, to the minute.',
@@ -1792,6 +1933,7 @@ function performCaseAction(state: CaseState, action: CaseAction): CaseResult {
       'Iris: Clank, clank. Norb: Splendid. Now wash your hands. Then wash them again.',
     )
   }
+  if (target === 'fire-escape' && verb === 'use') return climbFireEscape(state)
   if (target === 'sewer-hatch' && verb === 'use')
     return withLine(
       state,
@@ -1918,10 +2060,16 @@ function performCaseAction(state: CaseState, action: CaseAction): CaseResult {
         'Iris: Two women were in that room. We hear both of them before we file.',
         false,
       )
-    const ready = ['knife-photo', 'ice-timing', 'fan-exonerated'].every((key) =>
-      has(next, key),
-    )
-    if (!ready) {
+    const missing = missingFacts(next)
+    if (missing.length && has(next, RETRACTION_FLAG))
+      return withLine(
+        state,
+        'Norb: A retraction that needs its own retraction? No. We still need ' +
+          missing.map((fact) => fact.need).join(', ') +
+          '.',
+        false,
+      )
+    if (missing.length) {
       next.ending = 'reckless'
       return withLine(
         next,
@@ -1930,6 +2078,13 @@ function performCaseAction(state: CaseState, action: CaseAction): CaseResult {
     }
     add(next.flags, 'city-lead')
     add(next.topics, 'idol-schedule')
+    if (has(next, RETRACTION_FLAG)) {
+      add(next.flags, CORRECTION_FLAG)
+      return withLine(
+        next,
+        'Iris: Correction: the knife was in the room and on film, the double clank sets the clock, and Gavin was out front shooting the billboard. Norb: Retraction printed, apology withdrawn. The knife is a 1964 Beach Hex stage prop, so the case starts where Monstrique started. Get the car. I’ll sit in the back. On a towel.',
+      )
+    }
     return withLine(
       next,
       'Iris: The knife’s a 1964 Beach Hex stage prop, a jewelled Hexblade. Norb: Then the case starts where Monstrique started. Get the car. I’ll sit in the back. On a towel.',
@@ -2155,6 +2310,36 @@ export function beginChapterTwo(state: CaseState): CaseResult {
     state.ending === 'fifth-hexblade'
       ? 'Norb: Four knives in the shrine, five dents in the velvet, and a stamp that says STARLITE PICTURES, BEACH HEX, 1964. The Starlite Drive-In still runs at Hexwater Beach. Chapter Two, Iris. Get the car. I will sit on the towel.'
       : 'Norb: STARLITE PICTURES, BEACH HEX, 1964. The Starlite Drive-In still runs at Hexwater Beach, and the 1964 pictures still play there. Chapter Two, Iris. Get the car. I will sit on the towel.',
+  )
+}
+
+/**
+ * Fails a reckless headline forward. The `reckless` case file is already on
+ * record; the case reopens at the desk as the retraction mini-case, with
+ * everything found so far and the three missing facts on the topic list.
+ */
+export function beginRetraction(state: CaseState): CaseResult {
+  if (chapterOf(state) !== 1 || state.ending !== 'reckless')
+    return withLine(
+      state,
+      'Norb: There is nothing to retract, Iris. Yet.',
+      false,
+    )
+  const next = copyState(state)
+  next.ending = null
+  next.room = 'investigators-room'
+  add(next.flags, RETRACTION_FLAG)
+  add(next.topics, 'knife-origin')
+  add(next.topics, 'ice-clank')
+  add(next.topics, 'fan-alibi')
+  const missing = missingFacts(next).map((fact) => fact.need)
+  return withLine(
+    next,
+    'Norb: We print a retraction by breakfast, and then we print the truth. ' +
+      (missing.length
+        ? 'Bring me ' + missing.join(', ') + ', and we'
+        : 'We have the facts, so we') +
+      ' file a correction at this desk instead of an apology.',
   )
 }
 

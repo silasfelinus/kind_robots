@@ -598,6 +598,9 @@ jobs:
       - name: Monstrique notebook comparisons, Norb deductions and ghost topics
         run: npx tsx utils/scripts/verifyMonstriqueDepth.test.ts
 
+      - name: Monstrique opening access, ice and knife routes and retraction mini-case
+        run: npx tsx utils/scripts/verifyMonstriqueOpening.test.ts
+
   contract_2:
     name: Contract shard 2/4
     runs-on: ubuntu-latest

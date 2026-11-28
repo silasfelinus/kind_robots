@@ -172,9 +172,13 @@ for (const entry of ['marta', 'neighbor'] as const) {
   }
   go('balcony')
   if (entry === 'neighbor') {
+    go('ice-alcove')
+    act('look', 'maintenance-log')
+    go('balcony')
     go('neighbor-room')
     act('talk', 'neighbor')
     act('ask', 'neighbor', 'unknown-visitor')
+    act('use', 'fire-escape')
     go('balcony')
   }
   go('odette-room')

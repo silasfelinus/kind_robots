@@ -436,11 +436,14 @@ const REQUIRED: Record<
       ],
       ['Marta’s key after the register', withAccess],
       [
-        'Dolores and the fire escape',
+        'Dolores, Pip’s log and the fire escape',
         (p) => {
+          p.go('ice-alcove')
+          p.act('look', 'maintenance-log')
           p.go('neighbor-room')
           p.act('talk', 'neighbor')
           p.act('ask', 'neighbor', { topic: 'unknown-visitor' })
+          p.act('use', 'fire-escape')
         },
       ],
     ],

@@ -1,11 +1,11 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import {
   claimSlimeCityChallenge,
-  requireSlimeCityPreviewUser,
+  requireSlimeCityPlayer,
 } from '~/server/utils/slimeCityProgress'
 
 export default defineEventHandler(async (event) => {
-  const auth = await requireSlimeCityPreviewUser(event)
+  const auth = await requireSlimeCityPlayer(event)
   const body = await readBody<{ id?: string }>(event)
   if (typeof body?.id !== 'string' || body.id.length > 80)
     throw createError({ statusCode: 400, message: 'Invalid challenge id.' })

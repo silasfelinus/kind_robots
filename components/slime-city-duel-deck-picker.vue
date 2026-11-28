@@ -1,19 +1,26 @@
 <template>
   <section class="sc-duel-decks" aria-label="Choose duel deck">
-    <b>YOUR DUEL DECK</b>
+    <b>{{ cpu ? 'YOUR CPU DECK' : 'YOUR DUEL DECK' }}</b>
     <div class="sc-duel-modes" role="group" aria-label="Deck format">
       <button
         v-for="item in modes"
         :key="item.id"
         type="button"
         :aria-pressed="mode === item.id"
-        :data-testid="'slime-duel-' + item.id"
+        :data-testid="(cpu ? 'slime-cpu-' : 'slime-duel-') + item.id"
         @click="mode = item.id"
       >
         {{ item.name }}
       </button>
     </div>
-    <label v-if="mode === 'alliance'" class="sc-duel-option">
+    <label v-if="mode === 'faction'" class="sc-duel-option">
+      Deck
+      <select v-model="factionDeck" class="select w-full">
+        <option value="starter">Faction starter</option>
+        <option v-if="constructed" value="saved">Your saved deck</option>
+      </select>
+    </label>
+    <label v-else class="sc-duel-option">
       Alliance deck
       <select v-model="deckId" class="select w-full">
         <option value="">Choose an Alliance deck</option>
@@ -22,9 +29,9 @@
         </option>
       </select>
     </label>
-    <p class="sc-duel-hint">{{ hint }}</p>
+    <p v-if="hint" class="sc-duel-hint">{{ hint }}</p>
     <NuxtLink
-      v-if="mode !== 'faction-classic' && !setup"
+      v-if="!setup"
       to="/play/slime-city"
       class="link"
     >
@@ -41,6 +48,7 @@ import type { TeamId } from '~/utils/slimeCity/prototypes'
 
 const props = defineProps<{
   team: TeamId
+  cpu?: boolean
   modelValue: ClashRewardSetup | null
 }>()
 const emit = defineEmits<{
@@ -48,12 +56,18 @@ const emit = defineEmits<{
 }>()
 const lab = useSlimeCityStore()
 const modes = [
-  { id: 'faction-classic', name: 'Faction Classic' },
-  { id: 'faction-constructed', name: 'Faction Constructed' },
+  { id: 'faction', name: 'Faction' },
   { id: 'alliance', name: 'Alliance' },
 ] as const
 const mode = ref<(typeof modes)[number]['id']>('alliance')
 const deckId = ref('')
+const factionDeck = ref('starter')
+const constructed = computed(() =>
+  lab.duelDeck(props.team, 'faction-constructed'),
+)
+watch(constructed, (available) => {
+  if (!available) factionDeck.value = 'starter'
+})
 const decks = computed(() => [
   ...lab.library.filter(
     (deck) =>
@@ -81,22 +95,18 @@ watch(
   },
   { immediate: true },
 )
-const setup = computed(() => lab.duelDeck(props.team, mode.value, deckId.value))
-const hint = computed(() => {
-  switch (mode.value) {
-    case 'faction-classic':
-      return 'The original 20 faction starter cards.'
-    case 'faction-constructed':
-      return setup.value
-        ? 'Your saved legal faction deck.'
-        : 'No legal saved faction deck yet.'
-    case 'alliance':
-      return setup.value
-        ? 'Your selected Alliance deck.'
-        : 'Choose a legal Alliance deck.'
-  }
-  return ''
-})
+const setup = computed(() =>
+  mode.value === 'alliance'
+    ? lab.duelDeck(props.team, 'alliance', deckId.value)
+    : factionDeck.value === 'saved' && constructed.value
+      ? constructed.value
+      : lab.duelDeck(props.team, 'faction-classic'),
+)
+const hint = computed(() =>
+  mode.value === 'alliance' && !setup.value
+    ? 'Choose a legal Alliance deck.'
+    : '',
+)
 watch(setup, (value) => emit('update:modelValue', value), { immediate: true })
 </script>
 
@@ -112,7 +122,7 @@ watch(setup, (value) => emit('update:modelValue', value), { immediate: true })
 }
 .sc-duel-modes {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.3rem;
 }
 .sc-duel-modes button {

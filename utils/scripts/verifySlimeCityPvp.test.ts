@@ -1149,8 +1149,12 @@ assert.match(armorView, /:armor="unit\(side, lane\)!\.armor"/)
     'components/slime-city-duel-deck-picker.vue',
     'utf8',
   )
-  for (const mode of ['faction-classic', 'faction-constructed', 'alliance'])
-    assert.ok(picker.includes(mode))
+  assert.match(picker, /id: 'faction', name: 'Faction'/)
+  assert.match(picker, /id: 'alliance', name: 'Alliance'/)
+  assert.doesNotMatch(picker, /name: 'Faction Classic'|name: 'Faction Constructed'/)
+  assert.match(picker, /v-model="factionDeck"/)
+  assert.match(picker, /Your saved deck/)
+  assert.match(picker, /Faction starter/)
   for (const path of [
     'components/slime-city-vs.vue',
     'components/slime-city-pvp-game.vue',

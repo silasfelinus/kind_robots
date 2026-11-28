@@ -61,6 +61,14 @@
             >
               COLLECTION
             </button>
+            <button
+              type="button"
+              :class="{ active: lab.view === 'rewards' }"
+              data-testid="slime-quests-tab"
+              @click="lab.showRewards()"
+            >
+              QUESTS &amp; PACKS
+            </button>
             <SlimeCitySoundToggle class="sc-tab-sound" />
           </nav>
           <div
@@ -88,13 +96,19 @@
             >
               STORY SYNC ERROR · RELOAD
             </button>
-            <strong v-else>{{
+            <button
+              v-else
+              type="button"
+              class="sc-wallet-link"
+              aria-label="Open Meat quests and pack shop"
+              @click="lab.showRewards()"
+            >{{
               lab.progressLoaded
                 ? lab.progress.meat + ' MEAT'
                 : lab.accountPreviewOnly
                   ? 'LOCAL PLAY'
                   : 'SIGN IN'
-            }}</strong>
+            }}</button>
           </div>
         </div>
       </header-page-bar>
@@ -1056,7 +1070,8 @@
               <p>
                 Signed-in fights against the CPU (VS, Journey and Tower) pay XP
                 and Meat: the server replays every move before it pays, and
-                those fights fill your daily and weekly bounties. Spend Meat on
+                those fights and fair player duels fill your daily and weekly
+                bounties. Spend Meat on
                 packs for cards beyond your base collection.
               </p>
             </div>
@@ -1135,10 +1150,12 @@
               >
                 <span class="sc-overline">THE PACK SHOP</span>
                 <strong>STREET PACK</strong>
-                <div class="sc-pack-art" aria-hidden="true">
-                  <span>★</span><b>SLIME CITY</b
-                  ><small>1 GUARANTEED RARE</small>
-                </div>
+                <SlimeCityArtwork
+                  class="sc-bounty-art"
+                  :image-id="slimeArtId('crews', 'exchange')"
+                  alt="The Meat Exchange"
+                  compact
+                />
                 <p>
                   Three different cards from the {{ PACK_POOL.length }} cards
                   beyond the starters: one rare, two common or uncommon. A card
@@ -1461,7 +1478,7 @@ const activeMode = computed(() => {
   }
   if (view === 'campaign' || view === 'city') return 'journey'
   if (view === 'tower') return 'tower'
-  if (view === 'cards' || view === 'rewards') return 'collection'
+  if (view === 'cards') return 'collection'
   return view
 })
 /** Settings: the format the next Clash and the deck builder start in. */
@@ -1814,7 +1831,7 @@ onUnmounted(() => {
   color: #afbad1;
   white-space: nowrap;
 }
-.sc-hud strong {
+.sc-wallet-link {
   padding: 0.45rem 0.7rem;
   color: #dfff93;
   background: #19271c;

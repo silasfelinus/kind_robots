@@ -59,7 +59,9 @@ for (const route of [
   const source = read('server/api/slime-city/' + route)
   assert.match(
     source,
-    route === 'progress.get.ts' || route === 'pack.post.ts'
+    route === 'progress.get.ts' ||
+    route === 'pack.post.ts' ||
+    route === 'claim.post.ts'
       ? /requireSlimeCityPlayer\(event\)/
       : /requireSlimeCityPreviewUser\(event\)/,
     route + ' must verify authenticated account access',

@@ -50,7 +50,7 @@ assert.equal(levelFor(0), 1)
 assert.equal(levelFor(99), 1)
 assert.equal(levelFor(100), 2)
 assert.equal(nextLevelXp(100), 400)
-assert.equal(CHALLENGES.length, 6)
+assert.equal(CHALLENGES.length, 10)
 // Silas, 2026-11-09 PT: "We exchange meat, for chrissakes." Meat is the
 // city's money: the quest board and the Meat Exchange say so out loud.
 assert.ok(

@@ -100,10 +100,11 @@ function loadedArt(src: string): HTMLImageElement | null {
 /** The loaded picture for a path under the art root (Fever Dream twin when one shipped), or null while loading. */
 /**
  * A Fever Dream-only picture under doodle/ that has no classic twin (t-030 animation atlases): loaded straight
- * from its doodle path, so it needs no entry in the generated doodle manifest.
+ * from its doodle path, so it needs no entry in the generated doodle manifest, and never asks for a classic
+ * twin that does not exist while it loads (presentation critic round 2: four 404s per session).
  */
 export function rainbowDoodleLoadedArt(path: string): HTMLImageElement | null {
-  return loadedArt(`${RAINBOW_GAME_ART_ROOT}/doodle/${path}.webp`)
+  return loadedImage(`${RAINBOW_GAME_ART_ROOT}/doodle/${path}.webp`)
 }
 
 /**

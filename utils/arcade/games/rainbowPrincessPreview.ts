@@ -464,6 +464,15 @@ import {
   stepMoonjellyBoss,
   type MoonjellyBoss,
 } from './rainbowMoonjellyBoss'
+import {
+  RAINBOW_SEAT_TAG_RADIUS,
+  RAINBOW_SUPER_CAPTION,
+  rainbowHudBarLayout,
+  rainbowShipLabels,
+  rainbowShownPopups,
+  stepRainbowPopups,
+  type RainbowPopup,
+} from './rainbowHudLayout'
 
 const W = 480
 const H = 270
@@ -480,19 +489,7 @@ export const RAINBOW_SHIP_SPEED = 3.4
 const SPEED = RAINBOW_SHIP_SPEED
 const FOCUS_SPEED = SPEED * 0.55
 const CORE_RADIUS = 4
-/** The width of one pilot-status column in the HUD bar. */
-export const HUD_STATUS_COLUMN = 140
-/**
- * Where a seat's status sits inside the 29 px HUD bar: a solo pilot under the counters on the right; with
- * more pilots, seats 1-2 fill the right column (rows 12 and 24) and seats 3-4 the column beside it.
- */
-export function rainbowHudStatusSlot(
-  seat: number,
-  players: number,
-): { column: number; y: number } {
-  if (players <= 1) return { column: 0, y: 24 }
-  return { column: Math.floor(seat / 2), y: seat % 2 === 0 ? 12 : 24 }
-}
+export { rainbowHudStatusSlot } from './rainbowHudLayout'
 /** B released within this many frames is a tap: the super. Held longer, B is focus (gameplay critic D1). */
 export const SUPER_TAP_FRAMES = 12
 /** Charge each kill refunds (an urchin twice this); grazing is the main source (gameplay critic D2). */
@@ -1092,6 +1089,19 @@ export const RAINBOW_DIFFICULTY: Record<
 /** HUD text clears the cabinet's corner chips (close/fullscreen left, pause right). */
 const HUD_LEFT = 44
 const HUD_RIGHT = W - 26
+/**
+ * A boss's name on or under its health bar, centred, with a dark outline so it reads over any fill colour once a
+ * phase suffix makes it long enough to cross the fill (presentation critic R2-06).
+ */
+function bossBarLabel(g: CanvasRenderingContext2D, text: string, y: number) {
+  g.save()
+  g.strokeStyle = '#160b34'
+  g.lineWidth = 3
+  g.lineJoin = 'round'
+  g.strokeText(text, 240, y)
+  g.restore()
+  g.fillText(text, 240, y)
+}
 /** A comms line replaces the HUD bar: this tall, from the top edge, for as long as it plays. */
 const COMMS_HEIGHT = 51
 /** The ending plate fills the playfield under the comms box: 340 wide is 194 tall for a 640x366 plate. */
@@ -1620,7 +1630,7 @@ export function createRainbowPrincessPreview(
   }
   let continueLeft = 0
   let continues = 0
-  const popups: Array<{ x: number; y: number; text: string; age: number }> = []
+  const popups: RainbowPopup[] = []
   const sparks: Spark[] = []
   const caches: RecoveryCache[] = []
   /** The failure ending's frame once the CONTINUE? countdown has run out, else null (t-012). */
@@ -1807,7 +1817,9 @@ export function createRainbowPrincessPreview(
   /** One pilot's status, as the HUD bar and the upright readout both show it. */
   function pilotStatus(seat: number): string {
     const ship = ships[seat]!
-    return `${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${ship.charge}%${ship.specialCooldown ? '' : ' X'}${ship.evadeCooldown ? '' : ' Y'}`
+    // A charged super reads SUPER here, in every seat's own HUD panel, not as a caption over the play (R2-04).
+    const charge = ship.charge >= 100 ? 'SUPER' : `${ship.charge}%`
+    return `${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${charge}${ship.specialCooldown ? '' : ' X'}${ship.evadeCooldown ? '' : ' Y'}`
   }
 
   function currentAct(): 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 {
@@ -1927,12 +1939,7 @@ export function createRainbowPrincessPreview(
     allegiance = allegianceFor(livingShips().map((ship) => ship.y))
     options.sound.play('rainbowFork')
     feat(allegiance === 'rebel' ? 'rebel-road' : 'loyal-road')
-    popups.push({
-      x: W / 2,
-      y: 92,
-      text: RAINBOW_ALLEGIANCE_LABEL[allegiance],
-      age: 0,
-    })
+    announce(RAINBOW_ALLEGIANCE_LABEL[allegiance])
     reefStart = tick
     shots.length = 0
     pickups.length = 0
@@ -1946,12 +1953,7 @@ export function createRainbowPrincessPreview(
   function chooseReefRoute() {
     reefRoute = reefRouteFor(livingShips().map((ship) => ship.y))
     options.sound.play('rainbowFork')
-    popups.push({
-      x: W / 2,
-      y: 92,
-      text: reefRoute === 'relay' ? 'DAMAGE RELAY' : 'SHIELD CACHE',
-      age: 0,
-    })
+    announce(reefRoute === 'relay' ? 'DAMAGE RELAY' : 'SHIELD CACHE')
   }
 
   /** The rejoin: a broken relay pays out and powers the crew up; the cache refills every shield. */
@@ -1967,17 +1969,13 @@ export function createRainbowPrincessPreview(
         ship.charge = Math.min(100, ship.charge + 50)
       }
     }
-    popups.push({
-      x: W / 2,
-      y: 92,
-      text:
-        reefRoute === 'relay'
-          ? stopped
-            ? `RELAY STOPPED +${CROWN_REEF_FORK.relayScore} · POWER UP`
-            : `RELAY STILL LIVE · POWER UP`
-          : 'SHIELD CACHE · SHIELDS FULL',
-      age: 0,
-    })
+    announce(
+      reefRoute === 'relay'
+        ? stopped
+          ? `RELAY STOPPED +${CROWN_REEF_FORK.relayScore} · POWER UP`
+          : `RELAY STILL LIVE · POWER UP`
+        : 'SHIELD CACHE · SHIELDS FULL',
+    )
     options.sound.play('pickup')
   }
 
@@ -2007,7 +2005,7 @@ export function createRainbowPrincessPreview(
     enemyShots.length = 0
     for (const ship of ships.slice(0, activePlayers))
       ship.invulnerable = Math.max(ship.invulnerable, 240)
-    popups.push({ x: W / 2, y: 92, text: 'STOOD DOWN', age: 0 })
+    announce('STOOD DOWN')
     options.sound.play('extra')
   }
 
@@ -2070,12 +2068,7 @@ export function createRainbowPrincessPreview(
       ship.shield = Math.min(shieldCap, ship.shield + 1)
       ship.charge = Math.min(100, ship.charge + 15 * allies)
     }
-    popups.push({
-      x: W / 2,
-      y: 92,
-      text: `ALLIES ANSWER ×${allies}`,
-      age: 0,
-    })
+    announce(`ALLIES ANSWER ×${allies}`)
     options.sound.play('pickup')
   }
 
@@ -2243,13 +2236,9 @@ export function createRainbowPrincessPreview(
   function chooseWreckRoute() {
     wreckRoute = wreckRouteFor(livingShips().map((ship) => ship.y))
     options.sound.play('rainbowFork')
-    popups.push({
-      x: W / 2,
-      y: 92,
-      text:
-        wreckRoute === 'depot' ? 'SURVIVOR DEPOT · 40 SECONDS' : 'ARMORY RAID',
-      age: 0,
-    })
+    announce(
+      wreckRoute === 'depot' ? 'SURVIVOR DEPOT · 40 SECONDS' : 'ARMORY RAID',
+    )
   }
 
   /** The rejoin: the depot frees its survivors (and repairs shields), the armory arms the crew. */
@@ -2267,15 +2256,11 @@ export function createRainbowPrincessPreview(
         ship.charge = 100
       }
     }
-    popups.push({
-      x: W / 2,
-      y: 92,
-      text:
-        wreckRoute === 'depot'
-          ? `${podsSaved} SURVIVORS · ${podsSaved >= WRECK_FORK.podsToFree ? 'DEPOT FREED' : 'DEPOT LOST'}`
-          : `ARMORY RAIDED +${WRECK_FORK.armoryScore} · POWER UP`,
-      age: 0,
-    })
+    announce(
+      wreckRoute === 'depot'
+        ? `${podsSaved} SURVIVORS · ${podsSaved >= WRECK_FORK.podsToFree ? 'DEPOT FREED' : 'DEPOT LOST'}`
+        : `ARMORY RAIDED +${WRECK_FORK.armoryScore} · POWER UP`,
+    )
     options.sound.play('pickup')
   }
 
@@ -2397,7 +2382,7 @@ export function createRainbowPrincessPreview(
     shots.length = 0
     pickups.length = 0
     enemyShots.length = 0
-    popups.push({ x: W / 2, y: 92, text: 'X1 · KELP NEBULA', age: 0 })
+    announce('X1 · KELP NEBULA')
   }
 
   function launchRosefin() {
@@ -2514,17 +2499,13 @@ export function createRainbowPrincessPreview(
     )
     options.sound.play('rainbowFork')
     if (trenchRoute === 'vault') feat('vault-run')
-    popups.push({
-      x: W / 2,
-      y: 92,
-      text:
-        trenchRoute === 'vault'
-          ? 'SALVAGE VAULT'
-          : rescuedNemi
-            ? 'NEMI SIGNAL · LANTERN NURSERY'
-            : 'SAFE PASSAGE',
-      age: 0,
-    })
+    announce(
+      trenchRoute === 'vault'
+        ? 'SALVAGE VAULT'
+        : rescuedNemi
+          ? 'NEMI SIGNAL · LANTERN NURSERY'
+          : 'SAFE PASSAGE',
+    )
   }
 
   /** The rejoin: the vault pays out its salvage, the safe passage a shield repair. */
@@ -2540,15 +2521,11 @@ export function createRainbowPrincessPreview(
       for (const ship of living)
         ship.shield = Math.min(shieldCap, ship.shield + 1)
     }
-    popups.push({
-      x: W / 2,
-      y: 92,
-      text:
-        trenchRoute === 'vault'
-          ? `SALVAGE SECURED +${TRENCH_FORK.salvageScore} · POWER UP`
-          : 'SAFE PASSAGE · SHIELDS REPAIRED',
-      age: 0,
-    })
+    announce(
+      trenchRoute === 'vault'
+        ? `SALVAGE SECURED +${TRENCH_FORK.salvageScore} · POWER UP`
+        : 'SAFE PASSAGE · SHIELDS REPAIRED',
+    )
     options.sound.play('pickup')
   }
 
@@ -2960,7 +2937,7 @@ export function createRainbowPrincessPreview(
       allegiance,
     }
     if (frame > 0) {
-      popups.push({ x: W / 2, y: 74, text: 'CHECKPOINT', age: 0 })
+      announce('CHECKPOINT', 74)
       // Every checkpoint is kept, so a flight left mid-Act comes back where it was.
       writeSave()
     }
@@ -3004,6 +2981,11 @@ export function createRainbowPrincessPreview(
     else palaceStart! -= frames
   }
 
+  /** A centred segment banner; banners queue, so two never draw over each other (presentation critic R2-02). */
+  function announce(text: string, y = 92) {
+    popups.push({ x: W / 2, y, text, age: 0, headline: true })
+  }
+
   /** Earn a mastery goal (once a game); the game announces it only the first time ever. */
   function earn(id: string) {
     if (earned.includes(id)) return
@@ -3011,13 +2993,7 @@ export function createRainbowPrincessPreview(
     feat(id)
     if (!options.demo && !options.mastery?.includes(id)) {
       const goal = RAINBOW_MASTERY.find((rung) => rung.id === id)
-      if (goal)
-        popups.push({
-          x: W / 2,
-          y: 112,
-          text: `MASTERY · ${goal.title}`,
-          age: 0,
-        })
+      if (goal) announce(`MASTERY · ${goal.title}`, 112)
     }
     // A goal made of parts (EVERY ENDING) is earned with its last part.
     const held = new Set([...(options.mastery ?? []), ...earned])
@@ -3037,12 +3013,7 @@ export function createRainbowPrincessPreview(
     medals[act] = medal
     actHits = 0
     actContinues = 0
-    popups.push({
-      x: W / 2,
-      y: 96,
-      text: `${ACT_NUMERALS[act - 1]} · ${medal.toUpperCase()} MEDAL`,
-      age: 0,
-    })
+    announce(`${ACT_NUMERALS[act - 1]} · ${medal.toUpperCase()} MEDAL`, 96)
     if (act === 1) earn('first-light')
     if (medal === 'gold') earn('gold-wing')
     if (activePlayers === 4) feat('full-squadron')
@@ -3249,12 +3220,9 @@ export function createRainbowPrincessPreview(
   function resumeFromCheckpoint() {
     continueLeft = 0
     // The lead pilot's "back in" beat as the crew comes back (story critic S16), drawing only.
-    popups.push({
-      x: W / 2,
-      y: 92,
-      text: `${RAINBOW_PILOTS[pilotOf(0)]!.name.split(' ')[0]!.toUpperCase()} · BACK IN THE FIGHT`,
-      age: 0,
-    })
+    announce(
+      `${RAINBOW_PILOTS[pilotOf(0)]!.name.split(' ')[0]!.toUpperCase()} · BACK IN THE FIGHT`,
+    )
     caches.length = 0
     continues++
     actContinues++
@@ -4353,7 +4321,7 @@ export function createRainbowPrincessPreview(
         1,
         Math.round(guardian.maxHp * level.bossHp),
       )
-      popups.push({ x: W / 2, y: 92, text: 'ARMORY SIREN', age: 0 })
+      announce('ARMORY SIREN')
     }
   }
 
@@ -4368,7 +4336,7 @@ export function createRainbowPrincessPreview(
         1,
         Math.round(guardian.maxHp * level.bossHp),
       )
-      popups.push({ x: W / 2, y: 92, text: 'PEARL WARDEN', age: 0 })
+      announce('PEARL WARDEN')
     }
   }
 
@@ -4594,8 +4562,7 @@ export function createRainbowPrincessPreview(
     lastBossPhase = phase
     for (let i = bursts.length - 1; i >= 0; i--)
       if (++bursts[i]!.age > BURST_FRAMES) bursts.splice(i, 1)
-    for (let i = popups.length - 1; i >= 0; i--)
-      if (++popups[i]!.age > POPUP_FRAMES) popups.splice(i, 1)
+    stepRainbowPopups(popups, POPUP_FRAMES)
     for (const reef of reefs) if (reef.flash) reef.flash--
     for (let i = sparks.length - 1; i >= 0; i--) {
       const spark = sparks[i]!
@@ -4645,7 +4612,7 @@ export function createRainbowPrincessPreview(
         cometHits = 0
         reefs.length = 0
         enemyShots.length = 0
-        popups.push({ x: W / 2, y: 92, text: 'X2 · CORAL COMET', age: 0 })
+        announce('X2 · CORAL COMET')
       } else wreckStart = tick
       shots.length = 0
       pickups.length = 0
@@ -4656,7 +4623,7 @@ export function createRainbowPrincessPreview(
       cadetsHome = cometFullWing(cometCadetsMask)
       if (cadetsHome) {
         score += 3000
-        popups.push({ x: W / 2, y: 92, text: 'FULL WING · +3000', age: 0 })
+        announce('FULL WING · +3000')
       }
       wreckStart = tick
       actHits = 0
@@ -4694,12 +4661,7 @@ export function createRainbowPrincessPreview(
         alternateRoutesSeen |= 8
         reefs.length = 0
         enemyShots.length = 0
-        popups.push({
-          x: W / 2,
-          y: 92,
-          text: 'X4 · MIRROR SHOAL',
-          age: 0,
-        })
+        announce('X4 · MIRROR SHOAL')
         passCheckpoint(7, glassFrame())
       } else {
         palaceStart = tick
@@ -4711,12 +4673,7 @@ export function createRainbowPrincessPreview(
       alternateRoutesCleared |= 8
       if (mirrorShoalMedalEarned(shoalHits)) {
         score += 3000
-        popups.push({
-          x: W / 2,
-          y: 92,
-          text: 'STILL WATER · +3000',
-          age: 0,
-        })
+        announce('STILL WATER · +3000')
       }
       palaceStart = tick
       actHits = 0
@@ -4742,12 +4699,7 @@ export function createRainbowPrincessPreview(
         alternateRoutesSeen |= 4
         reefs.length = 0
         enemyShots.length = 0
-        popups.push({
-          x: W / 2,
-          y: 92,
-          text: 'X3 · SUNKEN LIGHTHOUSE',
-          age: 0,
-        })
+        announce('X3 · SUNKEN LIGHTHOUSE')
       } else {
         glassStart = tick
       }
@@ -4758,12 +4710,7 @@ export function createRainbowPrincessPreview(
       alternateRoutesCleared |= 4
       if (lighthouseMedalEarned(lighthouseLamps)) {
         score += 3000
-        popups.push({
-          x: W / 2,
-          y: 92,
-          text: 'SIX LIGHTS · +3000',
-          age: 0,
-        })
+        announce('SIX LIGHTS · +3000')
       }
       glassStart = tick
       actHits = 0
@@ -4786,16 +4733,11 @@ export function createRainbowPrincessPreview(
       freedChoir = choirFreed(nurseryChoirMask)
       if (freedChoir) {
         score += KELP_CHOIR.fullRescueBonus
-        popups.push({ x: W / 2, y: 92, text: 'CHOIR FREED · +3000', age: 0 })
+        announce('CHOIR FREED · +3000')
       }
       if (nurseryGuardianOutcome === 'defeated') {
         score += 1500
-        popups.push({
-          x: W / 2,
-          y: 76,
-          text: 'KELP WARDEN CLEAR · +1500',
-          age: 0,
-        })
+        announce('KELP WARDEN CLEAR · +1500', 76)
       }
       launchRosefin()
       actHits = 0
@@ -5246,12 +5188,7 @@ export function createRainbowPrincessPreview(
           finalChoice = finaleChoiceFor(livingShips().map((ship) => ship.y))
           choiceFrame = null
           escapeFrame = 0
-          popups.push({
-            x: W / 2,
-            y: 92,
-            text: finalChoice.toUpperCase(),
-            age: 0,
-          })
+          announce(finalChoice.toUpperCase())
           options.sound.play('extra')
         }
       } else if (escapeFrame !== null) {
@@ -6412,14 +6349,24 @@ export function createRainbowPrincessPreview(
     },
     /**
      * The HUD bar in words, for an upright phone's large-type readout under the stage (presentation
-     * critic P-09): the Act, the score, shoals and novas, then each pilot's lives, shields, power,
-     * charge and ready moves. Nothing in the demo, the menus or after the run.
+     * critic P-09): the Act, the comms line playing (R2-03), the score, shoals and novas, then each pilot's
+     * lives, shields, power, charge and ready moves. Nothing in the demo, the menus or after the run.
      */
     get readout(): ArcadeReadoutRow[] | null {
       if (options.demo || over || resumeMenu || selectMenu) return null
       const [where, name] = hudTitle().split(' / ')
       return [
         { label: where!, value: name ?? '' },
+        // The comms line the stage shows, in type a phone held upright can read (presentation critic R2-03).
+        ...(shownComms
+          ? [
+              {
+                label: `${shownComms.speaker.toUpperCase()}${callSignFor(shownComms.speaker)}`,
+                value: shownComms.text,
+                spoken: true,
+              },
+            ]
+          : []),
         { label: 'SCORE', value: String(Math.round(score * level.score)) },
         { label: 'SHOALS · NOVAS', value: `${clearCount} · ${supers}` },
         ...ships.slice(0, activePlayers).map((_, seat) => ({
@@ -7981,7 +7928,7 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#fff7cf'
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
-        g.fillText('B01 PEARL SEAHORSE', 240, 53)
+        bossBarLabel(g, 'B01 PEARL SEAHORSE', 53)
         g.textAlign = 'left'
       }
       if (moonBoss) {
@@ -8058,7 +8005,7 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillStyle = '#fff4c4'
-        g.fillText('B02 AURELIA ARRAY', 240, 53)
+        bossBarLabel(g, 'B02 AURELIA ARRAY', 53)
         g.textAlign = 'left'
       }
       if (crown && crown.target === 'flagship' && eclipseCrownWarning(crown)) {
@@ -8181,7 +8128,8 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillStyle = '#ffffff'
-        g.fillText(
+        bossBarLabel(
+          g,
           crown.target === 'flagship'
             ? crown.phase === 2
               ? 'B09 MOTHERLAND FLAGSHIP · CLAMPS OPEN'
@@ -8191,7 +8139,6 @@ export function createRainbowPrincessPreview(
               : crown.phase === 2
                 ? 'B09 ECLIPSE CROWN · HEART FREE'
                 : 'B09 ECLIPSE CROWN',
-          240,
           41,
         )
         g.textAlign = 'left'
@@ -8347,9 +8294,9 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillStyle = '#ffffff'
-        g.fillText(
+        bossBarLabel(
+          g,
           exposed ? 'B08 PRISM LEVIATHAN · GEM OPEN' : 'B08 PRISM LEVIATHAN',
-          240,
           41,
         )
         g.textAlign = 'left'
@@ -8438,9 +8385,9 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillStyle = '#ffffff'
-        g.fillText(
+        bossBarLabel(
+          g,
           exposed ? 'B07 GLASS EEL · CORE OPEN' : 'B07 GLASS EEL',
-          240,
           41,
         )
         g.textAlign = 'left'
@@ -8541,9 +8488,9 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillStyle = '#fff4c4'
-        g.fillText(
+        bossBarLabel(
+          g,
           exposed ? 'B06 LANTERN RAY · BEACON OPEN' : 'B06 LANTERN RAY',
-          240,
           41,
         )
         g.textAlign = 'left'
@@ -8635,9 +8582,9 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillStyle = '#fff4c4'
-        g.fillText(
+        bossBarLabel(
+          g,
           exposed ? 'B05 SAWTOOTH REGENT · JAW OPEN' : 'B05 SAWTOOTH REGENT',
-          240,
           41,
         )
         g.textAlign = 'left'
@@ -8741,9 +8688,9 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillStyle = '#fff4c4'
-        g.fillText(
+        bossBarLabel(
+          g,
           exposed ? 'B04 DELPHION · LINK CORE OPEN' : 'B04 DELPHION',
-          240,
           41,
         )
         g.textAlign = 'left'
@@ -8829,9 +8776,9 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillStyle = '#fff4c4'
-        g.fillText(
+        bossBarLabel(
+          g,
           exposed ? 'B03 CLAWBURST · CANNON OPEN' : 'B03 CLAWBURST',
-          240,
           53,
         )
         g.textAlign = 'left'
@@ -9284,11 +9231,6 @@ export function createRainbowPrincessPreview(
           g.arc(0, 0, CORE_RADIUS, 0, Math.PI * 2)
           g.stroke()
         }
-        g.strokeStyle = '#fff'
-        g.font = 'bold 9px sans-serif'
-        // The seat number sits behind the ship's tail, not above it, so in tight formation it never lands on
-        // the next pilot's hull (presentation critic P-22).
-        g.strokeText(String(seat + 1), -24, 3)
         if (hitCards[seat]! > 0) {
           // The hit-pose card (t-030): the pilot's painted reaction, framed above her ship as it flickers.
           const pilotName = RAINBOW_PILOTS[pilotOf(seat)]!.name
@@ -9301,14 +9243,57 @@ export function createRainbowPrincessPreview(
           }
           g.restore()
         }
-        if (ship.charge >= 100 && Math.floor(tick / 10) % 2 === 0) {
-          g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
-          g.font = 'bold 7px monospace'
-          g.textAlign = 'center'
-          g.fillText('SUPER READY · TAP B', 0, 24)
-          g.textAlign = 'left'
-        }
         g.restore()
+      }
+      // Seat tags and super captions, upright and after every hull, each where no other ship or tag is (presentation
+      // critics P-22 and R2-04): a tag fills with its pilot's colour once the super is charged, and only a crew of
+      // one or two also spells it out.
+      const labels = rainbowShipLabels(
+        ships.slice(0, activePlayers).map((ship) => ({
+          x: ship.x,
+          y: ship.y,
+          alive: ship.lives > 0,
+          ready: ship.charge >= 100,
+        })),
+        activePlayers,
+      )
+      for (const label of labels) {
+        const ship = ships[label.seat]!
+        if (
+          ship.invulnerable &&
+          choiceFrame === null &&
+          Math.floor(tick / 6) % 2 === 0
+        )
+          continue
+        const color = PILOT_COLORS[pilotOf(label.seat)]!
+        const ready = ship.charge >= 100
+        g.textAlign = 'center'
+        g.textBaseline = 'middle'
+        if (label.tag) {
+          g.beginPath()
+          g.arc(
+            label.tag.x,
+            label.tag.y,
+            RAINBOW_SEAT_TAG_RADIUS,
+            0,
+            Math.PI * 2,
+          )
+          g.fillStyle = ready ? color : '#160b34cc'
+          g.fill()
+          g.strokeStyle = ready ? '#ffffff' : color
+          g.lineWidth = 1
+          g.stroke()
+          g.fillStyle = ready ? '#160b34' : '#ffffff'
+          g.font = 'bold 7px monospace'
+          g.fillText(String(label.seat + 1), label.tag.x, label.tag.y + 0.5)
+        }
+        if (label.caption && Math.floor(tick / 10) % 2 === 0) {
+          g.fillStyle = color
+          g.font = 'bold 7px monospace'
+          g.fillText(RAINBOW_SUPER_CAPTION, label.caption.x, label.caption.y)
+        }
+        g.textAlign = 'left'
+        g.textBaseline = 'alphabetic'
       }
       for (const burst of bursts) {
         const t = burst.age / BURST_FRAMES
@@ -9712,36 +9697,32 @@ export function createRainbowPrincessPreview(
       if (!dialogue) {
         g.fillStyle = '#180d38e8'
         g.fillRect(0, 0, W, 29)
-        g.fillStyle = '#ffe7f5'
-        g.font = 'bold 10px monospace'
-        g.fillText(hudTitle(), HUD_LEFT, 12)
-        g.font = '9px monospace'
-        // The button legend teaches Act I, then gives the bar back (presentation critic P-21); with three or
-        // four pilots their status needs the room.
-        if (act === 1 && activePlayers <= 2)
-          g.fillText(
-            // Short enough to clear P1's status on the right of the same row.
-            'A FIRE · B HOLD FOCUS/TAP SUPER · X SPECIAL · Y EVADE',
-            HUD_LEFT,
-            24,
-          )
-        g.textAlign = 'right'
-        if (activePlayers <= 2)
-          g.fillText(
-            `SHOALS ${clearCount}  ·  NOVAS ${supers}`,
-            activePlayers === 1 ? HUD_RIGHT : HUD_RIGHT - HUD_STATUS_COLUMN,
-            12,
-          )
-        // Every pilot's status lives inside the 29 px bar, never over the playfield or the boss bar
-        // (gameplay critic D4, presentation critic P-08): pilots 1-2 in the right column, 3-4 beside them.
-        for (let seat = 0; seat < activePlayers; seat++) {
-          const slot = rainbowHudStatusSlot(seat, activePlayers)
-          g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
-          g.fillText(
-            `${SHIP_NAMES[pilotOf(seat)]} ${pilotStatus(seat)}`,
-            HUD_RIGHT - slot.column * HUD_STATUS_COLUMN,
-            slot.y,
-          )
+        // Every pilot's status lives inside the 29 px bar, never over the playfield or the boss bar (gameplay
+        // critic D4, presentation critic P-08). The title, counters and Act I legend (P-21) take the longest form
+        // that clears them on their row, measured in this canvas's own font (presentation critic R2-01).
+        for (const item of rainbowHudBarLayout({
+          players: activePlayers,
+          title: hudTitle(),
+          shoals: clearCount,
+          novas: supers,
+          statuses: ships
+            .slice(0, activePlayers)
+            .map(
+              (_, seat) => `${SHIP_NAMES[pilotOf(seat)]} ${pilotStatus(seat)}`,
+            ),
+          legend: act === 1,
+          measure: (text, font) => {
+            g.font = font
+            return g.measureText(text).width
+          },
+        })) {
+          g.fillStyle =
+            item.seat === undefined
+              ? '#ffe7f5'
+              : PILOT_COLORS[pilotOf(item.seat)]!
+          g.font = item.font
+          g.textAlign = item.align
+          g.fillText(item.text, item.x, item.y)
         }
         g.textAlign = 'left'
       }
@@ -10267,7 +10248,7 @@ export function createRainbowPrincessPreview(
           g.restore()
         }
       }
-      for (const popup of popups) {
+      for (const popup of rainbowShownPopups(popups)) {
         g.save()
         g.globalAlpha = Math.max(0, 1 - popup.age / POPUP_FRAMES)
         g.fillStyle = '#fff2a8'

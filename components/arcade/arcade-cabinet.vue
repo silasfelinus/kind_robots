@@ -199,16 +199,27 @@
           aria-label="Run status"
           :style="placedAt(touchPlan.readout, true)"
         >
-          <div
-            v-for="(row, index) in readout"
-            :key="index"
-            class="cabinet-readout-row"
-            :class="{ 'cabinet-readout-row--head': index === 0 }"
-            :style="row.color ? { color: row.color } : undefined"
-          >
-            <dt>{{ row.label }}</dt>
-            <dd>{{ row.value }}</dd>
-          </div>
+          <template v-for="(row, index) in readoutRows" :key="index">
+            <div
+              class="cabinet-readout-row"
+              :class="{ 'cabinet-readout-row--head': index === 0 }"
+              :style="row.color ? { color: row.color } : undefined"
+            >
+              <dt>{{ row.label }}</dt>
+              <dd>{{ row.value }}</dd>
+            </div>
+            <div
+              v-if="index === 0"
+              class="cabinet-readout-spoken"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              <template v-if="readoutSpoken">
+                <dt>{{ readoutSpoken.label }}</dt>
+                <dd>{{ readoutSpoken.value }}</dd>
+              </template>
+            </div>
+          </template>
         </dl>
         <p
           v-if="touchPlan?.hint"
@@ -854,6 +865,13 @@ function syncReadout(game: ArcadePlayableInstance | null) {
   readoutKey = key
   readout.value = next
 }
+/** The readout's status rows, and the line of dialogue playing (shown and announced under the head row). */
+const readoutRows = computed(() =>
+  (readout.value ?? []).filter((row) => !row.spoken),
+)
+const readoutSpoken = computed(
+  () => readout.value?.find((row) => row.spoken) ?? null,
+)
 const compactDpad = computed(
   () => props.slug === 'rainbow-bullet-hell-space-princess' || labelled.value,
 )
@@ -3420,7 +3438,7 @@ onBeforeUnmount(() => {
 .cabinet-overlay .cabinet-readout {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: safe center;
   gap: 0.15rem;
   margin: 0;
   overflow: hidden;
@@ -3455,6 +3473,35 @@ onBeforeUnmount(() => {
 .cabinet-overlay .cabinet-readout-row--head {
   color: rgba(253, 230, 138, 0.95);
   font-size: 0.8rem;
+}
+
+/* The comms line on an upright phone, where the stage's subtitles are a few px tall (R2-03). */
+.cabinet-overlay .cabinet-readout-spoken {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  margin: 0.1rem 0 0.25rem;
+}
+
+.cabinet-overlay .cabinet-readout-spoken:empty {
+  display: none;
+}
+
+.cabinet-overlay .cabinet-readout-spoken dt {
+  color: #aef6f0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.cabinet-overlay .cabinet-readout-spoken dd {
+  margin: 0;
+  color: #fff4fa;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 .cabinet-overlay .cabinet-rotate-hint {

@@ -261,11 +261,15 @@ export const ARCADE_DIFFICULTIES: readonly ArcadeDifficulty[] = [
 export type ArcadeSoundLike = Pick<ArcadeSound, 'play'> &
   Partial<Pick<ArcadeSound, 'playNotes'>>
 
-/** One row of ArcadeGameInstance.readout: a label, its value, and an optional colour (a pilot's). */
+/**
+ * One row of ArcadeGameInstance.readout: a label, its value, and an optional colour (a pilot's). A spoken row is
+ * a line of dialogue (label the speaker, value the line): the cabinet wraps it and announces it politely.
+ */
 export type ArcadeReadoutRow = {
   label: string
   value: string
   color?: string
+  spoken?: boolean
 }
 
 export type ArcadeStagePointer = {

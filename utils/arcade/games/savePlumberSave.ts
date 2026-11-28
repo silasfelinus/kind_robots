@@ -90,6 +90,7 @@ export type PlumberAlbum = {
   pearls?: string[]
   heroines: number[]
   endings: PlumberEnding[]
+  runs?: PlumberRunMemory[]
 }
 
 /**
@@ -103,6 +104,92 @@ export const PLUMBER_ENDINGS = [
   'open-tap',
 ] as const
 export type PlumberEnding = (typeof PLUMBER_ENDINGS)[number]
+
+export const PLUMBER_RUN_HISTORY_LIMIT = 12
+
+export type PlumberRunMemory = {
+  id: string
+  finishedAt: number
+  heroine: number
+  name?: string
+  node: string
+  outcome: PlumberEnding | 'game-over'
+  score: number
+  deaths: number
+  time: number
+  stages: number
+  gears: number
+  secrets: number
+}
+
+function readRunMemories(raw: unknown): PlumberRunMemory[] {
+  if (!Array.isArray(raw)) return []
+  const memories = new Map<string, PlumberRunMemory>()
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') continue
+    const r = item as Record<string, unknown>
+    if (typeof r.id !== 'string' || !/^[0-9a-f-]{36}$/.test(r.id)) continue
+    if (!count(r.finishedAt, Number.MAX_SAFE_INTEGER)) continue
+    if (!count(r.heroine, 0xffffffff)) continue
+    if (typeof r.node !== 'string' || !mapNode(r.node)) continue
+    const outcome =
+      r.outcome === 'game-over'
+        ? r.outcome
+        : PLUMBER_ENDINGS.find((ending) => ending === r.outcome)
+    if (!outcome) continue
+    if (!count(r.score, 99_999_999) || !count(r.deaths, 999_999)) continue
+    if (!count(r.time, 99_999_999) || !count(r.stages, 999)) continue
+    if (!count(r.gears, 999) || !count(r.secrets, 999)) continue
+    const name = plumberName(r.name)
+    const memory: PlumberRunMemory = {
+      id: r.id,
+      finishedAt: r.finishedAt,
+      heroine: r.heroine,
+      ...(name ? { name } : {}),
+      node: r.node,
+      outcome,
+      score: r.score,
+      deaths: r.deaths,
+      time: r.time,
+      stages: r.stages,
+      gears: r.gears,
+      secrets: r.secrets,
+    }
+    const prior = memories.get(memory.id)
+    if (!prior || JSON.stringify(memory) < JSON.stringify(prior))
+      memories.set(memory.id, memory)
+  }
+  return [...memories.values()]
+    .sort((a, b) => b.finishedAt - a.finishedAt || a.id.localeCompare(b.id))
+    .slice(0, PLUMBER_RUN_HISTORY_LIMIT)
+}
+
+export function archivePlumberRun(
+  album: PlumberAlbum,
+  slot: PlumberSlot,
+  outcome: PlumberRunMemory['outcome'],
+  id: string,
+  finishedAt: number,
+): PlumberAlbum {
+  const memory: PlumberRunMemory = {
+    id,
+    finishedAt,
+    heroine: slot.heroine,
+    ...(slot.name ? { name: slot.name } : {}),
+    node: slot.node ?? startId(1),
+    outcome,
+    score: slot.score,
+    deaths: slot.deaths ?? 0,
+    time: slot.time ?? 0,
+    stages: slot.done?.length ?? 0,
+    gears: slot.gears?.length ?? 0,
+    secrets: slot.secrets?.length ?? 0,
+  }
+  return mergePlumberAlbum(
+    { ...album, runs: [...(album.runs ?? []), memory] },
+    [slot],
+  )
+}
 
 /**
  * What each ending shows. `plate` is its painted cutscene; until a plate is delivered the finale and gallery fall
@@ -390,6 +477,7 @@ export function mergePlumberAlbum(
     ...slots.flatMap((slot) => (slot ? earnedPlumberEndings(slot) : [])),
   ])
   const endings = PLUMBER_ENDINGS.filter((ending) => earned.has(ending))
+  const runs = readRunMemories(a.runs)
   return {
     done,
     secrets,
@@ -397,6 +485,7 @@ export function mergePlumberAlbum(
     ...(pearls.length ? { pearls } : {}),
     heroines,
     endings,
+    ...(runs.length ? { runs } : {}),
   }
 }
 
@@ -501,6 +590,7 @@ export function reconcilePlumberSaves(
       pearls: [...(remote.album.pearls ?? []), ...(local.album.pearls ?? [])],
       heroines: [...remote.album.heroines, ...local.album.heroines],
       endings: [...remote.album.endings, ...local.album.endings],
+      runs: [...(remote.album.runs ?? []), ...(local.album.runs ?? [])],
     },
     slots,
   )

@@ -8,8 +8,8 @@
       <p class="plumber-album-summary">
         {{ clearedNodes.size }} cleared paths · {{ album.gears.length }} /
         {{ GEAR_COURSE_CODES.length }} Golden Gears ·
-        {{ album.pearls?.length ?? 0 }} Wild Pearls ·
-        {{ album.heroines.length }} / 8 heroines
+        {{ album.pearls?.length ?? 0 }} / {{ pearlCount }} Wild Pearls ·
+        {{ album.heroines.length }} / {{ heroines.length }} heroines
       </p>
       <div class="plumber-album-grid" aria-label="World medals">
         <figure
@@ -53,7 +53,32 @@
           </figcaption>
         </figure>
       </div>
-      <h3 class="plumber-album-subheading">LOCAL SAVE FILES</h3>
+      <h3 class="plumber-album-subheading">RECENT ADVENTURE MEMORIES</h3>
+      <p v-if="!album.runs?.length" class="plumber-album-summary">
+        Complete an adventure or reach Game Over to record its outcome.
+      </p>
+      <div v-else class="plumber-album-files" aria-label="Finished adventures">
+        <div
+          v-for="memory in album.runs"
+          :key="memory.id"
+          class="plumber-album-file"
+        >
+          <strong>{{
+            memory.outcome === 'game-over'
+              ? 'GAME OVER'
+              : PLUMBER_ENDING_COPY[memory.outcome].title
+          }}</strong>
+          <span>{{ memory.name ?? heroineName(memory.heroine) }}</span>
+          <span>{{ mapNode(memory.node)?.name ?? memory.node }}</span>
+          <span>
+            {{ memory.stages }} paths · {{ memory.gears }} gears ·
+            {{ memory.secrets }} secrets
+          </span>
+          <span>{{ memory.score }} points · {{ memory.deaths }} falls</span>
+          <span>{{ playedTime(memory.time) }}</span>
+        </div>
+      </div>
+      <h3 class="plumber-album-subheading">SAVE FILES</h3>
       <div class="plumber-album-files">
         <div
           v-for="(slot, index) in slots"
@@ -62,7 +87,8 @@
         >
           <strong>FILE {{ index + 1 }}</strong>
           <template v-if="slot">
-            <span>{{ heroineName(slot.heroine) }}</span>
+            <span>{{ slot.name ?? heroineName(slot.heroine) }}</span>
+            <span>{{ slot.cleared ? 'ADVENTURE COMPLETE' : 'IN PROGRESS' }}</span>
             <span
               >{{ slot.done?.length ?? 0 }} stages ·
               {{ slot.gears?.length ?? 0 }} gears</span
@@ -76,8 +102,9 @@
         </div>
       </div>
       <p class="plumber-album-footnote">
-        Souvenirs stay in this device's collection even if a local run slot is
-        replaced. Save files themselves remain device-local.
+        Souvenirs and the latest {{ PLUMBER_RUN_HISTORY_LIMIT }} adventure
+        memories survive replacing a run slot. Signed-in accounts sync their
+        own collection; guest progress stays on this device.
       </p>
     </template>
     <template v-else>
@@ -122,8 +149,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { PLUMBER_ART } from '~/utils/arcade/games/savePlumberArt'
-import { stageNode } from '~/utils/arcade/games/savePlumberOverworld'
+import { mapNode, stageNode } from '~/utils/arcade/games/savePlumberOverworld'
 import {
+  CAMPAIGN,
   GEAR_COURSE_CODES,
   stageWorld,
 } from '~/utils/arcade/games/savePlumberLevels'
@@ -135,6 +163,7 @@ import {
 import {
   PLUMBER_ENDINGS,
   PLUMBER_ENDING_COPY,
+  PLUMBER_RUN_HISTORY_LIMIT,
   type PlumberAlbum,
   type PlumberSlot,
 } from '~/utils/arcade/games/savePlumberSave'
@@ -150,6 +179,7 @@ const clearedNodes = computed(
   () => new Set([...props.album.done, ...props.album.secrets]),
 )
 const collectedGears = computed(() => new Set(props.album.gears))
+const pearlCount = CAMPAIGN.filter((stage) => stage.wildwater).length
 const worlds = computed(() =>
   PLUMBER_WORLDS.map((world) => {
     const cleared = world.stages.filter((stage) => {

@@ -7,6 +7,8 @@ import {
   renderedArtReceiptCount,
 } from '../crystalStreet/renderedArt'
 
+import { CRYSTAL_STREET_TOWN_PAINTING, weekEndingArt } from '../crystalStreet/artPresentation'
+
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 
 assert.equal(renderedArtReceiptCount, 3040)
@@ -64,6 +66,31 @@ const art = readFileSync(
   'utf8',
 )
 assert.match(art, /art\.sourceFor\(props\.src\)/)
+assert.doesNotMatch(art, /crystal-street-scene|<svg/)
+assert.ok(existsSync(file(`../../public${CRYSTAL_STREET_TOWN_PAINTING}`)))
+const portraits = readFileSync(
+  file('../../components/crystal-street/crystal-street-portrait.vue'),
+  'utf8',
+)
+assert.doesNotMatch(portraits, /<svg/)
+assert.match(portraits, /-neutral\.webp/)
+const weeks = readFileSync(
+  file('../../components/crystal-street/crystal-street-weeks.vue'),
+  'utf8',
+)
+assert.match(weeks, /:src="weekEndingArt\(entry\)"/)
+assert.equal(
+  weekEndingArt({ villain: 'frieda-krueger', tier: 'good' }),
+  '/crystal-street/endings/frieda-krueger-good.webp',
+)
+assert.equal(
+  weekEndingArt({ villain: 'frieda-krueger', tier: 'bad', special: 'family' }),
+  '/crystal-street/endings/special-family.webp',
+)
+assert.equal(
+  weekEndingArt({ villain: 'frieda-krueger', tier: 'best', special: 'final-girl' }),
+  '/crystal-street/endings/frieda-krueger-best.webp',
+)
 const encounter = readFileSync(
   file('../../components/crystal-street/crystal-street-encounter.vue'),
   'utf8',

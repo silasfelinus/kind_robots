@@ -6904,7 +6904,13 @@ export class PlumberRun implements ArcadeGameInstance {
         g.fillRect(p.x + p.w / 2 - 3, p.y + 5, 6, TILE * 4)
         g.fillStyle = '#79b8f8'
         g.fillRect(p.x, p.y, p.w, 5)
-        drawSprite(g, PLUMBER_ART.prop('springstep'), p.x + p.w / 2, p.y + 5, 20)
+        drawSprite(
+          g,
+          PLUMBER_ART.prop('springstep'),
+          p.x + p.w / 2,
+          p.y + 5,
+          20,
+        )
         continue
       }
       if (p.kind === 'piston') {

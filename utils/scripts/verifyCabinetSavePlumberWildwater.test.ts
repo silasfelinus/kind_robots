@@ -174,7 +174,9 @@ const overgrowth = greenhouse.wildwater!
 assert.equal(overgrowth.name, 'Overgrowth')
 const garden = new PlumberRun(options, { customLevel: greenhouse })
 frame(garden)
-const pistons = garden.platforms.filter((platform) => platform.kind === 'piston')
+const pistons = garden.platforms.filter(
+  (platform) => platform.kind === 'piston',
+)
 assert.equal(pistons.length, 3)
 assert.notEqual(
   garden.platformAt(pistons[0]!, 0).y,
@@ -205,8 +207,7 @@ function bounceTo(col: number, jump: boolean) {
     if (error < -3) held.push('left')
     frame(garden, held, jump && i === 0 ? ['a'] : [])
     assert.equal(garden.mode, 'play')
-    if (Math.abs(garden.hero.x - x) < TILE * 2 && garden.hero.vy < -11)
-      return
+    if (Math.abs(garden.hero.x - x) < TILE * 2 && garden.hero.vy < -11) return
   }
   assert.fail(`could not bounce on bloom at column ${col}`)
 }

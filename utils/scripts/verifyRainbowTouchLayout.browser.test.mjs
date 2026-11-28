@@ -305,6 +305,37 @@ try {
       )
     })
     assert.ok(lastRow, `${label}: every readout row fits its box`)
+    // Presentation critic R2-03: the comms line the stage plays is in the readout too, announced politely.
+    await page.waitForFunction(() =>
+      document.querySelector('.cabinet-readout-spoken dd')?.textContent.trim(),
+    )
+    const spoken = await page.evaluate(() => {
+      const live = document.querySelector('.cabinet-readout-spoken')
+      const line = live.querySelector('dd')
+      const box = document
+        .querySelector('.cabinet-readout')
+        .getBoundingClientRect()
+      const run = (window.__games ?? []).filter((entry) => !entry.demo).at(-1)
+      return {
+        aria: live.getAttribute('aria-live'),
+        speaker: live.querySelector('dt').textContent.trim(),
+        text: line.textContent.trim(),
+        size: parseFloat(getComputedStyle(line).fontSize),
+        inside:
+          live.getBoundingClientRect().top >= box.top - 1 &&
+          live.getBoundingClientRect().bottom <= box.bottom + 1,
+        comms: run.game.snapshot.comms,
+      }
+    })
+    assert.equal(spoken.aria, 'polite', `${label}: the comms line is announced`)
+    assert.ok(spoken.size >= 14, `${label}: the comms line is at least 14 px`)
+    assert.ok(spoken.inside, `${label}: the comms line fits the readout`)
+    assert.ok(
+      spoken.comms &&
+        spoken.speaker.startsWith(spoken.comms.speaker.toUpperCase()),
+      `${label}: the readout names the speaker on the stage (${spoken.speaker})`,
+    )
+    assert.ok(spoken.text.length > 10, `${label}: the line itself is there`)
     if (shots)
       await page.screenshot({
         path: path.join(shots, `upright-${width}x${height}.png`),

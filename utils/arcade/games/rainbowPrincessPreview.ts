@@ -6336,14 +6336,24 @@ export function createRainbowPrincessPreview(
     },
     /**
      * The HUD bar in words, for an upright phone's large-type readout under the stage (presentation
-     * critic P-09): the Act, the score, shoals and novas, then each pilot's lives, shields, power,
-     * charge and ready moves. Nothing in the demo, the menus or after the run.
+     * critic P-09): the Act, the comms line playing (R2-03), the score, shoals and novas, then each pilot's
+     * lives, shields, power, charge and ready moves. Nothing in the demo, the menus or after the run.
      */
     get readout(): ArcadeReadoutRow[] | null {
       if (options.demo || over || resumeMenu || selectMenu) return null
       const [where, name] = hudTitle().split(' / ')
       return [
         { label: where!, value: name ?? '' },
+        // The comms line the stage shows, in type a phone held upright can read (presentation critic R2-03).
+        ...(shownComms
+          ? [
+              {
+                label: `${shownComms.speaker.toUpperCase()}${callSignFor(shownComms.speaker)}`,
+                value: shownComms.text,
+                spoken: true,
+              },
+            ]
+          : []),
         { label: 'SCORE', value: String(Math.round(score * level.score)) },
         { label: 'SHOALS · NOVAS', value: `${clearCount} · ${supers}` },
         ...ships.slice(0, activePlayers).map((_, seat) => ({

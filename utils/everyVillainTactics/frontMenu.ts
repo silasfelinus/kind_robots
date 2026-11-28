@@ -391,6 +391,11 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     tag: 'Civilian rescue · burrowing bunny men',
   },
   {
+    id: 'last-order',
+    art: 'districts/neon-arcade',
+    tag: 'Backdraft origin · vent the kitchen and rescue the night cook',
+  },
+  {
     id: 'ferris-wheel',
     art: 'districts/waterfront-market',
     tag: 'Skyline origin · stabilize gondolas and rescue two passengers',

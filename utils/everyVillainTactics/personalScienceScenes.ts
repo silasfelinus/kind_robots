@@ -678,6 +678,13 @@ export const PERSONAL_SCIENCE_LINES: Readonly<
 }
 
 /** Personalize only the fixed-cast campaign, never studio or one-shot scripts. */
+const LEAD_SPOKEN: Readonly<Record<string, readonly string[]>> = {
+  'accident-birthright': ['e1', 'r1'],
+  'magic-earth': ['r1'],
+  'magic-genius': ['e1'],
+  'magic-birthright': ['e1', 'r1'],
+}
+
 export function personalScienceNode(
   node: SceneNode,
   lead: string,
@@ -698,8 +705,9 @@ export function personalScienceNode(
   const ally = state.units.find(
     (unit) => unit.team === 'squad' && unit.id !== 'backdraft' && unit.hp > 0,
   )
-  const speaker = ['d1', 'e1', 'r1'].includes(node.id)
-    ? (ally?.id ?? 'backdraft')
-    : 'backdraft'
+  const supportingLine =
+    ['d1', 'e1', 'r1'].includes(node.id) &&
+    !LEAD_SPOKEN[lead]?.includes(node.id)
+  const speaker = supportingLine ? (ally?.id ?? 'backdraft') : 'backdraft'
   return { ...node, speaker, text }
 }

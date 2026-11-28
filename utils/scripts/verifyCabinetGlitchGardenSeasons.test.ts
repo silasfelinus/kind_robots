@@ -731,21 +731,21 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
   const g = make(28)
   const seen = new Set<number>()
   let ticks = 0
-  while (g.level <= 33 && ticks < 2_000_000) {
+  while (g.level <= PLAYS_PER_LAP && ticks < 3_000_000) {
     seen.add(g.level)
     g.lives = 3
     g.update(g.demoInput())
     ticks++
   }
-  for (let n = 1; n <= 33; n++)
+  for (let n = 1; n <= PLAYS_PER_LAP; n++)
     assert.ok(seen.has(n), `the pilot reached wave ${n}`)
   assert.ok(
-    g.level >= 34 && g.lap === 0,
-    'and reached Winter after the Gourd Hydra',
+    g.level === PLAYS_PER_LAP + 1 && g.lap === 1,
+    'and reached the second year after the Frost Millipede',
   )
   assert.ok(g.score > 0 && g.score < registry.maxPlausibleScore)
   console.log(
-    `  pilot: waves 1-33 and three season bosses in ${ticks} ticks, ${g.score} points`,
+    `  pilot: all ${PLAYS_PER_LAP} waves and bosses in ${ticks} ticks, ${g.score} points`,
   )
 }
 for (const seed of [29, 30]) {

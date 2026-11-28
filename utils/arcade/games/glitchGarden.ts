@@ -298,6 +298,8 @@ type Obstacle = {
 }
 const isWall = (ob: Obstacle | null): boolean =>
   ob?.kind === 'tree' || ob?.kind === 'sunflower'
+const isPermanentFixture = (ob: Obstacle): boolean =>
+  isWall(ob) || ob.kind === 'heater'
 type Apple = { x: number; y: number }
 type Dragonfly = {
   x: number
@@ -1531,6 +1533,11 @@ class GlitchGarden implements ArcadeGameInstance {
       this.plantLayout(garden)
       this.planted = step.garden
     }
+    for (const [col, row] of layoutCells(garden, LAYOUT_HEATER)) {
+      if (this.at(col, row)?.kind === 'heater') continue
+      this.grid[this.idx(col, row)] = { hp: 1, kind: 'heater', lit: false }
+      this.flowers = this.flowers.filter((f) => f.col !== col || f.row !== row)
+    }
     const base = lapWave(
       gardenWave(garden, step.kind === 'wave' ? step.wave : 5),
       lap,
@@ -2208,7 +2215,7 @@ class GlitchGarden implements ArcadeGameInstance {
               chain: chain + 1,
             })
           }
-        } else if (d <= SPLASH_RADIUS && !isWall(ob)) {
+        } else if (d <= SPLASH_RADIUS && !isPermanentFixture(ob)) {
           if (ob.kind === 'apple') this.grid[this.idx(c, r)] = null
           else this.bloom(c, r, ob)
         }
@@ -2514,7 +2521,12 @@ class GlitchGarden implements ArcadeGameInstance {
     const col = Math.floor(b.x / CELL)
     const row = Math.floor((b.y - HUD) / CELL)
     const ob = this.at(col, row)
-    if (ob && ob.kind !== 'can' && !isWall(ob) && this.rng() < 0.05)
+    if (
+      ob &&
+      ob.kind !== 'can' &&
+      !isPermanentFixture(ob) &&
+      this.rng() < 0.05
+    )
       this.grid[this.idx(col, row)] = null
     if (b.x < -10 || b.x > W + 10) this.beetle = null
   }
@@ -3100,7 +3112,7 @@ class GlitchGarden implements ArcadeGameInstance {
     for (let r = r0; r <= r1; r++)
       for (let c = c0; c <= c1; c++) {
         const ob = this.at(c, r)
-        if (ob && !isWall(ob)) this.grid[this.idx(c, r)] = null
+        if (ob && !isPermanentFixture(ob)) this.grid[this.idx(c, r)] = null
       }
   }
 

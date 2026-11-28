@@ -66,6 +66,9 @@ type Probe = {
   newBeam(x: number, y: number, child: boolean): unknown
   stepBeam(beam: unknown): boolean
   thawHeater(col: number, row: number): void
+  splash(col: number, row: number, chain: number): void
+  beetle: { x: number; y: number; vx: number; vy: number; turn: number } | null
+  updateBeetle(): void
   updateFrost(): void
   water(col: number, row: number, ob: NonNullable<Obstacle>): void
   hitFrostMillipede(x: number, y: number): boolean
@@ -292,6 +295,41 @@ assert.ok(SNOWBALL_HILL.waves.every((w) => w.snowballs > 0))
   g.frostSpriteTimer = 1
   g.updateFrostSprite()
   assert.equal(g.frostSprite, null, 'sprite does not leak into Snowball Hill')
+}
+
+{
+  const g = make(90)
+  g.beginStep(gardenStart(7), 0, 40)
+  const heaters = layoutCells(SNOWBALL_HILL, LAYOUT_HEATER)
+  for (const [col, row] of heaters) {
+    const heater = at(g, col, row)
+    g.grid[row * COLS + col + 1] = { hp: 1, kind: 'can' }
+    g.grid[row * COLS + col + 2] = { hp: 1, kind: 'lamp' }
+    g.splash(col + 1, row, 1)
+    assert.equal(at(g, col, row), heater, 'sprinklers preserve fixtures')
+    assert.equal(at(g, col + 2, row), null, 'ordinary lamps still bloom')
+    g.beetle = {
+      x: col * CELL + 4,
+      y: HUD + row * CELL + 4,
+      vx: 0,
+      vy: 0,
+      turn: 1000,
+    }
+    for (let i = 0; i < 500; i++) g.updateBeetle()
+    assert.equal(at(g, col, row), heater, 'beetles preserve fixtures')
+  }
+
+  for (const [col, row] of heaters) g.grid[row * COLS + col] = null
+  g.beginStep(campaignPlay(44).index, 0, 44)
+  for (const [col, row] of heaters) {
+    const heater = at(g, col, row)!
+    assert.equal(heater.kind, 'heater', 'boss entry restores lost fixtures')
+    g.water(col, row, heater)
+    assert.equal(heater.lit, true)
+  }
+  const [col, row] = heaters[0]!
+  g.water(col, row, at(g, col, row)!)
+  assert.ok(g.frostMillipede.some((part) => part.thawed))
 }
 
 {

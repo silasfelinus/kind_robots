@@ -25,7 +25,7 @@ import {
   walkScene,
 } from '../everyVillainTactics/sceneGraph'
 
-assert.equal(STAGE_PRESETS.length, 53)
+assert.equal(STAGE_PRESETS.length, 61)
 assert.ok(STAGE_PRESETS.some((stage) => stage.id === 'hydrant-blue'))
 assert.ok(
   STAGE_PRESETS.some((stage) => stage.id === 'song-that-stopped'),
@@ -279,6 +279,62 @@ for (const [stageId, lead, prefix, flagA, flagB] of [
     'crown-choice-b',
   ],
   ['everyone-inside', 'alien-social', 'hive', 'hive-choice-a', 'hive-choice-b'],
+  [
+    'match-under-the-bed',
+    'psychic-fire',
+    'nightmare',
+    'nightmare-choice-a',
+    'nightmare-choice-b',
+  ],
+  [
+    'elevator-that-floated',
+    'psychic-air',
+    'lift',
+    'lift-choice-a',
+    'lift-choice-b',
+  ],
+  [
+    'stone-that-testified',
+    'psychic-earth',
+    'testimony',
+    'testimony-choice-a',
+    'testimony-choice-b',
+  ],
+  [
+    'letter-no-one-sent',
+    'psychic-water',
+    'letter',
+    'letter-choice-a',
+    'letter-choice-b',
+  ],
+  [
+    'book-that-walked-away',
+    'psychic-discipline',
+    'archive',
+    'archive-choice-a',
+    'archive-choice-b',
+  ],
+  [
+    'thought-that-wasnt-yours',
+    'psychic-genius',
+    'thought',
+    'thought-choice-a',
+    'thought-choice-b',
+  ],
+  [
+    'prophecy-auction',
+    'psychic-birthright',
+    'prophecy',
+    'prophecy-choice-a',
+    'prophecy-choice-b',
+  ],
+  [
+    'rumor-after-midnight',
+    'psychic-social',
+    'rumor',
+    'rumor-choice-a',
+    'rumor-choice-b',
+  ],
   ['edited-rescue', 'tech-social', 'edit', 'edit-choice-a', 'edit-choice-b'],
 ] as const) {
   for (const perspective of ['hero', 'villain'] as const) {

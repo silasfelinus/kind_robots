@@ -68,6 +68,14 @@ export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   'small-future': 265017,
   'missing-coronation': 265015,
   'everyone-inside': 265015,
+  'match-under-the-bed': 265015,
+  'elevator-that-floated': 265018,
+  'stone-that-testified': 265019,
+  'letter-no-one-sent': 265022,
+  'book-that-walked-away': 265015,
+  'thought-that-wasnt-yours': 265023,
+  'prophecy-auction': 265015,
+  'rumor-after-midnight': 265023,
   ...verifiedArenaImageIds,
 }
 

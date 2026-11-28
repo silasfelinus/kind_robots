@@ -367,6 +367,14 @@ export const ORIGIN_STAGE_LEADS: Readonly<Record<string, string>> = {
   'small-future': 'alien-genius',
   'missing-coronation': 'alien-birthright',
   'everyone-inside': 'alien-social',
+  'match-under-the-bed': 'psychic-fire',
+  'elevator-that-floated': 'psychic-air',
+  'stone-that-testified': 'psychic-earth',
+  'letter-no-one-sent': 'psychic-water',
+  'book-that-walked-away': 'psychic-discipline',
+  'thought-that-wasnt-yours': 'psychic-genius',
+  'prophecy-auction': 'psychic-birthright',
+  'rumor-after-midnight': 'psychic-social',
 }
 export const canStartOneShot = (stageId: string, lead: string): boolean =>
   !ORIGIN_STAGE_LEADS[stageId] || ORIGIN_STAGE_LEADS[stageId] === lead
@@ -576,6 +584,46 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     id: 'everyone-inside',
     art: 'districts/student-commons',
     tag: 'Assembly origin · Offer a reversible empathic link at the counseling table, with an explicit opt-out',
+  },
+  {
+    id: 'match-under-the-bed',
+    art: 'districts/student-commons',
+    tag: "Firekeeper origin · Draw the nightmare's cold flame into a harmless signal flare",
+  },
+  {
+    id: 'elevator-that-floated',
+    art: 'districts/industrial-foundry',
+    tag: 'Weightless origin · Lower the drifting elevator to a stable landing with controlled telekinesis',
+  },
+  {
+    id: 'stone-that-testified',
+    art: 'districts/labor-museum',
+    tag: 'Groundtruth origin · Touch the speaking paving stone and separate remembered evidence from suggestion',
+  },
+  {
+    id: 'letter-no-one-sent',
+    art: 'districts/waterfront-market',
+    tag: "Calm Waters origin · Redirect the psychic flood at the memorial rail without taking away anyone's grief",
+  },
+  {
+    id: 'book-that-walked-away',
+    art: 'districts/student-commons',
+    tag: 'The Librarian origin · Step through the security blind spot and catch the displaced book at the gate',
+  },
+  {
+    id: 'thought-that-wasnt-yours',
+    art: 'districts/media-spire',
+    tag: 'Mindsight origin · Separate implanted suggestions from authentic thoughts at the debate relay',
+  },
+  {
+    id: 'prophecy-auction',
+    art: 'districts/student-commons',
+    tag: 'Second Sight origin · Read several possible futures at the projection dais and mark a safe exit',
+  },
+  {
+    id: 'rumor-after-midnight',
+    art: 'districts/media-spire',
+    tag: 'The Confidante origin · Trace the forged rumor to its first harmed person at the editorial desk',
   },
   {
     id: 'college-quad',

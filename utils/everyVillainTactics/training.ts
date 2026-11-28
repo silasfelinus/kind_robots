@@ -2053,8 +2053,8 @@ export function hushPlan(state: TrainingState, enemy: Unit): boolean {
 export function drytapPlan(state: TrainingState, enemy: Unit): boolean {
   if (enemy.henchmanType !== 'drytap') return false
   if (enemy.hp <= 0) return true
-  enemy.ap = 0
   if (enemy.drytapTarget) {
+    enemy.ap = 0
     enemy.drytapSlick = { ...enemy.drytapTarget }
     enemy.drytapTarget = null
     note(state, aliasFor(enemy) + ' siphons the marked water. Slick ground costs an extra movement AP.')
@@ -2087,7 +2087,6 @@ export function drytapPlan(state: TrainingState, enemy: Unit): boolean {
     note(state, aliasFor(enemy) + ' marks a red SHUTOFF valve. Close it before the next enemy turn.')
   } else if (wet.length) {
     // Use the ordinary movement budget, path, and reaction system.
-    enemy.ap = 2
     const distance = (p: Cell) => Math.min(...wet.map((h) => gridDistance(p, h)))
     const move = reachableCells(state.map, state.units, enemy)
       .filter((p) => !rivalHazardAt(state, p))
@@ -2099,8 +2098,8 @@ export function drytapPlan(state: TrainingState, enemy: Unit): boolean {
       enemy.moved = true
       triggerReactions(state, enemy)
     }
-    enemy.ap = 0
   }
+  enemy.ap = 0
   return true
 }
 

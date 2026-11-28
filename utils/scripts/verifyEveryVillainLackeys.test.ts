@@ -362,6 +362,7 @@ assert.equal(loadSave(serializeSave(forgedVacuum)).ok, false)
 
 const dryStage = clonePreset('college-quad')
 dryStage.encounter = 'drytap-octopi'
+assert.ok(stageProblems(dryStage).some((issue) => issue.includes('water hazard')))
 dryStage.activeHazards = [{ id: 'wet-valve', kind: 'water', x: 2, y: 1 }]
 assert.deepEqual(stageProblems(dryStage), [])
 function dryBattle() {

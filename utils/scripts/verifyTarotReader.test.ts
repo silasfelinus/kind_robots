@@ -42,6 +42,15 @@ import {
   placementReading,
 } from '../astrology/interpret'
 import { birthMomentToUtc, zoneOffsetMinutes } from '../astrology/time'
+import {
+  DEFAULT_TAROT_SETTINGS,
+  TAROT_MAX_PROFILES,
+  TAROT_SAVE_MAX_BYTES,
+  emptyTarotSave,
+  newerTarotSave,
+  parseTarotAccountSave,
+  sanitizeSettings,
+} from '../tarot/accountSave'
 import { BIRTH_CITIES } from '../astrology/cities'
 import { ZODIAC_SIGNS, decanCardKey, signAt } from '../astrology/zodiac'
 
@@ -228,5 +237,71 @@ assert.equal(
   TAROT_DECK_SEEDS.find((seed) => seed.slug === 'superkate')?.isPublic,
   false,
 )
+
+// --- Account save: one validated shape for browser and account storage ---
+const goodProfile = {
+  id: 'p-abc',
+  name: 'Kate',
+  date: '1990-07-04',
+  time: '15:30',
+  cityId: 'san-francisco-ca-usa',
+  latitude: 37.7749,
+  longitude: -122.4194,
+  timeZone: 'America/Los_Angeles',
+}
+const parsedSave = parseTarotAccountSave({
+  savedAt: '2026-11-28T01:00:00Z',
+  profiles: [
+    goodProfile,
+    { ...goodProfile, id: 'bad', date: 'yesterday' },
+    { ...goodProfile, id: 'far', latitude: 120 },
+    { ...goodProfile, id: 'p-notime', time: null, cityId: null },
+  ],
+  activeProfileId: 'missing',
+  settings: { musicVolume: 7, textSize: 'huge', accountSync: false },
+  majorsStudied: ['major-00', 'major-00', 'ace-of-cups', 'major-21'],
+  deck: 'kind-robots',
+  injected: '<script>',
+})
+assert.deepEqual(
+  parsedSave.profiles.map((profile) => profile.id),
+  ['p-abc', 'p-notime'],
+)
+assert.equal(parsedSave.activeProfileId, 'p-abc')
+assert.equal(parsedSave.settings.musicVolume, 1)
+assert.equal(parsedSave.settings.textSize, 'md')
+assert.equal(parsedSave.settings.accountSync, false)
+assert.deepEqual(parsedSave.majorsStudied, ['major-00', 'major-21'])
+assert.equal('injected' in parsedSave, false)
+assert.equal(
+  parseTarotAccountSave(JSON.stringify(parsedSave)).deck,
+  'kind-robots',
+)
+assert.throws(() => parseTarotAccountSave([]))
+assert.throws(() => parseTarotAccountSave('not json'))
+const largest = parseTarotAccountSave({
+  profiles: Array.from({ length: 40 }, (_, i) => ({
+    ...goodProfile,
+    id: `p-${i}`,
+    name: 'x'.repeat(60),
+    timeZone: 'y'.repeat(64),
+  })),
+})
+assert.ok(
+  JSON.stringify(largest).length < TAROT_SAVE_MAX_BYTES,
+  'the field caps keep every valid save under the byte limit',
+)
+assert.equal(
+  parseTarotAccountSave({ profiles: Array(30).fill(goodProfile) }).profiles
+    .length,
+  TAROT_MAX_PROFILES,
+)
+assert.equal(DEFAULT_TAROT_SETTINGS.accountSync, true)
+assert.equal(sanitizeSettings({}).accountSync, true)
+const olderSave = { ...emptyTarotSave(), savedAt: '2026-11-27T00:00:00.000Z' }
+const newerSave = { ...emptyTarotSave(), savedAt: '2026-11-28T00:00:00.000Z' }
+assert.equal(newerTarotSave(olderSave, newerSave), newerSave)
+assert.equal(newerTarotSave(newerSave, olderSave), newerSave)
+assert.equal(newerTarotSave(olderSave, olderSave), olderSave)
 
 console.log('verifyTarotReader: ok')

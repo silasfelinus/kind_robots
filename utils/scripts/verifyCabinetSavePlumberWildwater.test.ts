@@ -328,8 +328,7 @@ for (let i = 0; i < 120; i++) {
   if (error > 3) held.push('right')
   if (error < -3) held.push('left')
   frame(parlour, held, i === 0 ? ['a'] : [])
-  if (i > 0 && parlour.ground && Math.abs(parlour.hero.x - doorX) < 10)
-    break
+  if (i > 0 && parlour.ground && Math.abs(parlour.hero.x - doorX) < 10) break
 }
 assert.ok(Math.abs(parlour.hero.x - doorX) < 10)
 assert.equal(parlour.hero.y, HUSH_CEILING_ROW * TILE)

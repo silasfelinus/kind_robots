@@ -1252,11 +1252,18 @@ for (const person of IDENTITY_ARCS) {
       'victory',
       'defeat',
     ] as const) {
-      const scene = storyMoment(perspective, beat, person.signature, run, battle)
+      const scene = storyMoment(
+        perspective,
+        beat,
+        person.signature,
+        run,
+        battle,
+      )
       assert.ok(
         scene.lines.every(
           (line) =>
-            line.speaker === person.hero.alias || line.speaker === 'FIELD REPORT',
+            line.speaker === person.hero.alias ||
+            line.speaker === 'FIELD REPORT',
         ),
         person.signature + ':' + perspective + ':' + beat,
       )

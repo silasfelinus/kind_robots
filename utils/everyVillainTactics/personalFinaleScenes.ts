@@ -990,8 +990,7 @@ export function personalFinaleNode(
       'x1',
       'vs',
       'vc',
-    ].includes(node.id) &&
-    !LEAD_SPOKEN[lead]?.includes(node.id)
+    ].includes(node.id) && !LEAD_SPOKEN[lead]?.includes(node.id)
   const speaker = supportingLine ? (ally?.id ?? 'backdraft') : 'backdraft'
   return { ...node, speaker, text }
 }

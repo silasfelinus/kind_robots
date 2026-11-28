@@ -85,12 +85,12 @@ function revealAll() {
         </div>
       </div>
       <figcaption class="mt-1 text-center">
-        <span class="block text-[10px] uppercase tracking-widest opacity-60">
+        <span class="block text-[10px] uppercase tracking-widest opacity-75">
           {{ drawn.position.label }}
         </span>
         <span class="block truncate text-xs font-bold">
           {{ drawn.card.title }}
-          <span v-if="drawn.orientation === 'reversed'" class="opacity-60">
+          <span v-if="drawn.orientation === 'reversed'" class="opacity-75">
             ↺
           </span>
         </span>

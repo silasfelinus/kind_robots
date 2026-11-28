@@ -62,7 +62,7 @@ onBeforeUnmount(() => store.close(props.room))
       <h2 class="shrink-0 whitespace-nowrap text-sm font-black">
         {{ spec?.title }}
       </h2>
-      <span class="text-xs opacity-60">{{ spec?.welcome }}</span>
+      <span class="text-xs opacity-75">{{ spec?.welcome }}</span>
     </header>
 
     <div
@@ -81,7 +81,7 @@ onBeforeUnmount(() => store.close(props.room))
       >
         <li
           v-if="!state.messages.length"
-          class="py-6 text-center text-xs opacity-60"
+          class="py-6 text-center text-xs opacity-75"
         >
           No messages yet. Say hello!
         </li>
@@ -91,7 +91,7 @@ onBeforeUnmount(() => store.close(props.room))
           class="group flex flex-col"
           :class="message.mine ? 'items-end' : 'items-start'"
         >
-          <span class="text-[10px] opacity-60">
+          <span class="text-[10px] opacity-75">
             {{ message.mine ? 'You' : message.author }} ·
             {{ timeOf(message.createdAt) }}
           </span>
@@ -99,7 +99,7 @@ onBeforeUnmount(() => store.close(props.room))
             class="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-3 py-1.5 text-sm"
             :class="
               message.hidden
-                ? 'italic opacity-50'
+                ? 'italic opacity-70'
                 : message.mine
                   ? 'bg-primary text-primary-content'
                   : 'bg-base-100'

@@ -164,7 +164,7 @@ defineExpose({ edit, startNew })
       </label>
     </div>
     <p v-if="store.error" class="text-error" role="alert">{{ store.error }}</p>
-    <p class="opacity-60">
+    <p class="opacity-75">
       Birth details stay in this browser. Nothing is sent to a server.
     </p>
     <div class="flex gap-2">

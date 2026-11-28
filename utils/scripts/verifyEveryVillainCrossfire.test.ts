@@ -2146,7 +2146,9 @@ function playCombat(save: EvtSave, perspective: CombatPerspective) {
     for (const unit of state.units) {
       assert.ok(unit.hp >= 0 && unit.hp <= unit.maxHp, tag + ': HP')
       assert.ok(
-        Number.isInteger(unit.ap) && unit.ap >= 0 && unit.ap <= MAX_ACTION_POINTS,
+        Number.isInteger(unit.ap) &&
+          unit.ap >= 0 &&
+          unit.ap <= MAX_ACTION_POINTS,
         tag + ': AP ' + unit.id + '=' + unit.ap,
       )
       if (unit.hp <= 0) continue

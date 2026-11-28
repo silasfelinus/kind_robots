@@ -108,6 +108,52 @@ assert.equal(wharfRun.gurgle?.water, true, 'the pool charges the spout hop')
 assert.equal(wharfRun.hearts, 3)
 assert.equal(wharfRun.deaths, 0)
 
+const boneyard = CAMPAIGN.find((stage) => stage.code === '2-2')!
+function reachColumn(run: PlumberRun, col: number, swim = false) {
+  const x = col * TILE + TILE / 2
+  for (let i = 0; i < 300 && Math.abs(run.hero.x - x) > 3; i++) {
+    const held: ArcadeButton[] = [run.hero.x < x ? 'right' : 'left']
+    if (swim) held.push('a')
+    frame(run, held)
+    assert.equal(run.mode, 'play')
+  }
+  assert.ok(Math.abs(run.hero.x - x) <= 3, 'reaches the target bank')
+  for (let i = 0; i < 25; i++) frame(run)
+  assert.equal(run.mode, 'play')
+  assert.equal(run.ground, true)
+}
+
+for (const mounted of [false, true]) {
+  const wreck = new PlumberRun(options, {
+    customLevel: mounted
+      ? { ...boneyard, gurgleBarrel: { col: 2, row: 20 } }
+      : boneyard,
+  })
+  frame(wreck)
+  if (mounted) {
+    frame(wreck, ['down'], ['x'])
+    assert.equal(wreck.gurgle?.state, 'mounted')
+  }
+  reachColumn(wreck, 7)
+  frame(wreck, [], ['down'])
+  assert.ok(wreck.activePipeRoom)
+  reachColumn(wreck, 26)
+  assert.equal(wreck.power, 'tidecoat')
+  assert.equal(wreck.solidAt(29, 8), SOLID_WATER)
+  const before = wreck.tokens
+  reachColumn(wreck, 39, !mounted)
+  reachColumn(wreck, 37)
+  reachColumn(wreck, 39)
+  assert.equal(wreck.tokens, before + 2)
+  if (mounted) assert.equal(wreck.gurgle?.water, true)
+  reachColumn(wreck, 24, !mounted)
+  frame(wreck, [], ['down'])
+  assert.equal(wreck.activePipeRoom, undefined)
+  assert.equal(wreck.deaths, 0)
+  assert.equal(wreck.hearts, 3)
+  assert.equal(wreck.save, undefined)
+}
+
 function rollerArena(blocked = false): StageDef {
   return {
     ...pool,

@@ -973,8 +973,7 @@ assert.equal(next.deaths, before + 1, 'a lost life is counted')
 next.lives = 1
 next.score = 12345
 next.hero.y = next.stage.rows * TILE + 60
-for (let i = 0; i < 600 && String(next.mode) !== 'over'; i++)
-  next.update(input)
+for (let i = 0; i < 600 && String(next.mode) !== 'over'; i++) next.update(input)
 assert.equal(next.mode, 'over')
 const lostAdventure = readPlumberFile(next.save)
 assert.equal(lostAdventure.album.runs?.[0]?.outcome, 'game-over')

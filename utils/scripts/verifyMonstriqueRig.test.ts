@@ -789,6 +789,11 @@ assert.doesNotMatch(
 assert.match(player, /@error="paintFailed = true"/)
 assert.match(
   player,
+  /for \(const src of paintedFiles\(rig\.value\)\)[\s\S]*?onerror[\s\S]*?paintFailed\.value = true/,
+  'every painted file, mouth and eye states included, is preloaded',
+)
+assert.match(
+  player,
   /leadRigFor\(props\.character, \{\s*painted: !paintFailed\.value/,
 )
 assert.match(player, /prefers-reduced-motion: reduce/)

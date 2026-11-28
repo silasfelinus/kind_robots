@@ -98,6 +98,7 @@ import {
 } from 'vue'
 import { leadRigFor } from '~/utils/monstrique/leadRigs'
 import {
+  paintedFiles,
   poseRig,
   sourcesOf,
   type CutoutRig,
@@ -237,7 +238,19 @@ watch(
   },
 )
 
+function preloadPaint(): void {
+  if (props.rig) return
+  for (const src of paintedFiles(rig.value)) {
+    const image = new Image()
+    image.onerror = () => {
+      paintFailed.value = true
+    }
+    image.src = src
+  }
+}
+
 onMounted(() => {
+  preloadPaint()
   origin = performance.now()
   motionQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)') ?? null
   reduced.value = motionQuery?.matches === true

@@ -5,6 +5,7 @@ import { personalCastFor } from '~/utils/everyVillainTactics/personalCasts'
 import { personalScienceNode } from '~/utils/everyVillainTactics/personalScienceScenes'
 import { personalRooftopNode } from '~/utils/everyVillainTactics/personalRooftopScenes'
 import { personalCrosswalkNode } from '~/utils/everyVillainTactics/personalCrosswalkScenes'
+import { personalBreachNode } from '~/utils/everyVillainTactics/personalBreachScenes'
 import {
   actorAt,
   aliasFor,
@@ -833,8 +834,15 @@ export const useEveryVillainTacticsStore = defineStore(
           crossfireActive.value && !previewSceneId.value,
           state.value,
         )
-        const node = personalCrosswalkNode(
+        const crosswalkNode = personalCrosswalkNode(
           rooftopNode,
+          leadSignature.value,
+          draft.value.id,
+          crossfireActive.value && !previewSceneId.value,
+          state.value,
+        )
+        const node = personalBreachNode(
+          crosswalkNode,
           leadSignature.value,
           draft.value.id,
           crossfireActive.value && !previewSceneId.value,

@@ -277,8 +277,7 @@ for (let i = 0; i < 120; i++) {
   if (error < -3) held.push('left')
   frame(meter, held, i === 0 ? ['a'] : [])
   assert.equal(meter.mode, 'play')
-  if (meter.ground && Math.abs(meter.hero.y + HERO_TALL - lift.y) < 0.1)
-    break
+  if (meter.ground && Math.abs(meter.hero.y + HERO_TALL - lift.y) < 0.1) break
 }
 assert.ok(meter.ground)
 assert.equal(meter.hero.y + HERO_TALL, lift.y)
@@ -289,8 +288,7 @@ for (let i = 0; i < 300 && meter.hero.x > 120; i++) {
 }
 assert.ok(meter.hero.x <= 120, 'lift reaches the left-hand return path')
 jumpTo(meter, 4, 9)
-for (let i = 0; i < 100 && meter.wildwaterActive; i++)
-  frame(meter, ['left'])
+for (let i = 0; i < 100 && meter.wildwaterActive; i++) frame(meter, ['left'])
 assert.ok(meter.pearls.has('1-3'))
 assert.equal(meter.wildwaterActive, false)
 for (const step of backward.steps)

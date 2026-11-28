@@ -153,8 +153,8 @@ import { computed } from 'vue'
 import { PLUMBER_ART } from '~/utils/arcade/games/savePlumberArt'
 import { mapNode, stageNode } from '~/utils/arcade/games/savePlumberOverworld'
 import {
-  CAMPAIGN,
   GEAR_COURSE_CODES,
+  WILDWATER_COURSE_CODES,
   stageWorld,
 } from '~/utils/arcade/games/savePlumberLevels'
 import {
@@ -181,7 +181,7 @@ const clearedNodes = computed(
   () => new Set([...props.album.done, ...props.album.secrets]),
 )
 const collectedGears = computed(() => new Set(props.album.gears))
-const pearlCount = CAMPAIGN.filter((stage) => stage.wildwater).length
+const pearlCount = WILDWATER_COURSE_CODES.length
 const worlds = computed(() =>
   PLUMBER_WORLDS.map((world) => {
     const cleared = world.stages.filter((stage) => {

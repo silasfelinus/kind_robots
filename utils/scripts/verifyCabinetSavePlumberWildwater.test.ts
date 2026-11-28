@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict'
 import {
   CAMPAIGN,
+  DRIP_PARLOUR,
+  HUSH_CEILING_ROW,
+  HUSH_FLOOR_ROW,
   parseStage,
   SOLID_LEDGE,
   TILE,
@@ -303,3 +306,52 @@ assert.deepEqual(
   ['1-1', '1-2', '1-3'],
 )
 console.log('Save the Plumber Meter Runs Backward: OK')
+
+const parlour = new PlumberRun(options, { customLevel: DRIP_PARLOUR })
+frame(parlour)
+frame(parlour, [], ['x'])
+assert.equal(parlour.wildwaterActive, true)
+for (let i = 0; i < 100 && !parlour.ground; i++) frame(parlour)
+assert.equal(parlour.hero.y, HUSH_CEILING_ROW * TILE)
+assert.equal(parlour.ground, true)
+walkTo(parlour, 5)
+frame(parlour, [], ['down'])
+assert.equal(parlour.hero.x, 12 * TILE + TILE / 2, 'wrong door loops back')
+assert.equal(parlour.pearls.has('1-h'), false)
+for (let i = 0; i < 40; i++) frame(parlour, ['right'])
+assert.ok(parlour.hero.x < 16 * TILE, 'ceiling beam blocks walking')
+assert.equal(parlour.ground, true)
+const doorX = 18 * TILE + TILE / 2
+for (let i = 0; i < 120; i++) {
+  const error = doorX - parlour.hero.x - parlour.hero.vx * 5
+  const held: ArcadeButton[] = ['a']
+  if (error > 3) held.push('right')
+  if (error < -3) held.push('left')
+  frame(parlour, held, i === 0 ? ['a'] : [])
+  if (i > 0 && parlour.ground && Math.abs(parlour.hero.x - doorX) < 10) break
+}
+assert.ok(Math.abs(parlour.hero.x - doorX) < 10)
+assert.equal(parlour.hero.y, HUSH_CEILING_ROW * TILE)
+frame(parlour, [], ['down'])
+assert.equal(parlour.hero.x, 36 * TILE + TILE / 2)
+walkTo(parlour, 29)
+frame(parlour, [], ['down'])
+assert.equal(parlour.hero.x, 60 * TILE + TILE / 2)
+walkTo(parlour, 66)
+frame(parlour, [], ['down'])
+assert.equal(parlour.hero.x, 12 * TILE + TILE / 2)
+assert.equal(parlour.mode, 'play', 'ceiling exit loops rather than clearing')
+walkTo(parlour, 8)
+assert.equal(parlour.pearls.has('1-h'), true)
+assert.equal(parlour.wildwaterActive, false)
+for (let i = 0; i < 100 && !parlour.ground; i++) frame(parlour)
+assert.equal(parlour.hero.y + HERO_TALL, HUSH_FLOOR_ROW * TILE)
+assert.equal(parlour.save, undefined)
+assert.deepEqual(
+  readPlumberFile({
+    ...saved,
+    slots: [{ ...saved.slots[0], pearls: ['1-h', 'not-a-course'] }],
+  }).slots[0]?.pearls,
+  ['1-h'],
+)
+console.log('Save the Plumber Upside Parlour ceiling loop: OK')

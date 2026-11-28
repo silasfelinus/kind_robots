@@ -41,6 +41,7 @@ import {
   optionalCourse,
   optionalCourseAtNode,
   HUSH_ROOM_WIDTH,
+  HUSH_CEILING_ROW,
   HUSH_FLOOR_ROW,
   HUSH_DOOR_OFFSETS,
   hushDestination,
@@ -713,6 +714,7 @@ export class PlumberRun implements ArcadeGameInstance {
   private wildwaterSpent = false
   private wildwater: StageDef['wildwater']
   private wildwaterCells = new Set<number>()
+  private ceilingLoopComplete = false
   private liftReverseAt: number | null = null
   private liftPhaseOffset = 0
   /** The boss's latest line, shown under the HUD bar until its timer runs out. */
@@ -1437,6 +1439,7 @@ export class PlumberRun implements ArcadeGameInstance {
       this.autopilot || this.demo || this.endless ? undefined : def.wildwater
     this.wildwaterActive = false
     this.wildwaterSpent = false
+    this.ceilingLoopComplete = false
     this.wildwaterCells.clear()
     this.liftReverseAt = null
     this.liftPhaseOffset = 0
@@ -2308,7 +2311,50 @@ export class PlumberRun implements ArcadeGameInstance {
     }
   }
 
+  private get upsideParlour(): boolean {
+    return this.wildwaterActive && this.wildwater?.ceilingLoop === true
+  }
+
+  private updateCeilingLoop(keys: InputFrame) {
+    const hero = this.hero
+    const move = Number(keys.held.right) - Number(keys.held.left)
+    const top = keys.held.b ? RUN_FAST : RUN
+    if (move) {
+      const accel = hero.vx * move < -0.1 ? 0.72 : keys.held.b ? 0.6 : 0.44
+      hero.vx = Math.max(-top, Math.min(top, hero.vx + move * accel))
+      this.facing = move > 0 ? 1 : -1
+    } else hero.vx *= this.ground ? 0.77 : 0.96
+    if (Math.abs(hero.vx) < 0.05) hero.vx = 0
+    if (this.ground) {
+      this.grace = 7
+      this.stride += Math.abs(hero.vx) * 0.17
+    } else if (this.grace) this.grace--
+    if (keys.pressed.a || keys.pressed.up) this.jumpBuffer = 7
+    else if (this.jumpBuffer) this.jumpBuffer--
+    if (this.jumpBuffer && this.grace) {
+      hero.vy = -(this.power === 'springstep' ? SPRING_JUMP : JUMP)
+      this.ground = false
+      this.grace = 0
+      this.jumpBuffer = 0
+      playPlumberCue(this.sound, 'spring')
+    }
+    if (!keys.held.a && !keys.held.up && hero.vy > 3.4) hero.vy = 3.4
+    if (this.moveX(hero, HALF, TALL, hero.vx)) hero.vx = 0
+    hero.vy = Math.max(-9, hero.vy - GRAVITY)
+    this.ground = false
+    const hit = this.moveY(hero, HALF, TALL, hero.vy)
+    if (hit) {
+      hero.vy = 0
+      this.ground = hit === 'bump'
+    }
+    if (this.ground && keys.pressed.down) this.tryHushDoor()
+    this.collectWildPearl()
+    this.camera = this.cameraTarget()
+    this.cameraY = this.cameraTargetY()
+  }
+
   private updatePlay(keys: InputFrame) {
+    if (this.upsideParlour) return this.updateCeilingLoop(keys)
     this.updatePlatforms()
     if (this.immune) this.immune--
     if (this.cooldown) this.cooldown--
@@ -3219,7 +3265,12 @@ export class PlumberRun implements ArcadeGameInstance {
 
   private tryHushDoor(): boolean {
     const rooms = this.mazeRooms
-    if (!rooms || Math.round(this.hero.y + TALL) !== HUSH_FLOOR_ROW * TILE)
+    const ceiling = this.upsideParlour
+    if (
+      !rooms ||
+      Math.round(ceiling ? this.hero.y : this.hero.y + TALL) !==
+        (ceiling ? HUSH_CEILING_ROW : HUSH_FLOOR_ROW) * TILE
+    )
       return false
     const index = rooms.findIndex(
       (room) =>
@@ -3232,13 +3283,16 @@ export class PlumberRun implements ArcadeGameInstance {
       const x = (room.col + HUSH_DOOR_OFFSETS[side]) * TILE + TILE / 2
       if (Math.abs(this.hero.x - x) > 10) continue
       const destination = hushDestination(rooms, index, side)
-      if (destination === 'normal') {
+      if (destination === 'normal' && !ceiling) {
         this.stageClear()
         return true
       }
-      const target = rooms[destination]!
+      if (destination === 'normal') this.ceilingLoopComplete = true
+      const target = rooms[destination === 'normal' ? 0 : destination]!
       this.hero.x = (target.col + 12) * TILE + TILE / 2
-      this.hero.y = HUSH_FLOOR_ROW * TILE - TALL
+      this.hero.y = ceiling
+        ? HUSH_CEILING_ROW * TILE
+        : HUSH_FLOOR_ROW * TILE - TALL
       this.hero.vx = this.hero.vy = 0
       this.jumpBuffer = 0
       this.grace = 0
@@ -3650,7 +3704,17 @@ export class PlumberRun implements ArcadeGameInstance {
     const y = wild.tap.row * TILE
     if (Math.abs(this.hero.x - x) > 12 || Math.abs(this.hero.y + TALL - y) > 3)
       return false
+    if (wild.ceilingLoop && this.mounted) return false
     this.wildwaterActive = true
+    if (wild.ceilingLoop) {
+      this.ground = false
+      this.ducking = false
+      this.climbing = false
+      this.riding = null
+      this.grace = 0
+      this.jumpBuffer = 0
+      this.hero.vy = 0
+    }
     if (wild.reverseLifts) this.liftReverseAt = this.tick
     for (const step of wild.steps) {
       for (let col = step.from; col <= step.to; col++) {
@@ -3664,6 +3728,13 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   private stopWildwater() {
+    if (this.upsideParlour) {
+      this.ground = false
+      this.hero.vy = 0
+      this.grace = 0
+      this.jumpBuffer = 0
+    }
+    this.ceilingLoopComplete = false
     if (this.liftReverseAt !== null) {
       this.liftPhaseOffset += 2 * (this.liftReverseAt - this.tick)
       this.liftReverseAt = null
@@ -3676,6 +3747,7 @@ export class PlumberRun implements ArcadeGameInstance {
   private collectWildPearl() {
     const wild = this.wildwater
     if (!wild || !this.wildwaterActive) return
+    if (wild.ceilingLoop && !this.ceilingLoopComplete) return
     const x = wild.pearl.col * TILE + TILE / 2
     const y = wild.pearl.row * TILE - 10
     if (
@@ -6611,7 +6683,14 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.boss) this.renderBoss(g)
     this.renderSpecial(g, false)
     const blink = this.immune && Math.floor(this.tick / 5) % 2
-    if (this.ducking && this.mode === 'play' && !blink) {
+    if (this.upsideParlour) {
+      const center = this.hero.y + TALL / 2
+      g.save()
+      g.translate(0, center * 2)
+      g.scale(1, -1)
+      this.drawHeroSprite(g, this.hero.x, this.hero.y + TALL, null)
+      g.restore()
+    } else if (this.ducking && this.mode === 'play' && !blink) {
       const feet = this.hero.y + TALL + 1
       g.save()
       g.translate(this.hero.x, feet)
@@ -6727,9 +6806,16 @@ export class PlumberRun implements ArcadeGameInstance {
       )
       for (const side of ['left', 'right'] as const) {
         const x = (room.col + HUSH_DOOR_OFFSETS[side]) * TILE + TILE / 2
-        const y = HUSH_FLOOR_ROW * TILE
+        const ceiling = this.upsideParlour
+        const y = (ceiling ? HUSH_CEILING_ROW : HUSH_FLOOR_ROW) * TILE
+        if (ceiling) {
+          g.save()
+          g.translate(0, y * 2)
+          g.scale(1, -1)
+        }
         drawSprite(g, PLUMBER_ART.prop('goal-valve'), x, y, 48)
-        this.text(g, '↓ DOOR', x, y - 52, 11)
+        if (ceiling) g.restore()
+        this.text(g, '↓ DOOR', x, y + (ceiling ? 58 : -52), 11)
       }
     }
   }
@@ -7420,6 +7506,7 @@ export class PlumberRun implements ArcadeGameInstance {
       this.text(g, 'WILD TAP · X', x, y - 30, 10, '#99f5ff')
       return
     }
+    if (wild.ceilingLoop && !this.ceilingLoopComplete) return
     const x = wild.pearl.col * TILE + TILE / 2
     const y = wild.pearl.row * TILE - 10
     g.fillStyle = '#e8fbff'

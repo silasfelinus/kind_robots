@@ -5,7 +5,7 @@ subtitle: 'Not just pretty code'
 description: 'Meet the Kind Robots characters, each with a personality and portrait, then pick one to chat with or cast in a story.'
 image: splash/characters.png
 icon: fa-solid:mask
-tooltip: 'Meet the characters behind the chaos.'
+tooltip: Pick a character to chat with or cast in a story.
 dottiTip: 'Characters give your bots depth and direction.'
 amiTip: 'One of mine insists on being addressed as “Captain Marshmallow.”'
 channelKey: admin

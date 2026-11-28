@@ -16,7 +16,11 @@
  * stage before its resume point cleared. Nobody loses a run to the upgrade.
  */
 import { MAX_SAVE_BYTES, serializedSaveBytes } from '../saves'
-import { CAMPAIGN, GEAR_COURSE_CODES } from './savePlumberLevels'
+import {
+  CAMPAIGN,
+  GEAR_COURSE_CODES,
+  WILDWATER_COURSE_CODES,
+} from './savePlumberLevels'
 import {
   SECRET_EXITS_READY,
   mapNode,
@@ -359,9 +363,9 @@ function codes(raw: unknown): string[] {
 }
 
 function pearlCodes(raw: unknown): string[] {
-  return codes(raw).filter((code) =>
-    CAMPAIGN.some((stage) => stage.code === code && stage.wildwater),
-  )
+  return Array.isArray(raw)
+    ? [...new Set(raw.filter((code) => WILDWATER_COURSE_CODES.includes(code)))]
+    : []
 }
 
 /** Real node ids, each once; a legacy file's entries are stage codes, moved to their nodes. */

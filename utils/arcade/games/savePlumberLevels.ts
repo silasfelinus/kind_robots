@@ -1342,6 +1342,8 @@ export const RUSTBOLT_KEEP: StageDef = {
       line[8] = '0'
       line[40] = 'K'
       line[47] = '0'
+      line[69] = 'p'
+      line[89] = 'r'
       line[92] = 'X'
       line[113] = 'M'
     }

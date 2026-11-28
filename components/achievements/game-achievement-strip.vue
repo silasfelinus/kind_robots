@@ -160,7 +160,7 @@ const props = withDefaults(
     artFallbacks?: Readonly<Record<string, number | null>>
     layout?: 'list' | 'row' | 'icons'
   }>(),
-  { layout: 'list', artOverrides: () => ({}) },
+  { layout: 'list', artOverrides: () => ({}), artFallbacks: () => ({}) },
 )
 
 const achievementStore = useAchievementStore()

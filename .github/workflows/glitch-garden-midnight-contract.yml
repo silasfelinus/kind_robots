@@ -4,7 +4,10 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'utils/arcade/games/glitchGarden*.ts'
+      - 'utils/arcade/games/glitchGarden.ts'
+      - 'utils/arcade/games/glitchGardenArt.ts'
+      - 'utils/arcade/games/glitchGardenGardens.ts'
+      - 'utils/arcade/games/glitchGardenSave.ts'
       - 'utils/scripts/verifyCabinetGlitchGardenMidnight.test.ts'
       - '.github/workflows/glitch-garden-midnight-contract.yml'
 

@@ -183,7 +183,7 @@ export class PlumberCloud {
     } finally {
       if (epoch === this.epoch) {
         this.pushing = null
-        if (this.status === 'synced') this.retry(owner, token)
+        this.retry(owner, token)
       }
     }
   }

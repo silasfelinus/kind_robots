@@ -101,6 +101,9 @@ import {
 import type { Snail } from '../brickBloom/snails'
 import {
   HOUSES,
+  CONSERVATORY_INDEX,
+  houseAt,
+  mirrorWall,
   HOUSE_LEGEND,
   TOUR_START,
   houseWall,
@@ -128,6 +131,8 @@ import {
   openBoss,
   spawnBoss,
   stepBoss,
+  THORN_Y,
+  thornWidth,
   sweepCellAt,
   whirling,
 } from '../brickBloom/bosses'
@@ -215,6 +220,7 @@ import {
   buy,
   emptyKit,
   freshSave,
+  hasAllGoldenSeeds,
   owned,
   readBloomSave,
   resumable,
@@ -303,6 +309,7 @@ const SHIELD_WORDS: Record<BossId, string> = {
   'sunny-saguaro': 'WAIT FOR THE BLOOM',
   'queen-koi': 'SPLASH!',
   'gloom-bloom': 'PETALS SHUT!',
+  thorn: 'ROOT SHIELD!',
 }
 const BOSS_TAGS: Record<BossId, string> = {
   'mister-mulch': 'MULCH',
@@ -310,6 +317,7 @@ const BOSS_TAGS: Record<BossId, string> = {
   'sunny-saguaro': 'SAGUARO',
   'queen-koi': 'KOI',
   'gloom-bloom': 'GLOOM',
+  thorn: 'THORN',
 }
 const CHEER_WORDS: Record<BossId, string> = {
   'mister-mulch': 'ACHOO!',
@@ -317,6 +325,7 @@ const CHEER_WORDS: Record<BossId, string> = {
   'sunny-saguaro': 'SUNNY AGAIN!',
   'queen-koi': 'A SPLASH OF JOY!',
   'gloom-bloom': 'MOONFLOWER IN BLOOM!',
+  thorn: 'WELCOME TO THE GARDEN!',
 }
 
 /** Crate colours by row, top first (the top rows score more). */
@@ -971,6 +980,12 @@ class BrickBloom implements ArcadeGameInstance {
   private speed = 0
   /** The Grand Tour's place (Seedling House, Vine Hall), or null once the tour is over. */
   private tour: TourPos | null = TOUR_START
+  private champion = false
+  private trueChampion = false
+  private secondBloom = false
+  private credits: 'normal' | 'true' | null = null
+  private tourMenu = false
+  private tourCursor = 0
   /** Stages the tour took, so the classic walls start from their first after it. */
   private tourStages = 0
   /** Where the last crate cracked: that side of the screen picks the vent. */
@@ -1043,8 +1058,15 @@ class BrickBloom implements ArcadeGameInstance {
     const stored = this.demo ? null : readBloomSave(options.resume)
     if (stored) {
       this.golden = new Set(stored.golden)
+      this.champion = stored.champion === true
+      this.trueChampion = stored.trueChampion === true
       this.save = stored
       if (resumable(stored)) this.offer = stored
+      else if (
+        (this.champion || hasAllGoldenSeeds([...this.golden])) &&
+        options.selectScreen
+      )
+        this.tourMenu = true
     }
     this.startStage(1)
     if (!this.offer && options.selectScreen && !this.demo)
@@ -1052,11 +1074,19 @@ class BrickBloom implements ArcadeGameInstance {
   }
 
   get menuOpen(): boolean {
-    return !!(this.bench || this.offer)
+    return !!(this.bench || this.offer || this.credits || this.tourMenu)
   }
 
   get touchActions(): Readonly<Partial<Record<'a' | 'b', string>>> {
-    if (this.offer || this.bench || this.clear > 0 || this.lost > 0) return {}
+    if (
+      this.offer ||
+      this.bench ||
+      this.credits ||
+      this.tourMenu ||
+      this.clear > 0 ||
+      this.lost > 0
+    )
+      return {}
     if (this.card) return { a: 'Skip' }
     if (this.balls.some((ball) => ball.stuck !== null)) return { a: 'Launch' }
     if (
@@ -1111,6 +1141,13 @@ class BrickBloom implements ArcadeGameInstance {
       wide: this.roomy,
       kit: { ...this.kit },
       golden: [...this.golden],
+      ...(this.champion ? { champion: true } : {}),
+      ...(this.trueChampion ? { trueChampion: true } : {}),
+      ...(this.secondBloom ? { secondBloom: true } : {}),
+      ...(this.tour?.house === CONSERVATORY_INDEX &&
+      house === CONSERVATORY_INDEX
+        ? { secret: true }
+        : {}),
     }
   }
 
@@ -1121,6 +1158,12 @@ class BrickBloom implements ArcadeGameInstance {
 
   /** Continue a saved tour: back at the Potting Bench before its glasshouse. */
   private resumeFrom(s: BloomSave) {
+    this.secondBloom = s.secondBloom === true
+    if (s.secret)
+      this.tour = {
+        house: CONSERVATORY_INDEX,
+        wall: houseAt(CONSERVATORY_INDEX)!.start,
+      }
     this.score = s.continued ? 0 : s.score
     this.lives = s.continued ? START_LIVES : s.lives
     this.extraIndex = EXTRA_AT.filter((at) => at <= this.score).length
@@ -1141,8 +1184,57 @@ class BrickBloom implements ArcadeGameInstance {
     } else if (input.pressed.b) {
       // A new tour: the golden seeds stay, the rest starts over.
       this.offer = null
-      this.save = freshSave([...this.golden])
-      this.card = this.newCard('house')
+      this.startTour(false)
+    }
+  }
+
+  private get tourChoices(): Array<'tour' | 'second' | 'secret'> {
+    const choices: Array<'tour' | 'second' | 'secret'> = ['tour']
+    if (this.champion) choices.push('second')
+    if (hasAllGoldenSeeds([...this.golden])) choices.push('secret')
+    return choices
+  }
+
+  private startTour(second: boolean, secret = false) {
+    if (second && !this.champion) return
+    if (secret && !hasAllGoldenSeeds([...this.golden])) return
+    this.secondBloom = second
+    this.credits = null
+    this.tourMenu = false
+    this.score = 0
+    this.lives = START_LIVES
+    this.extraIndex = 0
+    this.purse = 0
+    this.roomy = false
+    this.kit = emptyKit()
+    this.kitHouse = -1
+    this.bed = newBed()
+    this.level = secret ? 30 : 0
+    this.clear = 0
+    this.lost = 0
+    this.enterHouse(secret ? CONSERVATORY_INDEX : 0)
+  }
+
+  private finishTour(secret: boolean) {
+    this.champion = true
+    this.trueChampion ||= secret
+    this.credits = secret ? 'true' : 'normal'
+    this.tour = null
+    this.balls = []
+    this.secondBloom = false
+    this.keepSave(HOUSES.length, 1)
+    this.sound.play('level')
+  }
+
+  private updateTourMenu(input: InputFrame) {
+    const choices = this.tourChoices
+    if (input.pressed.up)
+      this.tourCursor = (this.tourCursor + choices.length - 1) % choices.length
+    if (input.pressed.down)
+      this.tourCursor = (this.tourCursor + 1) % choices.length
+    if (input.pressed.a || input.pressed.start) {
+      const choice = choices[this.tourCursor]
+      this.startTour(choice === 'second', choice === 'secret')
     }
   }
 
@@ -1153,10 +1245,12 @@ class BrickBloom implements ArcadeGameInstance {
     this.boss = null
     const tough = Math.round(levelCurve(stage, BLOOM_CURVES.tough))
     this.bricks = []
-    const house = this.tour ? HOUSES[this.tour.house] : undefined
+    const house = this.tour ? houseAt(this.tour.house) : undefined
     const vented =
       house && this.tour ? houseWall(house, this.tour.wall) : undefined
-    const wall = vented ?? wallFor(stage - this.tourStages)
+    const baseWall = vented ?? wallFor(stage - this.tourStages)
+    const mirrored = this.secondBloom || this.houseNow === CONSERVATORY_INDEX
+    const wall = mirrored ? mirrorWall(baseWall) : baseWall
     for (const cell of parseWall(wall, vented ? HOUSE_LEGEND : undefined)) {
       // The top rows are the toughest; special crates take one hit and let the wall's shape play.
       const plain = cell.kind === 'crate' || cell.kind === 'bolt'
@@ -1208,7 +1302,11 @@ class BrickBloom implements ArcadeGameInstance {
     const vault =
       vented && this.tour ? vaultAt(this.tour.house, vented.id) : null
     const safe = this.bricks.find(
-      (b) => vault && b.col === vault.col && b.row === vault.row && !b.bolt,
+      (b) =>
+        vault &&
+        b.col === (mirrored ? COLS - 1 - vault.col : vault.col) &&
+        b.row === vault.row &&
+        !b.bolt,
     )
     if (safe) {
       safe.vault = true
@@ -1227,7 +1325,9 @@ class BrickBloom implements ArcadeGameInstance {
         hp: 2,
       })
     }
-    this.speed = levelCurve(stage, BLOOM_CURVES.speed)
+    this.speed =
+      levelCurve(stage, BLOOM_CURVES.speed) *
+      (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1)
     this.resetRound()
     // The bench's starter seed: every wall of the house it was bought for starts with it.
     if (vented && this.kitLive && this.kit.seed) this.giveSeed(this.kit.seed)
@@ -1284,7 +1384,11 @@ class BrickBloom implements ArcadeGameInstance {
 
   /** The Lily Pond House's water fills the lower wall, boss pond included. */
   private get pond(): boolean {
-    return this.houseNow === POND
+    return (
+      this.houseNow === POND ||
+      (this.houseNow === CONSERVATORY_INDEX &&
+        this.bricks.some((b) => b.kind === 'lily' || b.kind === 'bubble'))
+    )
   }
 
   /** A seed's timer, without the catch's points (the bench's starter seed). */
@@ -1319,7 +1423,9 @@ class BrickBloom implements ArcadeGameInstance {
     this.ring = null
     this.ringBrick = null
     this.puffs = []
-    this.speed = levelCurve(stage, BLOOM_CURVES.speed)
+    this.speed =
+      levelCurve(stage, BLOOM_CURVES.speed) *
+      (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1)
     this.resetRound()
     if (this.kitLive && this.kit.seed) this.giveSeed(this.kit.seed)
     this.serve()
@@ -1332,7 +1438,7 @@ class BrickBloom implements ArcadeGameInstance {
   private enterHouse(house: number) {
     this.bench = null
     this.benchNote = null
-    const h = HOUSES[house]!
+    const h = houseAt(house)!
     this.tour = { house, wall: h.start }
     this.path = [h.start]
     this.richWall = false
@@ -1358,7 +1464,11 @@ class BrickBloom implements ArcadeGameInstance {
     const tour = this.tour
     if (this.boss) {
       this.boss = null
-      const next = tour ? nextTourPos(tour, 0) : null
+      const nextHouse = tour ? HOUSES[tour.house + 1] : undefined
+      const next =
+        tour && nextHouse
+          ? { house: tour.house + 1, wall: nextHouse.start }
+          : null
       // The bench's kit was for the house just finished.
       this.kit = emptyKit()
       this.kitHouse = -1
@@ -1368,7 +1478,11 @@ class BrickBloom implements ArcadeGameInstance {
         this.openBench(next.house)
         return
       }
-      // Past the last house the classic walls begin again from their first.
+      if (!this.demo) {
+        this.finishTour(tour?.house === CONSERVATORY_INDEX)
+        return
+      }
+      // Attract mode continues endlessly after the tour.
       this.tour = null
       this.tourStages = this.level
       this.keepSave(HOUSES.length, this.level + 1)
@@ -1381,7 +1495,7 @@ class BrickBloom implements ArcadeGameInstance {
       return
     }
     if (tour) {
-      const here = houseWall(HOUSES[tour.house]!, tour.wall)
+      const here = houseWall(houseAt(tour.house)!, tour.wall)
       if (here?.vents === 'boss' && bossOf(tour.house)) {
         this.startBoss(this.level + 1, tour.house)
         return
@@ -1435,6 +1549,18 @@ class BrickBloom implements ArcadeGameInstance {
     this.updateEffects()
     if (this.benchNote && --this.benchNote.ticks <= 0) this.benchNote = null
     if (this.over) return
+    if (this.credits) {
+      if (input.pressed.a || input.pressed.start) {
+        this.credits = null
+        this.tourMenu = true
+        this.tourCursor = 0
+      }
+      return
+    }
+    if (this.tourMenu) {
+      this.updateTourMenu(input)
+      return
+    }
     if (this.offer) {
       this.updateOffer(input)
       return
@@ -1661,7 +1787,9 @@ class BrickBloom implements ArcadeGameInstance {
       this.sound.play('pop')
     }
     for (const bump of this.bumpers) {
-      const cap = levelCurve(this.level, BLOOM_CURVES.maxSpeed)
+      const cap =
+        levelCurve(this.level, BLOOM_CURVES.maxSpeed) *
+        (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1)
       const v = bumperBounce(bump, ball, BALL_R, cap)
       if (!v) continue
       ball.vx = v.vx
@@ -1710,7 +1838,11 @@ class BrickBloom implements ArcadeGameInstance {
   private updateBoss() {
     const boss = this.boss!
     if (this.lost > 0 || this.clear > 0) return
-    stepBoss(boss, this.paddleX, this.rng)
+    const target =
+      boss.id === 'thorn'
+        ? this.balls.find((ball) => ball.stuck === null && ball.vy < 0)
+        : undefined
+    stepBoss(boss, target?.x ?? this.paddleX, this.rng)
     // A guard phase ends when the last guard cracks: the face (or the bud) is open.
     if (guardPhase(boss) && !this.bricks.some((b) => b.guard)) {
       openBoss(boss)
@@ -2280,11 +2412,31 @@ class BrickBloom implements ArcadeGameInstance {
         ball.vx = -ball.vx
       }
     }
+    const oldY = ball.y
     ball.y += dy
+    if (
+      boss?.id === 'thorn' &&
+      !boss.defeated &&
+      dy < 0 &&
+      oldY >= THORN_Y + BALL_R &&
+      ball.y < THORN_Y + BALL_R &&
+      Math.abs(ball.x - boss.x) <= thornWidth(boss) / 2 + BALL_R
+    ) {
+      const speed = Math.hypot(ball.vx, ball.vy)
+      const offset = Math.max(
+        -1,
+        Math.min(1, (ball.x - boss.x) / (thornWidth(boss) / 2)),
+      )
+      ball.y = THORN_Y + BALL_R + 0.1
+      ball.vx = Math.sin(offset) * speed
+      ball.vy = Math.cos(offset) * speed
+      this.sound.play('blip')
+    }
     if (ball.y < TOP + BALL_R) {
       ball.y = TOP + BALL_R
       ball.vy = Math.abs(ball.vy)
-      this.ringRoof(ball)
+      if (boss?.id === 'thorn' && !boss.defeated) this.bonkBoss(ball)
+      else this.ringRoof(ball)
     }
     const hitY = this.hitBrick(ball)
     if (hitY) {
@@ -2516,7 +2668,9 @@ class BrickBloom implements ArcadeGameInstance {
       return
     }
     // Where it lands decides the angle: steep in the middle, wide at the edges.
-    const max = levelCurve(this.level, BLOOM_CURVES.maxSpeed)
+    const max =
+      levelCurve(this.level, BLOOM_CURVES.maxSpeed) *
+      (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1)
     const speed = Math.min(max, Math.hypot(ball.vx, ball.vy) + 0.04)
     const angle = -Math.PI / 2 + offset * 1.05
     ball.vx = Math.cos(angle) * speed + this.paddleV * 0.08
@@ -2560,7 +2714,9 @@ class BrickBloom implements ArcadeGameInstance {
     const cy = r.y + r.h / 2
     // A prickle crate pricks the ball: every ball speeds up a step.
     if (b.kind === 'prickle') {
-      const cap = levelCurve(this.level, BLOOM_CURVES.maxSpeed)
+      const cap =
+        levelCurve(this.level, BLOOM_CURVES.maxSpeed) *
+        (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1)
       for (const ball of this.balls) {
         const s = Math.hypot(ball.vx, ball.vy)
         if (s === 0) continue
@@ -2622,7 +2778,9 @@ class BrickBloom implements ArcadeGameInstance {
     this.petals.push({ x: cx, y: cy, color })
     this.sound.play('pop')
     // Speed up a touch with every crate, up to the stage's cap.
-    const max = levelCurve(this.level, BLOOM_CURVES.maxSpeed)
+    const max =
+      levelCurve(this.level, BLOOM_CURVES.maxSpeed) *
+      (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1)
     for (const ball of this.balls) {
       const s = Math.hypot(ball.vx, ball.vy)
       if (s > 0 && s < max) {
@@ -2665,7 +2823,7 @@ class BrickBloom implements ArcadeGameInstance {
 
   /** A cracked vault lets its golden seed fall (or pays petals if that seed is already home). */
   private openVault(x: number, y: number) {
-    const id = this.tour ? HOUSES[this.tour.house]?.id : undefined
+    const id = this.tour ? houseAt(this.tour.house)?.id : undefined
     if (!id || !VAULTS[id]) return
     // Keep the long words on the glass, whichever edge the vault sits by.
     const tx = Math.max(LEFT + 44, Math.min(RIGHT - 44, x))
@@ -3049,6 +3207,7 @@ class BrickBloom implements ArcadeGameInstance {
     if (this.card) this.renderCard(g, this.card)
     if (this.bench) this.renderBench(g, this.bench)
     if (this.offer) this.renderOffer(g, this.offer)
+    if (this.credits || this.tourMenu) this.renderTourEnd(g)
   }
 
   // --- slice 2 art: bosses, shots, the golden seed, the map, the bench ------------------------
@@ -3097,6 +3256,19 @@ class BrickBloom implements ArcadeGameInstance {
   }
 
   private renderBoss(g: CanvasRenderingContext2D, boss: Boss) {
+    if (boss.id === 'thorn') {
+      bevel(
+        g,
+        boss.x - thornWidth(boss) / 2,
+        THORN_Y - 6,
+        thornWidth(boss),
+        6,
+        RAMPS.purple,
+        { depth: 1 },
+      )
+      glow(g, boss.x, THORN_Y - 3, 10, RAMPS.pink[3], 0.5)
+      return
+    }
     if (boss.id === 'sunny-saguaro') return drawSaguaro(g, boss, this.tick)
     if (boss.id === 'queen-koi') return drawKoi(g, boss, this.tick)
     if (boss.id === 'gloom-bloom') {
@@ -3333,7 +3505,7 @@ class BrickBloom implements ArcadeGameInstance {
 
   /** The house map: the title card when a house begins, then the climb so far after each wall. */
   private renderCard(g: CanvasRenderingContext2D, card: Card) {
-    const house = HOUSES[this.houseNow]
+    const house = houseAt(this.houseNow)
     if (!house) return
     this.panel(g)
     const info = HOUSE_CARDS[house.id]
@@ -3517,7 +3689,7 @@ class BrickBloom implements ArcadeGameInstance {
         drawText(g, '>', 20, y + 6, { color: RAMPS.gold[3], outline: INK })
       }
       if (!item) {
-        const next = HOUSES[bench.house]
+        const next = houseAt(bench.house)
         drawText(g, `ON TO ${next?.name.toUpperCase() ?? ''}`, 60, y + 6, {
           color: on ? '#ffffff' : RAMPS.teal[3],
           outline: INK,
@@ -3586,9 +3758,63 @@ class BrickBloom implements ArcadeGameInstance {
     })
   }
 
+  private renderTourEnd(g: CanvasRenderingContext2D) {
+    this.panel(g)
+    const line = (text: string, y: number, color: string, scale = 1) =>
+      drawText(g, text, W / 2, y, {
+        align: 'center',
+        color,
+        outline: INK,
+        scale,
+      })
+    if (this.credits) {
+      line(
+        this.credits === 'true' ? 'GARDEN RESTORED!' : 'TOUR COMPLETE!',
+        76,
+        RAMPS.gold[4],
+        2,
+      )
+      line('FIVE GLASSHOUSES BLOOM AGAIN', 112, RAMPS.leaf[4])
+      line(
+        this.credits === 'true'
+          ? 'THORN WAS ONLY LONELY.'
+          : 'THE GLOOM HAS LIFTED.',
+        135,
+        RAMPS.pink[3],
+      )
+      if (this.credits === 'true') {
+        line('A NEW FRIEND JOINS THE GARDEN', 150, RAMPS.teal[4])
+        drawDuo(g, W / 2, 180, 36, this.tick)
+      }
+      line(
+        `GOLDEN SEEDS ${this.golden.size}/${GOLDEN_TOTAL}`,
+        220,
+        RAMPS.gold[3],
+      )
+      line('A: RETURN TO TOUR MENU', 266, '#ffffff')
+      return
+    }
+    line('GLASSHOUSE TOUR', 65, RAMPS.gold[4], 2)
+    const labels = {
+      tour: 'NEW GRAND TOUR',
+      second: 'SECOND BLOOM - NEW GAME+',
+      secret: 'MOONFLOWER CONSERVATORY',
+    }
+    this.tourChoices.forEach((choice, i) =>
+      line(
+        (this.tourCursor === i ? '> ' : '') + labels[choice],
+        112 + i * 30,
+        this.tourCursor === i ? '#ffffff' : RAMPS.teal[3],
+      ),
+    )
+    if (!hasAllGoldenSeeds([...this.golden]))
+      line(`MOONFLOWER LOCKED: ${this.golden.size}/5 SEEDS`, 220, RAMPS.gold[3])
+    line('UP / DOWN   A: START', 266, RAMPS.leaf[4])
+  }
+
   private renderOffer(g: CanvasRenderingContext2D, s: BloomSave) {
     this.panel(g)
-    const house = HOUSES[s.house]
+    const house = houseAt(s.house)
     drawText(g, 'WELCOME BACK!', W / 2, 90, {
       scale: 2,
       align: 'center',
@@ -3636,7 +3862,7 @@ class BrickBloom implements ArcadeGameInstance {
         ? CYCLE_THEMES
         : this.houseNow === POND
           ? CYCLE_THEMES + 1
-          : this.houseNow === NIGHT
+          : this.houseNow === NIGHT || this.houseNow === CONSERVATORY_INDEX
             ? 1
             : (this.level - 1) % CYCLE_THEMES
     cachedLayer(g, `brick-bloom-garden-${theme}`, W, H, (k) =>
@@ -3664,7 +3890,10 @@ class BrickBloom implements ArcadeGameInstance {
     const lanterns = this.bricks.filter((b) => b.kind === 'lantern')
     for (const b of this.bricks) {
       g.save()
-      if (this.houseNow === NIGHT && !this.boss?.defeated) {
+      if (
+        (this.houseNow === NIGHT || this.houseNow === CONSERVATORY_INDEX) &&
+        !this.boss?.defeated
+      ) {
         const r = this.brickRect(b)
         const nearBall = this.balls.some(
           (ball) => Math.hypot(ball.x - r.x - r.w / 2, ball.y - r.y) < 50,

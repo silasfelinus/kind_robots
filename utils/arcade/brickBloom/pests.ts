@@ -19,10 +19,10 @@ import { WATER_TOP } from './crates'
 export function pestsOf(house: number, wallId: string) {
   const first = wallId.endsWith('-1')
   return {
-    tumbleweed: house === 2,
-    beetle: house === 2 && !first,
-    frog: house === 3,
-    mirror: house === 3 && !first,
+    tumbleweed: house === 2 || house === 5,
+    beetle: (house === 2 || house === 5) && !first,
+    frog: house === 3 || house === 5,
+    mirror: (house === 3 || house === 5) && !first,
   }
 }
 

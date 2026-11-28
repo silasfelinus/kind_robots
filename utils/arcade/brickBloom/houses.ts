@@ -619,6 +619,85 @@ export const HOUSES: readonly House[] = [
   NIGHT_BLOOM,
 ]
 
+/** The secret house uses its own index without changing the five-house legacy tour. */
+export const CONSERVATORY_INDEX = HOUSES.length
+export const CONSERVATORY: House = {
+  id: 'moonflower',
+  name: 'Moonflower Conservatory',
+  boss: { id: 'thorn', name: 'Thorn' },
+  start: 'moon-1',
+  walls: [
+    vw(
+      'moon-1',
+      'Silver Seed Gate',
+      ['a#s######s#a', '.g##....##g.', 'rr##vvvv##rr', '...pp##pp...'],
+      ['moon-2a', 'moon-2b'],
+    ),
+    vw(
+      'moon-2a',
+      'Reversed Roots',
+      ['..r######r..', '..vv####vv..', '##t######t##', '...s####s...'],
+      ['moon-3a', 'moon-3b'],
+    ),
+    vw(
+      'moon-2b',
+      'Prickle Moon',
+      ['z#k######k#z', '#p########p#', '..a######a..', '....gggg....'],
+      ['moon-3a', 'moon-3b'],
+    ),
+    vw(
+      'moon-3a',
+      'Mirror Pool',
+      ['b##g####g##b', '############', EMPTY, '..llllllll..', 'llll....llll'],
+      ['moon-4a', 'moon-4b'],
+    ),
+    vw(
+      'moon-3b',
+      'Lantern Orchard',
+      ['a..######..a', '.g#h####h#g.', '####pppp####', 'a##......##a'],
+      ['moon-4a', 'moon-4b'],
+    ),
+    vw(
+      'moon-4a',
+      'Moonlit Trellis',
+      ['tttt....tttt', '#s########s#', '##r##vv##r##', '####pppp####'],
+      ['moon-5a', 'moon-5b'],
+    ),
+    vw(
+      'moon-4b',
+      'Celestial Seeds',
+      ['z#k##ss##k#z', '#g########g#', 'a##pp##pp##a', '..bbbbbbbb..'],
+      ['moon-5a', 'moon-5b'],
+    ),
+    vw(
+      'moon-5a',
+      'Thorn Gate',
+      ['a##g####g##a', '##r######r##', '##p######p##', '....ssss....'],
+      'boss',
+    ),
+    vw(
+      'moon-5b',
+      'Full Moon',
+      [
+        '..a######a..',
+        '.g##kkkk##g.',
+        '####pppp####',
+        '##b######b##',
+        '..llllllll..',
+      ],
+      'boss',
+    ),
+  ],
+}
+
+export function houseAt(index: number): House | undefined {
+  return index === CONSERVATORY_INDEX ? CONSERVATORY : HOUSES[index]
+}
+
+export function mirrorWall<T extends Wall>(wall: T): T {
+  return { ...wall, rows: wall.rows.map((row) => [...row].reverse().join('')) }
+}
+
 /** Lily pads must ride a row of their own, so the whole row drifts on the current together. */
 export function lilyRowProblems(w: Wall): string[] {
   return w.rows.flatMap((row, i) =>
@@ -678,7 +757,7 @@ export function ventSide(x: number, width: number): 0 | 1 {
  * final wall leads to the next house's first wall; past the last house the tour is over (null).
  */
 export function nextTourPos(pos: TourPos, side: 0 | 1): TourPos | null {
-  const house = HOUSES[pos.house]
+  const house = houseAt(pos.house)
   const w = house && houseWall(house, pos.wall)
   if (!house || !w) return null
   if (w.vents !== 'boss') return { house: pos.house, wall: w.vents[side] }

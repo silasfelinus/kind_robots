@@ -27,7 +27,12 @@ import { LEFT, RIGHT, W } from './rules'
 import type { CrateKind } from './walls'
 
 export type BossId =
-  'mister-mulch' | 'tangle-rose' | 'sunny-saguaro' | 'queen-koi' | 'gloom-bloom'
+  | 'mister-mulch'
+  | 'tangle-rose'
+  | 'sunny-saguaro'
+  | 'queen-koi'
+  | 'gloom-bloom'
+  | 'thorn'
 export type BossPhase = 1 | 2 | 3
 
 /** A guard crate (a face plate or a feeding root) as a wall cell, and the extra crates around it. */
@@ -267,6 +272,40 @@ export const BOSS_SPECS: Readonly<Record<BossId, BossSpec>> = {
     score: 55_000,
     petals: 60,
   },
+  thorn: {
+    id: 'thorn',
+    name: 'THORN',
+    home: { x: W / 2, y: 35 },
+    w: 46,
+    h: 7,
+    hits: [0, 3, 4],
+    every: [0, 0, 0],
+    tell: 0,
+    cells: [
+      g(2, 2, 2),
+      g(5, 2, 2),
+      g(6, 2, 2),
+      g(9, 2, 2),
+      x(1, 3, 'glow'),
+      x(10, 3, 'glow'),
+      x(4, 4, 'puffball'),
+      x(7, 4, 'puffball'),
+    ],
+    phases: [
+      'CRACK THE FOUR ROOTS ON THORNS SIDE',
+      'GET THE BALL PAST THE TOP PADDLE',
+      'THORN RALLIES FASTER. AIM FOR THE GAPS',
+    ],
+    score: 80_000,
+    petals: 80,
+  },
+}
+
+/** Thorn's opponent paddle occupies the roof lane. Missing its return costs it a point. */
+export const THORN_Y = 35
+export const THORN_SPEED = [1.6, 2.1, 2.5] as const
+export function thornWidth(b: Boss): number {
+  return b.phase === 1 ? 46 : b.phase === 2 ? 36 : 30
 }
 
 /** Whether the Gloom Bloom's shutters are open this tick. */
@@ -284,6 +323,7 @@ export function bossOf(house: number): BossId | null {
         'sunny-saguaro',
         'queen-koi',
         'gloom-bloom',
+        'thorn',
       ] as const
     )[house] ?? null
   )
@@ -324,7 +364,7 @@ export function bossRect(b: Boss) {
 
 /** Queen Koi under the pads is out of the ball's reach; every other boss is always solid. */
 export function bossSolid(b: Boss): boolean {
-  return b.id !== 'queen-koi' || b.leap > 0
+  return b.id !== 'thorn' && (b.id !== 'queen-koi' || b.leap > 0)
 }
 
 export function bossTouches(b: Boss, x: number, y: number, r: number) {
@@ -536,6 +576,13 @@ export function stepBoss(b: Boss, aimX: number, rng: () => number): void {
     b.leap = 0
     const homeY = b.id === 'queen-koi' ? SWIM_Y - 16 : spec.home.y
     b.y += (homeY - b.y) * 0.05
+    return
+  }
+  if (b.id === 'thorn') {
+    const half = thornWidth(b) / 2
+    const goal = Math.max(LEFT + half, Math.min(RIGHT - half, aimX))
+    const speed = ofPhase(THORN_SPEED, b.phase)
+    b.x += Math.max(-speed, Math.min(speed, goal - b.x))
     return
   }
   if (b.id === 'queen-koi') stepKoi(b, rng)

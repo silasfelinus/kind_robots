@@ -22,7 +22,9 @@ tutorial:
     enabled mature content and has no CHILD role. Enter the motel, select
     illustrated hotspots, choose an icon verb, and swap between Norb and Iris.
     Iris handles physical clues, Norb supplies deductions, and the two
-    ghosts have distinct accounts. Iris can flirt with anyone; favours earn gratitude, and Norb always says no. The convention is a separate city venue. The game is not publicly released.
+    ghosts have distinct accounts and react to each other. Tap two clues in
+    the case notebook to compare them; a bulb on the swap button means Norb
+    has a deduction waiting in that room. Iris can flirt with anyone; favours earn gratitude, and Norb always says no. The convention is a separate city venue. The game is not publicly released.
     Switch to Series bible in the header for every character sheet, renames, writers' notes, LoRA dataset requests and art requests on the Illustrious checkpoints, Krea and the softcore nudity lane.
 ---
 

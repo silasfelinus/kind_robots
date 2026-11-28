@@ -89,10 +89,19 @@
         <button
           type="button"
           class="mc-actor-chip"
+          :title="hunch ? 'Norb has a hunch in this room' : undefined"
           @click="story.switchActor()"
         >
           <span class="mc-portrait" :class="'is-' + story.state.actor">
             {{ story.state.actor === 'iris' ? 'I' : 'N' }}
+          </span>
+          <span
+            v-if="hunch"
+            class="mc-hunch"
+            data-testid="monstrique-norb-hunch"
+          >
+            <Icon name="kind-icon:lightbulb" class="size-3" />
+            <span class="sr-only">Norb has a hunch in this room</span>
           </span>
           <span class="text-left">
             <strong>{{
@@ -393,22 +402,74 @@
           <div class="kr-scroll min-h-0 flex-1 overflow-y-auto p-3">
             <template v-if="drawer === 'case'">
               <h3 class="mc-eyebrow">
-                EVIDENCE · {{ story.state.evidence.length }}
+                EVIDENCE · {{ story.state.evidence.length
+                }}<span v-if="story.state.evidence.length > 1">
+                  · {{ pinned ? 'PICK A SECOND CLUE' : 'TAP TWO TO COMPARE' }}
+                </span>
               </h3>
-              <ul class="mc-note-list">
-                <li v-for="clue in story.state.evidence" :key="clue">
-                  <Icon name="kind-icon:camera" class="size-4 shrink-0" />
-                  {{ EVIDENCE[clue] ?? clue }}
+              <ul class="mc-note-list" data-testid="monstrique-evidence">
+                <li
+                  v-for="clue in story.state.evidence"
+                  :key="clue"
+                  class="mc-clue-row"
+                >
+                  <button
+                    type="button"
+                    class="mc-clue"
+                    :class="{ 'is-pinned': pinned === clue }"
+                    :aria-pressed="pinned === clue"
+                    data-testid="monstrique-clue"
+                    @click="pickClue(clue)"
+                  >
+                    <Icon
+                      :name="
+                        pinned === clue ? 'kind-icon:link' : 'kind-icon:camera'
+                      "
+                      class="size-4 shrink-0"
+                    />
+                    <span class="min-w-0 flex-1">{{
+                      EVIDENCE[clue] ?? clue
+                    }}</span>
+                  </button>
                 </li>
                 <li v-if="!story.state.evidence.length">
                   No evidence collected. Yet.
                 </li>
               </ul>
+              <h3
+                class="mc-eyebrow mt-4"
+                data-testid="monstrique-deductions-heading"
+              >
+                DEDUCTIONS · {{ deductions.length
+                }}<span v-if="chapterOf(story.state) === 1">
+                  · NORB {{ norbMade }}/{{ NORB_TOTAL }}</span
+                >
+              </h3>
+              <ul class="mc-note-list" data-testid="monstrique-deductions">
+                <li v-for="id in deductions" :key="id">
+                  <Icon
+                    :name="deductionIcon(id)"
+                    class="mc-deduction-icon size-4 shrink-0"
+                  />
+                  {{ DEDUCTIONS[id]?.label ?? id }}
+                </li>
+                <li v-if="!deductions.length">
+                  Nothing deduced yet. Compare two clues, or let Norb look
+                  around.
+                </li>
+              </ul>
               <h3 class="mc-eyebrow mt-4">CONVERSATION TOPICS</h3>
-              <ul class="mc-note-list">
-                <li v-for="topic in story.state.topics" :key="topic">
+              <ul class="mc-note-list" data-testid="monstrique-topics">
+                <li
+                  v-for="topic in notebookTopics"
+                  :key="topic.id"
+                  :class="{ 'is-spent': topic.spent }"
+                >
                   <Icon name="kind-icon:book-open" class="size-4 shrink-0" />
-                  {{ TOPICS[topic] ?? topic }}
+                  <span class="min-w-0 flex-1">{{
+                    TOPICS[topic.id] ?? topic.id
+                  }}</span>
+                  <small v-if="topic.spent" class="mc-chip-tag">spent</small>
                 </li>
               </ul>
               <h3 v-if="audience === 'mature'" class="mc-eyebrow mt-4">
@@ -540,18 +601,25 @@
           </button>
         </div>
         <div
-          v-if="activeTopics.length"
+          v-if="activeChips.length"
           class="flex flex-wrap gap-2 border-t border-white/10 pt-2"
         >
           <button
-            v-for="topic in activeTopics"
-            :key="topic"
+            v-for="chip in activeChips"
+            :key="chip.topic"
             type="button"
             class="mc-topic"
-            @click="act({ verb: 'ask', target: selected!, topic })"
+            :class="'is-' + chip.status"
+            :disabled="chip.status === 'spent'"
+            :data-status="chip.status"
+            data-testid="monstrique-topic"
+            @click="act({ verb: 'ask', target: selected!, topic: chip.topic })"
           >
             <Icon name="kind-icon:book-open" class="size-3" />
-            {{ TOPICS[topic] ?? topic }}
+            {{ TOPICS[chip.topic] ?? chip.topic }}
+            <small v-if="chip.status !== 'new'" class="mc-chip-tag">{{
+              chip.status === 'spent' ? 'spent' : otherActor + ' asked'
+            }}</small>
           </button>
         </div>
       </div>
@@ -658,8 +726,15 @@ import { useMonstressConventionStore } from '~/stores/monstressConventionStore'
 import { useMonstriquePublicStore } from '~/stores/monstriquePublicStore'
 import {
   roomForAudience,
+  topicInEdition,
   travelForAudience,
 } from '~/utils/monstressConvention/edition'
+import {
+  DEDUCTIONS,
+  NORB_DEDUCTIONS,
+  deductionsOf,
+  norbHunch,
+} from '~/utils/monstressConvention/depth'
 import {
   approachPoint,
   entryPoint,
@@ -671,7 +746,6 @@ import {
   type StagePoint,
 } from '~/utils/monstressConvention/navigation'
 import {
-  availableTopics,
   chapterMaxScore,
   chapterOf,
   chapterScore,
@@ -680,6 +754,8 @@ import {
   HOTEL_ROOMS,
   ITEMS,
   TOPICS,
+  topicChips,
+  topicExhausted,
   type CaseAction,
   type RoomId,
   type Verb,
@@ -773,9 +849,55 @@ const room = computed(() =>
 const activeHotspot = computed(() =>
   room.value.hotspots.find((hotspot) => hotspot.id === selected.value),
 )
-const activeTopics = computed(() =>
-  selected.value ? availableTopics(story.value.state, selected.value) : [],
+const CHIP_ORDER = { new: 0, echo: 1, spent: 2 } as const
+const activeChips = computed(() =>
+  selected.value
+    ? topicChips(story.value.state, selected.value)
+        .filter((chip) => topicInEdition(chip.topic, audience.value))
+        .sort((a, b) => CHIP_ORDER[a.status] - CHIP_ORDER[b.status])
+    : [],
 )
+const otherActor = computed(() =>
+  story.value.state.actor === 'iris' ? 'Norb' : 'Iris',
+)
+const notebookTopics = computed(() =>
+  story.value.state.topics
+    .filter((topic) => topicInEdition(topic, audience.value))
+    .map((topic) => ({
+      id: topic,
+      spent: topicExhausted(story.value.state, topic),
+    })),
+)
+const deductions = computed(() => deductionsOf(story.value.state))
+const NORB_IDS = new Set(
+  Object.values(NORB_DEDUCTIONS).map((deduction) => deduction.id),
+)
+const NORB_TOTAL = NORB_IDS.size
+const norbMade = computed(
+  () => deductions.value.filter((id) => NORB_IDS.has(id)).length,
+)
+const hunch = computed(() => norbHunch(story.value.state))
+const pinned = ref<string | null>(null)
+watch(
+  () => drawer.value,
+  () => (pinned.value = null),
+)
+
+function pickClue(clue: string): void {
+  if (pinned.value && pinned.value !== clue) {
+    act({ verb: 'compare', target: pinned.value, item: clue })
+    pinned.value = null
+    return
+  }
+  pinned.value = pinned.value === clue ? null : clue
+}
+
+function deductionIcon(id: string): string {
+  const kind = DEDUCTIONS[id]?.kind
+  if (kind === 'norb') return 'kind-icon:lightbulb'
+  if (kind === 'reactive') return 'kind-icon:sparkles'
+  return 'kind-icon:link'
+}
 const score = computed(() => chapterScore(story.value.state, audience.value))
 const scoreMax = computed(() =>
   chapterMaxScore(story.value.state, audience.value),
@@ -1423,6 +1545,7 @@ function verbIcon(verb: Verb): string {
   font-weight: 800;
 }
 .mc-actor-chip {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1589,6 +1712,73 @@ function verbIcon(verb: Verb): string {
 .mc-verb.is-held {
   background: #a83e71;
   border-color: #ffd0b2;
+}
+.mc-topic.is-echo {
+  border-style: dashed;
+}
+.mc-topic.is-spent {
+  opacity: 0.5;
+  cursor: default;
+  text-decoration: line-through;
+}
+.mc-topic.is-spent:hover {
+  background: #3c4252;
+}
+.mc-chip-tag {
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  text-decoration: none;
+  display: inline-block;
+}
+.mc-hunch {
+  position: absolute;
+  left: 1.6rem;
+  top: -0.35rem;
+  display: grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 999px;
+  background: #f2c14e;
+  color: #2a1d10;
+  box-shadow: 0 0 0.6rem #f2c14e99;
+}
+.mc-note-list li.mc-clue-row {
+  padding: 0;
+  background: none;
+}
+.mc-clue {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.55rem;
+  border: 1px solid transparent;
+  border-radius: 0.55rem;
+  background: #3a304a;
+  text-align: left;
+}
+.mc-clue:hover {
+  background: #4a3c5d;
+}
+.mc-clue.is-pinned {
+  background: #a83e71;
+  border-color: #ffd0b2;
+}
+.mc-clue:focus-visible {
+  outline: 3px solid #ffe4c7;
+  outline-offset: 2px;
+}
+.mc-note-list li.is-spent {
+  opacity: 0.55;
+}
+.mc-note-list li.is-spent > span {
+  text-decoration: line-through;
+}
+.mc-deduction-icon {
+  color: #f2c14e;
 }
 .mc-hearts {
   letter-spacing: 0.15em;

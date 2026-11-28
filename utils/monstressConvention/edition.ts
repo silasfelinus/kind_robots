@@ -14,6 +14,7 @@ import {
   CHAPTER_TWO_ROOMS,
   CHAPTER_TWO_TOPICS,
 } from './chapterTwo'
+import { REACTIVE_TOPICS, deductionsOf } from './depth'
 
 export type MonstriqueAudience = 'general' | 'mature'
 
@@ -110,8 +111,17 @@ const GENERAL_TOPICS = new Set([
   'fan-alibi',
   'idol-schedule',
   'norb-shirt',
+  ...Object.keys(REACTIVE_TOPICS),
   ...Object.keys(CHAPTER_TWO_TOPICS),
 ])
+
+/** Whether this edition can ask about a topic at all. */
+export function topicInEdition(
+  topic: string,
+  audience: MonstriqueAudience,
+): boolean {
+  return audience === 'mature' || GENERAL_TOPICS.has(topic)
+}
 
 const GENERAL_APPROVED_MOMENTS = new Set([
   'double-murder',
@@ -221,6 +231,7 @@ export function actionForAudience(
   audience: MonstriqueAudience,
 ): CaseResult {
   if (audience === 'mature') return performAction(state, action)
+  if (action.verb === 'compare') return performAction(state, action)
   if (action.verb === 'combine') {
     if (
       !GENERAL_INVENTORY.has(action.item ?? '') ||
@@ -249,6 +260,8 @@ export function actionForAudience(
       line: 'Optional romance is not part of this edition.',
     }
   const result = performAction(state, action)
+  if (deductionsOf(result.state).length > deductionsOf(state).length)
+    return result
   const key =
     action.verb === 'ask'
       ? `ask:${action.target}:${action.topic ?? ''}`

@@ -122,7 +122,11 @@ export function monstriqueCuesFor(
     !previous.evidence.includes('ice-timing')
   )
     cues.push('clank')
-  if (next.evidence.length > previous.evidence.length) cues.push('evidence')
+  if (
+    next.evidence.length > previous.evidence.length ||
+    (next.deductions?.length ?? 0) > (previous.deductions?.length ?? 0)
+  )
+    cues.push('evidence')
   if (next.inventory.some((item) => !previous.inventory.includes(item)))
     cues.push('item')
   if (next.rebuffs > previous.rebuffs) cues.push('rebuff')

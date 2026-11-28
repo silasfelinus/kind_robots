@@ -497,6 +497,7 @@ function copy(state: CaseState): CaseState {
     transcript: [...state.transcript],
     gratitude: { ...state.gratitude },
     filed: state.filed ? [...state.filed] : state.filed,
+    ...(state.deductions ? { deductions: [...state.deductions] } : {}),
   }
 }
 function add(list: string[], value: string): void {

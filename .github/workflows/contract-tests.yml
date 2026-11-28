@@ -595,6 +595,9 @@ jobs:
       - name: Monstrique Chapter Two, Beach Hex clue routes, editions and saves
         run: npx tsx utils/scripts/verifyMonstriqueChapter2.test.ts
 
+      - name: Monstrique notebook comparisons, Norb deductions and ghost topics
+        run: npx tsx utils/scripts/verifyMonstriqueDepth.test.ts
+
   contract_2:
     name: Contract shard 2/4
     runs-on: ubuntu-latest

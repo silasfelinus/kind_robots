@@ -277,6 +277,16 @@ assert.ok(
   ),
   'private mature art is never part of the normal art registry',
 )
+// The 2026-11-16 ending plates (ArtImages 273934-273942) predate the anthro
+// canon and depict human delvers; every ending must use the anthro repaint.
+for (const ending of DEEPHEART.endings) {
+  const id = DEEPHEART_ART_IDS[`ending:${ending.id}`]
+  assert.ok(id, `ending ${ending.id} has painted art`)
+  assert.ok(
+    id < 273934 || id > 273942,
+    `ending ${ending.id} does not use a pre-anthro plate`,
+  )
+}
 
 // ── Party rules ──────────────────────────────────────────────────────────
 assert.ok(

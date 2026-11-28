@@ -1,6 +1,6 @@
 // Source: completed ArtImage IDs in Conductor Deepheart ledgers (2026-11-22 PT).
 // Approved Krea 2 animal-folk portraits override the original humanoid cast.
-// Older landscape and ending plates remain provisional pending repaint.
+// Ending plates are the 2026-11-27 Krea 2 anthro repaint (jobs 77602-77610).
 // Separate private mature Furrytoon portraits are intentionally excluded.
 export const DEEPHEART_ART_IDS: Readonly<Record<string, number>> = {
   'achievement:deepheart-first-delve': 274139,
@@ -153,15 +153,15 @@ export const DEEPHEART_ART_IDS: Readonly<Record<string, number>> = {
   'moment:weeping-door': 273870,
   'moment:goblin-snare': 273871,
   'moment:lich-offer': 273874,
-  'ending:dawnbringer': 273937,
-  'ending:delver': 273934,
-  'ending:fallen': 273942,
-  'ending:gilded': 273940,
-  'ending:hearthbound': 273941,
-  'ending:lichbound': 273936,
-  'ending:redemption': 273938,
-  'ending:sealed': 273939,
-  'ending:usurper': 273935,
+  'ending:dawnbringer': 280942,
+  'ending:delver': 280939,
+  'ending:fallen': 280947,
+  'ending:gilded': 280945,
+  'ending:hearthbound': 280946,
+  'ending:lichbound': 280941,
+  'ending:redemption': 280943,
+  'ending:sealed': 280944,
+  'ending:usurper': 280940,
   'faction:bone-court': 274130,
   'faction:brine-choir': 274131,
   'faction:ember-throne': 274132,

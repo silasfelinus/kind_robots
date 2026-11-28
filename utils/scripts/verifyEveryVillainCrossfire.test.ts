@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
+  MAX_ACTION_POINTS,
   gridDistance,
   reachableCells,
   tileAt,
@@ -2144,7 +2145,12 @@ function playCombat(save: EvtSave, perspective: CombatPerspective) {
     const occupied = new Set<string>()
     for (const unit of state.units) {
       assert.ok(unit.hp >= 0 && unit.hp <= unit.maxHp, tag + ': HP')
-      assert.ok(unit.ap >= 0 && unit.ap <= 2, tag + ': AP')
+      assert.ok(
+        Number.isInteger(unit.ap) &&
+          unit.ap >= 0 &&
+          unit.ap <= MAX_ACTION_POINTS,
+        tag + ': AP ' + unit.id + '=' + unit.ap,
+      )
       if (unit.hp <= 0) continue
       const key = unit.x + ',' + unit.y
       assert.ok(!occupied.has(key), tag + ': stacked units')

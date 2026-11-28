@@ -1,5 +1,7 @@
 // Deterministic, renderer-independent grid rules for Every Villain Tactics.
 // All combat participants, previews, AI and reactions use these same functions.
+export const MAX_ACTION_POINTS = 3
+
 export type Point = { x: number; y: number }
 export type Side = 'north' | 'south' | 'east' | 'west'
 export type Cover = 'half' | 'full'

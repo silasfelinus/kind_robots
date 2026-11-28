@@ -82,7 +82,7 @@ export type GardenWave = {
 }
 
 export type BossId =
-  'queen-wiggle' | 'mow-bot' | 'gourd-hydra' | 'frost-millipede'
+  'queen-wiggle' | 'mow-bot' | 'gourd-hydra' | 'frost-millipede' | 'root-kernel'
 
 export type Boss = {
   id: BossId
@@ -121,6 +121,13 @@ export const BOSSES: Record<BossId, Boss> = {
     sub: 'LIGHT HEATERS • THAW • SPRAY',
     thanks: 'THE WINTER GARDEN THAWS',
     bonus: 18_000,
+  },
+  'root-kernel': {
+    id: 'root-kernel',
+    name: 'THE ROOT KERNEL',
+    sub: 'FOLLOW ALL FOUR PRISM COLOURS',
+    thanks: 'THE WHOLE GARDEN BLOOMS',
+    bonus: 25_000,
   },
 }
 
@@ -1149,6 +1156,96 @@ export const GARDENS: readonly Garden[] = [
   SNOWBALL_HILL,
 ]
 
+/** Midnight is separate from the standard 44-encounter lap. */
+export const MIDNIGHT_INDEX = GARDENS.length
+export const MIDNIGHT_GARDEN: Garden = {
+  id: 'midnight-garden',
+  name: 'MIDNIGHT GARDEN',
+  season: 'midnight',
+  intro: ['FOLLOW THE FIREFLIES', 'YOUR PRISMS LIGHT THE DARK'],
+  boss: 'root-kernel',
+  appleEvery: 360,
+  layout: [
+    '..............................',
+    '..............................',
+    '.....o......o......o......o...',
+    '..............................',
+    '..............................',
+    '...o......o......o......o.....',
+    '....T....................T....',
+    '..............................',
+    '......o......o......o......o..',
+    '..............................',
+    '..............................',
+    '....o...S..o......o..S...o....',
+    '..............................',
+    '......C................C......',
+    '.......o......o......o........',
+    '..............................',
+    '....T....................T....',
+    '.....o....P.o......P......o...',
+    '..............................',
+    '..............................',
+    '...o......o......o......o.....',
+    '........S............S........',
+    '..............................',
+    '......o......o......o......o..',
+    '......C................C......',
+    '..............................',
+    '....o......o......o......o....',
+    '.....H..................H.....',
+    '..............................',
+    '..............................',
+    '..............................',
+    '..............................',
+    '..............................',
+    '..............................',
+    '..............................',
+    '..............................',
+  ],
+  waves: [
+    wave({
+      segments: 10, heads: 4, speed: 2.8, beetleEvery: 440,
+      moth: true, snail: true, crawlers: true, cans: 2,
+      sub: 'THE GARDEN DREAMS',
+    }),
+    wave({
+      segments: 9, heads: 5, speed: 2.9, beetleEvery: 420,
+      moth: true, snail: true, crawlers: true, cans: 2,
+      dragonflies: 1, bees: 2, wasp: true,
+      sub: 'SUMMER AFTER DARK',
+    }),
+    wave({
+      segments: 8, heads: 5, speed: 3, beetleEvery: 400,
+      moth: true, snail: true, crawlers: true, cans: 2,
+      leaves: 6, pumpkins: 2, rollers: 1, inchworms: 1,
+      sub: 'THE AUTUMN SHADOWS',
+    }),
+    wave({
+      segments: 8, heads: 6, speed: 3.1, beetleEvery: 380,
+      moth: true, snail: true, crawlers: true, cans: 2,
+      frost: 6, snowballs: 2, mole: true,
+      sub: 'FROST UNDER THE STARS',
+    }),
+    wave({
+      segments: 7, heads: 7, speed: 3.2, beetleEvery: 360,
+      moth: true, snail: true, crawlers: true, cans: 2,
+      dragonflies: 1, bees: 2, wasp: true, leaves: 6,
+      pumpkins: 2, rollers: 1, inchworms: 1, frost: 5,
+      snowballs: 2, mole: true,
+      sub: 'EVERY SEASON AT ONCE',
+    }),
+  ],
+}
+
+export function hasAllTrowels(trowels: ReadonlySet<string>): boolean {
+  return GARDENS.every((garden) => trowels.has(garden.id))
+}
+
+export function gardenAt(index: number): Garden {
+  return index === MIDNIGHT_INDEX ? MIDNIGHT_GARDEN : GARDENS[index]!
+}
+
 /** The wave's plan: authored, or past the end a remix of the garden's last wave. */
 export function gardenWave(garden: Garden, wave: number): GardenWave {
   const n = Math.max(1, Math.floor(wave))
@@ -1218,8 +1315,22 @@ export const CAMPAIGN: readonly CampaignStep[] = GARDENS.flatMap(
   ],
 )
 
+export const MIDNIGHT_STEPS: readonly CampaignStep[] = [
+  ...MIDNIGHT_GARDEN.waves.map((_, i): CampaignStep => ({
+    kind: 'wave', garden: MIDNIGHT_INDEX, wave: i + 1,
+  })),
+  { kind: 'boss', garden: MIDNIGHT_INDEX, boss: 'root-kernel' },
+]
+
+export function campaignStepAt(index: number): CampaignStep {
+  return index < CAMPAIGN.length
+    ? CAMPAIGN[index]!
+    : MIDNIGHT_STEPS[index - CAMPAIGN.length]!
+}
+
 /** The campaign index of a garden's first wave. */
 export function gardenStart(garden: number): number {
+  if (garden === MIDNIGHT_INDEX) return CAMPAIGN.length
   return CAMPAIGN.findIndex((s) => s.kind === 'wave' && s.garden === garden)
 }
 

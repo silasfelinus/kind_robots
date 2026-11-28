@@ -5,7 +5,7 @@
 // in progress, resumed at the start of the garden it was in. Untrusted on the way in: anything
 // that doesn't read cleanly is dropped.
 
-import { GARDENS } from './glitchGardenGardens'
+import { GARDENS, MIDNIGHT_INDEX, hasAllTrowels } from './glitchGardenGardens'
 import { MAX_KIT_CANS, NEW_KIT } from './glitchGardenShed'
 import type { Kit } from './glitchGardenShed'
 
@@ -26,6 +26,8 @@ export type GardenSave = {
   /** Garden ids whose golden trowel has been earned. */
   trowels: string[]
   run: GardenRun | null
+  champion?: boolean
+  trueChampion?: boolean
 }
 
 export const MAX_SAVED_LIVES = 99
@@ -46,10 +48,10 @@ function readKit(raw: unknown): Kit {
   }
 }
 
-function readRun(raw: unknown): GardenRun | null {
+function readRun(raw: unknown, midnight: boolean): GardenRun | null {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
   const r = raw as Record<string, unknown>
-  if (!whole(r.garden, GARDENS.length - 1)) return null
+  if (!whole(r.garden, midnight ? MIDNIGHT_INDEX : GARDENS.length - 1)) return null
   if (!whole(r.lap, MAX_SAVED_LAP) || !whole(r.score, 99_999_999)) return null
   if (!whole(r.lives, MAX_SAVED_LIVES) || r.lives < 1) return null
   if (!whole(r.petals, 99_999)) return null
@@ -78,5 +80,15 @@ export function readGardenSave(raw: unknown): GardenSave | null {
         ),
       ]
     : []
-  return { v: 1, reached: r.reached, trowels, run: readRun(r.run) }
+  const midnight = hasAllTrowels(new Set(trowels))
+  return {
+    v: 1,
+    reached: r.reached,
+    trowels,
+    run: readRun(r.run, midnight),
+    ...(r.champion === true || (r.trueChampion === true && midnight)
+      ? { champion: true }
+      : {}),
+    ...(r.trueChampion === true && midnight ? { trueChampion: true } : {}),
+  }
 }

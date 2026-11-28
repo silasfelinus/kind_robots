@@ -98,6 +98,11 @@ import {
   CAMPAIGN,
   GARDENS,
   KITCHEN_PLOT,
+  MIDNIGHT_INDEX,
+  MIDNIGHT_STEPS,
+  campaignStepAt,
+  gardenAt,
+  hasAllTrowels,
   LAYOUT_CAN,
   LAYOUT_EXIT,
   LAYOUT_HEATER,
@@ -342,7 +347,7 @@ type BossFight = {
 }
 type Shed = { cursor: number; lane: number; ticks: number; note: string }
 type Menu = {
-  items: Array<{ label: string; garden: number; resume: boolean }>
+  items: Array<{ label: string; garden: number; resume: boolean; overgrown?: boolean }>
   cursor: number
 }
 type PendingSplash = { col: number; row: number; ticks: number; chain: number }
@@ -875,6 +880,11 @@ class GlitchGarden implements ArcadeGameInstance {
   private kit: Kit = { ...NEW_KIT }
   private trowels = new Set<string>()
   private reached = 1
+  private champion = false
+  private trueChampion = false
+  private credits: 'season' | 'true' | null = null
+  private selectEnabled = false
+  private rootLane = 6
   private shed: Shed | null = null
   private menu: Menu | null = null
   private card = 0
@@ -895,6 +905,7 @@ class GlitchGarden implements ArcadeGameInstance {
     this.rng = options.rng
     this.sound = options.sound
     this.demo = options.demo
+    this.selectEnabled = !!options.selectScreen && !this.demo
     this.hiScore = options.hiScore
     this.startWave(1)
     // The save is read after the first garden is planted, so its run isn't overwritten.
@@ -902,22 +913,32 @@ class GlitchGarden implements ArcadeGameInstance {
     if (stored) {
       this.reached = stored.reached
       this.trowels = new Set(stored.trowels)
+      this.champion = stored.champion === true
+      this.trueChampion = stored.trueChampion === true
       this.save = stored
     }
+    this.openGardenMenu(stored?.run ?? null)
+  }
+
+  private openGardenMenu(run: GardenSave['run']) {
     const items: Menu['items'] = []
-    if (stored?.run)
+    if (run)
       items.push({
-        label: `CONTINUE: ${GARDENS[stored.run.garden]!.name}`,
-        garden: stored.run.garden,
+        label: `CONTINUE: ${gardenAt(run.garden).name}`,
+        garden: run.garden,
         resume: true,
       })
-    if (options.selectScreen && !this.demo && this.reached > 1)
+    if (this.selectEnabled && (this.reached > 1 || this.champion || hasAllTrowels(this.trowels)))
       for (let g = 0; g < this.reached; g++)
         items.push({
           label: `${g + 1}  ${GARDENS[g]!.name}`,
           garden: g,
           resume: false,
         })
+    if (this.selectEnabled && hasAllTrowels(this.trowels))
+      items.push({ label: '★ MIDNIGHT GARDEN', garden: MIDNIGHT_INDEX, resume: false })
+    if (this.selectEnabled && this.champion)
+      items.push({ label: 'OVERGROWN • NEW GAME+', garden: 0, resume: false, overgrown: true })
     if (items.length) {
       if (!items.some((i) => !i.resume))
         items.push({
@@ -1231,7 +1252,7 @@ class GlitchGarden implements ArcadeGameInstance {
   }
 
   private updateCrow() {
-    if (this.garden.id !== 'leaf-pile-lane' || this.wave.leaves < 5) return
+    if ((this.garden.id !== 'leaf-pile-lane' && this.garden.season !== 'midnight') || this.wave.leaves < 5) return
     if (!this.crow) {
       if (--this.crowTimer > 0) return
       this.crowTimer = CROW_EVERY
@@ -1508,17 +1529,17 @@ class GlitchGarden implements ArcadeGameInstance {
   /** The level number (waves and bosses so far, counting laps) of a campaign step. */
   private levelAt(index: number, lap: number): number {
     let plays = 0
-    for (let i = 0; i < index; i++) if (CAMPAIGN[i]!.kind !== 'shed') plays++
+    for (let i = 0; i < index; i++) if (campaignStepAt(i).kind !== 'shed') plays++
     const perLap = CAMPAIGN.filter((s) => s.kind !== 'shed').length
     return lap * perLap + plays + 1
   }
 
   private get step(): CampaignStep {
-    return CAMPAIGN[this.stepIndex]!
+    return campaignStepAt(this.stepIndex)
   }
 
   private beginStep(index: number, lap: number, level: number) {
-    const step = CAMPAIGN[index]!
+    const step = campaignStepAt(index)
     this.stepIndex = index
     this.lap = lap
     if (step.kind === 'shed') {
@@ -1526,7 +1547,7 @@ class GlitchGarden implements ArcadeGameInstance {
       return
     }
     this.level = level
-    const garden = GARDENS[step.garden]!
+    const garden = gardenAt(step.garden)
     const fresh = this.planted !== step.garden
     this.garden = garden
     if (fresh) {
@@ -1628,7 +1649,7 @@ class GlitchGarden implements ArcadeGameInstance {
       // A new garden: its title card, a save point, and one more garden for the select.
       this.card = CARD_TICKS
       this.banner = null
-      this.reached = Math.max(this.reached, step.garden + 1)
+      this.reached = Math.min(GARDENS.length, Math.max(this.reached, step.garden + 1))
       this.writeSave(true)
     }
   }
@@ -1641,6 +1662,8 @@ class GlitchGarden implements ArcadeGameInstance {
       v: 1,
       reached: this.reached,
       trowels: [...this.trowels],
+      ...(this.champion ? { champion: true } : {}),
+      ...(this.trueChampion ? { trueChampion: true } : {}),
       run: run
         ? {
             garden: step.garden,
@@ -1658,7 +1681,16 @@ class GlitchGarden implements ArcadeGameInstance {
   private advance() {
     let index = this.stepIndex + 1
     let lap = this.lap
-    if (index >= CAMPAIGN.length) {
+    if (this.stepIndex >= CAMPAIGN.length) {
+      if (index >= CAMPAIGN.length + MIDNIGHT_STEPS.length) {
+        this.finishYear(true)
+        return
+      }
+    } else if (index >= CAMPAIGN.length) {
+      if (this.selectEnabled && lap === 0) {
+        this.finishYear(false)
+        return
+      }
       index = 0
       lap++
     }
@@ -1669,6 +1701,15 @@ class GlitchGarden implements ArcadeGameInstance {
         sub: `YEAR ${lap + 1}: THE GLITCH IS FASTER`,
         ticks: 150,
       }
+  }
+
+  private finishYear(secret: boolean) {
+    this.champion = true
+    this.trueChampion ||= secret
+    this.credits = secret ? 'true' : 'season'
+    this.beams = []
+    this.writeSave(false)
+    this.sound.play('extra')
   }
 
   // --- the Compost Shed ------------------------------------------------------------
@@ -1743,7 +1784,7 @@ class GlitchGarden implements ArcadeGameInstance {
     while (extraAt(this.extras + 1) <= this.score) this.extras++
     this.nextExtra = extraAt(this.extras + 1)
     this.planted = -1
-    const lap = run?.lap ?? 0
+    const lap = run?.lap ?? (item.overgrown ? 1 : 0)
     const index = gardenStart(item.garden)
     this.beginStep(index, lap, this.levelAt(index, lap))
   }
@@ -1807,6 +1848,13 @@ class GlitchGarden implements ArcadeGameInstance {
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.over) return
+    if (this.credits) {
+      if (input.pressed.a || input.pressed.start) {
+        this.credits = null
+        this.openGardenMenu(null)
+      }
+      return
+    }
     if (this.menu) {
       this.updateMenu(input)
       return
@@ -1997,7 +2045,8 @@ class GlitchGarden implements ArcadeGameInstance {
   /** Picks up the power of any bloomed flower the beam is passing through. */
   private pickUpPower(beam: Beam, col: number, row: number) {
     const flower = this.flowers.find((f) => f.col === col && f.row === row)
-    if (!flower || beam.powers.length >= MAX_BEAM_POWERS) return
+    const maxPowers = this.boss?.id === 'root-kernel' ? 4 : MAX_BEAM_POWERS
+    if (!flower || beam.powers.length >= maxPowers) return
     if (beam.powers.includes(flower.prism)) return
     if (flower.prism === 'pink' && beam.child) return
     beam.powers.push(flower.prism)
@@ -2038,6 +2087,10 @@ class GlitchGarden implements ArcadeGameInstance {
     if (this.moth) consider(this.moth.x, this.moth.y)
     if (this.beetle) consider(this.beetle.x, this.beetle.y)
     if (this.snail) consider(this.snail.x, this.snail.y)
+    if (this.boss?.id === 'root-kernel' && !this.boss.defeated && beam.powers.length === 4) {
+      const root = this.rootPosition()
+      consider(root.x, root.y)
+    }
     const target = best as { x: number; d: number } | null
     if (!target) return
     const gap = target.x - beam.x
@@ -2059,6 +2112,7 @@ class GlitchGarden implements ArcadeGameInstance {
       if (this.hitSnowball(beam.x, beam.y)) return false
       if (this.hitFrostSprite(beam.x, beam.y)) return false
       if (this.hitFrostMillipede(beam.x, beam.y)) return false
+      if (this.hitRootKernel(beam)) return false
       if (this.hitMole(beam.x, beam.y)) return false
       if (this.hitLeaf(col, row)) return false
       if (this.hitCrow(beam.x, beam.y)) return false
@@ -2845,6 +2899,8 @@ class GlitchGarden implements ArcadeGameInstance {
       this.mower = this.newMower([MOWER_CAP_HP, MOWER_CAP_HP, MOWER_CAP_HP])
     } else if (id === 'frost-millipede') {
       this.startFrostPhase()
+    } else if (id === 'root-kernel') {
+      this.rewriteRoot()
     } else {
       this.pumpkins = [5, 15, 25].map((col, i) => ({
         x: col * CELL,
@@ -2896,6 +2952,7 @@ class GlitchGarden implements ArcadeGameInstance {
       this.updateFrostMillipede()
       return
     }
+    if (boss.id === 'root-kernel') return
     if (boss.phase < 3 && !this.worms.some((w) => w.queen)) {
       boss.phase = 3
       this.queenHead = {
@@ -2921,6 +2978,92 @@ class GlitchGarden implements ArcadeGameInstance {
     if (h.y < top || h.y > H - 6) h.vy = -h.vy
     if (this.tick % 37 === 0)
       h.vy = (this.rng() < 0.5 ? -1 : 1) * (0.7 + this.rng() * 0.9)
+  }
+
+  /** The Root rewrites the field and exposes a different four-colour firing lane each phase. */
+  private rewriteRoot() {
+    const phase = this.boss!.phase
+    this.rootLane = [6, 15, 23][phase - 1]!
+    this.grid.fill(null)
+    this.flowers = []
+    this.worms = []
+    this.beams = []
+    this.snail = null
+    this.moth = null
+    this.beetle = null
+    this.bees = []
+    this.dragonflies = []
+    this.crow = null
+    this.frostSprite = null
+    this.mole = null
+    this.leafPiles = []
+    for (let row = 5; row < BED_TOP - 2; row += 4)
+      for (let col = (row + phase * 3) % 7; col < COLS; col += 7)
+        if (Math.abs(col - this.rootLane) > 1)
+          this.grid[this.idx(col, row)] = { hp: LAMP_HP, kind: 'lamp' }
+    // The four colours are authored here: pink first, violet last, on one clear lane.
+    PRISM_ORDER.forEach((prism, i) =>
+      this.flowers.push({ col: this.rootLane, row: 27 - i * 2, prism }),
+    )
+    this.wave = {
+      ...this.wave,
+      beetleEvery: 420,
+      moth: phase === 1,
+      snail: phase === 1,
+      dragonflies: phase === 1 ? 1 : 0,
+      bees: phase === 1 ? 2 : 0,
+      wasp: phase === 1,
+      leaves: phase === 2 ? 6 : 0,
+      rollers: phase === 2 ? 1 : 0,
+      inchworms: phase === 2 ? 1 : 0,
+      frost: phase === 3 ? 5 : 0,
+      snowballs: phase === 3 ? 2 : 0,
+      mole: phase === 3,
+    }
+    this.beetleTimer = 420
+    this.plantLeaves(this.wave.leaves, false)
+    this.plantPumpkins(this.wave)
+    this.plantFrost(this.wave.frost)
+    this.plantSnowballs(this.wave.snowballs)
+    this.spawnWorm((this.rootLane < 15 ? 25 : 3) * CELL, 5 + phase, 1)
+    this.banner = {
+      text: `ROOT REWRITE ${phase}/3`,
+      sub: 'ALIGN WITH THE FOUR GLOWING FLOWERS',
+      ticks: 100,
+    }
+  }
+
+  private rootPosition() {
+    return { x: this.rootLane * CELL + 4, y: HUD + 13 * CELL + 4 }
+  }
+
+  private hitRootKernel(beam: Beam): boolean {
+    const boss = this.boss
+    if (boss?.id !== 'root-kernel' || boss.defeated) return false
+    const { x, y } = this.rootPosition()
+    if (Math.hypot(x - beam.x, y - beam.y) > 12) return false
+    if (this.volley) this.volley.landed = true
+    if (!PRISM_ORDER.every((prism) => beam.powers.includes(prism))) {
+      this.sound.play('blip')
+      return true
+    }
+    this.registerHit()
+    if (boss.phase < 3) {
+      boss.phase++
+      this.rewriteRoot()
+      this.sound.play('level')
+    } else {
+      this.defeatBoss(x, y)
+      this.worms = []
+      this.pumpkins = []
+      for (let row = 0; row < BED_TOP; row++)
+        for (let col = 0; col < COLS; col++) {
+          const ob = this.at(col, row)
+          if (ob?.kind === 'lamp' || ob?.kind === 'sprout')
+            this.bloom(col, row, ob)
+        }
+    }
+    return true
   }
 
   private startFrostPhase() {
@@ -3506,6 +3649,7 @@ class GlitchGarden implements ArcadeGameInstance {
     if (this.snowballs.length) target = this.snowballs[0]!
     if (this.frostSprite) target = this.frostSprite
     if (this.crow?.phase === 'swoop') target = this.crow
+    if (this.boss?.id === 'root-kernel' && !this.boss.defeated) target = this.rootPosition()
     if (this.boss?.id === 'frost-millipede' && !this.boss.defeated) {
       const part = this.frostMillipede.find((s) => s.thawed)
       const heater = layoutCells(this.garden, LAYOUT_HEATER)[1]
@@ -3586,6 +3730,10 @@ class GlitchGarden implements ArcadeGameInstance {
       if (sprite) drawHd(g, sprite, f.col * CELL + 4, HUD + f.row * CELL + 4)
     }
     this.renderFireflies(g)
+    if (this.garden.season === 'midnight') {
+      for (const f of this.flowers)
+        glow(g, f.col * CELL + 4, HUD + f.row * CELL + 4, 12, PRISM_COLORS[f.prism], 0.55)
+    }
     for (let r = 0; r < ROWS; r++)
       for (let c = 0; c < COLS; c++) {
         const ob = this.at(c, r)
@@ -3599,6 +3747,7 @@ class GlitchGarden implements ArcadeGameInstance {
     this.renderSnowballs(g)
     this.renderFrostSprite(g)
     this.renderFrostMillipede(g)
+    this.renderRootKernel(g)
     this.renderMole(g)
     for (const w of this.worms) this.renderWorm(g, w)
     if (this.beetle) this.renderBeetle(g, this.beetle)
@@ -3643,6 +3792,7 @@ class GlitchGarden implements ArcadeGameInstance {
     if (this.card > 0) this.renderCard(g)
     if (this.shed) this.renderShed(g, this.shed)
     if (this.menu) this.renderMenu(g, this.menu)
+    if (this.credits) this.renderCredits(g)
   }
 
   /** The lawn and the flowerbed, painted once per garden in its own colours. */
@@ -4111,8 +4261,8 @@ class GlitchGarden implements ArcadeGameInstance {
     })
     menu.items.forEach((item, i) => {
       const on = i === menu.cursor
-      const garden = GARDENS[item.garden]!
-      const y = HUD + 70 + i * 22
+      const garden = gardenAt(item.garden)
+      const y = HUD + 56 + i * Math.min(22, Math.floor((H - HUD - 90) / menu.items.length))
       if (on) {
         g.fillStyle = rgba(RAMPS.leaf[2], 0.35)
         g.fillRect(14, y - 4, W - 28, 18)
@@ -4171,6 +4321,37 @@ class GlitchGarden implements ArcadeGameInstance {
   }
 
   /** Fireflies drifting over the lawn (cosmetic; they follow the clock). */
+  private renderRootKernel(g: CanvasRenderingContext2D) {
+    if (this.boss?.id !== 'root-kernel' || this.boss.defeated) return
+    const { x, y } = this.rootPosition()
+    glow(g, x, y, 34, RAMPS.purple[3], 0.8)
+    for (let i = 0; i < PRISM_ORDER.length; i++) {
+      const angle = this.tick / 35 + i * Math.PI / 2
+      const px = x + Math.cos(angle) * 13
+      const py = y + Math.sin(angle) * 13
+      g.fillStyle = PRISM_COLORS[PRISM_ORDER[i]!]
+      g.fillRect(px - 3, py - 3, 6, 6)
+    }
+    bevel(g, x - 9, y - 9, 18, 18, RAMPS.purple, { depth: 2 })
+    drawText(g, String(this.boss.phase), x, y - 3, {
+      align: 'center', color: '#ffffff', outline: INK,
+    })
+  }
+
+  private renderCredits(g: CanvasRenderingContext2D) {
+    g.fillStyle = rgba(INK, 0.88)
+    g.fillRect(0, HUD, W, H - HUD)
+    const line = (text: string, y: number, color: string, scale = 1) =>
+      drawText(g, text, W / 2, y, { align: 'center', color, scale, outline: INK })
+    line(this.credits === 'true' ? 'ROOT RESTORED!' : 'FOUR SEASONS FIXED!', 52, RAMPS.gold[4], 2)
+    line(this.credits === 'true' ? 'EVERY FLOWER LIGHTS THE NIGHT' : 'THE GARDEN IS IN BLOOM', 88, RAMPS.pink[3])
+    line('A KIND ROBOTS ARCADE GAME', 120, RAMPS.leaf[3])
+    line('OVERGROWN UNLOCKED', 154, RAMPS.gold[3])
+    line(`GOLDEN TROWELS ${this.trowels.size}/8`, 178, '#ffffff')
+    line(hasAllTrowels(this.trowels) ? 'MIDNIGHT GARDEN OPEN' : 'EARN ALL EIGHT TO OPEN MIDNIGHT', 196, RAMPS.sky[4])
+    line('A TO RETURN TO GARDEN SELECT', H - 28, RAMPS.leaf[3])
+  }
+
   private renderFireflies(g: CanvasRenderingContext2D) {
     for (const f of FIREFLIES) {
       const pulse = Math.sin(this.tick / 22 + f.phase)
@@ -4191,6 +4372,8 @@ class GlitchGarden implements ArcadeGameInstance {
   ) {
     const x = c * CELL
     const y = HUD + r * CELL
+    if (this.garden.season === 'midnight' && ob.kind === 'lamp')
+      glow(g, x + 4, y + 4, 10, PRISM_COLORS[prismFor(c, r)], 0.2 + 0.12 * Math.sin(this.tick / 18 + c + r))
     dropShadow(g, x + 5, y + 7, 3, 1, 0.45)
     const top = { anchor: 'topleft' } as const
     const bloomDot = () => {

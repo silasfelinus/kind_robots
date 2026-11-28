@@ -55,6 +55,10 @@
 import { drawText } from '../font'
 import { mulberry32 } from '../curve'
 import {
+  CROSSFIRE_POINTS,
+  CROSSFIRE_TICKS,
+  RIVALS_RESPAWN_TICKS,
+  RIVALS_TICKS,
   dailyGardenPlan,
   endlessGardenStep,
   gardenMedals,
@@ -387,6 +391,8 @@ type Worm = {
   squeeze?: number
   /** Queen Wiggle's segment k is her body's segment k + offset (for joints and colours). */
   offset?: number
+  /** The last player to fix part of this worm, inherited by both split pieces. */
+  crossfire?: { player: 0 | 1; tick: number }
 }
 type Beam = {
   x: number
@@ -396,6 +402,7 @@ type Beam = {
   child: boolean
   lastMoth: Moth | null
   lastCell: number
+  player?: 0 | 1
 }
 type Pumpkin = {
   x: number
@@ -822,6 +829,12 @@ class GlitchGarden implements ArcadeGameInstance {
   private worms: Worm[] = []
   private px = W / 2
   private py = HUD + (ROWS - 2) * CELL
+  private playerCount = 1
+  private p2 = { x: W * 0.75, y: HUD + (ROWS - 2) * CELL, glideX: 0, glideY: 0 }
+  private rivalsFixed: [number, number] = [0, 0]
+  private rivalsShield: [number, number] = [0, 0]
+  private rivalsTicks = RIVALS_TICKS
+  private crossfires = 0
   private beams: Beam[] = []
   private volley: { hits: number; landed: boolean } | null = null
   private streak = 0
@@ -908,7 +921,7 @@ class GlitchGarden implements ArcadeGameInstance {
   }
 
   get scoreBoard(): string | null {
-    return this.mode === 'endless' ? 'glitch-garden' : null
+    return this.mode === 'endless' && this.playerCount === 1 ? 'glitch-garden' : null
   }
 
   get menuOpen(): boolean {
@@ -935,6 +948,8 @@ class GlitchGarden implements ArcadeGameInstance {
     this.rng = options.rng
     this.sound = options.sound
     this.demo = options.demo
+    this.playerCount = !this.demo && options.players === 2 ? 2 : 1
+    if (this.playerCount === 2) this.px = W * 0.25
     this.selectEnabled = !!options.selectScreen && !this.demo
     this.hiScore = options.hiScore
     this.startWave(1)
@@ -982,10 +997,17 @@ class GlitchGarden implements ArcadeGameInstance {
     if (this.selectEnabled) {
       items.push(
         { label: 'ENDLESS LAWN', garden: 0, resume: false, mode: 'endless' },
-        { label: 'DAILY GARDEN', garden: 0, resume: false, mode: 'daily' },
         { label: 'MEDAL BOARD', garden: 0, resume: false, mode: 'medals' },
       )
     }
+    if (this.selectEnabled && this.playerCount === 1)
+      items.splice(-1, 0, {
+        label: 'DAILY GARDEN', garden: 0, resume: false, mode: 'daily',
+      })
+    if (this.selectEnabled && this.playerCount === 2)
+      items.splice(-1, 0, {
+        label: 'GARDEN RIVALS', garden: 0, resume: false, mode: 'rivals',
+      })
     if (items.length) {
       if (!items.some((i) => !i.resume))
         items.push({
@@ -1608,7 +1630,15 @@ class GlitchGarden implements ArcadeGameInstance {
     const garden =
       this.mode === 'daily'
         ? { ...authoredGarden, layout: dailyGardenPlan(this.dailyDay).layout }
-        : authoredGarden
+        : this.mode === 'rivals'
+          ? {
+              ...authoredGarden,
+              layout: authoredGarden.layout.map((row) => {
+                const left = row.slice(0, COLS / 2)
+                return left + [...left].reverse().join('')
+              }),
+            }
+          : authoredGarden
     const fresh = this.planted !== step.garden
     this.garden = garden
     if (fresh) {
@@ -1697,7 +1727,10 @@ class GlitchGarden implements ArcadeGameInstance {
       this.startBoss(step.boss)
       return
     }
-    this.spawnWorm(Math.floor(COLS / 2) * CELL, plan.segments, 1)
+    if (this.mode === 'rivals') {
+      this.spawnWorm(5 * CELL, plan.segments, 1)
+      this.spawnWorm(24 * CELL, plan.segments, -1)
+    } else this.spawnWorm(Math.floor(COLS / 2) * CELL, plan.segments, 1)
     for (let i = 0; i < plan.heads; i++)
       this.spawnWorm(
         Math.floor(this.rng() * COLS) * CELL,
@@ -1750,6 +1783,10 @@ class GlitchGarden implements ArcadeGameInstance {
 
   /** On to the next step of the year (the shed, a wave, a boss), wrapping into the next lap. */
   private advance() {
+    if (this.mode === 'rivals') {
+      this.finishRivals()
+      return
+    }
     if (this.mode === 'daily') {
       this.recordDaily(true)
       this.over = true
@@ -1787,6 +1824,18 @@ class GlitchGarden implements ArcadeGameInstance {
         sub: `YEAR ${lap + 1}: THE GLITCH IS FASTER`,
         ticks: 150,
       }
+  }
+
+  private finishRivals() {
+    this.over = true
+    this.beams = []
+    const [one, two] = this.rivalsFixed
+    this.banner = {
+      text: one === two ? 'GARDEN DRAW!' : `PLAYER ${one > two ? 1 : 2} WINS!`,
+      sub: `P1 ${one}  /  P2 ${two} SEGMENTS`,
+      ticks: 9999,
+    }
+    this.sound.play('extra')
   }
 
   private finishYear(secret: boolean) {
@@ -1868,6 +1917,11 @@ class GlitchGarden implements ArcadeGameInstance {
     }
     this.menu = null
     this.mode = item.mode ?? 'campaign'
+    this.rivalsFixed = [0, 0]
+    this.rivalsShield = [0, 0]
+    this.rivalsTicks = RIVALS_TICKS
+    this.crossfires = 0
+    if (this.playerCount === 2) this.resetPair()
     const run = item.resume ? this.save?.run : null
     this.score = run?.score ?? 0
     this.lives = run?.lives ?? START_LIVES
@@ -1943,7 +1997,7 @@ class GlitchGarden implements ArcadeGameInstance {
 
   // --- update ------------------------------------------------------------------
 
-  update(input: InputFrame) {
+  update(input: InputFrame, players?: InputFrame[]) {
     this.tick++
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
@@ -1978,10 +2032,17 @@ class GlitchGarden implements ArcadeGameInstance {
       if (--this.clear === 0) this.advance()
       return
     }
+    if (this.mode === 'rivals') {
+      if (--this.rivalsTicks <= 0) return this.finishRivals()
+      for (const player of [0, 1] as const)
+        if (this.rivalsShield[player] > 0) this.rivalsShield[player]--
+    }
     this.moveSprayer(controls)
-    if ((controls.held.a || controls.held.b) && this.canFire()) {
-      this.beams.push(this.newBeam(this.px, this.py - 6, false))
-      if (!this.volley) this.volley = { hits: 0, landed: false }
+    this.fireSprayer(0, controls)
+    if (this.playerCount === 2 && players?.[1]) {
+      const second = players[1]
+      this.withSecondSprayer(() => this.moveSprayer(second, 1))
+      this.fireSprayer(1, second)
     }
     this.updateBeams()
     this.updateLeaves()
@@ -2008,6 +2069,8 @@ class GlitchGarden implements ArcadeGameInstance {
     }
     this.updateSplashes()
     this.checkHits()
+    if (this.playerCount === 2 && this.dead === 0)
+      this.checkHits(1)
     if (
       !this.worms.length &&
       this.dead === 0 &&
@@ -2018,11 +2081,12 @@ class GlitchGarden implements ArcadeGameInstance {
   }
 
   /** One beam at a time; with the second beam, another once the first is well on its way. */
-  private canFire(): boolean {
-    const own = this.beams.filter((b) => !b.child)
+  private canFire(player: 0 | 1 = 0): boolean {
+    const own = this.beams.filter((b) => !b.child && (b.player ?? 0) === player)
     if (!own.length) return true
     if (!this.kit.twin || own.length >= 2) return false
-    return own.every((b) => b.y < this.py - 48)
+    const y = player === 0 ? this.py : this.p2.y
+    return own.every((b) => b.y < y - 48)
   }
 
   /** The wave is fixed: settle its objective, the Kind bonus and the trowel, then move on. */
@@ -2094,7 +2158,43 @@ class GlitchGarden implements ArcadeGameInstance {
     this.sound.play('extra')
   }
 
-  private moveSprayer(input: InputFrame) {
+  /** Both sprayers use the same collision and ice movement rules. */
+  private withSecondSprayer(action: () => void) {
+    const first = { x: this.px, y: this.py, glideX: this.glideX, glideY: this.glideY }
+    this.px = this.p2.x
+    this.py = this.p2.y
+    this.glideX = this.p2.glideX
+    this.glideY = this.p2.glideY
+    try {
+      action()
+    } finally {
+      this.p2 = { x: this.px, y: this.py, glideX: this.glideX, glideY: this.glideY }
+      this.px = first.x
+      this.py = first.y
+      this.glideX = first.glideX
+      this.glideY = first.glideY
+    }
+  }
+
+  private resetPair() {
+    this.px = W * 0.25
+    this.py = HUD + (ROWS - 2) * CELL
+    this.p2 = { x: W * 0.75, y: this.py, glideX: 0, glideY: 0 }
+    for (const center of [7, 22])
+      for (let c = center - 1; c <= center + 1; c++)
+        for (let row = ROWS - 3; row < ROWS; row++)
+          this.grid[this.idx(c, row)] = null
+  }
+
+  private fireSprayer(player: 0 | 1, input: InputFrame) {
+    if (!(input.held.a || input.held.b) || !this.canFire(player)) return
+    const x = player === 0 ? this.px : this.p2.x
+    const y = player === 0 ? this.py : this.p2.y
+    this.beams.push(this.newBeam(x, y - 6, false, player))
+    if (!this.volley) this.volley = { hits: 0, landed: false }
+  }
+
+  private moveSprayer(input: InputFrame, player: 0 | 1 = 0) {
     let dx = 0
     let dy = 0
     if (input.held.left) dx -= SPRAYER_SPEED
@@ -2121,7 +2221,9 @@ class GlitchGarden implements ArcadeGameInstance {
     }
     const minY = HUD + BED_TOP * CELL + 4
     const maxY = H - 5
-    const nx = Math.max(4, Math.min(W - 4, this.px + dx))
+    const left = this.mode === 'rivals' && player === 1 ? W / 2 + 4 : 4
+    const right = this.mode === 'rivals' && player === 0 ? W / 2 - 4 : W - 4
+    const nx = Math.max(left, Math.min(right, this.px + dx))
     if (!this.blocked(nx, this.py)) this.px = nx
     else this.glideX = 0
     const ny = Math.max(minY, Math.min(maxY, this.py + dy))
@@ -2143,8 +2245,8 @@ class GlitchGarden implements ArcadeGameInstance {
     return false
   }
 
-  private newBeam(x: number, y: number, child: boolean): Beam {
-    return { x, y, powers: [], pierce: 0, child, lastMoth: null, lastCell: -1 }
+  private newBeam(x: number, y: number, child: boolean, player: 0 | 1 = 0): Beam {
+    return { x, y, powers: [], pierce: 0, child, lastMoth: null, lastCell: -1, player }
   }
 
   /** The patch multiplier shown on the nozzle. */
@@ -2191,7 +2293,7 @@ class GlitchGarden implements ArcadeGameInstance {
         beam.x + SPLIT_OFFSET > W - 4
           ? beam.x - SPLIT_OFFSET
           : beam.x + SPLIT_OFFSET
-      const twin = this.newBeam(x, beam.y, true)
+      const twin = this.newBeam(x, beam.y, true, beam.player ?? 0)
       twin.powers = beam.powers.filter((p) => p !== 'pink')
       twin.pierce = beam.pierce
       this.beams.push(twin)
@@ -2239,6 +2341,10 @@ class GlitchGarden implements ArcadeGameInstance {
       beam.y -= 4
       if (beam.y < HUD) return false
       if (beam.powers.includes('violet')) this.steerBeam(beam)
+      if (
+        this.mode === 'rivals' &&
+        (beam.x < W / 2 ? 0 : 1) !== (beam.player ?? 0)
+      ) return false
       const col = Math.floor(beam.x / CELL)
       const row = Math.floor((beam.y - HUD) / CELL)
       this.pickUpPower(beam, col, row)
@@ -2253,7 +2359,7 @@ class GlitchGarden implements ArcadeGameInstance {
       if (this.hitCrow(beam.x, beam.y)) return false
       // A bee bot in the way soaks up the spray (and the wave's Kind bonus with it).
       if (this.sprayBee(beam.x, beam.y)) return false
-      const worm = this.hitWorm(beam.x, beam.y, beam.powers.includes('cyan'))
+      const worm = this.hitWorm(beam.x, beam.y, beam.powers.includes('cyan'), beam.player ?? 0)
       const mower = this.hitMower(beam.x, beam.y)
       if (worm === 'plink' || mower === 'body') {
         if (this.volley) this.volley.landed = true
@@ -2457,6 +2563,7 @@ class GlitchGarden implements ArcadeGameInstance {
     x: number,
     y: number,
     freeze = false,
+    player: 0 | 1 = 0,
   ): 'fix' | 'plink' | null {
     const pad = this.kit.nozzle ? 2 : 0
     for (const w of this.worms) {
@@ -2475,12 +2582,32 @@ class GlitchGarden implements ArcadeGameInstance {
           return 'plink'
         }
         if (!this.fixable(w, k)) return 'plink'
+        this.creditWorm(w, player, p.x + 4, p.y)
         this.fixSegment(w, k, freeze)
         if (w.queen) this.queenSplit(w, k)
         return 'fix'
       }
     }
     return null
+  }
+
+  private creditWorm(w: Worm, player: 0 | 1, x: number, y: number) {
+    if (this.mode === 'rivals') {
+      this.rivalsFixed[player]++
+      return
+    }
+    if (this.playerCount !== 2) return
+    const prior = w.crossfire
+    if (
+      prior && prior.player !== player &&
+      this.tick - prior.tick <= CROSSFIRE_TICKS
+    ) {
+      this.crossfires++
+      this.addScore(CROSSFIRE_POINTS, x, y)
+      this.banner = { text: 'CROSSFIRE!', sub: '+500 TEAM BONUS', ticks: 60 }
+      this.sound.play('extra')
+    }
+    w.crossfire = { player, tick: this.tick }
   }
 
   /** Queen Wiggle only splits at her bright joints at first (and her head, once unhelmeted). */
@@ -2536,6 +2663,7 @@ class GlitchGarden implements ArcadeGameInstance {
         dx: dx as 1 | -1,
         dy: w.dy,
         frozen,
+        crossfire: w.crossfire,
         ...(w.queen
           ? { queen: true, offset: (w.offset ?? 0) + k + 1, armour: 0 }
           : {}),
@@ -2792,7 +2920,10 @@ class GlitchGarden implements ArcadeGameInstance {
     }
     for (const a of [...this.apples]) {
       a.y += APPLE_FALL
-      if (Math.abs(a.x - this.px) < 7 && Math.abs(a.y - this.py) < 8) {
+      if (
+        (Math.abs(a.x - this.px) < 7 && Math.abs(a.y - this.py) < 8) ||
+        (this.playerCount === 2 && Math.abs(a.x - this.p2.x) < 7 && Math.abs(a.y - this.p2.y) < 8)
+      ) {
         this.catchApple(a)
         continue
       }
@@ -3520,15 +3651,34 @@ class GlitchGarden implements ArcadeGameInstance {
     return true
   }
 
-  private checkHits() {
+  private checkHits(player: 0 | 1 = 0) {
+    if (this.mode === 'rivals' && this.rivalsShield[player] > 0) return
+    const px = player === 0 ? this.px : this.p2.x
+    const py = player === 0 ? this.py : this.p2.y
+    const lose = () => {
+      if (this.mode === 'rivals') {
+        this.rivalsShield[player] = RIVALS_RESPAWN_TICKS
+        if (player === 0) {
+          this.px = W * 0.25
+          this.py = HUD + (ROWS - 2) * CELL
+          this.glideX = 0
+          this.glideY = 0
+        } else {
+          this.p2 = { x: W * 0.75, y: HUD + (ROWS - 2) * CELL, glideX: 0, glideY: 0 }
+        }
+        this.beams = this.beams.filter((beam) => (beam.player ?? 0) !== player)
+        this.sound.play('die')
+      } else if (player === 1) this.withSecondSprayer(() => this.lose())
+      else this.lose()
+    }
     for (const w of this.worms) {
       for (let k = 0; k < w.segments; k++) {
         const p = this.segmentPos(w, k)
         if (
-          Math.abs(p.x + 4 - this.px) < 6 &&
-          Math.abs(p.y + 4 - this.py) < 6
+          Math.abs(p.x + 4 - px) < 6 &&
+          Math.abs(p.y + 4 - py) < 6
         ) {
-          this.lose()
+          lose()
           return
         }
       }
@@ -3536,53 +3686,53 @@ class GlitchGarden implements ArcadeGameInstance {
     if (
       this.snowballs.some(
         (ball) =>
-          Math.abs(ball.x - this.px) < 8 && Math.abs(ball.y - this.py) < 8,
+          Math.abs(ball.x - px) < 8 && Math.abs(ball.y - py) < 8,
       )
     )
-      return this.lose()
+      return lose()
     if (
       this.mole?.phase === 'up' &&
-      Math.abs(this.mole.x - this.px) < 9 &&
-      Math.abs(this.mole.y - this.py) < 12
+      Math.abs(this.mole.x - px) < 9 &&
+      Math.abs(this.mole.y - py) < 12
     )
-      return this.lose()
+      return lose()
     const b = this.beetle
-    if (b && Math.abs(b.x - this.px) < 7 && Math.abs(b.y - this.py) < 6)
-      this.lose()
+    if (b && Math.abs(b.x - px) < 7 && Math.abs(b.y - py) < 6)
+      return lose()
     const m = this.moth
-    if (m && Math.abs(m.x - this.px) < 6 && Math.abs(m.y - this.py) < 6)
-      return this.lose()
+    if (m && Math.abs(m.x - px) < 6 && Math.abs(m.y - py) < 6)
+      return lose()
     const touch = (x: number, y: number, rx: number, ry: number) =>
-      Math.abs(x - this.px) < rx && Math.abs(y - this.py) < ry
+      Math.abs(x - px) < rx && Math.abs(y - py) < ry
     if (
       this.boss?.id === 'frost-millipede' &&
       this.boss.phase === 3 &&
       this.frostMillipede.some((part) => touch(part.x, part.y, 7, 7))
     )
-      return this.lose()
+      return lose()
     if (
       this.pumpkins.some(
         (p) =>
           p.rolling && touch(p.x, p.y, p.giant ? 20 : 12, p.giant ? 18 : 10),
       )
     )
-      return this.lose()
-    if (this.dragonflies.some((d) => touch(d.x, d.y, 7, 5))) return this.lose()
+      return lose()
+    if (this.dragonflies.some((d) => touch(d.x, d.y, 7, 5))) return lose()
     if (this.bees.some((b) => b.wasp && b.diving && touch(b.x, b.y, 6, 6)))
-      return this.lose()
+      return lose()
     const h = this.queenHead
-    if (h && touch(h.x, h.y, 7, 6)) return this.lose()
+    if (h && touch(h.x, h.y, 7, 6)) return lose()
     const mo = this.mower
     if (mo && !this.boss?.defeated) {
       const mw = MOWER_COLS * CELL
       const mh = MOWER_ROWS * CELL
       if (
-        this.px > mo.x - 3 &&
-        this.px < mo.x + mw + 3 &&
-        this.py > mo.y - 3 &&
-        this.py < mo.y + mh + 3
+        px > mo.x - 3 &&
+        px < mo.x + mw + 3 &&
+        py > mo.y - 3 &&
+        py < mo.y + mh + 3
       )
-        this.lose()
+        lose()
     }
   }
 
@@ -3657,6 +3807,7 @@ class GlitchGarden implements ArcadeGameInstance {
     this.py = HUD + (ROWS - 2) * CELL
     this.glideX = 0
     this.glideY = 0
+    if (this.playerCount === 2) this.resetPair()
     // Clear a spot to stand in.
     for (let c = 13; c <= 16; c++)
       for (let r = ROWS - 3; r < ROWS; r++) this.grid[this.idx(c, r)] = null
@@ -3665,7 +3816,7 @@ class GlitchGarden implements ArcadeGameInstance {
   // --- scoring and effects ----------------------------------------------------
 
   private earn(id: string) {
-    if (!this.demo) this.earned.add(id)
+    if (!this.demo && this.mode !== 'rivals') this.earned.add(id)
   }
 
   private recordDaily(cleared: boolean) {
@@ -3682,7 +3833,7 @@ class GlitchGarden implements ArcadeGameInstance {
   }
 
   private addScore(points: number, x: number, y: number) {
-    if (this.demo) return
+    if (this.demo || this.mode === 'rivals') return
     this.score += points
     if (points >= 100)
       this.floaters.push({ x, y, text: String(points), life: 36 })
@@ -3882,6 +4033,10 @@ class GlitchGarden implements ArcadeGameInstance {
     }
     if (this.mown) this.renderMownStripes(g)
     this.renderPond(g)
+    if (this.mode === 'rivals') {
+      g.fillStyle = rgba(RAMPS.pink[3], 0.45)
+      g.fillRect(W / 2 - 1, HUD, 2, H - HUD)
+    }
     this.renderExits(g)
     this.renderLanes(g)
     for (const f of this.flowers) {
@@ -3936,7 +4091,10 @@ class GlitchGarden implements ArcadeGameInstance {
       })
     for (const beam of this.beams) this.renderBeam(g, beam)
     this.renderRings(g)
-    if (this.dead === 0 && !this.shed) this.renderSprayer(g)
+    if (this.dead === 0 && !this.shed) {
+      this.renderSprayer(g)
+      if (this.playerCount === 2) this.renderSprayer(g, 1)
+    }
     this.renderSiren(g)
     for (const p of this.particles) {
       g.globalAlpha = Math.max(0, p.life / 26)
@@ -4785,14 +4943,19 @@ class GlitchGarden implements ArcadeGameInstance {
     g.fillRect(x, y - 5, 1, 7)
   }
 
-  private renderSprayer(g: CanvasRenderingContext2D) {
-    const x = Math.round(this.px)
-    const y = Math.round(this.py)
+  private renderSprayer(g: CanvasRenderingContext2D, player: 0 | 1 = 0) {
+    if (this.mode === 'rivals' && this.rivalsShield[player] > 0 && this.tick % 8 < 4) return
+    const x = Math.round(player === 0 ? this.px : this.p2.x)
+    const y = Math.round(player === 0 ? this.py : this.p2.y)
     // A little gardening bot with a spray nozzle on top.
     dropShadow(g, x, y + 5, 6, 1.5, 0.45)
     glow(g, x, y - 5, 5, RAMPS.teal[3], 0.35)
     const frame = Math.floor(this.tick / 5) % 2
     drawHd(g, SPRAYER_SPRITES[frame]!, x, y - 1)
+    if (this.playerCount === 2)
+      drawText(g, String(player + 1), x, y + 8, {
+        align: 'center', color: player === 0 ? RAMPS.teal[4] : RAMPS.pink[3], outline: INK,
+      })
     // The patch multiplier lives on the nozzle: its tip warms from teal to pink, one pip a step.
     const mult = this.multiplier
     const tip = NOZZLE_COLORS[mult - 1] ?? RAMPS.teal[4]
@@ -4906,6 +5069,12 @@ class GlitchGarden implements ArcadeGameInstance {
         color: this.objectiveFailed ? RAMPS.steel[3] : RAMPS.gold[3],
         outline: INK,
       })
+    }
+    if (this.mode === 'rivals') {
+      hudPanel(g, 0, 0, W, HUD - 1, HEDGE)
+      drawText(g, `P1 ${this.rivalsFixed[0]}`, 4, 3, { color: RAMPS.teal[4], outline: INK })
+      drawText(g, `${Math.ceil(this.rivalsTicks / 60)}S`, W / 2, 3, { align: 'center', color: '#ffffff', outline: INK })
+      drawText(g, `P2 ${this.rivalsFixed[1]}`, W - 4, 3, { align: 'right', color: RAMPS.pink[3], outline: INK })
     }
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, H / 2 - 20, {

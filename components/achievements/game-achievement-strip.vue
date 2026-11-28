@@ -148,7 +148,6 @@
 import { computed, onMounted, ref } from 'vue'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { useUserStore } from '@/stores/userStore'
-import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import {
   ACHIEVEMENT_GAMES,
   achievementsForGame,
@@ -158,6 +157,7 @@ const props = withDefaults(
   defineProps<{
     game: string
     artOverrides?: Readonly<Record<string, string>>
+    artFallbacks?: Readonly<Record<string, number | null>>
     layout?: 'list' | 'row' | 'icons'
   }>(),
   { layout: 'list', artOverrides: () => ({}) },
@@ -180,32 +180,10 @@ const layoutClass = computed(() =>
   props.layout === 'row' ? 'md:grid-cols-3' : 'grid-cols-1',
 )
 
-const slimeCityFallbacks: Readonly<Record<string, number | null>> = {
-  'slime-city-first-clash-win': slimeArtId('bosses', 'catgirls/gloat'),
-  'slime-city-chapter-won': slimeArtId('story', 'catgirls/journey-mixed'),
-  'slime-city-third-form': slimeArtId('evolutions', 'pogo-punk@3'),
-  'slime-city-first-pack': slimeArtId('cards', 'broker'),
-  'slime-city-alliance-builder': slimeArtId('ui', 'title-splash'),
-  'slime-city-district-champion': slimeArtId('districts', 'pitworks'),
-  'slime-city-campaign-catgirls': slimeArtId('story', 'catgirls/journey-left'),
-  'slime-city-campaign-bloodfairies': slimeArtId('story', 'bloodfairies/journey-left'),
-  'slime-city-campaign-ironjaw': slimeArtId('story', 'ironjaw/journey-left'),
-  'slime-city-campaign-riot': slimeArtId('story', 'riot/journey-left'),
-  'slime-city-campaign-undertow': slimeArtId('story', 'undertow/journey-left'),
-  'slime-city-campaign-exchange': slimeArtId('story', 'exchange/journey-left'),
-  'slime-city-conviction-triumph': slimeArtId('story', 'ironjaw/journey-mixed'),
-  'slime-city-cunning-compromise': slimeArtId('story', 'exchange/journey-right'),
-  'slime-city-pvp-win': 272642,
-  'slime-city-tower-floor-6': slimeArtId('districts', 'foundry'),
-  'slime-city-tower-summit': 272644,
-  'slime-city-all-crews': 272641,
-  'slime-city-city-finale': slimeArtId('districts', 'crown'),
-}
-
 const entries = computed(() =>
   achievementsForGame(props.game).map((entry) => {
     const row = achievementStore.achievementByCode(entry.code)
-    const fallback = slimeCityFallbacks[entry.code]
+    const fallback = props.artFallbacks?.[entry.code]
     const imagePath = [
       props.artOverrides?.[entry.code],
       row?.imagePath,

@@ -150,6 +150,7 @@ export type StageEncounter =
   | 'licensed-legends'
   | 'claim-cinders'
   | 'hushwings'
+  | 'drytap-octopi'
 export const STAGE_ENCOUNTERS: ReadonlyArray<{
   id: StageEncounter | null
   label: string
@@ -160,6 +161,7 @@ export const STAGE_ENCOUNTERS: ReadonlyArray<{
   { id: 'licensed-legends', label: 'Licensed Legends · wind-up toys' },
   { id: 'claim-cinders', label: 'Claim Cinders · delayed fire' },
   { id: 'hushwings', label: 'Hushwings · vacuum corridor' },
+  { id: 'drytap-octopi', label: 'Drytap Octopi · water siphon' },
   { id: 'quarry-lieutenant', label: 'Mags Hardpan · lieutenant' },
 ]
 

@@ -16,6 +16,10 @@ import {
 } from '../everyVillainTactics/studio'
 import {
   cinderPlan,
+  drytapPlan,
+  drytapSlickAt,
+  closeDrytapValve,
+  movementCost,
   hushLaneContains,
   hushPlan,
   endTurn,
@@ -34,6 +38,7 @@ assert.deepEqual(
     'licensed-legends',
     'claim-cinders',
     'hushwings',
+    'drytap-octopi',
     'quarry-lieutenant',
   ],
 )
@@ -355,6 +360,66 @@ const { checksum: _vacuum, ...forgedVacuumPayload } = forgedVacuum
 forgedVacuum.checksum = saveChecksum(forgedVacuumPayload)
 assert.equal(loadSave(serializeSave(forgedVacuum)).ok, false)
 
+const dryStage = clonePreset('college-quad')
+dryStage.encounter = 'drytap-octopi'
+dryStage.activeHazards = [{ id: 'wet-valve', kind: 'water', x: 2, y: 1 }]
+assert.deepEqual(stageProblems(dryStage), [])
+function dryBattle() {
+  const state = trainingState(31, dryStage, { lead: 'magic-fire' })
+  const octopus = state.units.find((u) => u.team === 'rival')!
+  const hero = state.units.find((u) => u.id === 'backdraft')!
+  octopus.x = 3
+  octopus.y = 1
+  hero.x = 2
+  hero.y = 0
+  state.selected = hero.id
+  for (const unit of state.units)
+    if (unit.team === 'rival' && unit.id !== octopus.id) unit.hp = 0
+  return { state, octopus, hero }
+}
+const siphon = dryBattle()
+assert.equal(siphon.octopus.henchmanName, 'Deputy Plink')
+assert.equal(siphon.octopus.identity, 'accident-water')
+assert.equal(siphon.octopus.hp, 1)
+endTurn(siphon.state)
+assert.deepEqual(siphon.octopus.drytapTarget, { x: 2, y: 1 })
+assert.equal(drytapSlickAt(siphon.state, { x: 2, y: 1 }), false)
+const beforeSlick = movementCost(siphon.state, siphon.hero, { x: 2, y: 1 })
+endTurn(siphon.state)
+assert.equal(siphon.octopus.drytapTarget, null)
+assert.ok(drytapSlickAt(siphon.state, { x: 2, y: 1 }))
+assert.equal(movementCost(siphon.state, siphon.hero, { x: 2, y: 1 }), beforeSlick + 1)
+const drySave = createSave({
+  slot: 'slot-1',
+  perspective: 'hero',
+  leadSignature: 'magic-fire',
+  stage: dryStage,
+  state: siphon.state,
+  story: { ...createStory(), current: null },
+})
+const dryLoad = loadSave(serializeSave(drySave))
+assert.ok(dryLoad.ok, dryLoad.ok ? '' : dryLoad.reason)
+assert.ok(drytapSlickAt(dryLoad.save.state, { x: 2, y: 1 }))
+const valve = dryBattle()
+endTurn(valve.state)
+const valveAp = valve.hero.ap
+assert.ok(closeDrytapValve(valve.state))
+assert.equal(valve.hero.ap, valveAp - 1)
+assert.equal(valve.octopus.drytapTarget, null)
+assert.equal(closeDrytapValve(valve.state), false)
+const farValve = dryBattle()
+endTurn(farValve.state)
+farValve.hero.x = 0
+assert.equal(closeDrytapValve(farValve.state), false)
+farValve.octopus.hp = 0
+assert.ok(drytapPlan(farValve.state, farValve.octopus))
+assert.equal(drytapSlickAt(farValve.state, { x: 2, y: 1 }), false)
+const falseDry = structuredClone(drySave)
+falseDry.state.units.find((u) => u.id === 'backdraft')!.drytapSlick = { x: 2, y: 1 }
+const { checksum: _dry, ...falseDryPayload } = falseDry
+falseDry.checksum = saveChecksum(falseDryPayload)
+assert.equal(loadSave(serializeSave(falseDry)).ok, false)
+
 const page = readFileSync(
   new URL('../../pages/admin/every-villain-tactics.vue', import.meta.url),
   'utf8',
@@ -362,6 +427,8 @@ const page = readFileSync(
 assert.match(page, /data-testid="tactics-phase-warning"/)
 assert.match(page, /data-testid="tactics-cinder-warning"/)
 assert.match(page, /data-testid="tactics-hush-warning"/)
+assert.match(page, /data-testid="tactics-drytap-warning"/)
+assert.match(page, /data-testid="tactics-drytap-valve"/)
 assert.match(page, /data-testid="studio-encounter-select"/)
 console.log(
   'Every Villain lackeys: teleporting Wombat Ronin exits and jams, wind-up Licensed Legends swarm and seals, one-hit SPECIES crews, saves and studio line-ups verified.',

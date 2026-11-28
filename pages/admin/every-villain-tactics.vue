@@ -189,6 +189,20 @@
                     >INSURED</span
                   >
                   <span
+                    v-if="store.isDrytapWarning(cell)"
+                    class="evt-drytap-stamp"
+                    data-testid="tactics-drytap-warning"
+                    aria-hidden="true"
+                    >VALVE</span
+                  >
+                  <span
+                    v-else-if="store.isDrytapSlick(cell)"
+                    class="evt-drytap-stamp is-slick"
+                    data-testid="tactics-drytap-slick"
+                    aria-hidden="true"
+                    >SLICK +1 AP</span
+                  >
+                  <span
                     v-if="store.isHushWarning(cell)"
                     class="evt-hush-stamp"
                     data-testid="tactics-hush-warning"
@@ -785,6 +799,17 @@
               >
             </button>
 
+            <button
+              v-if="store.hasDrytapWarning"
+              type="button"
+              class="evt-rescue"
+              data-testid="tactics-drytap-valve"
+              :disabled="!store.canCloseDrytapValve"
+              @click="store.shutDrytapValve()"
+            >
+              CLOSE RED VALVE · 1 AP
+              <span>Stand on or beside a marked wet tile.</span>
+            </button>
             <div class="evt-defenses" aria-label="Reaction and defense actions">
               <button
                 type="button"
@@ -1258,6 +1283,14 @@
                 ONE-HIT CLAIM CLERKS · Ash Invoice stamps an INSURED tile that
                 ignites next enemy turn. Vacate the tile or disarm the clerk;
                 water prevents ignition.
+              </small>
+              <small
+                v-else-if="store.draft.encounter === 'drytap-octopi'"
+                data-testid="studio-encounter"
+              >
+                ONE-HIT DRYTAP OCTOPI · Deputy Plink siphons marked wet tiles.
+                Add water hazards to the map. Stand on or beside the red valve
+                and close it for 1 AP before the next enemy turn.
               </small>
               <small
                 v-else-if="store.draft.encounter === 'hushwings'"
@@ -2481,6 +2514,10 @@ function baseCellDescription(cell: Cell) {
       (cell.y + 1) +
       (unit ? '. Occupied by ' + unitName(unit) + '.' : '.')
     )
+  if (store.isDrytapWarning(cell))
+    return 'RED SHUTOFF VALVE, column ' + (cell.x + 1) + ', row ' + (cell.y + 1) + '. Close it for one AP from this tile or an adjacent tile.'
+  if (store.isDrytapSlick(cell))
+    return 'SLICK, column ' + (cell.x + 1) + ', row ' + (cell.y + 1) + '. Landing costs one extra movement AP.'
   if (store.isHushWarning(cell))
     return (
       'VACUUM, column ' +
@@ -2723,6 +2760,7 @@ onBeforeUnmount(() => {
     transparent 70%
   );
 }
+.evt-drytap-stamp,
 .evt-hush-stamp,
 .evt-cinder-stamp {
   position: absolute;
@@ -2736,6 +2774,19 @@ onBeforeUnmount(() => {
   font-weight: 900;
   text-align: center;
   pointer-events: none;
+}
+.evt-drytap-stamp {
+  background: #a52230;
+  color: #fff;
+}
+.evt-drytap-stamp.is-slick {
+  background: #135b72;
+}
+.evt-tile.drytap-warning {
+  outline: 2px solid #ef5350;
+}
+.evt-tile.drytap-slick {
+  box-shadow: inset 0 0 0 2px #39bacf;
 }
 .evt-hush-stamp {
   background: #155e75;

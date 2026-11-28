@@ -290,6 +290,8 @@ const MUTABLE = new Set<string>([
   'burrowTarget',
   'cinderTarget',
   'hushTarget',
+  'drytapTarget',
+  'drytapSlick',
   'phaseTarget',
   'phaseVictim',
   'windupRewinding',
@@ -693,6 +695,18 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
           )))
     )
       return reject(unit.id + ' vacuum corridor is invalid.')
+    for (const point of [unit.drytapTarget, unit.drytapSlick]) {
+      if (
+        point !== undefined &&
+        (unit.henchmanType !== 'drytap' ||
+          (point !== null &&
+            (!optionalCell(point, state) ||
+              !rules?.hazards.some(
+                (h) => h.kind === 'water' && h.x === point.x && h.y === point.y,
+              ))))
+      )
+        return reject(unit.id + ' siphon tile is invalid.')
+    }
     for (const point of [
       unit.phaseTarget,
       unit.burrowTarget,

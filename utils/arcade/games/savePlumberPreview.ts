@@ -2359,9 +2359,16 @@ export class PlumberRun implements ArcadeGameInstance {
           )
             continue
           hero.y = p.y - TALL
-          hero.vy = 0
-          this.ground = true
-          this.riding = p
+          if (this.isBloom(p)) {
+            hero.vy = SPRING
+            this.sprung = true
+            this.jumpBuffer = 0
+            playPlumberCue(this.sound, 'spring')
+          } else {
+            hero.vy = 0
+            this.ground = true
+            this.riding = p
+          }
           break
         }
       }
@@ -5031,7 +5038,16 @@ export class PlumberRun implements ArcadeGameInstance {
     )
   }
 
+  private isBloom(p: Platform): boolean {
+    return (
+      p.kind === 'piston' &&
+      this.wildwaterActive &&
+      this.wildwater?.bloomPistons === true
+    )
+  }
+
   platformAt(p: Platform, t: number): { x: number; y: number } {
+    if (this.isBloom(p)) return { x: p.baseX, y: p.baseY }
     if (p.kind === 'lantern' || p.kind === 'cargo') return { x: p.x, y: p.y }
     if (p.kind === 'raft')
       return {
@@ -6764,9 +6780,9 @@ export class PlumberRun implements ArcadeGameInstance {
           }
         } else if (s === SOLID_LEDGE) {
           if (this.wildwaterCells.has(row * this.stage.cols + col)) {
-            g.fillStyle = '#8deeff'
+            g.fillStyle = this.wildwater?.bloomPistons ? '#529c50' : '#8deeff'
             g.fillRect(x, y, TILE, 4)
-            g.fillStyle = '#e6fbff'
+            g.fillStyle = this.wildwater?.bloomPistons ? '#b6ed85' : '#e6fbff'
             g.fillRect(x + 2, y + 1, TILE - 4, 1)
             continue
           }
@@ -6881,6 +6897,14 @@ export class PlumberRun implements ArcadeGameInstance {
         for (let k = 2; k < p.w; k += 12) g.fillRect(p.x + k, p.y + 1, 9, 2)
         g.fillStyle = '#5c3b21'
         g.fillRect(p.x + 4, p.y + 6, p.w - 8, 2)
+        continue
+      }
+      if (this.isBloom(p)) {
+        g.fillStyle = '#529c50'
+        g.fillRect(p.x + p.w / 2 - 3, p.y + 5, 6, TILE * 4)
+        g.fillStyle = '#79b8f8'
+        g.fillRect(p.x, p.y, p.w, 5)
+        drawSprite(g, PLUMBER_ART.prop('springstep'), p.x + p.w / 2, p.y + 5, 20)
         continue
       }
       if (p.kind === 'piston') {

@@ -1972,9 +1972,13 @@ assert.ok(store.includes('personalFinaleNode('))
 // The bot can lose: never promote a losing or stalled route to a victory.
 type CombatPerspective = 'hero' | 'villain'
 type CombatOutcome = TrainingState['phase']
-type CombatPolicy = 'standard' | 'objective'
+type CombatPolicy = 'standard' | 'objective' | 'adaptive'
 
-function drainCombatDialogue(save: EvtSave, perspective: CombatPerspective) {
+function drainCombatDialogue(
+  save: EvtSave,
+  perspective: CombatPerspective,
+  policy: CombatPolicy,
+) {
   const { state, story, stage } = save
   if (!stage) {
     enqueueBeat(story, state)
@@ -1986,10 +1990,23 @@ function drainCombatDialogue(save: EvtSave, perspective: CombatPerspective) {
         story,
         state,
       )
+      const defaultIndex =
+        perspective === 'villain' && scene.choices.length > 1 ? 1 : 0
+      const wounded = state.units.some(
+        (unit) => unit.team === 'squad' && unit.hp > 0 && unit.hp < unit.maxHp,
+      )
+      const adaptiveEffect =
+        scene.id === 'arrival'
+          ? scene.choices[1 - defaultIndex]?.effect
+          : scene.id === 'alarm'
+            ? wounded ? 'rescue' : 'contain'
+            : scene.id === 'reckoning'
+              ? wounded ? 'spare' : 'press'
+              : undefined
       const choice =
-        scene.choices[
-          perspective === 'villain' && scene.choices.length > 1 ? 1 : 0
-        ]!
+        (policy === 'adaptive' &&
+          scene.choices.find((candidate) => candidate.effect === adaptiveEffect)) ||
+        scene.choices[defaultIndex]!
       assert.ok(applyChoice(story, state, perspective, choice.effect))
     }
     assert.equal(story.current, null, 'First Bell dialogue drains')
@@ -2006,7 +2023,15 @@ function drainCombatDialogue(save: EvtSave, perspective: CombatPerspective) {
     while (walk && !walk.done && path.length < 12) {
       const node = walk.nodes.at(-1)
       assert.ok(node?.choices?.length)
-      path.push(perspective === 'villain' && node.choices.length > 1 ? 1 : 0)
+      const defaultIndex =
+        perspective === 'villain' && node.choices.length > 1 ? 1 : 0
+      const wounded = state.units.some(
+        (unit) => unit.team === 'squad' && unit.hp > 0 && unit.hp < unit.maxHp,
+      )
+      const preferred = node.choices.findIndex((choice) =>
+        choice.effects.some((effect) => effect.kind === (wounded ? 'heal' : 'suppress')),
+      )
+      path.push(policy === 'adaptive' && preferred >= 0 ? preferred : defaultIndex)
       walk = walkScene(scene, path, { state, perspective })
     }
     assert.ok(walk?.done, stage.id + ':' + scene.id)
@@ -2024,7 +2049,8 @@ function combatAct(
   state.selected = unit.id
   if (rescueSelected(state)) return true
   const rivals = state.units.filter((u) => u.team === 'rival' && u.hp > 0)
-  const objectivePolicy = policy === 'objective'
+  const adaptive = policy === 'adaptive'
+  const objectivePolicy = policy !== 'standard'
   const victory = state.rules?.victory
   const boss = victory?.kind === 'defeat-boss' ? victory.unit : null
   const shotValue = (target: Unit, hit: number) =>
@@ -2032,7 +2058,9 @@ function combatAct(
     (objectivePolicy
       ? (target.id === boss ? 120 : 0) +
         (target.hp <= 2 ? 30 : 0) +
-        (target.signatureTarget || target.seismicTarget ? 20 : 0)
+        (target.signatureTarget || target.seismicTarget ? 20 : 0) +
+        (adaptive ? (target.hp <= 2 ? 28 : -target.hp * 4) +
+          (target.statuses.includes('marked') ? 12 : 0) : 0)
       : 0)
   const shot = rivals
     .map((target) => ({
@@ -2045,6 +2073,30 @@ function combatAct(
         shotValue(b.target, b.hit) - shotValue(a.target, a.hit) ||
         a.target.hp - b.target.hp,
     )[0]
+  const tacticalPosition = (point: { x: number; y: number }) => {
+    const aim = Math.max(
+      0,
+      ...rivals.map((target) => previewShot({ ...unit, ...point }, target, state.map).hit),
+    )
+    const exposure = exposureAt(state, unit, point).reduce((sum, shot) => sum + shot.hit, 0)
+    const goals =
+      victory?.kind === 'rescue'
+        ? (state.civilians ?? []).filter((c) => c.status === 'waiting')
+        : victory?.kind === 'hold-zone'
+          ? victory.cells
+          : boss
+            ? rivals.filter((rival) => rival.id === boss)
+            : rivals
+    const distance = Math.min(30, ...goals.map((goal) => pathDistance(state.map, [], point, goal)))
+    const danger = state.field?.fire.some((fire) => fire.x === point.x && fire.y === point.y) ||
+      state.rules?.hazards.some((hazard) => hazard.x === point.x && hazard.y === point.y)
+    return (
+      aim * 0.025 -
+      exposure * (unit.hp <= 2 ? 0.025 : 0.012) -
+      (victory?.kind === 'survive' ? 0 : distance * 0.4) -
+      (danger ? 3 : 0)
+    )
+  }
   const power = selectedPowerTargets(state)
     .map((target) => ({ target, preview: previewSelectedPower(state, target) }))
     .filter((candidate) => candidate.preview)
@@ -2057,10 +2109,20 @@ function combatAct(
           (effect.side === 'enemy'
             ? ((effect.damage * (preview!.chance ?? 100)) / 100) *
                 (objectivePolicy && effect.id === boss ? 3 : 1) +
-              effect.statuses.length * (objectivePolicy ? 0.45 : 0.2)
+              effect.statuses.length * (objectivePolicy ? 0.45 : 0.2) +
+              (adaptive && actor && effect.damage >= actor.hp && effect.damage > 0
+                ? 1.6 * (preview!.chance ?? 100) / 100
+                : 0)
             : Math.min(effect.heal, (actor?.maxHp ?? 0) - (actor?.hp ?? 0)) *
-                1.8 +
-              effect.ap * 0.6)
+                (adaptive && actor && actor.hp <= 2 ? 3 : 1.8) +
+              effect.ap * (adaptive && actor && !actor.fired ? 1.15 : 0.6) +
+              (adaptive && actor
+                ? (effect.statuses.includes('guarded') ? exposureAt(state, actor, actor).length * 0.55 : 0) +
+                  (effect.cleanse && !actor.fired ? 0.65 : 0) +
+                  (effect.moveTo && effect.id === unit.id
+                    ? tacticalPosition(effect.moveTo) - tacticalPosition(unit)
+                    : 0)
+                : 0))
         )
       }, 0),
     }))
@@ -2069,7 +2131,9 @@ function combatAct(
     return true
   if (
     shot &&
-    shot.hit >= (objectivePolicy && shot.target.id === boss ? 30 : 60) &&
+    !unit.fired &&
+    shot.hit >= (adaptive ? (shot.target.hp <= 2 ? 40 : 75) :
+      objectivePolicy && shot.target.id === boss ? 30 : 60) &&
     (!objectivePolicy || !boss || shot.target.id === boss || unit.moved) &&
     fireSelected(state, shot.target)
   )
@@ -2113,10 +2177,11 @@ function combatAct(
       (victory?.kind === 'survive'
         ? -exposed
         : -distance(p) * (objective ? 35 : objectivePolicy ? 16 : 12) -
-          exposed * (objectivePolicy ? 0.45 : 0.3)) +
-      aim * (objective ? 0.15 : objectivePolicy ? 0.85 : 0.6) +
-      (tileAt(state.map, p).cover ? 8 : 0) -
+          exposed * (adaptive ? (unit.hp <= 2 ? 0.95 : 0.65) : objectivePolicy ? 0.45 : 0.3)) +
+      aim * (objective ? 0.15 : adaptive ? 1.2 : objectivePolicy ? 0.85 : 0.6) +
+      (tileAt(state.map, p).cover ? (adaptive ? 14 : 8) : 0) -
       p.cost * 8 -
+      (adaptive && !unit.fired && p.cost >= unit.ap && aim >= 35 ? 35 : 0) -
       (danger ? 60 : 0)
     )
   }
@@ -2131,8 +2196,10 @@ function combatAct(
     if (best && best.score > current && moveSelected(state, best.cell))
       return true
   }
-  if (shot && fireSelected(state, shot.target)) return true
-  if (victory?.kind === 'survive' && hunkerSelected(state)) return true
+  if (shot && !unit.fired && fireSelected(state, shot.target)) return true
+  if ((victory?.kind === 'survive' ||
+    (adaptive && exposureAt(state, unit, unit).length > 0 &&
+      (unit.fired || unit.hp <= 2))) && hunkerSelected(state)) return true
   return overwatchSelected(state) || hunkerSelected(state)
 }
 
@@ -2144,7 +2211,7 @@ function playCombat(
   let state = structuredClone(save.state)
   let story = structuredClone(save.story)
   let actions = 0
-  const limit = (state.turnLimit ?? (policy === 'objective' ? 48 : 16)) + 1
+  const limit = (state.turnLimit ?? (policy === 'standard' ? 16 : 48)) + 1
   const tag =
     save.leadSignature +
     ':' +
@@ -2163,11 +2230,17 @@ function playCombat(
     })
   const dialogue = () => {
     const live = { ...save, state, story }
-    drainCombatDialogue(live, perspective)
+    drainCombatDialogue(live, perspective, policy)
   }
   for (let round = 0; round < limit && state.phase === 'active'; round++) {
     dialogue()
-    for (const unit of state.units.filter((u) => u.team === 'squad')) {
+    const squad = state.units.filter((u) => u.team === 'squad')
+    if (policy === 'adaptive')
+      squad.sort((a, b) =>
+        Number(b.identity.endsWith('-social')) - Number(a.identity.endsWith('-social')) ||
+        Number(b.weapon === 'long') - Number(a.weapon === 'long'),
+      )
+    for (const unit of squad) {
       for (
         let step = 0;
         step < 5 && state.phase === 'active' && unit.hp > 0 && unit.ap > 0;
@@ -2217,6 +2290,8 @@ const combatCoverage = CROSSFIRE_CHAPTERS.map((chapter) => ({
   retryAttempts: 0,
   retryVictories: 0,
   firstTryVictories: 0,
+  adaptiveAttempts: 0,
+  adaptiveVictories: 0,
   victory: 0,
   defeat: 0,
   active: 0,
@@ -2287,6 +2362,23 @@ for (const person of IDENTITY_ARCS) {
         tally.actions += result.actions
         if (result.outcome === 'victory') tally.retryVictories++
         diagnostics.push(chapter.id + ':' + first + '->' + result.outcome)
+        if (result.outcome !== 'victory') {
+          const second = result.outcome
+          if (campaign) {
+            const checkpoint = snapshotCrossfire(campaign, result.save)
+            assert.ok(checkpoint)
+            const retry = retryCrossfire(checkpoint)
+            assert.ok(retry)
+            assert.deepEqual(retry.active.state, opening.state)
+            assert.deepEqual(retry.completed, checkpoint.completed)
+            retryOpening = retry.active
+          }
+          tally.adaptiveAttempts++
+          result = playCombat(retryOpening, perspective, 'adaptive')
+          tally.actions += result.actions
+          if (result.outcome === 'victory') tally.adaptiveVictories++
+          diagnostics.push(chapter.id + ':adaptive:' + second + '->' + result.outcome)
+        }
       }
       if (result.outcome !== 'victory') {
         const living = result.save.state.units
@@ -2331,7 +2423,11 @@ for (const tally of combatCoverage) {
   assert.equal(tally.victory + tally.defeat + tally.active, tally.attempts)
   assert.ok(tally.actions > 0, tally.chapter + ': no legal actions exercised')
   assert.equal(tally.firstTryVictories + tally.retryAttempts, 96)
-  assert.equal(tally.firstTryVictories + tally.retryVictories, tally.victory)
+  assert.equal(tally.retryVictories + tally.adaptiveAttempts, tally.retryAttempts)
+  assert.equal(
+    tally.firstTryVictories + tally.retryVictories + tally.adaptiveVictories,
+    tally.victory,
+  )
   assert.ok(tally.victory > 0, tally.chapter + ': no earned victories')
 }
 assert.equal(fullCampaignAttempts, 96)

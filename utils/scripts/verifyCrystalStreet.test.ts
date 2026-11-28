@@ -108,7 +108,10 @@ const titleSource = asset(
 )
 assert.match(titleSource, /view: 'achievements'/)
 const consoleSource = asset('../../pages/play/crystal-street.vue')
-assert.match(consoleSource, /view === 'achievements' \? 'achievements' : 'weeks'/)
+assert.match(
+  consoleSource,
+  /view === 'achievements' \? 'achievements' : 'weeks'/,
+)
 assert.match(consoleSource, /sound\.volume = enabled === 'on'/)
 
 // Roster sizes Silas asked for: at least twenty nightmares and twenty friends.

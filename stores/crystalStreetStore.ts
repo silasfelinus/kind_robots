@@ -84,7 +84,10 @@ function restoreSettings(raw: unknown): CrystalStreetSettings {
       value.effectsVolume,
       DEFAULT_SETTINGS.effectsVolume,
     ),
-    musicVolume: normalizeVolume(value.musicVolume, DEFAULT_SETTINGS.musicVolume),
+    musicVolume: normalizeVolume(
+      value.musicVolume,
+      DEFAULT_SETTINGS.musicVolume,
+    ),
   }
 }
 

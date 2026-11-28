@@ -34,12 +34,14 @@ import vue from '@vitejs/plugin-vue'
 
 const ROOT = resolve(fileURLToPath(import.meta.url), '../../..')
 const STORE_ID = '\0crystal-street-store-fixture'
+const ART_STORE_ID = '\0crystal-street-art-store-fixture'
 
 // The fixture store: plain reactive state, filled per scenario before render.
 const storeFixture: Plugin = {
   name: 'crystal-street-store-fixture',
   enforce: 'pre',
   resolveId(id) {
+    if (id.includes('stores/crystalStreetArtStore')) return ART_STORE_ID
     // Before or after the ~/ alias has rewritten it.
     if (
       /(?:^~|\/stores)\/crystalStreetStore(?:\.ts)?$/.test(id) &&
@@ -50,6 +52,10 @@ const storeFixture: Plugin = {
     return null
   },
   load(id) {
+    if (id === ART_STORE_ID)
+      return `export function useCrystalStreetArtStore() {
+        return { canLoad: false, sessionToken: '', sourceFor: (path) => path, ensure: async () => {} }
+      }`
     if (id !== STORE_ID) return null
     return `
       import { computed, reactive } from 'vue'

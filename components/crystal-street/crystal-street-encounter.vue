@@ -122,7 +122,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
+import { useCrystalStreetArtStore } from '~/stores/crystalStreetArtStore'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
 import {
   SKILL_LABELS,
@@ -144,6 +145,7 @@ import type { Choice, Faction } from '~/utils/crystalStreet/types'
 import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const store = useCrystalStreetStore()
+const art = useCrystalStreetArtStore()
 const run = computed(() => store.run!)
 const encounter = computed(() => store.encounter)
 const INTENT_ICONS: Record<Choice['intent'], string> = {
@@ -165,7 +167,7 @@ const hand = computed<KrHandChoice[]>(() =>
       chip: `${SKILL_LABELS[choice.skill]} · ${odds(choice)}%`,
       hint: lock || (active ? bonus : undefined),
       disabled: !!lock,
-      image: `/crystal-street/outcomes/${encounter.value!.id}--${choice.id}-success.webp`,
+      image: art.sourceFor(choiceArtPath(encounter.value!.id, choice.id)),
       icon: INTENT_ICONS[choice.intent],
       details: [
         difficulty(choice.target),
@@ -173,6 +175,19 @@ const hand = computed<KrHandChoice[]>(() =>
       ].filter(Boolean),
     }
   }),
+)
+function choiceArtPath(encounterId: string, choiceId: string): string {
+  return `/crystal-street/outcomes/${encounterId}--${choiceId}-success.webp`
+}
+
+watch(
+  () => [encounter.value, art.canLoad, art.sessionToken] as const,
+  ([current]) => {
+    if (!current) return
+    for (const choice of current.choices)
+      void art.ensure(choiceArtPath(current.id, choice.id))
+  },
+  { immediate: true },
 )
 const pending = computed(() => store.run?.pending ?? null)
 const outcome = computed(() => store.outcome)

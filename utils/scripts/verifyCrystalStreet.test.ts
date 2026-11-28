@@ -79,6 +79,7 @@ import { TAGS } from '../crystalStreet/types'
 import { TIPS, tipFor } from '../crystalStreet/tips'
 import { cuesFor, normalizeVolume, StreetSound } from '../crystalStreet/sound'
 import { buildPlaybook } from '../playbook/games'
+import './verifyCrystalStreetArtRecovery.test'
 
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const asset = (path: string) => readFileSync(file(path), 'utf8')
@@ -793,7 +794,9 @@ assert.match(trailerRoom, /data-testid="cs-theme-room"/)
 assert.match(trailerRoom, /class="cs-tv-cabinet"/)
 assert.match(trailerRoom, /data-testid="cs-theme-video"/)
 assert.match(trailerRoom, /src="\/crystal-street\/video\/theme\.mp4"/)
-assert.match(trailerRoom, /controls\s+playsinline/)
+const trailerVideo = trailerRoom.match(/<video\b[^>]*>/)?.[0] ?? ''
+assert.match(trailerVideo, /\bcontrols\b/)
+assert.match(trailerVideo, /\bplaysinline\b/)
 assert.match(
   asset('../../components/crystal-street/crystal-street-title.vue'),
   /icon: 'kind-icon:tv'/,

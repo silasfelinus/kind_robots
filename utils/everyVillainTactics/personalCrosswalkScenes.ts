@@ -889,6 +889,25 @@ export const PERSONAL_CROSSWALK_LINES: Readonly<
   ],
 }
 
+const LEAD_SPOKEN: Readonly<Record<string, readonly string[]>> = {
+  'accident-fire': ['sm'],
+  'accident-air': ['wm'],
+  'accident-social': ['sm'],
+  'mutant-fire': ['sm', 'wm'],
+  'mutant-air': ['sm', 'wm'],
+  'mutant-genius': ['sm', 'wm'],
+  'mutant-social': ['sm', 'wj', 'wm'],
+  'tech-fire': ['wm'],
+  'tech-genius': ['s1'],
+  'magic-earth': ['wm'],
+  'magic-water': ['r1'],
+  'magic-genius': ['sm', 'wm'],
+  'psychic-fire': ['sm'],
+  'psychic-air': ['wm'],
+  'psychic-water': ['sm', 'wm'],
+  'psychic-birthright': ['r1', 'wm'],
+}
+
 export function personalCrosswalkNode(
   node: SceneNode,
   lead: string,
@@ -909,8 +928,9 @@ export function personalCrosswalkNode(
   const ally = state.units.find(
     (unit) => unit.team === 'squad' && unit.id !== 'backdraft' && unit.hp > 0,
   )
-  const speaker = ['s1', 'sm', 'sj', 'r1', 'wj', 'wm'].includes(node.id)
-    ? (ally?.id ?? 'backdraft')
-    : 'backdraft'
+  const supportingLine =
+    ['s1', 'sm', 'sj', 'r1', 'wj', 'wm'].includes(node.id) &&
+    !LEAD_SPOKEN[lead]?.includes(node.id)
+  const speaker = supportingLine ? (ally?.id ?? 'backdraft') : 'backdraft'
   return { ...node, speaker, text }
 }

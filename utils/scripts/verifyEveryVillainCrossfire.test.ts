@@ -1660,6 +1660,8 @@ for (const lead of Object.keys(PERSONAL_CROSSWALK_LINES)) {
         assert.ok(
           state.units.some((u) => u.id === line.speaker && u.team === 'squad'),
         )
+        if (/\b(?:I|me|my|mine)\b/i.test(line.text))
+          assert.equal(line.speaker, 'backdraft')
         crosswalkVoices.add(line.text)
       }
       assert.equal(

@@ -2055,7 +2055,7 @@ function combatAct(
         return (
           score +
           (effect.side === 'enemy'
-            ? (effect.damage * (preview!.chance ?? 100)) / 100 *
+            ? ((effect.damage * (preview!.chance ?? 100)) / 100) *
                 (objectivePolicy && effect.id === boss ? 3 : 1) +
               effect.statuses.length * (objectivePolicy ? 0.45 : 0.2)
             : Math.min(effect.heal, (actor?.maxHp ?? 0) - (actor?.hp ?? 0)) *
@@ -2096,9 +2096,9 @@ function combatAct(
   const positionScore = (p: { x: number; y: number; cost: number }) => {
     const aim = Math.max(
       0,
-      ...rivals.filter((r) => !objectivePolicy || !boss || r.id === boss).map(
-        (r) => previewShot({ ...unit, x: p.x, y: p.y }, r, state.map).hit,
-      ),
+      ...rivals
+        .filter((r) => !objectivePolicy || !boss || r.id === boss)
+        .map((r) => previewShot({ ...unit, x: p.x, y: p.y }, r, state.map).hit),
     )
     const exposed = exposureAt(state, unit, p).reduce(
       (sum, e) => sum + e.hit,
@@ -2293,7 +2293,9 @@ for (const person of IDENTITY_ARCS) {
           .filter((unit) => unit.hp > 0)
           .map((unit) => unit.id + '=' + unit.hp)
           .join(',')
-        diagnostics.push(chapter.id + ':round=' + result.save.state.turn + ':' + living)
+        diagnostics.push(
+          chapter.id + ':round=' + result.save.state.turn + ':' + living,
+        )
       }
       tally[result.outcome]++
       if (!campaign) continue
@@ -2337,7 +2339,8 @@ assert.equal(Object.keys(routeDiagnostics).length, 96)
 assert.equal(new Set(earnedRoutes).size, fullCampaignVictories)
 assert.ok(fullCampaignVictories > 0, 'no earned full campaigns')
 const identitiesWithoutEarnedCampaign = IDENTITY_ARCS.filter(
-  (person) => !earnedRoutes.some((route) => route.startsWith(person.signature + ':')),
+  (person) =>
+    !earnedRoutes.some((route) => route.startsWith(person.signature + ':')),
 ).map((person) => person.signature)
 assert.equal(
   Object.values(campaignStops).reduce((a, b) => a + b, 0),

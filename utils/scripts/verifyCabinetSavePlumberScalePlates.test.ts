@@ -7,6 +7,7 @@
 import assert from 'node:assert/strict'
 import { HERO_TALL, PlumberRun } from '../arcade/games/savePlumberPreview'
 import {
+  CAMPAIGN,
   SOLID_SLUICE,
   STAGE_GLYPHS,
   TILE,
@@ -183,4 +184,54 @@ assert.ok(MAKER_TILES.has('_') && MAKER_TILES.has('Z'))
   assert.ok(fresh.plates.every((plate) => !plate.down))
 }
 
-console.log('save-the-plumber scale plates ok')
+const rootcellar = CAMPAIGN.find((stage) => stage.code === '3-2')!
+function enterRootTunnel(run: PlumberRun) {
+  walkTo(run, 9)
+  assert.ok(run.ground)
+  frame(run, [], ['down'])
+  assert.equal(run.hero.x, 65 * TILE + TILE / 2)
+  assert.ok(run.activePipeRoom)
+}
+
+{
+  const run = labRun(rootcellar)
+  enterRootTunnel(run)
+  walkTo(run, 70)
+  assert.equal(run.plates[0]!.down, false)
+  assert.equal(run.solidAt(78, 7), SOLID_SLUICE)
+  walkRight(run, 90)
+  assert.ok(run.hero.x < 78 * TILE, 'unweighted gate blocks walking')
+  walkTo(run, 65)
+  frame(run, [], ['down'])
+  assert.equal(run.activePipeRoom, undefined, 'solo player can leave safely')
+  assert.equal(run.deaths, 0)
+}
+
+{
+  const run = labRun({
+    ...rootcellar,
+    gurgleBarrel: { col: 2, row: 20 },
+  })
+  frame(run, ['down'], ['x'])
+  assert.equal(run.gurgle?.state, 'mounted')
+  enterRootTunnel(run)
+  walkTo(run, 70)
+  frame(run, ['down'], ['x'])
+  assert.equal(run.gurgle?.state, 'parked')
+  assert.equal(run.plates[0]!.down, true)
+  assert.equal(run.sluiceOpen, true)
+  const before = run.tokens
+  walkTo(run, 84)
+  assert.equal(run.tokens, before + 2, 'opened route reaches both tokens')
+  walkTo(run, 70)
+  frame(run, ['down'], ['x'])
+  assert.equal(run.gurgle?.state, 'mounted')
+  assert.equal(run.sluiceOpen, false)
+  walkTo(run, 65)
+  frame(run, [], ['down'])
+  assert.equal(run.activePipeRoom, undefined)
+  assert.equal(run.deaths, 0)
+  assert.equal(run.hearts, 3)
+}
+
+console.log('save-the-plumber scale plates and Rootcellar tunnel ok')

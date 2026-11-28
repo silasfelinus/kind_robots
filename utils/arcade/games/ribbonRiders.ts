@@ -1555,7 +1555,10 @@ class RibbonRiders implements ArcadeGameInstance {
       this.wrappedCount++
       this.marshal?.rivalWrapped(r.kind!)
     }
+    const claimingThreads = this.marshal?.kind === 'loom' && this.marshal.phase === 3
     const hit = this.marshal?.wrapped(inRegion) ?? false
+    // Repaint released shuttle cells before turning the closed loop into a gift.
+    if (hit && claimingThreads) this.paintDyn()
     if (hit) this.addScore(PHASE_BONUS * (this.fair + 1))
     // Glowbugs inside are collected with the wrap.
     for (let k = this.bugs.length - 1; k >= 0; k--) {

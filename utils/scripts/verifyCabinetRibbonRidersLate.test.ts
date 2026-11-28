@@ -81,11 +81,22 @@ function host() {
   const { clock, hooks } = host()
   const marshal = makeMarshal('conductor', hooks) as ClockworkConductor
   assert.equal(marshal.phase, 1)
-  assert.equal(marshal.targets().length, 9)
+  assert.equal(marshal.targets().length, 0, 'attached coaches are not targets')
   for (let car = 0; car < 5; car++) {
+    clock.beat = car
+    marshal.update()
     const old = marshal.targets()
+    assert.equal(old.length, 9, 'one coach uncouples on the chime')
+    const field = new Uint8Array(GRID * GRID)
+    marshal.paint(field)
+    assert.equal(field.filter((cell) => cell === 2).length, 9)
+    assert.ok(field.includes(1) || car === 4)
     assert.ok(marshal.wrapped(new Set(old)), `coach ${car + 1} wraps`)
     assert.equal(marshal.coaches, car + 1)
+    if (car < 4) {
+      assert.equal(marshal.targets().length, 0)
+      assert.ok(!marshal.wrapped(new Set(old)), 'cannot claim the next coach before the chime')
+    }
   }
   assert.equal(marshal.phase, 2)
   assert.equal(marshal.hits, 1)
@@ -95,7 +106,7 @@ function host() {
     track0.includes(1) && track0.includes(2),
     'tracks and hub are solid',
   )
-  clock.beat = 2
+  clock.beat = 6
   marshal.update()
   const track1 = new Uint8Array(GRID * GRID)
   marshal.paint(track1)
@@ -112,7 +123,7 @@ function host() {
   assert.ok(marshal.defeated)
   assert.equal(marshal.targets().length, 0)
   assert.ok(!marshal.wrapped(new Set([0])), 'no double reward after defeat')
-  assert.equal(clock.sayings.length, 7)
+  assert.equal(clock.sayings.filter((s) => s === 'A COACH UNCOUPLES!').length, 5)
 }
 
 {
@@ -133,7 +144,19 @@ function host() {
   assert.ok(marshal.threads().length > shuttles.length, 'grid is denser')
   assert.ok(marshal.wrapped(new Set(marshal.targets())))
   assert.equal(marshal.phase, 3)
-  assert.deepEqual(marshal.threads(), [], 'third phase unravels its threads')
+  assert.equal(marshal.threadKnots().length, 4)
+  assert.equal(marshal.targets().length, 20)
+  assert.ok(!marshal.wrapped(new Set([marshal.targets()[0]!])), 'a partial thread is not captured')
+  assert.ok(!marshal.wrapped(new Set([24 * GRID + 24])), 'hub locked until all four threads are claimed')
+  for (let n = 0; n < 4; n++) {
+    const knot = marshal.threadKnots()[0]!
+    assert.ok(marshal.wrapped(new Set(knot)))
+    assert.equal(marshal.threadKnots().length, 3 - n)
+    assert.ok(!marshal.wrapped(new Set(knot)), 'a claimed shuttle cannot score twice')
+    assert.equal(marshal.hits, 2)
+  }
+  assert.deepEqual(marshal.threads(), [])
+  assert.equal(marshal.targets().length, 9)
   assert.ok(marshal.wrapped(new Set(marshal.targets())))
   assert.equal(marshal.hits, 3)
   assert.ok(marshal.defeated)

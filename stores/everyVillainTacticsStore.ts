@@ -1,4 +1,11 @@
 import { defineStore } from 'pinia'
+import { performFetch } from '~/stores/utils'
+import { useUserStore } from '~/stores/userStore'
+import {
+  parsePrivateDraftLibrary,
+  type PrivateDraftArchive,
+  type PrivateDraftCommand,
+} from '~/utils/everyVillainTactics/privateDrafts'
 import { computed, ref, watch } from 'vue'
 import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
 import { personalCastFor } from '~/utils/everyVillainTactics/personalCasts'
@@ -320,6 +327,109 @@ export const useEveryVillainTacticsStore = defineStore(
     const shareCode = ref('')
     const importText = ref('')
     const shareMessage = ref('')
+    const accountUser = useUserStore()
+    const accountSignedIn = computed(() => !!accountUser.authenticatedUserId)
+    const accountShelf = ref<PrivateDraftArchive | null>(null)
+    const accountBusy = ref(false)
+    const accountMessage = ref('')
+    let accountEpoch = 0
+    let accountDraftLoaded = false
+    watch(
+      () => accountUser.authenticatedUserId,
+      () => {
+        accountEpoch++
+        accountShelf.value = null
+        accountBusy.value = false
+        accountMessage.value = ''
+        if (accountDraftLoaded) {
+          draft.value = clonePreset('college-quad')
+          draftName.value = ''
+          shareCode.value = ''
+          accountDraftLoaded = false
+        }
+      },
+      { flush: 'sync' },
+    )
+    async function accountRequest(command?: PrivateDraftCommand) {
+      const owner = accountUser.authenticatedUserId
+      if (!owner || accountBusy.value || (command && !accountShelf.value))
+        return false
+      const token = ++accountEpoch
+      accountBusy.value = true
+      accountMessage.value = ''
+      try {
+        const result = await performFetch<PrivateDraftArchive>(
+          '/api/every-villain-tactics/private-drafts',
+          command
+            ? {
+                method: 'PUT',
+                body: JSON.stringify({
+                  command,
+                  expectedRevision: accountShelf.value!.revision,
+                }),
+              }
+            : {},
+        )
+        if (token !== accountEpoch || owner !== accountUser.authenticatedUserId)
+          return false
+        if (!result.success || !result.data) {
+          if (result.status === 409) accountShelf.value = null
+          accountMessage.value = result.message || 'Private shelf unavailable.'
+          return false
+        }
+        const { library, revision } = result.data
+        if (
+          revision !== null &&
+          (!Number.isSafeInteger(revision) || revision < 0)
+        )
+          throw new Error('Invalid shelf revision.')
+        accountShelf.value = {
+          library: parsePrivateDraftLibrary(JSON.stringify(library)),
+          revision,
+        }
+        accountMessage.value = command ? 'Private shelf saved.' : 'Shelf ready.'
+        return true
+      } catch {
+        if (token === accountEpoch) {
+          accountShelf.value = null
+          accountMessage.value = 'Private shelf unavailable. Device drafts are safe.'
+        }
+        return false
+      } finally {
+        if (token === accountEpoch) accountBusy.value = false
+      }
+    }
+    function saveAccountDraft() {
+      try {
+        return accountRequest({
+          operation: 'save',
+          name: draftName.value.trim() || draft.value.title.slice(0, 60),
+          code: exportStage(draft.value),
+        })
+      } catch {
+        accountMessage.value = 'Fix the stage before saving.'
+        return false
+      }
+    }
+    function loadAccountDraft(name: string) {
+      const entry = accountShelf.value?.library.drafts.find((d) => d.name === name)
+      if (!accountSignedIn.value || !entry || accountBusy.value) return
+      const parsed = importStage(exportStage(entry.stage))
+      if (!parsed.ok) return
+      draft.value = parsed.stage
+      draftName.value = entry.name
+      accountDraftLoaded = true
+      accountMessage.value = 'Loaded private draft.'
+    }
+    async function forkAccountDraft(source: string) {
+      const name = draftName.value.trim()
+      if (await accountRequest({ operation: 'fork', source, name }))
+        loadAccountDraft(name)
+    }
+    async function restoreAccountDraft(name: string, version: number) {
+      if (await accountRequest({ operation: 'restore', name, version }))
+        loadAccountDraft(name)
+    }
     function saveDraft() {
       const result = upsertDraft(
         draftLibrary.value,
@@ -1579,6 +1689,15 @@ export const useEveryVillainTacticsStore = defineStore(
       ruleLine,
       bossId,
       draftLibrary,
+      accountSignedIn,
+      accountShelf,
+      accountBusy,
+      accountMessage,
+      accountRequest,
+      saveAccountDraft,
+      loadAccountDraft,
+      forkAccountDraft,
+      restoreAccountDraft,
       draftName,
       shareCode,
       importText,

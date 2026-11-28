@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
+  applyPrivateDraftCommand,
+  newPrivateDraftArchive,
+  parsePrivateDraftLibrary,
+  PRIVATE_DRAFT_SLUG,
+} from '../everyVillainTactics/privateDrafts'
+import { exportStage } from '../everyVillainTactics/stageShare'
+import {
   STAGE_PRESETS,
   clonePreset,
   paintStage,
@@ -1155,3 +1162,66 @@ assert.match(page, /Quarry lieutenant/)
 console.log(
   'Every Villain Studio: preset maps, paint, spawns, LOS, timer and real-rules playtest verified.',
 )
+
+const shelfTime = '2026-11-28T11:43:00.000Z'
+const shelf = newPrivateDraftArchive()
+assert.equal(shelf.revision, null)
+const shelfStage = clonePreset('college-quad')
+const firstDraft = applyPrivateDraftCommand(
+  shelf.library,
+  { operation: 'save', name: 'Arena', code: exportStage(shelfStage) },
+  shelfTime,
+)
+assert.ok(firstDraft.ok)
+assert.equal(shelf.library.drafts.length, 0)
+const editedStage = { ...shelfStage, title: 'Second arena' }
+const secondDraft = applyPrivateDraftCommand(
+  firstDraft.library,
+  {
+    operation: 'save',
+    name: 'Arena',
+    code: exportStage(editedStage),
+    history: [],
+    userId: 999,
+  },
+  shelfTime,
+)
+assert.ok(secondDraft.ok)
+assert.equal(secondDraft.library.drafts[0]!.version, 2)
+assert.equal(secondDraft.library.drafts[0]!.history?.[0]?.stage.title, shelfStage.title)
+const forked = applyPrivateDraftCommand(
+  secondDraft.library,
+  { operation: 'fork', source: 'Arena', name: 'Independent' },
+  shelfTime,
+)
+assert.ok(forked.ok)
+assert.deepEqual(forked.library.drafts[0]!.forkedFrom, { name: 'Arena', version: 2 })
+const restored = applyPrivateDraftCommand(
+  forked.library,
+  { operation: 'restore', name: 'Arena', version: 1 },
+  shelfTime,
+)
+assert.ok(restored.ok)
+assert.equal(restored.library.drafts[0]!.version, 3)
+assert.equal(restored.library.drafts[0]!.stage.title, shelfStage.title)
+assert.equal(restored.library.drafts[1]!.stage.title, editedStage.title)
+assert.deepEqual(parsePrivateDraftLibrary(JSON.stringify(restored.library)), restored.library)
+assert.equal(applyPrivateDraftCommand(shelf.library, { operation: 'fork', source: 'Arena', name: 'Stolen' }, shelfTime).ok, false)
+assert.equal(applyPrivateDraftCommand(shelf.library, { operation: 'save', name: 'Bad', code: 'not a stage' }, shelfTime).ok, false)
+assert.throws(() => parsePrivateDraftLibrary('{"version":1,"drafts":[{}]}'))
+assert.equal(PRIVATE_DRAFT_SLUG, 'every-villain-tactics-drafts')
+for (const method of ['get', 'put']) {
+  const route = readFileSync(
+    new URL('../../server/api/every-villain-tactics/private-drafts.' + method + '.ts', import.meta.url),
+    'utf8',
+  )
+  assert.match(route, /requireHumanApiUser\(event\)/)
+  assert.match(route, /userId: user\.id/)
+  assert.match(route, /private, no-store/)
+  if (method === 'put') {
+    assert.match(route, /revision: row\.revision/)
+    assert.match(route, /updated\.count !== 1/)
+    assert.match(route, /applyPrivateDraftCommand/)
+  }
+}
+assert.match(page, /data-testid="studio-private-account-shelf"/)

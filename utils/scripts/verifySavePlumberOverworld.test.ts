@@ -1154,6 +1154,42 @@ async function verifyAccountSync() {
   await cloud.resolve('41', '41', 'device', missing)
   assert.equal(status, 'synced')
   assert.equal(remote.get('41')?.save.slots[0]?.score, 75)
+  const existing = readPlumberFile({
+    ...first,
+    slots: [{ ...first.slots[0], score: 77 }, null, null],
+  })
+  remote.set('43', { save: existing, revision: 0 })
+  await cloud.sync('43', '43', first)
+  assert.equal(displayedSlot()?.score, 77)
+  assert.deepEqual(await cloud.importGuest('41', '41', first), {
+    status: 'unavailable',
+    skipped: 0,
+  })
+  assert.deepEqual(await cloud.importGuest('43', '43', first), {
+    status: 'copied',
+    skipped: 0,
+  })
+  assert.equal(remote.get('43')?.save.slots[0]?.score, 77)
+  assert.equal(remote.get('43')?.save.slots[1]?.score, 12)
+  assert.deepEqual(await cloud.importGuest('43', '43', first), {
+    status: 'unchanged',
+    skipped: 0,
+  })
+  assert.equal(remote.get('43')?.save.slots[2], null)
+  const full = readPlumberFile({
+    ...existing,
+    slots: [0, 1, 2].map((index) => ({
+      ...first.slots[0],
+      score: 100 + index,
+    })),
+  })
+  remote.set('44', { save: full, revision: 0 })
+  await cloud.sync('44', '44', first)
+  assert.deepEqual(await cloud.importGuest('44', '44', first), {
+    status: 'unchanged',
+    skipped: 1,
+  })
+  assert.deepEqual(remote.get('44')?.save, full)
   cloud.select('guest', null)
   assert.equal(displayedSlot()?.score, 12, 'guest save survives sign-in')
 }

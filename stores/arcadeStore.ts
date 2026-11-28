@@ -289,6 +289,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   const saves = ref<SaveRecord>({})
   const plumberCloudStatus = ref<PlumberCloudStatus>('local')
   const plumberConflict = shallowRef<PlumberCloudConflict | null>(null)
+  const plumberGuestImportMessage = ref('')
+  const plumberGuestImportBusy = ref(false)
   const plumberFile = ref<PlumberFile | null>(null)
   const plumberDeviceOwner = ref<string | null>(null)
   const plumberCloud = new PlumberCloud({
@@ -347,6 +349,10 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   function selectPlumberOwner() {
     if (!import.meta.client) return
     const owner = plumberOwner()
+    if (plumberDeviceOwner.value !== owner) {
+      plumberGuestImportMessage.value = ''
+      plumberGuestImportBusy.value = false
+    }
     plumberDeviceOwner.value = owner
     plumberCloud.select(owner, saves.value[PLUMBER_SLUG])
   }
@@ -366,6 +372,36 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       choice,
       plumberConflict.value,
     )
+  }
+
+  async function importPlumberGuest() {
+    if (!import.meta.client || plumberGuestImportBusy.value) return
+    const owner = plumberOwner()
+    const token = useUserStore().token ?? null
+    if (owner === 'guest' || !token) return
+    plumberGuestImportBusy.value = true
+    plumberGuestImportMessage.value = ''
+    try {
+      const result = await plumberCloud.importGuest(
+        owner,
+        token,
+        saves.value[PLUMBER_SLUG],
+      )
+      if (owner !== plumberOwner()) return
+      const messages = {
+        copied: 'Guest progress copied to your account.',
+        unchanged: 'No new guest progress to copy.',
+        unavailable: 'Refresh your account save before importing.',
+        pending: 'Copy kept on this device. Refresh to finish syncing.',
+        'too-large': 'The combined save is too large. Nothing was changed.',
+      }
+      const skipped = result.skipped
+        ? ' Some guest files did not fit; they remain on this device.'
+        : ''
+      plumberGuestImportMessage.value = messages[result.status] + skipped
+    } finally {
+      if (owner === plumberOwner()) plumberGuestImportBusy.value = false
+    }
   }
 
   function retryPlumberCareer() {
@@ -1134,6 +1170,9 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     syncSuperkateCareer,
     plumberCloudStatus,
     plumberConflict,
+    plumberGuestImportMessage,
+    plumberGuestImportBusy,
+    importPlumberGuest,
     resolvePlumberConflict,
     syncPlumberCareer,
     retryPlumberCareer,

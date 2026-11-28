@@ -51,7 +51,8 @@ function readKit(raw: unknown): Kit {
 function readRun(raw: unknown, midnight: boolean): GardenRun | null {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
   const r = raw as Record<string, unknown>
-  if (!whole(r.garden, midnight ? MIDNIGHT_INDEX : GARDENS.length - 1)) return null
+  if (!whole(r.garden, midnight ? MIDNIGHT_INDEX : GARDENS.length - 1))
+    return null
   if (!whole(r.lap, MAX_SAVED_LAP) || !whole(r.score, 99_999_999)) return null
   if (!whole(r.lives, MAX_SAVED_LIVES) || r.lives < 1) return null
   if (!whole(r.petals, 99_999)) return null

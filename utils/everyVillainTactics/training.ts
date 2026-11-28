@@ -499,7 +499,8 @@ function fieldLackeyCrew(state: TrainingState, stage?: StageDraft) {
       species.name +
       '. Vacuum warnings mark a corridor for the next enemy turn. Change lanes or disarm the moth.'
     state.events = [
-      species.captain + ': One breath stays in reserve for the trapped civilians.',
+      species.captain +
+        ': One breath stays in reserve for the trapped civilians.',
     ]
     return
   }

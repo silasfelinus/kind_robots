@@ -315,7 +315,9 @@ endTurn(vacuum.state)
 assert.deepEqual(vacuum.moth.hushTarget, { x: 2, y: 1 })
 assert.ok(!vacuum.hero.statuses.includes('suppressed'))
 assert.ok(hushLaneContains(vacuum.state, vacuum.moth.hushTarget!, vacuum.hero))
-assert.ok(!hushLaneContains(vacuum.state, vacuum.moth.hushTarget!, { x: 2, y: 0 }))
+assert.ok(
+  !hushLaneContains(vacuum.state, vacuum.moth.hushTarget!, { x: 2, y: 0 }),
+)
 const vacuumSave = createSave({
   slot: 'slot-1',
   perspective: 'hero',
@@ -327,8 +329,7 @@ const vacuumSave = createSave({
 const vacuumLoad = loadSave(serializeSave(vacuumSave))
 assert.ok(vacuumLoad.ok, vacuumLoad.ok ? '' : vacuumLoad.reason)
 assert.deepEqual(
-  vacuumLoad.save.state.units.find((u) => u.id === vacuum.moth.id)
-    ?.hushTarget,
+  vacuumLoad.save.state.units.find((u) => u.id === vacuum.moth.id)?.hushTarget,
   { x: 2, y: 1 },
 )
 endTurn(vacuum.state)

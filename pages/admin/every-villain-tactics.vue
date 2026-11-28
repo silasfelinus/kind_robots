@@ -1264,8 +1264,8 @@
                 data-testid="studio-encounter"
               >
                 ONE-HIT HUSHWINGS · Nell No-Air marks a three-tile corridor.
-                Heroes still in that lane next enemy turn are suppressed.
-                Change lanes or disarm the moth.
+                Heroes still in that lane next enemy turn are suppressed. Change
+                lanes or disarm the moth.
               </small>
               <small
                 v-else-if="store.draft.encounter === 'warren-wreckers'"

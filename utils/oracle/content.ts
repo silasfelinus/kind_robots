@@ -11,6 +11,7 @@ import type {
   OracleEnergy,
   OracleSuit,
 } from './types'
+import { ORACLE_POSITION_TEXT } from './positionText'
 
 type MajorEntry = [
   id: string,
@@ -522,7 +523,7 @@ export const ORACLE_CONTENT: OracleContent = {
       'Choose one small step, and let the rest unfold.',
     ],
   },
-  positionText: {},
+  positionText: ORACLE_POSITION_TEXT,
   energyPairs,
   specialPairs: {
     'the-newly-woken|the-reboot':

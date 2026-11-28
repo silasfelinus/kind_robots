@@ -1038,6 +1038,13 @@ async function verifyAccountSync() {
   let displayed = readPlumberFile(null)
   const displayedSlot = () => displayed.slots[0]
   let status = ''
+  let conflict:
+    import('../../stores/helpers/plumberCloud').PlumberCloudConflict | null =
+    null
+  const getConflict = () => {
+    assert.ok(conflict)
+    return conflict
+  }
   const cloud = new PlumberCloud({
     read: (owner) => cache.get(owner),
     write: (owner, entry) => void cache.set(owner, entry),
@@ -1051,9 +1058,10 @@ async function verifyAccountSync() {
       remote.set(token, { save, revision: next })
       return next
     },
-    changed: (save, next) => {
+    changed: (save, next, details) => {
       displayed = save
       status = next
+      conflict = details
     },
   })
   const first = readPlumberFile({
@@ -1089,6 +1097,63 @@ async function verifyAccountSync() {
   assert.equal(status, 'conflict')
   assert.equal(displayedSlot()?.score, 24, 'local conflicting run survives')
   assert.equal(remote.get('41')?.save.slots[0]?.score, 99)
+  const stale = getConflict()
+  remote.set('41', {
+    save: readPlumberFile({
+      ...other,
+      slots: [{ ...other.slots[0], score: 101 }, null, null],
+    }),
+    revision: before.revision + 2,
+  })
+  await cloud.resolve('41', '41', 'device', stale)
+  assert.equal(status, 'conflict', 'stale choice cannot overwrite new progress')
+  assert.equal(displayedSlot()?.score, 24)
+  assert.equal(remote.get('41')?.save.slots[0]?.score, 101)
+  const refreshed = getConflict()
+  await cloud.resolve('42', '42', 'device', refreshed)
+  assert.equal(status, 'conflict', 'another owner cannot resolve this save')
+  await cloud.resolve('41', '41', 'device', refreshed)
+  assert.equal(status, 'synced')
+  assert.equal(remote.get('41')?.save.slots[0]?.score, 24)
+  assert.equal(displayedSlot()?.score, 24)
+
+  const current = remote.get('41')!
+  remote.set('41', {
+    save: readPlumberFile({
+      ...current.save,
+      slots: [{ ...current.save.slots[0], score: 75 }, null, first.slots[0]],
+    }),
+    revision: current.revision + 1,
+  })
+  cloud.record(
+    '41',
+    '41',
+    readPlumberFile({
+      ...current.save,
+      slots: [{ ...current.save.slots[0], score: 55 }, first.slots[0], null],
+    }),
+  )
+  await cloud.sync('41', '41', first)
+  assert.equal(status, 'conflict')
+  await cloud.resolve('41', '41', 'account', getConflict())
+  assert.equal(status, 'synced')
+  assert.equal(displayedSlot()?.score, 75)
+  assert.equal(displayed.slots[1]?.score, 12, 'independent local file survives')
+  assert.equal(
+    displayed.slots[2]?.score,
+    12,
+    'independent remote file survives',
+  )
+  assert.deepEqual(displayed, remote.get('41')?.save)
+  remote.delete('41')
+  await cloud.sync('41', '41', first)
+  assert.equal(status, 'conflict', 'missing account save requires a choice')
+  const missing = getConflict()
+  assert.equal(missing.revision, null)
+  assert.deepEqual(missing.slots, [0, 1, 2])
+  await cloud.resolve('41', '41', 'device', missing)
+  assert.equal(status, 'synced')
+  assert.equal(remote.get('41')?.save.slots[0]?.score, 75)
   cloud.select('guest', null)
   assert.equal(displayedSlot()?.score, 12, 'guest save survives sign-in')
 }

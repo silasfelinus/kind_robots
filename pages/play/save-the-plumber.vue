@@ -14,7 +14,7 @@
           <span class="plumber-progress" aria-live="polite">
             {{
               arcade.plumberCloudStatus === 'conflict'
-                ? 'SAVE CONFLICT: DEVICE COPY KEPT'
+                ? 'SAVE CONFLICT: OPEN SETTINGS'
                 : arcade.plumberCloudStatus === 'synced'
                   ? 'ACCOUNT SYNCED'
                   : arcade.plumberCloudStatus === 'checking' ||
@@ -429,6 +429,66 @@
                 These sound and accessibility options apply across the Arcade
                 and are saved on this device.
               </p>
+              <div
+                v-if="arcade.plumberCloudStatus === 'conflict'"
+                class="plumber-guide-action flex-col items-stretch"
+                aria-label="Account save conflict"
+              >
+                <strong>Account save conflict</strong>
+                <p>
+                  Choose which conflicting files to keep. This replaces the
+                  conflicting versions on the other copy. Independent files and
+                  collected souvenirs are combined.
+                </p>
+                <template v-if="arcade.plumberConflict">
+                  <p v-if="arcade.plumberConflict.revision === null">
+                    The account copy is missing.
+                  </p>
+                  <div
+                    v-for="index in arcade.plumberConflict.slots"
+                    :key="index"
+                  >
+                    <strong>File {{ index + 1 }}</strong>
+                    <p>
+                      Device:
+                      {{
+                        describeConflictSlot(
+                          arcade.plumberConflict.device.slots[index],
+                        )
+                      }}
+                    </p>
+                    <p>
+                      Account:
+                      {{
+                        describeConflictSlot(
+                          arcade.plumberConflict.account.slots[index],
+                        )
+                      }}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    class="plumber-control"
+                    @click="arcade.resolvePlumberConflict('device')"
+                  >
+                    KEEP DEVICE FILES
+                  </button>
+                  <button
+                    type="button"
+                    class="plumber-control"
+                    @click="arcade.resolvePlumberConflict('account')"
+                  >
+                    KEEP ACCOUNT FILES
+                  </button>
+                </template>
+                <button
+                  type="button"
+                  class="plumber-control"
+                  @click="arcade.syncPlumberCareer()"
+                >
+                  REFRESH ACCOUNT COPY
+                </button>
+              </div>
               <div class="plumber-guide-grid">
                 <div class="plumber-guide-action justify-between">
                   <span class="plumber-guide-description">
@@ -747,6 +807,18 @@ const controls = [
     does: 'Crouch, drop or enter a door or pipe',
   },
 ]
+
+function describeConflictSlot(
+  slot:
+    | { name?: string; node?: string; score: number; time?: number }
+    | null
+    | undefined,
+) {
+  if (!slot) return 'Empty'
+  const name = slot.name ?? 'Heroine'
+  const path = slot.node ?? 'Starting trail'
+  return `${name} · ${path} · ${slot.score} pts · ${Math.floor((slot.time ?? 0) / 60)} min`
+}
 
 function changeVolume(event: Event) {
   arcade.setVolume((event.target as HTMLInputElement).valueAsNumber)

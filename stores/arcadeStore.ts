@@ -7,7 +7,7 @@
 // a high score always ends up on the global board; meanwhile the cabinet
 // shows it on a board saved in this browser.
 
-import { ref } from 'vue'
+import { ref, shallowRef } from 'vue'
 import { defineStore } from 'pinia'
 import { useUserStore } from '@/stores/userStore'
 import { performFetch } from './utils'
@@ -16,10 +16,12 @@ import {
   PlumberCloud,
   type PlumberAccountCopy,
   type PlumberCloudStatus,
+  type PlumberCloudConflict,
 } from './helpers/plumberCloud'
 import {
   PLUMBER_SLUG,
   type PlumberFile,
+  type PlumberConflictChoice,
 } from '~/utils/arcade/games/savePlumberSave'
 import {
   enqueuePending,
@@ -286,6 +288,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   /** Each long cabinet's saved progress on this device, by game slug. */
   const saves = ref<SaveRecord>({})
   const plumberCloudStatus = ref<PlumberCloudStatus>('local')
+  const plumberConflict = shallowRef<PlumberCloudConflict | null>(null)
   const plumberFile = ref<PlumberFile | null>(null)
   const plumberDeviceOwner = ref<string | null>(null)
   const plumberCloud = new PlumberCloud({
@@ -330,9 +333,10 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
         throw new Error('Could not write account save')
       return reply.data.revision
     },
-    changed(save, status) {
+    changed(save, status, conflict) {
       plumberFile.value = save
       plumberCloudStatus.value = status
+      plumberConflict.value = conflict
     },
   })
 
@@ -352,6 +356,16 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     selectPlumberOwner()
     const token = useUserStore().token ?? null
     await plumberCloud.sync(plumberOwner(), token, saves.value[PLUMBER_SLUG])
+  }
+
+  async function resolvePlumberConflict(choice: PlumberConflictChoice) {
+    if (!import.meta.client || !plumberConflict.value) return
+    await plumberCloud.resolve(
+      plumberOwner(),
+      useUserStore().token ?? null,
+      choice,
+      plumberConflict.value,
+    )
   }
 
   function retryPlumberCareer() {
@@ -1119,6 +1133,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     spectrumCloudStatus,
     syncSuperkateCareer,
     plumberCloudStatus,
+    plumberConflict,
+    resolvePlumberConflict,
     syncPlumberCareer,
     retryPlumberCareer,
     rainbowSlot,

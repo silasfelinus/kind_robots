@@ -558,26 +558,32 @@ export type PlumberSaveReconciliation =
   | { status: 'merged'; save: PlumberFile }
   | { status: 'conflict'; slots: number[] }
 
-/** Merge independent slot changes; never guess which divergent run to erase. */
+export type PlumberConflictChoice = 'device' | 'account'
+
+/** Merge independent slot changes; divergent runs require an explicit choice. */
 export function reconcilePlumberSaves(
   local: PlumberFile,
   remote: PlumberFile,
   baseline: PlumberFile | null,
+  choice?: PlumberConflictChoice,
+  accountMissing = false,
 ): PlumberSaveReconciliation {
   const conflicts: number[] = []
   const slots = local.slots.map((left, index) => {
     const right = remote.slots[index] ?? null
     if (matchesCanonicalSave(left, right)) return left
-    if (baseline) {
-      const before = baseline.slots[index] ?? null
-      if (matchesCanonicalSave(left, before)) return right
-      if (matchesCanonicalSave(right, before)) return left
-    } else {
-      if (left === null) return right
-      if (right === null) return left
+    if (!accountMissing) {
+      if (baseline) {
+        const before = baseline.slots[index] ?? null
+        if (matchesCanonicalSave(left, before)) return right
+        if (matchesCanonicalSave(right, before)) return left
+      } else {
+        if (left === null) return right
+        if (right === null) return left
+      }
     }
-    conflicts.push(index)
-    return left
+    if (!choice) conflicts.push(index)
+    return choice === 'account' ? right : left
   })
   if (conflicts.length) return { status: 'conflict', slots: conflicts }
   const active =

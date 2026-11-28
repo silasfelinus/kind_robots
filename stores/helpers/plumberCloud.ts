@@ -3,6 +3,7 @@ import {
   reconcilePlumberSaves,
   validPlumberCloudSave,
   type PlumberFile,
+  type PlumberConflictChoice,
 } from '../../utils/arcade/games/savePlumberSave'
 
 export type PlumberCloudStatus =
@@ -11,6 +12,13 @@ export type PlumberCloudStatus =
 export type PlumberAccountCopy = {
   save: PlumberFile
   revision: number
+}
+
+export type PlumberCloudConflict = {
+  slots: number[]
+  device: PlumberFile
+  account: PlumberFile
+  revision: number | null
 }
 
 type Cache = {
@@ -27,7 +35,11 @@ type Dependencies = {
     save: PlumberFile,
     expectedRevision: number | null,
   ) => Promise<number>
-  changed: (save: PlumberFile, status: PlumberCloudStatus) => void
+  changed: (
+    save: PlumberFile,
+    status: PlumberCloudStatus,
+    conflict: PlumberCloudConflict | null,
+  ) => void
 }
 
 function same(left: PlumberFile, right: PlumberFile): boolean {
@@ -42,6 +54,7 @@ export class PlumberCloud {
   private revision: number | null = null
   private known = false
   private status: PlumberCloudStatus = 'local'
+  private conflict: PlumberCloudConflict | null = null
   private pulling: Promise<void> | null = null
   private pushing: Promise<void> | null = null
 
@@ -55,6 +68,7 @@ export class PlumberCloud {
     this.pushing = null
     this.known = false
     this.revision = null
+    this.conflict = null
     const raw = this.deps.read(owner) as Partial<Cache> | null
     this.save = readPlumberFile(
       raw?.save ?? (owner === 'guest' ? legacyGuest : null),
@@ -68,7 +82,8 @@ export class PlumberCloud {
 
   private publish(status: PlumberCloudStatus) {
     this.status = status
-    this.deps.changed(this.save, status)
+    if (status !== 'conflict') this.conflict = null
+    this.deps.changed(this.save, status, this.conflict)
   }
 
   private persist() {
@@ -108,17 +123,22 @@ export class PlumberCloud {
           !validPlumberCloudSave(remote.save))
       )
         throw new Error('Invalid account save')
-      if (!remote && this.baseline) {
-        this.publish('conflict')
-        return
-      }
-      if (remote) {
+      if (remote || this.baseline) {
+        const account = readPlumberFile(remote?.save)
         const merged = reconcilePlumberSaves(
           this.save,
-          readPlumberFile(remote.save),
+          account,
           this.baseline,
+          undefined,
+          !remote,
         )
-        if (merged.status === 'conflict') {
+        if (!remote || merged.status === 'conflict') {
+          this.conflict = {
+            slots: merged.status === 'conflict' ? merged.slots : [],
+            device: this.save,
+            account,
+            revision: remote?.revision ?? null,
+          }
           this.publish('conflict')
           return
         }
@@ -136,11 +156,110 @@ export class PlumberCloud {
     }
   }
 
+  async resolve(
+    owner: string,
+    token: string | null,
+    choice: PlumberConflictChoice,
+    snapshot: PlumberCloudConflict,
+  ) {
+    if (
+      owner !== this.owner ||
+      owner === 'guest' ||
+      !token ||
+      this.pulling ||
+      this.pushing ||
+      this.status !== 'conflict' ||
+      !this.conflict ||
+      snapshot.revision !== this.conflict.revision ||
+      !same(snapshot.device, this.conflict.device) ||
+      !same(snapshot.account, this.conflict.account)
+    )
+      return
+    const epoch = this.epoch
+    const work = this.resolveCopy(epoch, token, choice, snapshot)
+    this.pushing = work
+    try {
+      await work
+    } finally {
+      if (epoch === this.epoch) {
+        this.pushing = null
+        this.retry(owner, token)
+      }
+    }
+  }
+
+  private async resolveCopy(
+    epoch: number,
+    token: string,
+    choice: PlumberConflictChoice,
+    snapshot: PlumberCloudConflict,
+  ) {
+    this.publish('checking')
+    try {
+      const remote = await this.deps.get(token)
+      if (epoch !== this.epoch) return
+      if (
+        remote &&
+        (!Number.isSafeInteger(remote.revision) ||
+          remote.revision < 0 ||
+          !validPlumberCloudSave(remote.save))
+      )
+        throw new Error('Invalid account save')
+      if (
+        (remote?.revision ?? null) !== snapshot.revision ||
+        !same(readPlumberFile(remote?.save), snapshot.account) ||
+        !same(this.save, snapshot.device)
+      ) {
+        await this.pull(epoch, token)
+        return
+      }
+      const merged = reconcilePlumberSaves(
+        this.save,
+        snapshot.account,
+        this.baseline,
+        choice,
+        snapshot.revision === null,
+      )
+      if (merged.status !== 'merged' || !validPlumberCloudSave(merged.save))
+        throw new Error('Invalid resolved save')
+      const selected = merged.save
+      this.publish('saving')
+      const revision =
+        remote && same(remote.save, selected)
+          ? remote.revision
+          : await this.deps.put(token, selected, snapshot.revision)
+      if (epoch !== this.epoch) return
+      if (!Number.isSafeInteger(revision) || revision < 0)
+        throw new Error('Invalid save revision')
+      if (!same(this.save, snapshot.device)) {
+        await this.pull(epoch, token)
+        return
+      }
+      this.save = selected
+      this.baseline = selected
+      this.revision = revision
+      this.known = true
+      this.persist()
+      this.publish('synced')
+    } catch (error) {
+      if (epoch !== this.epoch) return
+      const response = error as { status?: number; statusCode?: number }
+      if (response.status === 409 || response.statusCode === 409) {
+        await this.pull(epoch, token)
+      } else {
+        this.known = false
+        this.conflict = snapshot
+        this.publish('conflict')
+      }
+    }
+  }
+
   record(owner: string, token: string | null, raw: unknown) {
     if (owner !== this.owner || !raw) return
     const save = readPlumberFile(raw)
     if (!validPlumberCloudSave(save) || same(save, this.save)) return
     this.save = save
+    if (this.status === 'conflict') this.conflict = null
     this.persist()
     this.publish(this.status)
     this.retry(owner, token)

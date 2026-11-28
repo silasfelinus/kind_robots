@@ -1304,6 +1304,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'suminagashi-marbling',
+    label: 'Suminagashi Marbling',
+    reveal: 'Floating ink blooms into rings on a still tray',
+    icon: 'kind-icon:vortex',
+    tooltip:
+      'Ink and clear-water drops push every ring outward, a slow current sways them and a stylus combs them 🖌️ drag the pointer to comb the ink, click to drop a ring, wait for the washi print',
+    color: '#3b3d52',
+    releasedAt: '2026-11-28T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

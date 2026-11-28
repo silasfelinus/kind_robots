@@ -435,8 +435,11 @@
                 aria-label="Account save conflict"
               >
                 <strong>Account save conflict</strong>
-                <p>Choose which conflicting files to keep. Other files and
-                  collected souvenirs are combined.</p>
+                <p>
+                  Choose which conflicting files to keep. This replaces the
+                  conflicting versions on the other copy. Independent files
+                  and collected souvenirs are combined.
+                </p>
                 <template v-if="arcade.plumberConflict">
                   <p v-if="arcade.plumberConflict.revision === null">
                     The account copy is missing.

@@ -169,7 +169,10 @@ export class PlumberCloud {
       this.pulling ||
       this.pushing ||
       this.status !== 'conflict' ||
-      snapshot !== this.conflict
+      !this.conflict ||
+      snapshot.revision !== this.conflict.revision ||
+      !same(snapshot.device, this.conflict.device) ||
+      !same(snapshot.account, this.conflict.account)
     )
       return
     const epoch = this.epoch
@@ -178,7 +181,10 @@ export class PlumberCloud {
     try {
       await work
     } finally {
-      if (epoch === this.epoch) this.pushing = null
+      if (epoch === this.epoch) {
+        this.pushing = null
+        if (this.status === 'synced') this.retry(owner, token)
+      }
     }
   }
 
@@ -192,6 +198,13 @@ export class PlumberCloud {
     try {
       const remote = await this.deps.get(token)
       if (epoch !== this.epoch) return
+      if (
+        remote &&
+        (!Number.isSafeInteger(remote.revision) ||
+          remote.revision < 0 ||
+          !validPlumberCloudSave(remote.save))
+      )
+        throw new Error('Invalid account save')
       if (
         (remote?.revision ?? null) !== snapshot.revision ||
         !same(readPlumberFile(remote?.save), snapshot.account) ||

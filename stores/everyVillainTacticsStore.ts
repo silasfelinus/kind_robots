@@ -4,6 +4,7 @@ import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
 import { personalCastFor } from '~/utils/everyVillainTactics/personalCasts'
 import { personalScienceNode } from '~/utils/everyVillainTactics/personalScienceScenes'
 import { personalRooftopNode } from '~/utils/everyVillainTactics/personalRooftopScenes'
+import { personalCrosswalkNode } from '~/utils/everyVillainTactics/personalCrosswalkScenes'
 import {
   actorAt,
   aliasFor,
@@ -825,8 +826,15 @@ export const useEveryVillainTacticsStore = defineStore(
           crossfireActive.value && !previewSceneId.value,
           state.value,
         )
-        const node = personalRooftopNode(
+        const rooftopNode = personalRooftopNode(
           scienceNode,
+          leadSignature.value,
+          draft.value.id,
+          crossfireActive.value && !previewSceneId.value,
+          state.value,
+        )
+        const node = personalCrosswalkNode(
+          rooftopNode,
           leadSignature.value,
           draft.value.id,
           crossfireActive.value && !previewSceneId.value,

@@ -38,6 +38,11 @@ import {
   personalRooftopNode,
 } from '../everyVillainTactics/personalRooftopScenes'
 import {
+  PERSONAL_CROSSWALK_LINES,
+  personalCrosswalkNode,
+} from '../everyVillainTactics/personalCrosswalkScenes'
+import { CROSSWALK_CRISIS_SCRIPT } from '../everyVillainTactics/crosswalkCrisisScript'
+import {
   PERSONAL_SUPPORT_VOICES,
   personalSupportVoice,
 } from '../everyVillainTactics/personalSupportVoices'
@@ -1609,3 +1614,83 @@ for (const lead of Object.keys(PERSONAL_ROOFTOP_LINES)) {
 }
 assert.equal(roofVoices.size, 720)
 assert.ok(store.includes('personalRooftopNode('))
+
+const crosswalkNodes = CROSSWALK_CRISIS_SCRIPT.scenes.flatMap(
+  (scene) => scene.nodes,
+)
+const crosswalkVoices = new Set<string>()
+assert.deepEqual(
+  Object.keys(PERSONAL_CROSSWALK_LINES).sort(),
+  IDENTITY_ARCS.map((identity) => identity.signature).sort(),
+)
+for (const lead of Object.keys(PERSONAL_CROSSWALK_LINES)) {
+  for (const perspective of ['hero', 'villain'] as const) {
+    const state = trainingState(41, clonePreset('crosswalk-crisis'), {
+      lead,
+      foil: personalCastFor(lead)!.foil,
+      crossfireCast: 2,
+    })
+    const arrival = walkScene(CROSSWALK_CRISIS_SCRIPT.scenes[0]!, [], {
+      state,
+      perspective,
+    })
+    assert.ok(
+      arrival?.nodes.some(
+        (node) => node.id === (perspective === 'hero' ? 'ah' : 'av'),
+      ),
+    )
+    const before = JSON.stringify(state)
+    let changed = 0
+    for (const node of crosswalkNodes) {
+      const line = personalCrosswalkNode(
+        node,
+        lead,
+        'crosswalk-crisis',
+        true,
+        state,
+      )
+      assert.deepEqual(line.choices, node.choices)
+      assert.deepEqual(line.branch, node.branch)
+      assert.equal(line.next, node.next)
+      assert.equal(line.id, node.id)
+      if (line !== node) {
+        changed++
+        assert.ok(line.text.length > 10 && line.text.length <= 400)
+        assert.notEqual(line.text, node.text)
+        assert.ok(
+          state.units.some((u) => u.id === line.speaker && u.team === 'squad'),
+        )
+        crosswalkVoices.add(line.text)
+      }
+      assert.equal(
+        personalCrosswalkNode(node, lead, 'crosswalk-crisis', false, state),
+        node,
+      )
+      assert.equal(
+        personalCrosswalkNode(node, lead, 'science-lab', true, state),
+        node,
+      )
+      assert.equal(
+        personalCrosswalkNode(
+          node,
+          'constructor',
+          'crosswalk-crisis',
+          true,
+          state,
+        ),
+        node,
+      )
+      assert.equal(
+        personalCrosswalkNode(node, lead, 'crosswalk-crisis', true, {
+          ...state,
+          crossfireCast: 1,
+        }),
+        node,
+      )
+    }
+    assert.equal(changed, 16)
+    assert.equal(JSON.stringify(state), before)
+  }
+}
+assert.equal(crosswalkVoices.size, 768)
+assert.ok(store.includes('personalCrosswalkNode('))

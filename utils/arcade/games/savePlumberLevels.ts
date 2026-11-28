@@ -61,6 +61,7 @@ export type WildwaterDef = {
   steps: { row: number; from: number; to: number }[]
   bloomPistons?: boolean
   reverseLifts?: boolean
+  ceilingLoop?: boolean
 }
 
 export type StageDef = {
@@ -1252,6 +1253,7 @@ export function chapelCourse(code: string | undefined): StageDef | undefined {
 
 export const HUSH_ROOM_WIDTH = 24
 export const HUSH_FLOOR_ROW = 21
+export const HUSH_CEILING_ROW = 8
 export const HUSH_DOOR_OFFSETS = { left: 5, right: 18 } as const
 
 /** A false door loops backwards; the last correct door is the normal exit. */
@@ -1275,6 +1277,13 @@ export const DRIP_PARLOUR: StageDef = {
   code: '1-h',
   name: 'The Drip Parlour',
   mazeRooms: DRIP_ROOMS,
+  wildwater: {
+    name: 'Upside Parlour',
+    tap: { col: 12, row: HUSH_FLOOR_ROW },
+    pearl: { col: 8, row: HUSH_CEILING_ROW + 1 },
+    steps: [],
+    ceilingLoop: true,
+  },
   secretExit: { col: 64, row: 17 },
   rows: Array.from({ length: 24 }, (_, row) => {
     const line: string[] = Array.from({ length: 72 }, (_, col) => {
@@ -1290,6 +1299,7 @@ export const DRIP_PARLOUR: StageDef = {
       line[12] = '@'
       line[36] = 'K'
     }
+    if (row === HUSH_CEILING_ROW) line[16] = 'B'
     if (row === 18) for (let col = 62; col <= 66; col++) line[col] = '='
     return line.join('')
   }),
@@ -1447,6 +1457,11 @@ export const CAMPAIGN: StageDef[] = [
   ...WORLD_SIX,
   ...WORLD_SEVEN,
   ...WORLD_EIGHT,
+]
+
+export const WILDWATER_COURSE_CODES: readonly string[] = [
+  ...CAMPAIGN.filter((course) => course.wildwater).map((course) => course.code),
+  DRIP_PARLOUR.code,
 ]
 
 export const GEAR_COURSE_CODES: readonly string[] = [

@@ -1,5 +1,6 @@
 <template>
   <header
+    role="banner"
     class="kr-system-bar relative z-30 mb-2 shrink-0 overflow-visible rounded-2xl border border-(--kr-surface-border) bg-(--kr-surface-raised) shadow-sm backdrop-blur"
   >
     <fx-region region="header" />

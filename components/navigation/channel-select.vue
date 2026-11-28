@@ -35,7 +35,7 @@
         </span>
         <span
           v-if="currentPageSubtitle"
-          class="truncate text-[0.65rem] text-base-content/60 xl:text-xs"
+          class="truncate text-[0.65rem] text-base-content/75 xl:text-xs"
         >
           {{ currentPageSubtitle }}
         </span>

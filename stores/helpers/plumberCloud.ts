@@ -9,6 +9,11 @@ import {
 export type PlumberCloudStatus =
   'local' | 'checking' | 'saving' | 'synced' | 'offline' | 'conflict'
 
+export type PlumberGuestImport = {
+  status: 'copied' | 'unchanged' | 'unavailable' | 'pending' | 'too-large'
+  skipped: number
+}
+
 export type PlumberAccountCopy = {
   save: PlumberFile
   revision: number
@@ -251,6 +256,54 @@ export class PlumberCloud {
         this.conflict = snapshot
         this.publish('conflict')
       }
+    }
+  }
+
+  async importGuest(
+    owner: string,
+    token: string | null,
+    legacyGuest: unknown,
+  ): Promise<PlumberGuestImport> {
+    if (owner !== this.owner || owner === 'guest' || !token)
+      return { status: 'unavailable', skipped: 0 }
+    const epoch = this.epoch
+    const cached = this.deps.read('guest') as Partial<Cache> | null
+    const guest = readPlumberFile(cached?.save ?? legacyGuest)
+    await this.sync(owner, token, legacyGuest)
+    if (this.pushing) await this.pushing
+    if (
+      epoch !== this.epoch ||
+      !this.known ||
+      this.status !== 'synced' ||
+      this.pulling ||
+      this.pushing
+    )
+      return { status: 'unavailable', skipped: 0 }
+
+    const slots = [...this.save.slots]
+    let skipped = 0
+    for (const slot of guest.slots) {
+      if (
+        !slot ||
+        slots.some(
+          (existing) => JSON.stringify(existing) === JSON.stringify(slot),
+        )
+      )
+        continue
+      const empty = slots.indexOf(null)
+      if (empty === -1) skipped++
+      else slots[empty] = slot
+    }
+    const merged = reconcilePlumberSaves(this.save, { ...guest, slots }, null)
+    if (merged.status !== 'merged' || !validPlumberCloudSave(merged.save))
+      return { status: 'too-large', skipped }
+    if (same(this.save, merged.save)) return { status: 'unchanged', skipped }
+    this.record(owner, token, merged.save)
+    if (this.pushing) await this.pushing
+    if (epoch !== this.epoch) return { status: 'unavailable', skipped }
+    return {
+      status: this.status === 'synced' ? 'copied' : 'pending',
+      skipped,
     }
   }
 

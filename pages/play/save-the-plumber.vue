@@ -430,6 +430,28 @@
                 and are saved on this device.
               </p>
               <div
+                v-if="saveOwner.authenticatedUserId"
+                class="plumber-guide-action flex-col items-stretch"
+              >
+                <strong>Copy guest progress</strong>
+                <p>
+                  Copy guest files into empty account slots and combine
+                  souvenirs. Existing account files and the guest copy stay
+                  intact.
+                </p>
+                <button
+                  type="button"
+                  class="plumber-control"
+                  :disabled="arcade.plumberGuestImportBusy"
+                  @click="arcade.importPlumberGuest()"
+                >
+                  COPY GUEST PROGRESS
+                </button>
+                <p v-if="arcade.plumberGuestImportMessage" role="status">
+                  {{ arcade.plumberGuestImportMessage }}
+                </p>
+              </div>
+              <div
                 v-if="arcade.plumberCloudStatus === 'conflict'"
                 class="plumber-guide-action flex-col items-stretch"
                 aria-label="Account save conflict"

@@ -45,6 +45,11 @@ import {
   PERSONAL_BREACH_LINES,
   personalBreachNode,
 } from '../everyVillainTactics/personalBreachScenes'
+import {
+  PERSONAL_FINALE_LINES,
+  personalFinaleNode,
+} from '../everyVillainTactics/personalFinaleScenes'
+import { PROM_NIGHT_FINALE_SCRIPT } from '../everyVillainTactics/promNightFinaleScript'
 import { UNDER_COMET_BREACH_SCRIPT } from '../everyVillainTactics/underCometBreachScript'
 import { CROSSWALK_CRISIS_SCRIPT } from '../everyVillainTactics/crosswalkCrisisScript'
 import {
@@ -1787,3 +1792,85 @@ for (const lead of Object.keys(PERSONAL_BREACH_LINES)) {
 }
 assert.equal(breachVoices.size, 720)
 assert.ok(store.includes('personalBreachNode('))
+
+const finaleNodes = PROM_NIGHT_FINALE_SCRIPT.scenes.flatMap(
+  (scene) => scene.nodes,
+)
+const finaleVoices = new Set<string>()
+assert.deepEqual(
+  Object.keys(PERSONAL_FINALE_LINES).sort(),
+  IDENTITY_ARCS.map((identity) => identity.signature).sort(),
+)
+for (const lead of Object.keys(PERSONAL_FINALE_LINES)) {
+  for (const perspective of ['hero', 'villain'] as const) {
+    const state = trainingState(41, clonePreset('prom-night-finale'), {
+      lead,
+      foil: personalCastFor(lead)!.foil,
+      crossfireCast: 2,
+    })
+    const arrival = walkScene(PROM_NIGHT_FINALE_SCRIPT.scenes[0]!, [], {
+      state,
+      perspective,
+    })
+    assert.ok(
+      arrival?.nodes.some(
+        (node) => node.id === (perspective === 'hero' ? 'oh' : 'ov'),
+      ),
+    )
+    const before = JSON.stringify(state)
+    let changed = 0
+    for (const node of finaleNodes) {
+      const line = personalFinaleNode(
+        node,
+        lead,
+        'prom-night-finale',
+        true,
+        state,
+      )
+      assert.deepEqual(line.choices, node.choices)
+      assert.deepEqual(line.branch, node.branch)
+      assert.equal(line.next, node.next)
+      assert.equal(line.id, node.id)
+      if (line !== node) {
+        changed++
+        assert.ok(line.text.length > 10 && line.text.length <= 400)
+        assert.notEqual(line.text, node.text)
+        assert.ok(
+          state.units.some((u) => u.id === line.speaker && u.team === 'squad'),
+        )
+        if (/\b(?:I|me|my|mine)\b/i.test(line.text))
+          assert.equal(line.speaker, 'backdraft')
+        finaleVoices.add(line.text)
+      }
+      assert.equal(
+        personalFinaleNode(node, lead, 'prom-night-finale', false, state),
+        node,
+      )
+      assert.equal(
+        personalFinaleNode(node, lead, 'science-lab', true, state),
+        node,
+      )
+      assert.equal(
+        personalFinaleNode(
+          node,
+          'constructor',
+          'prom-night-finale',
+          true,
+          state,
+        ),
+        node,
+      )
+      assert.equal(
+        personalFinaleNode(node, lead, 'prom-night-finale', true, {
+          ...state,
+          crossfireCast: 1,
+        }),
+        node,
+      )
+    }
+    assert.equal(changed, 17)
+    assert.equal(JSON.stringify(state), before)
+  }
+}
+assert.equal(finaleVoices.size, 816)
+assert.ok(store.includes('personalFinaleNode('))

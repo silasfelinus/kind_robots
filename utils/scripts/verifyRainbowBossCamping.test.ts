@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict'
 import {
+  createClawburstBoss,
+  stepClawburstBoss,
+} from '../arcade/games/rainbowClawburst'
+import {
   createDelphionBoss,
   stepDelphionBoss,
 } from '../arcade/games/rainbowDelphion'
@@ -18,7 +22,7 @@ const HIT = 7
 const FRAMES = 1800
 type Pellet = { x: number; y: number; vx: number; vy: number; ghost?: boolean }
 type Boss = { hp: number; phase: number }
-/** Hits a ship parked at (90, y) takes over FRAMES, firing every step's pellets forward. */
+/** Hits a ship parked at (x, y) takes over FRAMES, firing every step's pellets forward. */
 function hitsAt(
   make: () => Boss,
   step: (
@@ -27,9 +31,10 @@ function hitsAt(
   ) => Pellet[],
   y: number,
   phase: number,
+  x = 90,
 ): number {
   const boss = make()
-  const target = { x: 90, y, lives: 3 }
+  const target = { x, y, lives: 3 }
   const pellets: Pellet[] = []
   let hits = 0
   for (let frame = 0; frame < FRAMES; frame++) {
@@ -56,10 +61,11 @@ function safeLanes(
     targets: { x: number; y: number; lives: number }[],
   ) => Pellet[],
   phase: number,
+  x = 90,
 ): number[] {
   const safe: number[] = []
   for (let y = 40; y <= 240; y += 4)
-    if (hitsAt(make, step, y, phase) === 0) safe.push(y)
+    if (hitsAt(make, step, y, phase, x) === 0) safe.push(y)
   return safe
 }
 
@@ -88,6 +94,33 @@ assert.deepEqual(
   `Crown phase 1 leaves no safe lane (safe: ${crown.join(', ')})`,
 )
 
+// B03 Clawburst, phase 1 (gameplay critic r2 G5): the rail shot aimed at a point in front of the pilot (x 80), so
+// a crew parked at the far left edge at (20, 60) sat above its line for all of phase 1 while still hitting the
+// boss. The rail now aims at the pilot's own x and y, at the left edge as well as the home line.
+for (const x of [20, 90]) {
+  const claw = safeLanes(
+    () => createClawburstBoss(450),
+    stepClawburstBoss as never,
+    1,
+    x,
+  )
+  assert.deepEqual(
+    claw,
+    [],
+    `Clawburst phase 1 leaves no safe lane at x ${x} (safe: ${claw.join(', ')})`,
+  )
+}
+assert.ok(
+  hitsAt(
+    () => createClawburstBoss(450),
+    stepClawburstBoss as never,
+    60,
+    1,
+    20,
+  ) > 0,
+  'the reported pocket at (20, 60) comes under fire',
+)
+
 console.log(
-  'rainbow boss camping: ok (Delphion phase 3 and the Crown phase 1 fire on every lane from y 40 to 240)',
+  'rainbow boss camping: ok (Delphion phase 3, the Crown phase 1 and Clawburst phase 1 fire on every lane from y 40 to 240)',
 )

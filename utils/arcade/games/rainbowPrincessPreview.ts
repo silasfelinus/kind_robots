@@ -8707,7 +8707,7 @@ export function createRainbowPrincessPreview(
           g.setLineDash([8, 6])
           g.beginPath()
           g.moveTo(clawBoss.x - 34, clawBoss.y)
-          g.lineTo(80, clawBoss.aimY)
+          g.lineTo(clawBoss.aimX, clawBoss.aimY)
           g.stroke()
           g.restore()
         }

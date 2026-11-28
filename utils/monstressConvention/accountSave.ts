@@ -12,6 +12,7 @@ import {
 } from '../playbookKit/settings'
 import { restoreCase, type CaseState } from './prologue'
 import type { MonstriqueAudience } from './edition'
+import { mergeRuns, parseRuns, type CaseRun } from './runHistory'
 
 export const ACCOUNT_SAVE_LIMIT = 512 * 1024
 
@@ -20,6 +21,11 @@ export interface MonstriqueAccountSave {
   savedAt: string
   case: CaseState
   kit: KitSave | null
+  /**
+   * Finished-case files for this edition. Optional on the wire: saves written
+   * before case files existed load with an empty history.
+   */
+  runs: CaseRun[]
 }
 
 export const accountSaveSlot = (edition: MonstriqueAudience): string =>
@@ -72,6 +78,7 @@ export function parseAccountSave(
     savedAt: new Date(raw.savedAt).toISOString(),
     case: restored,
     kit,
+    runs: parseRuns(raw.runs, edition),
   }
 }
 
@@ -112,5 +119,17 @@ export function mergeKitProgress(a: KitProgress, b: KitProgress): KitProgress {
     reveals: mergeStamps(a.reveals, b.reveals),
     endings: mergeStamps(a.endings, b.endings),
     trailerSeen: a.trailerSeen || b.trailerSeen,
+  }
+}
+
+/** Case files merge like unlocks; true when the account copy needs them. */
+export function mergeAccountRuns(
+  local: CaseRun[],
+  remote: MonstriqueAccountSave | null,
+): { runs: CaseRun[]; upload: boolean } {
+  const runs = mergeRuns(local, remote?.runs ?? [])
+  return {
+    runs,
+    upload: JSON.stringify(runs) !== JSON.stringify(remote?.runs ?? []),
   }
 }

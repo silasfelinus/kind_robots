@@ -346,9 +346,20 @@ assert.match(
 // Main-game standard item 6: every ending has its own painted plate, served
 // as a static general-safe file (ArtImages 270458 and 270459, round
 // monstrique-endings-1) in both editions' endings and on the ending card.
+// The Fifth Hexblade's plate is queued in conductor
+// projects/monstress-convention/art/ENDINGS-R2.yaml (mc-ending-fifth-hexblade);
+// until it is delivered the ending keeps its brief and alt and no src, so the
+// kit shows its image-shaped fallback and the ending card shows no picture.
+const PLATES_QUEUED = new Set(['fifth-hexblade'])
 for (const spec of [MONSTRESS_CONVENTION, MONSTRIQUE_GENERAL_SPEC])
   for (const ending of spec.endings) {
     const src = ending.art?.src
+    if (PLATES_QUEUED.has(ending.id)) {
+      assert.equal(src, undefined, ending.id + ' waits for its queued plate')
+      assert.ok(ending.art.brief.length > 40, ending.id + ' brief')
+      assert.ok((ending.art.alt ?? '').length > 20, ending.id + ' alt text')
+      continue
+    }
     assert.ok(src, spec.id + '/' + ending.id + ' has a plate')
     assert.match(src, /^\/monstress-convention\/endings\/[a-z-]+\.webp$/)
     assert.ok(
@@ -360,6 +371,11 @@ for (const spec of [MONSTRESS_CONVENTION, MONSTRIQUE_GENERAL_SPEC])
 assert.match(
   repoFile('components/monstress-convention/monstress-convention-scene.vue'),
   /data-testid="monstrique-ending-plate"[\s\S]*?:src="endingPlate\.src"/,
+)
+assert.match(
+  repoFile('components/monstress-convention/monstress-convention-scene.vue'),
+  /<img\s+v-if="endingPlate"/,
+  'an ending without a delivered plate renders no image',
 )
 
 // t-017: Chapter 1 painted rooms and cut-out cast (round CH1-CAST-AND-MOTEL-R1,

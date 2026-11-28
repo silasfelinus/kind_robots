@@ -24,6 +24,12 @@ import {
   cutsceneTriggeredBy,
   type Cutscene,
 } from '~/utils/monstrique/cutscenes'
+import {
+  nextCaseSeed,
+  parseRuns,
+  recordRun,
+  type CaseRun,
+} from '~/utils/monstressConvention/runHistory'
 
 export const useMonstressConventionStore = defineStore(
   'monstressConvention',
@@ -37,6 +43,8 @@ export const useMonstressConventionStore = defineStore(
     const accountId = ref<number | null>(null)
     const feedback = ref('')
     const state = ref<CaseState>(newCase())
+    const runs = ref<CaseRun[]>([])
+    let runsUnreadable = false
     const storageWarning = ref('')
     const activeCutscene = ref<Cutscene | null>(null)
     const currentLine = computed(
@@ -48,6 +56,31 @@ export const useMonstressConventionStore = defineStore(
     const saveKey = computed(
       () => 'kr-monstress-case-v2-' + (user.user?.id ?? 'guest'),
     )
+    const runsKey = computed(() => saveKey.value + '-runs')
+
+    function loadRuns(): void {
+      runs.value = []
+      runsUnreadable = false
+      try {
+        const raw = localStorage.getItem(runsKey.value)
+        if (!raw) return
+        const parsed: unknown = JSON.parse(raw)
+        if (!Array.isArray(parsed)) throw new Error('unreadable case files')
+        runs.value = parseRuns(parsed, 'mature')
+      } catch {
+        runsUnreadable = true
+      }
+    }
+
+    function storeRuns(next: CaseRun[]): void {
+      runs.value = next
+      if (!import.meta.client || runsUnreadable) return
+      try {
+        localStorage.setItem(runsKey.value, JSON.stringify(next))
+      } catch {
+        storageWarning.value = 'This browser cannot save case files.'
+      }
+    }
 
     async function verifyAccess(): Promise<void> {
       authorized.value = false
@@ -78,6 +111,7 @@ export const useMonstressConventionStore = defineStore(
     function load(): void {
       hasSavedCase.value = false
       if (!authorized.value || !import.meta.client) return
+      loadRuns()
       try {
         const raw = localStorage.getItem(saveKey.value)
         if (!raw) return
@@ -127,6 +161,10 @@ export const useMonstressConventionStore = defineStore(
         kit.unlock('moments', 'rental-fangs')
       if (next.flags.includes('ghost-kiss')) kit.unlock('moments', 'cold-kiss')
       if (next.ending) kit.unlock('endings', next.ending)
+      if (next.ending && !prev.ending)
+        storeRuns(
+          recordRun(runs.value, next, 'mature', new Date().toISOString()),
+        )
       awardAchievements(prev, next)
       persist()
     }
@@ -146,12 +184,15 @@ export const useMonstressConventionStore = defineStore(
       if (!authorized.value || !import.meta.client) return false
       try {
         localStorage.removeItem(saveKey.value)
+        localStorage.removeItem(runsKey.value)
       } catch {
         storageWarning.value = 'Could not erase the studio case on this device.'
         return false
       }
       state.value = newCase()
       hasSavedCase.value = false
+      runs.value = []
+      runsUnreadable = false
       feedback.value = ''
       activeCutscene.value = null
       storageWarning.value = ''
@@ -160,7 +201,7 @@ export const useMonstressConventionStore = defineStore(
 
     function begin(): void {
       if (!authorized.value) return
-      commit(newCase())
+      commit(newCase(nextCaseSeed(runs.value)))
       activeCutscene.value = null
       opened.value = true
     }
@@ -203,6 +244,7 @@ export const useMonstressConventionStore = defineStore(
       opened,
       hasSavedCase,
       state,
+      runs,
       currentLine,
       storageWarning,
       activeCutscene,

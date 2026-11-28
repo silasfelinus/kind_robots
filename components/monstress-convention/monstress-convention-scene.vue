@@ -569,14 +569,15 @@
         />
         <div class="mc-ending-card max-w-lg space-y-4 text-center">
           <p class="mc-eyebrow">CHAPTER ONE · THE LAST CALL</p>
-          <h2 class="text-3xl font-bold">
-            {{
-              story.state.ending === 'lead-earned'
-                ? 'The Convention Lead'
-                : 'A Headline Too Early'
-            }}
-          </h2>
+          <h2 class="text-3xl font-bold">{{ endingTitle }}</h2>
           <p class="text-lg">{{ story.currentLine }}</p>
+          <p
+            class="mc-ending-route text-sm"
+            data-testid="monstrique-ending-route"
+          >
+            {{ endingRoute }} This case is in your case files on the title
+            scrapbook.
+          </p>
           <button class="mc-action-primary" type="button" @click="begin">
             NEW CASE
           </button>
@@ -630,6 +631,7 @@ import {
   portraitFor,
 } from '~/utils/monstrique/stageArt'
 import { MONSTRESS_CONVENTION } from '~/utils/playbookKit/games/monstressConvention'
+import { ENDING_ROUTE_NOTES } from '~/utils/monstressConvention/runHistory'
 import { useMonstriqueSoundStore } from '~/stores/monstriqueSoundStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import { monstriqueCuesFor, monstriqueMoodFor } from '~/utils/monstrique/sound'
@@ -649,10 +651,17 @@ const screen = ref<'title' | 'intro' | 'stage'>(
   props.entry === 'continue' ? 'stage' : 'intro',
 )
 const openingScene = computed(() => coldOpen(audience.value))
-const endingPlate = computed(() => {
-  const art = MONSTRESS_CONVENTION.endings.find(
+const reachedEnding = computed(() =>
+  MONSTRESS_CONVENTION.endings.find(
     (ending) => ending.id === story.value.state.ending,
-  )?.art
+  ),
+)
+const endingTitle = computed(() => reachedEnding.value?.title ?? 'Case Closed')
+const endingRoute = computed(() =>
+  story.value.state.ending ? ENDING_ROUTE_NOTES[story.value.state.ending] : '',
+)
+const endingPlate = computed(() => {
+  const art = reachedEnding.value?.art
   return art?.src ? { src: art.src, alt: art.alt ?? '' } : null
 })
 const drawer = ref<'case' | 'map' | null>(null)
@@ -1481,6 +1490,10 @@ function verbIcon(verb: Verb): string {
 }
 .mc-ending-plate {
   opacity: 0.6;
+}
+.mc-ending-route {
+  color: #ffd9e4;
+  opacity: 0.85;
 }
 .mc-ending-card {
   position: relative;

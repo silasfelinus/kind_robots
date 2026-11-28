@@ -76,7 +76,8 @@ export function monstriqueMoodFor(
   onStage: boolean,
 ): MonstriqueMood {
   if (!state || !onStage) return 'title'
-  if (state.ending === 'lead-earned') return 'ending-lead'
+  if (state.ending === 'lead-earned' || state.ending === 'fifth-hexblade')
+    return 'ending-lead'
   if (state.ending === 'reckless') return 'ending-reckless'
   if (state.room === 'odette-room') return 'crime'
   if (state.room === 'city-map') return 'city'

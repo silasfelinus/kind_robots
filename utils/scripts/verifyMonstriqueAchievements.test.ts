@@ -90,7 +90,8 @@ assert.deepEqual(achievementsFor(pockets, combined.state), [
   'monstress-convention-combiner',
 ])
 
-// Endings, the full file and both endings.
+// Endings, the full file, two endings and all three.
+assert.equal(MONSTRIQUE_ENDINGS.length, 3)
 assert.deepEqual(known(achievementsFor(fresh, with_({ ending: 'reckless' }))), [
   'monstress-convention-ending-reckless',
 ])
@@ -98,10 +99,24 @@ const lead = with_({ ending: 'lead-earned' })
 assert.deepEqual(achievementsFor(fresh, lead, 1), [
   'monstress-convention-ending-lead',
 ])
-assert.deepEqual(achievementsFor(fresh, lead, MONSTRIQUE_ENDINGS.length), [
+assert.deepEqual(known(achievementsFor(fresh, lead, 2)), [
   'monstress-convention-ending-lead',
   'monstress-convention-both-endings',
 ])
+assert.deepEqual(
+  known(
+    achievementsFor(
+      fresh,
+      with_({ ending: 'fifth-hexblade' }),
+      MONSTRIQUE_ENDINGS.length,
+    ),
+  ),
+  [
+    'monstress-convention-ending-hexblade',
+    'monstress-convention-both-endings',
+    'monstress-convention-all-endings',
+  ],
+)
 assert.deepEqual(achievementsFor(lead, lead, MONSTRIQUE_ENDINGS.length), [])
 
 assert.equal(GENERAL_MAX_SCORE, maxScore('general'))

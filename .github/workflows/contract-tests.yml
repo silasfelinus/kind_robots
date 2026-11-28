@@ -586,6 +586,9 @@ jobs:
       - name: Monstrique original score, cues and volume controls
         run: npx tsx utils/scripts/verifyMonstriqueSound.test.ts
 
+      - name: Monstrique case files, third ending and replay hooks
+        run: npx tsx utils/scripts/verifyMonstriqueRunHistory.test.ts
+
   contract_2:
     name: Contract shard 2/4
     runs-on: ubuntu-latest

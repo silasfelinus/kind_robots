@@ -122,7 +122,13 @@
             <strong>SCRAPBOOK</strong>
             <small
               >{{ unlockedMoments }} of {{ spec.moments.length }} memories
-              collected</small
+              collected{{
+                story.runs.length
+                  ? ' · ' +
+                    story.runs.length +
+                    (story.runs.length === 1 ? ' case file' : ' case files')
+                  : ''
+              }}</small
             >
           </span>
         </button>
@@ -318,8 +324,8 @@
               </button>
             </div>
             <p class="mx-small-note">
-              This erases only the current edition in this browser. Other
-              editions and account achievements are unaffected.
+              This erases only the current edition: its case, case files and
+              keepsakes. Other editions and account achievements are unaffected.
             </p>
             <p
               v-if="eraseFeedback || story.storageWarning || kit.storageWarning"
@@ -386,6 +392,15 @@
                 <Icon name="kind-icon:star" class="size-4" />
                 Endings ({{ unlockedEndings }}/{{ spec.endings.length }})
               </button>
+              <button
+                type="button"
+                data-testid="monstrique-scrapbook-cases"
+                :aria-pressed="scrapTab === 'cases'"
+                @click="scrapTab = 'cases'"
+              >
+                <Icon name="kind-icon:news" class="size-4" />
+                Case files ({{ story.runs.length }})
+              </button>
             </div>
             <div class="mx-scrap-content">
               <PlaybookKitCast v-if="scrapTab === 'people'" :spec="spec" />
@@ -397,6 +412,67 @@
                 v-else-if="scrapTab === 'endings'"
                 :spec="spec"
               />
+              <div
+                v-else-if="scrapTab === 'cases'"
+                class="mx-cases"
+                data-testid="monstrique-case-files"
+              >
+                <p v-if="!caseFiles.length" class="mx-small-note">
+                  No case closed yet. Every ending you reach files a case here,
+                  with the leads you left open for next time.
+                </p>
+                <template v-else>
+                  <p class="mx-case-summary" data-testid="monstrique-case-best">
+                    {{ caseFiles.length }}
+                    {{ caseFiles.length === 1 ? 'case' : 'cases' }} closed ·
+                    best file {{ bestFile?.score }}/{{
+                      bestFile?.maxScore
+                    }}
+                    points · {{ unlockedEndings }} of
+                    {{ spec.endings.length }} endings
+                  </p>
+                  <ol class="mx-case-list">
+                    <li
+                      v-for="file in caseFiles"
+                      :key="file.run.id"
+                      class="mx-case"
+                      data-testid="monstrique-case-file"
+                    >
+                      <span class="mx-case-plate">
+                        <PlaybookKitArt
+                          :art="file.art"
+                          :tone="file.tone"
+                          icon="kind-icon:news"
+                          class="absolute inset-0"
+                        />
+                      </span>
+                      <div class="mx-case-body">
+                        <p class="mx-eyebrow">
+                          {{ file.date }} · case seed {{ file.run.seed }}
+                        </p>
+                        <h3>{{ file.title }}</h3>
+                        <p class="mx-case-stats">
+                          {{ file.run.score }}/{{ file.run.maxScore }} points ·
+                          {{ file.run.clues }} clues ·
+                          {{ file.run.moves }} moves{{
+                            file.rebuffs ? ' · ' + file.rebuffs : ''
+                          }}
+                        </p>
+                        <ul v-if="file.notes.length" class="mx-case-notes">
+                          <li v-for="note in file.notes" :key="note">
+                            {{ note }}
+                          </li>
+                        </ul>
+                        <p class="mx-case-route">{{ file.route }}</p>
+                        <p v-if="file.missed.length" class="mx-case-missed">
+                          <strong>Leads left open:</strong>
+                          {{ file.missed.join(' ') }}
+                        </p>
+                      </div>
+                    </li>
+                  </ol>
+                </template>
+              </div>
               <MonstriqueAlbumArchive
                 v-else
                 :creator-mode="!props.publicEdition"
@@ -425,6 +501,14 @@ import { useMonstriqueSoundStore } from '~/stores/monstriqueSoundStore'
 import { HOTEL_ROOMS } from '~/utils/monstressConvention/prologue'
 import { MONSTRESS_CONVENTION } from '~/utils/playbookKit/games/monstressConvention'
 import { achievementsForGame } from '~/utils/achievements/gameAchievements'
+import {
+  ENDING_ROUTE_NOTES,
+  RUN_NOTES,
+  bestRun,
+  missedLeads,
+  type CaseRun,
+} from '~/utils/monstressConvention/runHistory'
+import { ENDING_TONES } from '~/utils/playbookKit/view'
 import {
   KIT_SETTING_LABELS,
   KIT_SETTING_OPTIONS,
@@ -514,7 +598,9 @@ const hasAchievementDefinitions =
 const confirming = ref(false)
 const confirmingErase = ref(false)
 const eraseFeedback = ref('')
-const scrapTab = ref<'people' | 'moments' | 'albums' | 'endings'>('people')
+const scrapTab = ref<'people' | 'moments' | 'albums' | 'endings' | 'cases'>(
+  'people',
+)
 const closeButton = ref<HTMLButtonElement | null>(null)
 const currentLocation = computed(
   () => HOTEL_ROOMS[story.value.state.room].label,
@@ -529,6 +615,42 @@ const unlockedEndings = computed(
     spec.value.endings.filter((ending) => kit.isUnlocked('endings', ending.id))
       .length,
 )
+const romanceShown = computed(
+  () => audience.value === 'mature' && kit.settings.romance !== 'off',
+)
+const bestFile = computed(() => bestRun(story.value.runs))
+
+function caseFile(run: CaseRun) {
+  const ending = spec.value.endings.find((entry) => entry.id === run.ending)
+  const mature = run.edition === 'mature' && audience.value === 'mature'
+  const date = new Date(run.finishedAt)
+  return {
+    run,
+    title: ending?.title ?? 'Case closed',
+    art: ending?.art ?? { brief: '' },
+    tone: ENDING_TONES[ending?.tone ?? 'secret'].tone,
+    date: date.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }),
+    notes: run.notes
+      .filter((id) => id !== 'cold-kiss' || (mature && romanceShown.value))
+      .map((id) => RUN_NOTES[id].done),
+    missed: missedLeads(
+      romanceShown.value ? run : { ...run, edition: 'general' },
+    ),
+    route: ENDING_ROUTE_NOTES[run.ending],
+    rebuffs:
+      mature && run.rebuffs
+        ? 'Norb said no ' +
+          run.rebuffs +
+          (run.rebuffs === 1 ? ' time' : ' times')
+        : '',
+  }
+}
+
+const caseFiles = computed(() => story.value.runs.map(caseFile))
 const settingKeys = computed(() =>
   (Object.keys(KIT_SETTING_OPTIONS) as KitSettingKey[]).filter(
     (key) => key !== 'romance' || audience.value === 'mature',
@@ -947,6 +1069,74 @@ function stepSetting(key: KitSettingKey, direction: number): void {
 }
 .mx-scrap-content {
   color: #ffedee;
+}
+.mx-case-summary {
+  margin-bottom: 0.8rem;
+  color: #8ce0e2;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.mx-case-list {
+  display: grid;
+  gap: 0.75rem;
+}
+.mx-case {
+  display: flex;
+  gap: 0.8rem;
+  border: 1px solid #875878;
+  border-radius: 0.8rem;
+  padding: 0.7rem;
+  background: #2a1d33e6;
+}
+.mx-case-plate {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(5.5rem, 28%, 9rem);
+  aspect-ratio: 7 / 4;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+.mx-case-body {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.mx-case-body h3 {
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+.mx-case-stats {
+  color: #ffd3e1;
+  font-size: 0.8rem;
+}
+.mx-case-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0.45rem 0;
+}
+.mx-case-notes li {
+  border-radius: 999px;
+  background: #3f6f73;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.7rem;
+}
+.mx-case-route,
+.mx-case-missed {
+  color: #decad7;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+.mx-case-missed {
+  margin-top: 0.3rem;
+}
+@container (max-width: 30rem) {
+  .mx-case {
+    flex-direction: column;
+  }
+  .mx-case-plate {
+    width: 100%;
+  }
 }
 @container (max-width: 42rem) {
   .mx-brand {

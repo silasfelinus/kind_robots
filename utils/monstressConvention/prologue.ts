@@ -24,7 +24,27 @@ export type RoomId =
   | 'convention-center'
 export type Verb =
   'walk' | 'look' | 'talk' | 'take' | 'use' | 'photograph' | 'ask' | 'flirt'
-export type CaseEnding = 'lead-earned' | 'reckless'
+export type CaseEnding = 'lead-earned' | 'reckless' | 'fifth-hexblade'
+
+/**
+ * The bucket trail that turns the convention lead into the full file: the
+ * knife's Beach Hex stamp, the shrine's fifth dent, the missing bucket's
+ * greasepaint and Violet's cold cream. None depends on giving anything away,
+ * so no earlier choice can lock it out.
+ */
+export const FIFTH_HEXBLADE_CLUES = [
+  'knife-prop-mark',
+  'shrine-photo',
+  'ice-ring',
+  'makeup-smear',
+  'violet-scent',
+] as const
+
+export const CASE_ENDINGS: readonly CaseEnding[] = [
+  'lead-earned',
+  'reckless',
+  'fifth-hexblade',
+]
 
 export interface HotelHotspot {
   id: string
@@ -1576,6 +1596,13 @@ export function performAction(
         false,
       )
     add(next.evidence, 'idol-poster')
+    if (FIFTH_HEXBLADE_CLUES.every((clue) => has(next, clue))) {
+      next.ending = 'fifth-hexblade'
+      return withLine(
+        next,
+        'Iris: Four Hexblades in the lobby shrine, five dents in the velvet. Whoever carried that ice bucket away wore skin-tone greasepaint and smelled of cold cream. Norb: Then the knife was never brought to the Last Call. It was borrowed from downstairs, by someone who still paints on a stage face. Chapter One is filed in full. Tomorrow we find out who made five knives.',
+      )
+    }
     next.ending = 'lead-earned'
     return withLine(
       next,
@@ -1612,11 +1639,7 @@ export function restoreCase(value: unknown): CaseState | null {
     if (!Array.isArray(list) || !list.every((part) => typeof part === 'string'))
       return null
   }
-  if (
-    raw.ending !== null &&
-    raw.ending !== 'lead-earned' &&
-    raw.ending !== 'reckless'
-  )
+  if (raw.ending !== null && !CASE_ENDINGS.includes(raw.ending as CaseEnding))
     return null
   if (!Number.isInteger(raw.seed)) return null
   const gratitude: Record<string, number> = {}

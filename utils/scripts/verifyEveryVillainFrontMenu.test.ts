@@ -1223,8 +1223,14 @@ assert.deepEqual(
   'every canonical identity has exactly one playable origin',
 )
 for (const [stage, signature] of Object.entries(ORIGIN_STAGE_LEADS)) {
-  assert.ok(STAGE_PRESETS.some((preset) => preset.id === stage), stage)
-  assert.ok(ONE_SHOT_MENU.some((entry) => entry.id === stage), stage)
+  assert.ok(
+    STAGE_PRESETS.some((preset) => preset.id === stage),
+    stage,
+  )
+  assert.ok(
+    ONE_SHOT_MENU.some((entry) => entry.id === stage),
+    stage,
+  )
   for (const candidate of canonicalOriginLeads)
     assert.equal(canStartOneShot(stage, candidate), candidate === signature)
 }

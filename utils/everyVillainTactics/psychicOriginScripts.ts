@@ -7,7 +7,7 @@ export const NIGHTMARE_ORIGIN_SCRIPT: SceneScript = {
       id: 'nightmare-origin-opening',
       title: 'The Match Under the Bed',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -17,7 +17,7 @@ export const NIGHTMARE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "Cold fire rings a student's bed. The dormitory monitor cannot reach them while the nightmare repeats.",
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -29,11 +29,11 @@ export const NIGHTMARE_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -41,7 +41,7 @@ export const NIGHTMARE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'You do not have to tell me what you dreamed. Follow the little light, not the fire.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -49,16 +49,16 @@ export const NIGHTMARE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: 'Someone has been feeding this panic. I want them to answer for it, but first I need the student out.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'nightmare-origin-choice',
       title: 'Comfort the frightened student?',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -76,12 +76,12 @@ export const NIGHTMARE_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'nightmare-choice-a'
+                  flag: 'nightmare-choice-a',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Confront the panic exploiter',
@@ -89,14 +89,14 @@ export const NIGHTMARE_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'nightmare-choice-b'
+                  flag: 'nightmare-choice-b',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -104,7 +104,7 @@ export const NIGHTMARE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The monitor distributes first aid and clears a quiet space.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -112,16 +112,16 @@ export const NIGHTMARE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The exploiter's broadcast is interrupted and the patrol loses its orders.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'nightmare-origin-victory',
       title: 'After the Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -135,11 +135,11 @@ export const NIGHTMARE_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'nightmare-choice-a'
+              flag: 'nightmare-choice-a',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -147,7 +147,7 @@ export const NIGHTMARE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'The student can sleep somewhere safe tonight. Their nightmare is not a public performance.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -155,16 +155,16 @@ export const NIGHTMARE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: "The panic broadcast is documented. The student's account remains theirs to share.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'nightmare-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -174,11 +174,11 @@ export const NIGHTMARE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'The cold fire still surrounds the bed. I have not given the student a way out.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const LIFT_ORIGIN_SCRIPT: SceneScript = {
@@ -188,7 +188,7 @@ export const LIFT_ORIGIN_SCRIPT: SceneScript = {
       id: 'lift-origin-opening',
       title: 'The Elevator That Floated',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -198,7 +198,7 @@ export const LIFT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The hospital's gravity brakes fail. A supply elevator rises past its landing with a patient and an orderly aboard.",
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -210,11 +210,11 @@ export const LIFT_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -222,7 +222,7 @@ export const LIFT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'Keep your hands inside the rail. I can hold the car steady while you step off.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -230,16 +230,16 @@ export const LIFT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: "The hospital contractor thinks gravity is somebody else's problem. I will take control of the lift, not its passengers.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'lift-origin-choice',
       title: 'Land immediately for the patient?',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -257,12 +257,12 @@ export const LIFT_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'lift-choice-a'
+                  flag: 'lift-choice-a',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Retrieve the trapped oxygen supplies',
@@ -270,14 +270,14 @@ export const LIFT_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'lift-choice-b'
+                  flag: 'lift-choice-b',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -285,7 +285,7 @@ export const LIFT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The orderly opens the treatment kit on the landing.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -293,16 +293,16 @@ export const LIFT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The recovered supply controller interrupts the security patrol's orders.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'lift-origin-victory',
       title: 'After the Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -316,11 +316,11 @@ export const LIFT_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'lift-choice-a'
+              flag: 'lift-choice-a',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -328,7 +328,7 @@ export const LIFT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'The patient reaches treatment. The next lift needs brakes that work without me.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -336,16 +336,16 @@ export const LIFT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The oxygen supplies reach the ward. The patient still gets priority on the landing.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'lift-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -355,11 +355,11 @@ export const LIFT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'The elevator has not reached a safe floor. I cannot keep it suspended forever.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const TESTIMONY_ORIGIN_SCRIPT: SceneScript = {
@@ -369,7 +369,7 @@ export const TESTIMONY_ORIGIN_SCRIPT: SceneScript = {
       id: 'testimony-origin-opening',
       title: 'The Stone That Testified',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -379,7 +379,7 @@ export const TESTIMONY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'A courthouse paving stone whispers contradictory memories. A witness and clerk are trapped behind a cordon.',
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -391,11 +391,11 @@ export const TESTIMONY_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -403,7 +403,7 @@ export const TESTIMONY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'I can hear what the stone remembers. That does not mean every voice coming through it is telling the truth.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -411,16 +411,16 @@ export const TESTIMONY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: 'The people who own the deed want me to choose their memory. I can expose the alteration without inventing another.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'testimony-origin-choice',
       title: 'Protect the witnesses until a fair hearing?',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -438,12 +438,12 @@ export const TESTIMONY_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'testimony-choice-a'
+                  flag: 'testimony-choice-a',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Broadcast the verified evidence',
@@ -451,14 +451,14 @@ export const TESTIMONY_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'testimony-choice-b'
+                  flag: 'testimony-choice-b',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -466,7 +466,7 @@ export const TESTIMONY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The clerk arranges treatment and a protected waiting area.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -474,16 +474,16 @@ export const TESTIMONY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The verified record interrupts the cordon's orders.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'testimony-origin-victory',
       title: 'After the Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -497,11 +497,11 @@ export const TESTIMONY_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'testimony-choice-a'
+              flag: 'testimony-choice-a',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -509,7 +509,7 @@ export const TESTIMONY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'The witness can testify without being dragged into a public spectacle.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -517,16 +517,16 @@ export const TESTIMONY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: "The verified record is public. The witness's unrelated memories are not.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'testimony-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -536,11 +536,11 @@ export const TESTIMONY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: "The cordon still holds. I cannot call a stone's accusation a completed hearing.",
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const LETTER_ORIGIN_SCRIPT: SceneScript = {
@@ -550,7 +550,7 @@ export const LETTER_ORIGIN_SCRIPT: SceneScript = {
       id: 'letter-origin-opening',
       title: 'The Letter No One Sent',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -560,7 +560,7 @@ export const LETTER_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The river rises with the mourners' unspoken grief. Two people are stranded on the memorial bridge.",
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -572,11 +572,11 @@ export const LETTER_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -584,7 +584,7 @@ export const LETTER_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'You can keep the feeling. I only need to help you find somewhere safe to carry it.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -592,16 +592,16 @@ export const LETTER_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: 'Everyone wants the river to stop remembering. I can quiet the current without erasing what happened.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'letter-origin-choice',
       title: "Respect the recipient's refusal?",
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -619,12 +619,12 @@ export const LETTER_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'letter-choice-a'
+                  flag: 'letter-choice-a',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Deliver the apology with consent',
@@ -632,14 +632,14 @@ export const LETTER_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'letter-choice-b'
+                  flag: 'letter-choice-b',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -647,7 +647,7 @@ export const LETTER_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The volunteer brings blankets and medical supplies without opening the letter.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -655,16 +655,16 @@ export const LETTER_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The agreed delivery interrupts the confrontation and the patrol loses its coordination.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'letter-origin-victory',
       title: 'After the Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -678,11 +678,11 @@ export const LETTER_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'letter-choice-a'
+              flag: 'letter-choice-a',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -690,7 +690,7 @@ export const LETTER_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'The unopened letter stays with its owner. Nobody owes forgiveness to the river.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -698,16 +698,16 @@ export const LETTER_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: "The apology was heard on the recipient's terms. It does not demand an answer.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'letter-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -717,11 +717,11 @@ export const LETTER_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'The flood still separates the mourners from the shore. I have not made the crossing safe.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const ARCHIVE_ORIGIN_SCRIPT: SceneScript = {
@@ -731,7 +731,7 @@ export const ARCHIVE_ORIGIN_SCRIPT: SceneScript = {
       id: 'archive-origin-opening',
       title: 'The Book That Walked Away',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -741,7 +741,7 @@ export const ARCHIVE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'A rare book passes through a locked display. The security gate traps the student claimant and the attendant.',
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -753,11 +753,11 @@ export const ARCHIVE_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -765,7 +765,7 @@ export const ARCHIVE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The book is not going anywhere until I know whose it is. Clear the gate without hurting the witnesses.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -773,16 +773,16 @@ export const ARCHIVE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: 'Someone has confused possession with ownership. I can catch the book before they lock away the evidence.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'archive-origin-choice',
       title: 'Return the book to the archive?',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -800,12 +800,12 @@ export const ARCHIVE_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'archive-choice-a'
+                  flag: 'archive-choice-a',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: "Investigate the student's theft claim",
@@ -813,14 +813,14 @@ export const ARCHIVE_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'archive-choice-b'
+                  flag: 'archive-choice-b',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -828,7 +828,7 @@ export const ARCHIVE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The attendant brings first aid and secures a temporary holding shelf.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -836,16 +836,16 @@ export const ARCHIVE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The claimant's record interrupts the security patrol's orders.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'archive-origin-victory',
       title: 'After the Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -859,11 +859,11 @@ export const ARCHIVE_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'archive-choice-a'
+              flag: 'archive-choice-a',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -871,7 +871,7 @@ export const ARCHIVE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'The book returns under a documented receipt. The ownership dispute can still be heard.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -879,16 +879,16 @@ export const ARCHIVE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The original claim is preserved. Nobody gets to erase it by moving the book again.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'archive-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -898,11 +898,11 @@ export const ARCHIVE_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'The book is still beyond the gate and the witnesses cannot leave. This case is not closed.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const THOUGHT_ORIGIN_SCRIPT: SceneScript = {
@@ -912,7 +912,7 @@ export const THOUGHT_ORIGIN_SCRIPT: SceneScript = {
       id: 'thought-origin-opening',
       title: "The Thought That Wasn't Yours",
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -922,7 +922,7 @@ export const THOUGHT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The same argument appears in every student's inner voice. The moderator locks the doors when the transmitter begins to panic.",
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -934,11 +934,11 @@ export const THOUGHT_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -946,7 +946,7 @@ export const THOUGHT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'I know how easy it is to mistake a borrowed answer for your own. Tell me what you actually want.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -954,16 +954,16 @@ export const THOUGHT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: 'The election was rigged before anyone cast a vote. I can break the signal without stealing another mind.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'thought-origin-choice',
       title: 'Protect the unwitting transmitter?',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -981,12 +981,12 @@ export const THOUGHT_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'thought-choice-a'
+                  flag: 'thought-choice-a',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Expose the manipulation publicly',
@@ -994,14 +994,14 @@ export const THOUGHT_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'thought-choice-b'
+                  flag: 'thought-choice-b',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -1009,7 +1009,7 @@ export const THOUGHT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The moderator arranges private care and a quiet exit.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -1017,16 +1017,16 @@ export const THOUGHT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The forged argument's source is recorded and the patrol loses its commands.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'thought-origin-victory',
       title: 'After the Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -1040,11 +1040,11 @@ export const THOUGHT_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'thought-choice-a'
+              flag: 'thought-choice-a',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -1052,7 +1052,7 @@ export const THOUGHT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: "The transmitter leaves without being blamed for someone else's suggestion.",
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -1060,16 +1060,16 @@ export const THOUGHT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: "The manipulation is documented without publishing the transmitter's private thoughts.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'thought-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -1079,11 +1079,11 @@ export const THOUGHT_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'The relay is still broadcasting. I cannot call these votes freely cast.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const PROPHECY_ORIGIN_SCRIPT: SceneScript = {
@@ -1093,7 +1093,7 @@ export const PROPHECY_ORIGIN_SCRIPT: SceneScript = {
       id: 'prophecy-origin-opening',
       title: 'The Prophecy Auction',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -1103,7 +1103,7 @@ export const PROPHECY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'A fortune seller predicts disaster unless families bid for protection. The planetarium doors close as the bidding rises.',
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -1115,11 +1115,11 @@ export const PROPHECY_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -1127,7 +1127,7 @@ export const PROPHECY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'I have seen disasters that never happened because someone listened. A future is not a sentence.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -1135,16 +1135,16 @@ export const PROPHECY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: 'The auctioneer sells certainty. I can take away that certainty without selling my own.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'prophecy-origin-choice',
       title: 'Protect families while evidence is gathered?',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -1162,12 +1162,12 @@ export const PROPHECY_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'prophecy-choice-a'
+                  flag: 'prophecy-choice-a',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Explain the uncertain futures now',
@@ -1175,14 +1175,14 @@ export const PROPHECY_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'prophecy-choice-b'
+                  flag: 'prophecy-choice-b',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -1190,7 +1190,7 @@ export const PROPHECY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The usher opens a quiet treatment area away from the auction.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -1198,16 +1198,16 @@ export const PROPHECY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The competing projections undermine the auctioneer's commands.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'prophecy-origin-victory',
       title: 'After the Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -1221,11 +1221,11 @@ export const PROPHECY_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'prophecy-choice-a'
+              flag: 'prophecy-choice-a',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -1233,7 +1233,7 @@ export const PROPHECY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'The families leave without buying a promise. The evidence can speak for itself.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -1241,16 +1241,16 @@ export const PROPHECY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'They heard several possible outcomes, not a guarantee. The auction has lost its leverage.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'prophecy-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -1260,11 +1260,11 @@ export const PROPHECY_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'The doors are still closed. Knowing a possible escape is not the same as making one.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const RUMOR_ORIGIN_SCRIPT: SceneScript = {
@@ -1274,7 +1274,7 @@ export const RUMOR_ORIGIN_SCRIPT: SceneScript = {
       id: 'rumor-origin-opening',
       title: 'The Rumor After Midnight',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -1284,7 +1284,7 @@ export const RUMOR_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'An anonymous story spreads while the prom ballots are counted. The student it targets and a ballot volunteer are trapped in the newspaper room.',
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -1296,11 +1296,11 @@ export const RUMOR_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -1308,7 +1308,7 @@ export const RUMOR_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'I have broken a confidence before. This time the person who was hurt gets to decide what we print.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -1316,16 +1316,16 @@ export const RUMOR_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: 'The editor wants a headline that will control the vote. I can stop the rumor without giving them a better weapon.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'rumor-origin-choice',
       title: 'Warn the people at risk privately?',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -1343,12 +1343,12 @@ export const RUMOR_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'rumor-choice-a'
+                  flag: 'rumor-choice-a',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Publish a verified correction',
@@ -1356,14 +1356,14 @@ export const RUMOR_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'rumor-choice-b'
+                  flag: 'rumor-choice-b',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -1371,7 +1371,7 @@ export const RUMOR_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The volunteer brings private support and treatment supplies.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -1379,16 +1379,16 @@ export const RUMOR_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The correction interrupts the forged story's distribution and the patrol loses its orders.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'rumor-origin-victory',
       title: 'After the Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -1402,11 +1402,11 @@ export const RUMOR_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'rumor-choice-a'
+              flag: 'rumor-choice-a',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -1414,7 +1414,7 @@ export const RUMOR_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: "The student reaches safety without their private account becoming tomorrow's headline.",
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -1422,16 +1422,16 @@ export const RUMOR_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: "The false claim is corrected. The student's unrelated secrets stay out of print.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'rumor-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -1441,10 +1441,9 @@ export const RUMOR_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'The rumor is still circulating while its target is trapped. I cannot edit that into a victory.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
-

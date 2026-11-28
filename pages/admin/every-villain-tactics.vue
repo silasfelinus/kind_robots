@@ -1466,6 +1466,77 @@
                     </details>
                   </li>
                 </ul>
+                <details data-testid="studio-private-account-shelf">
+                  <summary>ACCOUNT-PRIVATE SHELF</summary>
+                  <p v-if="!store.accountSignedIn">
+                    Sign in to use account drafts.
+                  </p>
+                  <template v-else>
+                    <div class="evt-draft-row">
+                      <button
+                        type="button"
+                        :disabled="store.accountBusy"
+                        @click="store.accountRequest()"
+                      >
+                        REFRESH
+                      </button>
+                      <button
+                        type="button"
+                        :disabled="store.accountBusy || !store.accountShelf"
+                        @click="store.saveAccountDraft()"
+                      >
+                        SAVE TO ACCOUNT
+                      </button>
+                    </div>
+                    <ul v-if="store.accountShelf">
+                      <li
+                        v-for="entry in store.accountShelf.library.drafts"
+                        :key="entry.name"
+                      >
+                        <span>
+                          {{ entry.name }} · v{{ entry.version ?? 1 }}
+                          <small v-if="entry.forkedFrom">
+                            Forked from {{ entry.forkedFrom.name }} v{{
+                              entry.forkedFrom.version
+                            }}
+                          </small>
+                        </span>
+                        <button
+                          type="button"
+                          :disabled="store.accountBusy"
+                          @click="store.loadAccountDraft(entry.name)"
+                        >
+                          LOAD
+                        </button>
+                        <button
+                          type="button"
+                          :disabled="store.accountBusy"
+                          @click="store.forkAccountDraft(entry.name)"
+                        >
+                          FORK AS NAMED
+                        </button>
+                        <details v-if="entry.history?.length">
+                          <summary>Earlier versions</summary>
+                          <button
+                            v-for="revision in entry.history"
+                            :key="revision.version"
+                            type="button"
+                            :disabled="store.accountBusy"
+                            @click="
+                              store.restoreAccountDraft(
+                                entry.name,
+                                revision.version,
+                              )
+                            "
+                          >
+                            RESTORE v{{ revision.version }}
+                          </button>
+                        </details>
+                      </li>
+                    </ul>
+                    <p role="status">{{ store.accountMessage }}</p>
+                  </template>
+                </details>
                 <button
                   type="button"
                   data-testid="studio-export"

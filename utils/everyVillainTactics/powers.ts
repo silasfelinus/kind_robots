@@ -14,6 +14,7 @@ import {
 } from '../cometAcademy/specialPowers'
 import {
   recordSquadDamage,
+  MAX_ACTION_POINTS,
   chanceFrom,
   gridDistance,
   inside,
@@ -463,7 +464,8 @@ function describe(power: Draft): string {
   const ally: string[] = []
   if (power.ally.heal) ally.push('heal ' + power.ally.heal)
   if (power.ally.guard) ally.push('guard')
-  if (power.ally.ap) ally.push('+' + power.ally.ap + ' AP')
+  if (power.ally.ap)
+    ally.push('+' + power.ally.ap + ' AP (max ' + MAX_ACTION_POINTS + ')')
   if (power.ally.cleanse) ally.push('clear suppression')
   if (ally.length) parts.push('Allies: ' + ally.join(', '))
   const self: string[] = []
@@ -797,7 +799,11 @@ export function previewPower(
     ) {
       heal += power.ally.heal
       guard ||= power.ally.guard
-      if (!isSelf) effect.ap = power.ally.ap
+      if (!isSelf)
+        effect.ap = Math.min(
+          power.ally.ap,
+          Math.max(0, MAX_ACTION_POINTS - other.ap),
+        )
       effect.cleanse =
         power.ally.cleanse && other.statuses.includes('suppressed')
     }

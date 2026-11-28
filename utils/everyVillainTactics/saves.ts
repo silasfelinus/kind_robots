@@ -12,7 +12,13 @@ import { personalCastFor } from './personalCasts'
 import { environmentalOrigin } from './environmentalOrigins'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import type { SignaturePowerId } from '../cometAcademy/specialPowers'
-import { FIRST_BELL_MAP, inside, tileAt, type Point } from './combat'
+import {
+  FIRST_BELL_MAP,
+  MAX_ACTION_POINTS,
+  inside,
+  tileAt,
+  type Point,
+} from './combat'
 import type {
   Beat,
   ChoiceEffect,
@@ -630,7 +636,8 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
         return reject(base.id + ' has a forged ' + field + '.')
     if (!isInt(unit.hp, 0, unit.maxHp))
       return reject(unit.id + ' HP is invalid.')
-    if (!isInt(unit.ap, 0, 3)) return reject(unit.id + ' AP is invalid.')
+    if (!isInt(unit.ap, 0, MAX_ACTION_POINTS))
+      return reject(unit.id + ' AP is invalid.')
     if (!isBool(unit.moved) || !isBool(unit.fired) || !isBool(unit.overwatch))
       return reject(unit.id + ' action flags are invalid.')
     if (

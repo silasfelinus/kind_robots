@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import type { SignaturePowerId } from '../cometAcademy/specialPowers'
 import {
+  MAX_ACTION_POINTS,
   chanceFrom,
   moveAP,
   type TacticalMap,
@@ -235,6 +236,43 @@ for (const power of SIGNATURE_TACTICS) {
   }
 }
 assert.ok(resolved > 48 && rolled > 0)
+
+// Two independent rallies must not create a fourth AP that save validation
+// rejects. Preview and resolution agree even when a recipient is capped.
+for (const team of ['squad', 'rival'] as const) {
+  const first = unit('first', team, 2, 2, 'mutant-social')
+  const second = unit('second', team, 2, 3, 'tech-social')
+  const recipient = unit('recipient', team, 3, 2, 'accident-fire')
+  const state: PowerState = {
+    map: arena,
+    seed: 4242,
+    units: [first, second, recipient],
+  }
+  const firstPreview = previewPower(state, first, first)!
+  assert.equal(
+    firstPreview.effects.find((effect) => effect.id === recipient.id)?.ap,
+    1,
+  )
+  assert.ok(usePower(state, first, first))
+  assert.equal(recipient.ap, MAX_ACTION_POINTS)
+  const secondPreview = previewPower(state, second, second)!
+  assert.equal(
+    secondPreview.effects.find((effect) => effect.id === recipient.id)?.ap ?? 0,
+    0,
+  )
+  assert.ok(usePower(state, second, second))
+  assert.equal(recipient.ap, MAX_ACTION_POINTS)
+  recipient.ap = 1
+  tickPowerCooldowns(state.units, team)
+  tickPowerCooldowns(state.units, team)
+  const refill = previewPower(state, first, first)!
+  assert.equal(
+    refill.effects.find((effect) => effect.id === recipient.id)?.ap,
+    1,
+  )
+  assert.ok(usePower(state, first, first))
+  assert.equal(recipient.ap, 2)
+}
 
 // Recharge and once-per-battle limits survive turn refreshes.
 for (const power of SIGNATURE_TACTICS) {

@@ -316,4 +316,55 @@ function enterRootTunnel(run: PlumberRun) {
   assert.equal(run.hearts, 3)
 }
 
-console.log('save-the-plumber scale plates and Rootcellar tunnel ok')
+// Echo Sluice (6-3): an optional pipe-linked chamber where two plates must
+// both be weighed. One fruit on one plate leaves the full-height sluice shut;
+// carrying the second fruit onto the second plate lifts it, the seven-token
+// cache lies beyond, and the pipe home stays open throughout.
+const echo = CAMPAIGN.find((stage) => stage.code === '6-3')!
+function carryFruit(run: PlumberRun, from: number, to: number) {
+  walkTo(run, from - 3)
+  walkTo(run, from - 2)
+  assert.equal(run.facing, 1)
+  frame(run, [], ['x'])
+  assert.ok(run.heldFruit, 'she lifts the chamber fruit at ' + from)
+  walkTo(run, to - 1)
+  for (let i = 0; i < 25; i++) frame(run)
+  assert.equal(run.facing, 1)
+  frame(run, ['down'], ['x'])
+  for (let i = 0; i < 20; i++) frame(run)
+  assert.equal(run.heldFruit, null, 'she sets the fruit down on ' + to)
+}
+{
+  const run = labRun(echo)
+  assert.equal(run.plates.length, 2, 'Echo Sluice has two chamber plates')
+  walkTo(run, 12)
+  assert.ok(run.ground)
+  frame(run, [], ['down'])
+  assert.ok(run.activePipeRoom, 'the ground pipe leads into the chamber')
+  assert.equal(run.hero.x, 33 * TILE + TILE / 2)
+  for (let row = 2; row <= 7; row++)
+    assert.equal(run.solidAt(49, row), SOLID_SLUICE, 'full-height sluice')
+  // Unweighted: neither walking nor jumping gets past the sluice.
+  walkTo(run, 46)
+  for (let i = 0; i < 90; i++)
+    frame(run, ['right', 'a'], i % 30 === 0 ? ['a'] : [])
+  assert.ok(run.hero.x < 49 * TILE, 'the shut sluice seals the cache')
+  carryFruit(run, 36, 38)
+  assert.equal(run.plates.filter((plate) => plate.down).length, 1)
+  assert.equal(run.sluiceOpen, false, 'one echo is not enough')
+  carryFruit(run, 41, 43)
+  assert.ok(run.plates.every((plate) => plate.down))
+  assert.equal(run.sluiceOpen, true, 'both plates lift the sluice')
+  const before = run.tokens
+  walkTo(run, 58)
+  assert.equal(run.tokens, before + 7, 'the cache holds seven tokens')
+  walkTo(run, 33)
+  frame(run, [], ['down'])
+  assert.equal(run.activePipeRoom, undefined, 'she leaves the chamber safely')
+  assert.equal(run.deaths, 0)
+  assert.equal(run.hearts, 3)
+}
+
+console.log(
+  'save-the-plumber scale plates and Rootcellar and Echo Sluice chambers ok',
+)

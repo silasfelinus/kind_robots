@@ -163,8 +163,75 @@ assert.equal(resumed.wildwaterActive, false)
 assert.equal(
   readPlumberFile({
     ...saved,
-    slots: [{ ...saved.slots[0], pearls: ['invalid', '1-2'] }],
+    slots: [{ ...saved.slots[0], pearls: ['invalid', '1-3'] }],
   }).slots[0]?.pearls,
   undefined,
 )
 console.log('Save the Plumber Rain Stands Still Wildwater: OK')
+
+const greenhouse = CAMPAIGN.find((course) => course.code === '1-2')!
+const overgrowth = greenhouse.wildwater!
+assert.equal(overgrowth.name, 'Overgrowth')
+const garden = new PlumberRun(options, { customLevel: greenhouse })
+frame(garden)
+const pistons = garden.platforms.filter(
+  (platform) => platform.kind === 'piston',
+)
+assert.equal(pistons.length, 3)
+assert.notEqual(
+  garden.platformAt(pistons[0]!, 0).y,
+  garden.platformAt(pistons[0]!, 110).y,
+)
+walkTo(garden, 9)
+frame(garden, [], ['down'])
+assert.ok(garden.activePipeRoom)
+walkTo(garden, overgrowth.tap.col)
+frame(garden, [], ['x'])
+assert.equal(garden.wildwaterActive, true)
+for (const piston of pistons) {
+  assert.equal(garden.platformAt(piston, 0).y, piston.baseY)
+  assert.equal(garden.platformAt(piston, 110).y, piston.baseY)
+}
+walkTo(garden, 30)
+frame(garden, [], ['down'])
+assert.equal(garden.activePipeRoom, undefined)
+for (let i = 0; i < 8; i++) frame(garden)
+jumpTo(garden, 7, 18)
+
+function bounceTo(col: number, jump: boolean) {
+  const x = col * TILE + TILE / 2
+  for (let i = 0; i < 120; i++) {
+    const held: ArcadeButton[] = jump ? ['a'] : []
+    const error = x - garden.hero.x - garden.hero.vx * 5
+    if (error > 3) held.push('right')
+    if (error < -3) held.push('left')
+    frame(garden, held, jump && i === 0 ? ['a'] : [])
+    assert.equal(garden.mode, 'play')
+    if (Math.abs(garden.hero.x - x) < TILE * 2 && garden.hero.vy < -11) return
+  }
+  assert.fail(`could not bounce on bloom at column ${col}`)
+}
+bounceTo(10, true)
+bounceTo(14, false)
+const summit = overgrowth.pearl.col * TILE + TILE / 2
+for (let i = 0; i < 120 && garden.wildwaterActive; i++) {
+  const error = summit - garden.hero.x - garden.hero.vx * 5
+  frame(garden, error > 3 ? ['right'] : error < -3 ? ['left'] : [])
+  assert.equal(garden.mode, 'play')
+}
+assert.ok(garden.pearls.has('1-2'), 'the bloom chain reaches the pearl')
+assert.equal(garden.wildwaterActive, false)
+assert.equal(garden.solidAt(6, 18), 0)
+assert.notEqual(
+  garden.platformAt(pistons[0]!, 0).y,
+  garden.platformAt(pistons[0]!, 110).y,
+)
+assert.equal(garden.save, undefined)
+assert.deepEqual(
+  readPlumberFile({
+    ...saved,
+    slots: [{ ...saved.slots[0], pearls: ['1-1', '1-2', 'invalid'] }],
+  }).slots[0]?.pearls,
+  ['1-1', '1-2'],
+)
+console.log('Save the Plumber Overgrowth bloom chain: OK')

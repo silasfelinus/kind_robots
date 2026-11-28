@@ -4,7 +4,7 @@
     :class="{ 'is-cpu': cpu }"
     :aria-label="cpu ? 'Choose CPU deck' : 'Choose duel deck'"
   >
-    <b v-if="!cpu">YOUR DUEL DECK</b>
+    <b v-if="!cpu">{{ shared ? 'YOUR MATCH DECK' : 'YOUR DUEL DECK' }}</b>
     <div class="sc-duel-modes" role="group" aria-label="Deck format">
       <button
         v-for="item in modes"
@@ -49,6 +49,7 @@ import type { TeamId } from '~/utils/slimeCity/prototypes'
 const props = defineProps<{
   team: TeamId
   cpu?: boolean
+  shared?: boolean
   modelValue: ClashRewardSetup | null
 }>()
 const emit = defineEmits<{
@@ -60,7 +61,8 @@ const modes = [
   { id: 'alliance', name: 'Alliance' },
 ] as const
 const mode = ref<(typeof modes)[number]['id']>('alliance')
-if (props.cpu && lab.clashFormat === 'solo') mode.value = 'faction'
+if ((props.cpu || props.shared) && lab.clashFormat === 'solo')
+  mode.value = 'faction'
 const deckId = ref('')
 const factionDeck = ref('starter')
 const constructed = computed(() =>

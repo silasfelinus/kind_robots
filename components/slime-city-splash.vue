@@ -147,7 +147,11 @@
             CLOSE
           </button>
         </div>
-        <GameAchievementStrip game="slime-city" layout="icons" />
+        <GameAchievementStrip
+          game="slime-city"
+          layout="icons"
+          :art-fallbacks="slimeCityFallbacks"
+        />
         <p class="scs-trophies-note">
           Win Clashes, finish crew stories and climb the Tower to earn them.
         </p>
@@ -394,6 +398,34 @@ function resumeJourney(): void {
   // Continue always restores the saved crew, even if the roster preview changed.
   pickedId.value = lab.activeTeam
   go(() => lab.showCampaign())
+}
+
+const slimeCityFallbacks: Readonly<Record<string, number | null>> = {
+  'slime-city-first-clash-win': slimeArtId('bosses', 'catgirls/gloat'),
+  'slime-city-chapter-won': slimeArtId('story', 'catgirls/journey-mixed'),
+  'slime-city-third-form': slimeArtId('evolutions', 'pogo-punk@3'),
+  'slime-city-first-pack': slimeArtId('cards', 'broker'),
+  'slime-city-alliance-builder': slimeArtId('ui', 'title-splash'),
+  'slime-city-district-champion': slimeArtId('districts', 'pitworks'),
+  'slime-city-campaign-catgirls': slimeArtId('story', 'catgirls/journey-left'),
+  'slime-city-campaign-bloodfairies': slimeArtId(
+    'story',
+    'bloodfairies/journey-left',
+  ),
+  'slime-city-campaign-ironjaw': slimeArtId('story', 'ironjaw/journey-left'),
+  'slime-city-campaign-riot': slimeArtId('story', 'riot/journey-left'),
+  'slime-city-campaign-undertow': slimeArtId('story', 'undertow/journey-left'),
+  'slime-city-campaign-exchange': slimeArtId('story', 'exchange/journey-left'),
+  'slime-city-conviction-triumph': slimeArtId('story', 'ironjaw/journey-mixed'),
+  'slime-city-cunning-compromise': slimeArtId(
+    'story',
+    'exchange/journey-right',
+  ),
+  'slime-city-pvp-win': 272642,
+  'slime-city-tower-floor-6': slimeArtId('districts', 'foundry'),
+  'slime-city-tower-summit': 272644,
+  'slime-city-all-crews': 272641,
+  'slime-city-city-finale': slimeArtId('districts', 'crown'),
 }
 
 const achievementsOpen = ref(false)

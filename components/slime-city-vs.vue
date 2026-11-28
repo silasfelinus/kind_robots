@@ -41,7 +41,7 @@
     </div>
 
     <div class="vs-columns kr-panes">
-      <div class="vs-left kr-pane-scroll">
+      <div class="vs-left">
         <article
           class="vs-showcase"
           aria-live="polite"
@@ -59,24 +59,21 @@
             <small class="vs-label">{{ lab.team.district }} · YOUR CREW</small>
             <h2>{{ lab.team.name }}</h2>
             <em>{{ lab.team.motto }}</em>
-            <p>{{ lab.team.hook }}</p>
-            <section class="vs-power" data-testid="slime-vs-faction-power">
-              <span class="vs-label">SIGNATURE POWER · ONCE PER MATCH</span>
-              <h3>{{ power.symbol }} {{ power.name }}</h3>
-              <p>{{ power.text }}</p>
-              <p><b>OVERCHARGED:</b> {{ power.overcharge }}</p>
-              <small>{{ OVERCHARGE_RULE }}</small>
-            </section>
+            <button
+              type="button"
+              class="vs-power-button"
+              data-testid="slime-vs-faction-power"
+              aria-haspopup="dialog"
+              @click="powerDialog?.showModal()"
+            >
+              <small>SIGNATURE POWER</small>
+              <b>{{ power.symbol }} {{ power.name }} ›</b>
+            </button>
           </div>
         </article>
         <article class="vs-card vs-cpu" data-testid="slime-vs-cpu">
           <h3>VS CPU</h3>
-          <SlimeCityDuelDeckPicker
-            v-model="cpuDeck"
-            :team="lab.activeTeam"
-            class="vs-cpu-deck"
-            cpu
-          />
+          <span class="vs-label">USES YOUR MATCH DECK</span>
           <p class="vs-note">
             {{
               lab.cpuRewardsAvailable && lab.progressLoaded
@@ -121,18 +118,15 @@
             class="vs-go"
             :class="{ 'is-quiet': lab.vsBout }"
             data-testid="slime-vs-fight-cpu"
-            :disabled="lab.progressBusy || !cpuDeck"
-            @click="cpuDeck && lab.playClashFormat(cpuDeck.format, cpuDeck)"
+            :disabled="lab.progressBusy || !duelDeck"
+            @click="duelDeck && lab.playClashFormat(duelDeck.format, duelDeck)"
           >
             FIGHT THE CPU ›
           </button>
         </article>
       </div>
 
-      <article
-        class="vs-card vs-players kr-pane-scroll"
-        data-testid="slime-vs-players"
-      >
+      <article class="vs-card vs-players" data-testid="slime-vs-players">
         <h3>
           <span aria-hidden="true">⚔</span> VS PLAYERS
           <small
@@ -151,8 +145,11 @@
             {{ pvp.tally.draw }}D</small
           >
         </h3>
-        <SlimeCityDuelDeckPicker v-model="duelDeck" :team="lab.activeTeam" />
-        <SlimeCityTurnEmailPreference />
+        <SlimeCityDuelDeckPicker
+          v-model="duelDeck"
+          :team="lab.activeTeam"
+          shared
+        />
         <section
           class="vs-friends"
           aria-label="Challenge a friend"
@@ -191,67 +188,14 @@
             No friends yet. Find a player by username, or invite one by email.
           </p>
         </section>
-        <form
-          class="vs-join vs-find"
-          data-testid="slime-vs-find"
-          @submit.prevent="findOrInvite"
+        <button
+          type="button"
+          class="vs-more"
+          aria-haspopup="dialog"
+          @click="optionsDialog?.showModal()"
         >
-          <input
-            v-model="lookup"
-            type="text"
-            autocomplete="off"
-            autocapitalize="off"
-            placeholder="Username or email"
-            aria-label="Find a player by username, or invite by email"
-            data-testid="slime-vs-lookup"
-          />
-          <button
-            type="submit"
-            :disabled="!lookup.trim() || pvp.searching"
-            data-testid="slime-vs-lookup-go"
-          >
-            {{ isEmail ? 'EMAIL INVITE' : pvp.searching ? '…' : 'FIND' }}
-          </button>
-        </form>
-        <ul
-          v-if="pvp.players.length || pvp.searchMessage || mailNote"
-          class="vs-found"
-          aria-live="polite"
-        >
-          <li v-for="player in pvp.players" :key="player.id">
-            <span class="vs-avatar" aria-hidden="true">
-              <img
-                v-if="avatarOf(player)"
-                :src="avatarOf(player)"
-                alt=""
-                loading="lazy"
-              />
-              <template v-else>{{ initialOf(player.username) }}</template>
-            </span>
-            <b>{{ player.username }}</b>
-            <button
-              type="button"
-              :disabled="
-                requested.includes(player.id) ||
-                player.allowFriendRequests === false
-              "
-              :data-testid="'slime-vs-add-' + player.id"
-              @click="addFriend(player.id)"
-            >
-              {{
-                requested.includes(player.id)
-                  ? 'REQUEST SENT'
-                  : player.allowFriendRequests === false
-                    ? 'NOT ACCEPTING'
-                    : 'ADD FRIEND'
-              }}
-            </button>
-          </li>
-          <li v-if="pvp.searchMessage" class="vs-hint">
-            {{ pvp.searchMessage }}
-          </li>
-          <li v-if="mailNote" class="vs-hint">{{ mailNote }}</li>
-        </ul>
+          FIND / INVITE · NOTIFICATIONS ›
+        </button>
         <p v-if="pvp.error || pvp.gamesError" class="vs-error" role="alert">
           {{ pvp.error || pvp.gamesError }}
         </p>
@@ -347,50 +291,130 @@
             No active games. Challenge a friend or post an open challenge.
           </li>
         </ol>
-        <details class="vs-link-play">
-          <summary>Open challenge, or a private link</summary>
-          <div class="vs-player-actions">
-            <button
-              type="button"
-              class="vs-go"
-              title="Listed here for any player to join"
-              data-testid="slime-vs-open-challenge"
-              :disabled="pvp.sending || !duelDeck"
-              @click="challenge(true)"
-            >
-              OPEN CHALLENGE ›
-            </button>
-            <button
-              type="button"
-              class="vs-go is-quiet"
-              title="Only someone with your link can join"
-              data-testid="slime-vs-challenge"
-              :disabled="pvp.sending || !duelDeck"
-              @click="challenge(false)"
-            >
-              PRIVATE LINK ›
-            </button>
-            <form class="vs-join" @submit.prevent="joinInvite">
-              <input
-                v-model="invite"
-                type="text"
-                inputmode="url"
-                placeholder="Paste an invite link"
-                aria-label="Invite link or code"
-                data-testid="slime-vs-invite"
-              />
-              <button
-                type="submit"
-                :disabled="!inviteId"
-                data-testid="slime-vs-join"
-              >
-                JOIN
-              </button>
-            </form>
-          </div>
-        </details>
       </article>
     </div>
+    <dialog ref="powerDialog" class="vs-dialog" aria-label="Faction power">
+      <div class="vs-dialog-head">
+        <h3>{{ lab.team.name }}</h3>
+        <button type="button" @click="powerDialog?.close()">CLOSE</button>
+      </div>
+      <p>{{ lab.team.hook }}</p>
+      <section class="vs-power">
+        <span class="vs-label">SIGNATURE POWER · ONCE PER MATCH</span>
+        <h3>{{ power.symbol }} {{ power.name }}</h3>
+        <p>{{ power.text }}</p>
+        <p><b>OVERCHARGED:</b> {{ power.overcharge }}</p>
+        <small>{{ OVERCHARGE_RULE }}</small>
+      </section>
+    </dialog>
+    <dialog ref="optionsDialog" class="vs-dialog" aria-label="Match options">
+      <div class="vs-dialog-head">
+        <h3>CHALLENGES &amp; NOTIFICATIONS</h3>
+        <button type="button" @click="optionsDialog?.close()">CLOSE</button>
+      </div>
+      <SlimeCityTurnEmailPreference />
+      <form
+        class="vs-join vs-find"
+        data-testid="slime-vs-find"
+        @submit.prevent="findOrInvite"
+      >
+        <input
+          v-model="lookup"
+          type="text"
+          autocomplete="off"
+          autocapitalize="off"
+          placeholder="Username or email"
+          aria-label="Find a player by username, or invite by email"
+          data-testid="slime-vs-lookup"
+        />
+        <button
+          type="submit"
+          :disabled="!lookup.trim() || pvp.searching"
+          data-testid="slime-vs-lookup-go"
+        >
+          {{ isEmail ? 'EMAIL INVITE' : pvp.searching ? '…' : 'FIND' }}
+        </button>
+      </form>
+      <ul
+        v-if="pvp.players.length || pvp.searchMessage || mailNote"
+        class="vs-found"
+        aria-live="polite"
+      >
+        <li v-for="player in pvp.players" :key="player.id">
+          <span class="vs-avatar" aria-hidden="true">
+            <img
+              v-if="avatarOf(player)"
+              :src="avatarOf(player)"
+              alt=""
+              loading="lazy"
+            />
+            <template v-else>{{ initialOf(player.username) }}</template>
+          </span>
+          <b>{{ player.username }}</b>
+          <button
+            type="button"
+            :disabled="
+              requested.includes(player.id) ||
+              player.allowFriendRequests === false
+            "
+            :data-testid="'slime-vs-add-' + player.id"
+            @click="addFriend(player.id)"
+          >
+            {{
+              requested.includes(player.id)
+                ? 'REQUEST SENT'
+                : player.allowFriendRequests === false
+                  ? 'NOT ACCEPTING'
+                  : 'ADD FRIEND'
+            }}
+          </button>
+        </li>
+        <li v-if="pvp.searchMessage" class="vs-hint">
+          {{ pvp.searchMessage }}
+        </li>
+        <li v-if="mailNote" class="vs-hint">{{ mailNote }}</li>
+      </ul>
+      <div class="vs-player-actions">
+        <button
+          type="button"
+          class="vs-go"
+          title="Listed here for any player to join"
+          data-testid="slime-vs-open-challenge"
+          :disabled="pvp.sending || !duelDeck"
+          @click="challenge(true)"
+        >
+          OPEN CHALLENGE ›
+        </button>
+        <button
+          type="button"
+          class="vs-go is-quiet"
+          title="Only someone with your link can join"
+          data-testid="slime-vs-challenge"
+          :disabled="pvp.sending || !duelDeck"
+          @click="challenge(false)"
+        >
+          PRIVATE LINK ›
+        </button>
+        <form class="vs-join" @submit.prevent="joinInvite">
+          <input
+            v-model="invite"
+            type="text"
+            inputmode="url"
+            placeholder="Paste an invite link"
+            aria-label="Invite link or code"
+            data-testid="slime-vs-invite"
+          />
+          <button
+            type="submit"
+            :disabled="!inviteId"
+            data-testid="slime-vs-join"
+          >
+            JOIN
+          </button>
+        </form>
+      </div>
+      <p v-if="pvp.error" class="vs-error" role="alert">{{ pvp.error }}</p>
+    </dialog>
   </section>
 </template>
 
@@ -423,7 +447,8 @@ function selectCrew(id: TeamId): void {
   if (id !== lab.activeTeam) lab.chooseTeam(id)
 }
 
-const cpuDeck = ref<ClashRewardSetup | null>(null)
+const powerDialog = ref<HTMLDialogElement | null>(null)
+const optionsDialog = ref<HTMLDialogElement | null>(null)
 function teamName(id: TeamId): string {
   return TEAMS.find((team) => team.id === id)?.name ?? id
 }
@@ -605,11 +630,12 @@ onMounted(() => {
   gap: 0.6rem;
 }
 .vs-showcase {
-  flex: 1 0 auto;
-  min-height: 16rem;
+  flex: 1 1 0;
+  min-height: 0;
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
   overflow: hidden;
   border: 2px solid #a6e33c;
   border-radius: 0.9rem;
@@ -621,22 +647,22 @@ onMounted(() => {
 }
 .vs-cover :deep(img) {
   object-position: center;
-  object-fit: contain;
+  object-fit: cover;
 }
 .vs-faction-copy {
   min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
-  padding: clamp(0.55rem, 1.5cqw, 1rem);
-  font-size: clamp(0.75rem, 1.5cqw, 1rem);
+  gap: 0.25rem;
+  padding: 0.55rem;
+  font-size: 0.75rem;
   line-height: 1.35;
 }
 .vs-faction-copy h2 {
   margin: 0;
   color: #c5ff59;
-  font-size: clamp(1.05rem, 3cqw, 2.3rem);
+  font-size: clamp(0.9rem, 2cqw, 1.5rem);
   font-weight: 1000;
   font-style: italic;
   line-height: 1.05;
@@ -670,7 +696,8 @@ onMounted(() => {
   flex: 1 1 auto;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   gap: 0.6rem;
 }
 .vs-card {
@@ -705,11 +732,67 @@ onMounted(() => {
   padding: 0.55rem;
 }
 .vs-players {
-  overflow-y: auto;
+  overflow: hidden;
 }
 .vs-players .vs-games {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+}
+.vs-power-button,
+.vs-more,
+.vs-dialog-head button {
+  border: 1px solid #586e68;
+  border-radius: 0.45rem;
+  background: #16262b;
+  color: #c5ff59;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+.vs-power-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+.vs-power-button small {
+  font-size: 0.6rem;
+}
+.vs-more {
   flex: none;
-  min-height: 5rem;
+}
+.vs-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(32rem, 92vw);
+  max-height: 85dvh;
+  overflow-y: auto;
+  padding: 1rem;
+  border: 1px solid #a6e33c;
+  border-radius: 0.85rem;
+  background: #101c22;
+  color: #e7f3ee;
+}
+.vs-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.vs-dialog::backdrop {
+  background: #080c13bd;
+}
+.vs-dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.vs-dialog-head h3 {
+  font-weight: 900;
+  color: #c5ff59;
 }
 .vs-card h3 {
   margin: 0;
@@ -1100,10 +1183,6 @@ onMounted(() => {
     flex-direction: column;
     text-align: center;
   }
-  .vs-showcase {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(10rem, 1fr) auto;
-  }
 }
 @container (max-width: 640px) {
   .sc-vs {
@@ -1112,14 +1191,13 @@ onMounted(() => {
   }
   .vs-columns {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 0.85fr) minmax(0, 1.15fr);
     gap: 0.4rem;
   }
   .vs-left {
     gap: 0.4rem;
   }
   .vs-showcase {
-    min-height: 12rem;
     grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
   }
@@ -1128,7 +1206,20 @@ onMounted(() => {
     padding: 0.55rem;
   }
   .vs-cpu .vs-note {
-    font-size: 0.65rem;
+    display: none;
+  }
+  .vs-faction-copy em {
+    display: none;
+  }
+  .vs-power-button {
+    flex-wrap: wrap;
+    padding: 0.25rem;
+  }
+  .vs-players {
+    overflow-y: auto;
+  }
+  .vs-players .vs-games {
+    flex: 1 0 auto;
   }
   .vs-players .vs-go {
     padding: 0.55rem;

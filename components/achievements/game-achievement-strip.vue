@@ -157,9 +157,10 @@ const props = withDefaults(
   defineProps<{
     game: string
     artOverrides?: Readonly<Record<string, string>>
+    artFallbacks?: Readonly<Record<string, number | null>>
     layout?: 'list' | 'row' | 'icons'
   }>(),
-  { layout: 'list', artOverrides: () => ({}) },
+  { layout: 'list', artOverrides: () => ({}), artFallbacks: () => ({}) },
 )
 
 const achievementStore = useAchievementStore()
@@ -182,9 +183,13 @@ const layoutClass = computed(() =>
 const entries = computed(() =>
   achievementsForGame(props.game).map((entry) => {
     const row = achievementStore.achievementByCode(entry.code)
-    const imagePath = [props.artOverrides?.[entry.code], row?.imagePath].find(
-      (src) => src && !failedImages.value.has(src),
-    )
+    const fallback = props.artFallbacks?.[entry.code]
+    const imagePath = [
+      props.artOverrides?.[entry.code],
+      row?.imagePath,
+      row?.artImageId ? '/api/art/images/' + row.artImageId + '/file' : null,
+      fallback ? '/api/art/images/' + fallback + '/file' : null,
+    ].find((src) => src && !failedImages.value.has(src))
     return {
       ...entry,
       imagePath: imagePath || null,
@@ -238,7 +243,7 @@ onMounted(() => {
 }
 
 .game-achievement-locked {
-  filter: grayscale(1) brightness(0.25) blur(2px);
-  opacity: 0.7;
+  filter: grayscale(0.85) brightness(0.65);
+  opacity: 0.65;
 }
 </style>

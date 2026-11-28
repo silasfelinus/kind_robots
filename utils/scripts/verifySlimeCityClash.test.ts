@@ -197,7 +197,21 @@ assert.match(splash, /data-testid="slime-splash-decks"/)
 // Main-game standard (conductor slime-city t-063): the title console reaches
 // Achievements and the Scrapbook/endings gallery as well as Settings.
 assert.match(splash, /data-testid="slime-splash-achievements"/)
-assert.match(splash, /<GameAchievementStrip game="slime-city"/)
+assert.match(splash, /<GameAchievementStrip\s+game="slime-city"/)
+const vsConsole = readFileSync('components/slime-city-vs.vue', 'utf8')
+assert.doesNotMatch(vsConsole, /vs-left kr-pane-scroll/)
+assert.match(vsConsole, /ref="powerDialog"/)
+assert.match(vsConsole, /ref="optionsDialog"/)
+assert.equal((vsConsole.match(/<SlimeCityDuelDeckPicker/g) ?? []).length, 1)
+assert.match(vsConsole, /lab\.playClashFormat\(duelDeck\.format, duelDeck\)/)
+const badgeStrip = readFileSync(
+  'components/achievements/game-achievement-strip.vue',
+  'utf8',
+)
+assert.match(badgeStrip, /row\?\.imagePath/)
+assert.match(badgeStrip, /row\?\.artImageId/)
+assert.match(badgeStrip, /props\.artFallbacks\?\.\[entry\.code\]/)
+assert.equal((splash.match(/'slime-city-[^']+':/g) ?? []).length, 19)
 assert.match(splash, /data-testid="slime-splash-scrapbook"/)
 assert.match(splash, /lab\.endingsOpen = true/)
 assert.match(splash, /prefers-reduced-motion: reduce/)

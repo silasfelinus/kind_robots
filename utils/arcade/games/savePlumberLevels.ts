@@ -62,6 +62,10 @@ export type WildwaterDef = {
   bloomPistons?: boolean
   reverseLifts?: boolean
   ceilingLoop?: boolean
+  assembly?: {
+    belt: { row: number; from: number; to: number }
+    crates: { col: number; row: number }[]
+  }
   /** Spillway sheets that run upward while Wildwater lasts and carry her. */
   escalators?: { col: number; width: number; top: number; bottom: number }[]
 }
@@ -1311,6 +1315,20 @@ export const DRIP_PARLOUR: StageDef = {
 export const RUSTBOLT_KEEP: StageDef = {
   code: '1-f',
   name: 'Rustbolt Keep',
+  wildwater: {
+    name: 'Assembly Line',
+    tap: { col: 33, row: 7 },
+    pearl: { col: 44, row: 12 },
+    steps: [],
+    assembly: {
+      belt: { row: 21, from: 36, to: 45 },
+      crates: [
+        { col: 38, row: 18 },
+        { col: 41, row: 15 },
+        { col: 44, row: 12 },
+      ],
+    },
+  },
   rows: Array.from({ length: 24 }, (_, row) => {
     const line = Array.from({ length: 122 }, () => '.')
     if (row >= 21) line.fill('#')
@@ -1472,6 +1490,7 @@ export const CAMPAIGN: StageDef[] = [
 export const WILDWATER_COURSE_CODES: readonly string[] = [
   ...CAMPAIGN.filter((course) => course.wildwater).map((course) => course.code),
   DRIP_PARLOUR.code,
+  RUSTBOLT_KEEP.code,
   SLUICEGATE_STEPS.code,
 ]
 

@@ -79,10 +79,12 @@ for (const method of ['get', 'put']) {
 }
 const put = readFileSync('server/api/crystal-street/account-save.put.ts', 'utf8')
 assert.match(put, /expectedRevision/)
+assert.match(put, /input\.ownerId !== user\.id/)
 assert.match(put, /revision: prior/)
 assert.match(put, /P2002/)
 const store = readFileSync('stores/crystalStreetStore.ts', 'utf8')
 assert.match(store, /accountSaveKey\(owner\)/)
+assert.match(store, /result\.data\?\.ownerId !== owner/)
 assert.match(store, /generation === epoch && owner === accountOwner\.value/)
 assert.match(store, /persist\('scrapbook', 'reset'\)/)
 assert.match(store, /persist\('run'\)/)

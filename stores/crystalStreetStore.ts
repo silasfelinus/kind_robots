@@ -210,11 +210,13 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
     accountStatus.value = 'Syncing your account…'
     try {
       const result = await performFetch<{
+        ownerId: number
         save: CrystalStreetSave | null
         revision: number | null
       }>('/api/crystal-street/account-save')
       if (!current()) return
-      if (!result.success || !result.data) throw new Error('Read failed')
+      if (!result.success || result.data?.ownerId !== owner)
+        throw new Error('Read failed or account changed')
       const { save, revision } = result.data
       if (
         (save === null && revision !== null) ||
@@ -253,7 +255,11 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
         '/api/crystal-street/account-save',
         {
           method: 'PUT',
-          body: JSON.stringify({ save: sent, expectedRevision: revision }),
+          body: JSON.stringify({
+            ownerId: owner,
+            save: sent,
+            expectedRevision: revision,
+          }),
         },
       )
       if (!current()) return

@@ -20,7 +20,16 @@ export default defineEventHandler(async (event) => {
         statusCode: 400,
         message: 'Invalid archive request.',
       })
-    const input = body as { save?: unknown; expectedRevision?: unknown }
+    const input = body as {
+      ownerId?: unknown
+      save?: unknown
+      expectedRevision?: unknown
+    }
+    if (input.ownerId !== user.id)
+      throw createError({
+        statusCode: 403,
+        message: 'Account changed. Read your own save first.',
+      })
     if (
       input.expectedRevision !== null &&
       (!Number.isSafeInteger(input.expectedRevision) ||

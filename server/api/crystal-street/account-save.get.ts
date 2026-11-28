@@ -20,11 +20,11 @@ export default defineEventHandler(async (event) => {
       },
       select: { payload: true, revision: true, updatedAt: true },
     })
-    if (!row) return { success: true, data: { save: null, revision: null } }
+    if (!row) return { success: true, data: { ownerId: user.id, save: null, revision: null } }
     const save = parseCrystalStreetSave(row.payload)
     return {
       success: true,
-      data: { save, revision: row.revision, updatedAt: row.updatedAt },
+      data: { ownerId: user.id, save, revision: row.revision, updatedAt: row.updatedAt },
     }
   } catch (error) {
     const failure = errorHandler(error)

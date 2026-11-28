@@ -5,7 +5,7 @@ subtitle: 'Your karma and mana, in one place'
 description: See your karma, earned by helping others here, and your mana, the budget you spend to make AI art, plus how each changed. Sign in free to open it.
 image: splash/dashboard.png
 icon: kind-icon:bag
-tooltip: Your karma and mana balances, and how you earned them.
+tooltip: Karma is earned by helping others; mana is what you spend to make AI art.
 dottiTip: Karma tracks how much good you've done here; mana is what you spend to make things.
 amiTip: One tracks kindness, the other tracks fuel. Neither one runs out if you keep showing up.
 channelKey: home

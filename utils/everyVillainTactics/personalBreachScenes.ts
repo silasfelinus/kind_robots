@@ -878,19 +878,9 @@ export function personalBreachNode(
     (unit) => unit.team === 'squad' && unit.id !== 'backdraft' && unit.hp > 0,
   )
   const supportingLine =
-    [
-      'c1',
-      'cv',
-      'ce',
-      'v1',
-      'e1',
-      't1',
-      'f1',
-      's1',
-      'wv',
-      'we',
-    ].includes(node.id) &&
-    !LEAD_SPOKEN[lead]?.includes(node.id)
+    ['c1', 'cv', 'ce', 'v1', 'e1', 't1', 'f1', 's1', 'wv', 'we'].includes(
+      node.id,
+    ) && !LEAD_SPOKEN[lead]?.includes(node.id)
   const speaker = supportingLine ? (ally?.id ?? 'backdraft') : 'backdraft'
   return { ...node, speaker, text }
 }

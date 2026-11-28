@@ -1536,9 +1536,7 @@ const roofNodes = ROOFTOP_BROADCAST_SCRIPT.scenes.flatMap(
 const roofVoices = new Set<string>()
 assert.deepEqual(
   Object.keys(PERSONAL_ROOFTOP_LINES).sort(),
-  IDENTITY_ARCS.filter((identity) => identity.signature.startsWith('accident-'))
-    .map((identity) => identity.signature)
-    .sort(),
+  IDENTITY_ARCS.map((identity) => identity.signature).sort(),
 )
 for (const lead of Object.keys(PERSONAL_ROOFTOP_LINES)) {
   for (const perspective of ['hero', 'villain'] as const) {
@@ -1609,5 +1607,5 @@ for (const lead of Object.keys(PERSONAL_ROOFTOP_LINES)) {
     assert.equal(JSON.stringify(state), before)
   }
 }
-assert.equal(roofVoices.size, 120)
+assert.equal(roofVoices.size, 720)
 assert.ok(store.includes('personalRooftopNode('))

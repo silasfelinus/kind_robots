@@ -4,7 +4,7 @@
 // (never real money), the Paint Shop that opens between fairgrounds, the rider's kit it sells,
 // and the save kept at the start of each fairground (utils/arcade/saves.ts holds it by slug).
 
-import { FAIRGROUNDS } from './fairgrounds'
+import { FAIRGROUNDS, SECRET_FAIR_INDEX } from './fairgrounds'
 
 export type Pattern = 'plain' | 'stripes' | 'hearts' | 'stars'
 export const PATTERNS: readonly Pattern[] = [
@@ -142,6 +142,18 @@ export function clearTickets(
 // --- the save ------------------------------------------------------------------------------------
 
 /** A festival kept at a fairground's start (ArcadeGameInstance.save), handed back as `resume`. */
+/** One lifetime bow per standard fairground, in stable campaign order. */
+export function readGoldenBows(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return []
+  return FAIRGROUNDS.filter((fair) => raw.includes(fair.id)).map(
+    (fair) => fair.id,
+  )
+}
+
+export function hasAllGoldenBows(bows: readonly string[]): boolean {
+  return FAIRGROUNDS.every((fair) => bows.includes(fair.id))
+}
+
 export type FestivalSave = {
   v: 1
   /** The fairground to start (an index into FAIRGROUNDS). */
@@ -156,6 +168,8 @@ export type FestivalSave = {
   champion: boolean
   /** A champion's harder, mirrored festival is in progress. */
   encore?: boolean
+  goldenBows?: string[]
+  trueChampion?: boolean
 }
 
 const isCount = (v: unknown, max: number): v is number =>
@@ -166,7 +180,13 @@ export function readFestivalSave(raw: unknown): FestivalSave | null {
   if (!raw || typeof raw !== 'object') return null
   const v = raw as Record<string, unknown>
   if (v.v !== 1) return null
-  if (!isCount(v.fair, FAIRGROUNDS.length - 1)) return null
+  if (!isCount(v.fair, SECRET_FAIR_INDEX)) return null
+  const goldenBows = readGoldenBows(v.goldenBows)
+  const unlocked = hasAllGoldenBows(goldenBows)
+  if (v.fair === SECRET_FAIR_INDEX && !unlocked) return null
+  if (v.trueChampion !== undefined && typeof v.trueChampion !== 'boolean')
+    return null
+  if (v.trueChampion && !unlocked) return null
   if (!isCount(v.score, 5_000_000)) return null
   if (!isCount(v.lives, MAX_LIVES) || v.lives < 1) return null
   if (!isCount(v.tickets, MAX_TICKETS)) return null
@@ -195,6 +215,8 @@ export function readFestivalSave(raw: unknown): FestivalSave | null {
     continued: v.continued,
     champion: v.champion,
     ...(v.encore === true ? { encore: true } : {}),
+    ...(goldenBows.length ? { goldenBows } : {}),
+    ...(v.trueChampion === true ? { trueChampion: true } : {}),
     kit: {
       grip: k.grip,
       spool: k.spool,

@@ -5,6 +5,8 @@ import { emptyInput } from '../arcade/types'
 import { GRID, T } from '../arcade/ribbonRiders/grid'
 import {
   FAIRGROUNDS,
+  RAINBOW_SPOOL,
+  SECRET_FAIR_INDEX,
   arenaById,
   openEvents,
 } from '../arcade/ribbonRiders/fairgrounds'
@@ -14,6 +16,8 @@ import type {
 } from '../arcade/ribbonRiders/lateMarshals'
 import { makeMarshal, type MarshalHost } from '../arcade/ribbonRiders/marshals'
 import { RIVALS } from '../arcade/ribbonRiders/rivals'
+import { readFestivalSave, newKit } from '../arcade/ribbonRiders/festival'
+import type { FestivalSave } from '../arcade/ribbonRiders/festival'
 
 function host() {
   const clock = { beat: 0, clears: 0, bumps: 0, sayings: [] as string[] }
@@ -222,6 +226,112 @@ function host() {
   next.pressed.a = true
   champion.update(next)
   assert.equal(champion.menu?.kind, 'title', 'credits return to the title')
+}
+
+{
+  type Arena = (typeof FAIRGROUNDS)[number]['arenas'][number]
+  type SecretProbe = {
+    save: FestivalSave | null
+    fair: number
+    roundTicks: number
+    kidWrapped: boolean
+    escortHits: number
+    cleared: Set<string>
+    goldenBows: string[]
+    titleChoices: string[]
+    menu: { kind: string } | null
+    marshal: { kind: string } | null
+    trueEnding: boolean
+    openFairground(fair: number): void
+    playArena(arena: Arena): void
+    clearEvent(arena: Arena): void
+    afterClear(): void
+    chooseTitle(choice: string): void
+    openTitle(): void
+  }
+  const run = (resume?: FestivalSave) =>
+    create({
+      rng: mulberry32(42),
+      sound: { play: () => {} },
+      demo: false,
+      hiScore: 0,
+      selectScreen: true,
+      resume,
+    }) as unknown as SecretProbe
+
+  const legacy: FestivalSave = {
+    v: 1,
+    fair: 0,
+    score: 0,
+    lives: 3,
+    tickets: 0,
+    kit: newKit(),
+    continued: false,
+    champion: false,
+  }
+  assert.deepEqual(readFestivalSave(legacy), legacy)
+  assert.equal(
+    readFestivalSave({ ...legacy, fair: SECRET_FAIR_INDEX }),
+    null,
+    'a locked secret checkpoint cannot be loaded',
+  )
+  const game = run(legacy)
+  assert.ok(!game.titleChoices.includes('spool'))
+  game.chooseTitle('spool')
+  assert.equal(game.menu?.kind, 'title', 'locked choice cannot enter')
+
+  for (const [i, fair] of FAIRGROUNDS.entries()) {
+    const special = fair.arenas.find((a) => a.special)!
+    game.openFairground(i)
+    game.playArena(special)
+    game.roundTicks = special.par + 1
+    game.clearEvent(special)
+    assert.equal(game.goldenBows.length, i, 'late clears do not earn gold')
+    game.roundTicks = special.par
+    game.kidWrapped = true
+    game.clearEvent(special)
+    assert.equal(game.goldenBows.length, i, 'wrapping a friend loses gold')
+    game.kidWrapped = false
+    if (special.objective === 'escort') {
+      game.escortHits = 1
+      game.clearEvent(special)
+      assert.equal(game.goldenBows.length, i, 'a damaged float loses gold')
+      game.escortHits = 0
+    }
+    game.clearEvent(special)
+    game.clearEvent(special)
+    assert.equal(game.goldenBows.length, i + 1, 'one bow per fairground')
+    assert.deepEqual(game.save?.goldenBows, game.goldenBows)
+  }
+  const bows = game.goldenBows
+  assert.deepEqual(
+    readFestivalSave({
+      ...legacy,
+      goldenBows: [...bows, bows[0], 'fake'],
+    })?.goldenBows,
+    bows,
+  )
+  const restored = run(game.save!)
+  assert.ok(restored.titleChoices.includes('spool'))
+  restored.chooseTitle('spool')
+  assert.equal(restored.fair, SECRET_FAIR_INDEX)
+  assert.equal(restored.save?.fair, SECRET_FAIR_INDEX)
+  assert.equal(restored.menu?.kind, 'board')
+  assert.ok(readFestivalSave(restored.save))
+  for (const arena of RAINBOW_SPOOL.arenas) {
+    assert.deepEqual(openEvents(RAINBOW_SPOOL, restored.cleared), [arena.id])
+    restored.playArena(arena)
+    assert.equal(restored.marshal?.kind ?? null, arena.marshal ?? null)
+    restored.clearEvent(arena)
+    restored.afterClear()
+    if (arena.next.length) assert.equal(restored.menu?.kind, 'board')
+  }
+  assert.equal(restored.menu?.kind, 'credits')
+  assert.equal(restored.trueEnding, true)
+  assert.equal(restored.save?.trueChampion, true)
+  assert.equal(restored.save?.champion, true)
+  assert.equal(restored.save?.fair, 0)
+  assert.deepEqual(restored.save?.goldenBows, bows)
 }
 
 console.log('ribbon riders late circuit and Grand Marshals: ok')

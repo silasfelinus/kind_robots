@@ -96,6 +96,8 @@ import { BEAT_TICKS, MARSHAL_MUSIC, MIDWAY_MUSIC } from '../ribbonRiders/music'
 import {
   FAIRGROUNDS,
   OBJECTIVES,
+  SECRET_FAIR_INDEX,
+  fairgroundAt,
   arenaById,
   encoreArena,
   openEvents,
@@ -111,7 +113,9 @@ import {
   SPOOL_STEP,
   buy,
   clearTickets,
+  hasAllGoldenBows,
   newKit,
+  readGoldenBows,
   readFestivalSave,
   shopBlock,
   type FestivalSave,
@@ -200,7 +204,7 @@ const TAG_LAP_PACE = 0.88
 
 type Mode = 'midway' | 'festival'
 type MenuKind = 'title' | 'board' | 'shop' | 'credits'
-type TitleChoice = 'continue' | 'new' | 'midway' | 'encore'
+type TitleChoice = 'continue' | 'new' | 'midway' | 'encore' | 'spool'
 type Menu = { kind: MenuKind; cursor: number; ticks: number; note: string }
 type Glowbug = { x: number; y: number; vx: number; vy: number }
 
@@ -477,6 +481,9 @@ class RibbonRiders implements ArcadeGameInstance {
   private kit: Kit = newKit()
   private continued = false
   private champion = false
+  private goldenBows: string[] = []
+  private trueChampion = false
+  private trueEnding = false
   private encore = false
   /** The festival kept on this device (written at each fairground's start). */
   private savePoint: FestivalSave | null = null
@@ -508,6 +515,8 @@ class RibbonRiders implements ArcadeGameInstance {
     if (stored) {
       this.savePoint = stored
       this.champion = stored.champion
+      this.goldenBows = readGoldenBows(stored.goldenBows)
+      this.trueChampion = stored.trueChampion === true
       this.offer = stored
     }
     this.startRound(1)
@@ -534,7 +543,7 @@ class RibbonRiders implements ArcadeGameInstance {
   }
 
   private get fairground(): Fairground {
-    return FAIRGROUNDS[Math.min(this.fair, FAIRGROUNDS.length - 1)]!
+    return fairgroundAt(this.fair)
   }
 
   private get player(): Bike {
@@ -1788,6 +1797,27 @@ class RibbonRiders implements ArcadeGameInstance {
     const lines = [`TICKETS +${won}`]
     if (underPar) lines.push('UNDER PAR +2')
     if (kind) lines.push('KIND RIDER +1')
+    const fair = this.fairground
+    if (
+      !this.demo &&
+      this.fair < SECRET_FAIR_INDEX &&
+      a.special &&
+      fair.arenas.some((event) => event.id === a.id && event.special) &&
+      underPar &&
+      !this.kidWrapped &&
+      (a.objective !== 'escort' || this.escortHits === 0) &&
+      !this.goldenBows.includes(fair.id)
+    ) {
+      this.goldenBows = readGoldenBows([...this.goldenBows, fair.id])
+      // A bow is a lifetime trophy, not a replayable checkpoint reward.
+      if (this.savePoint)
+        this.savePoint = { ...this.savePoint, goldenBows: [...this.goldenBows] }
+      lines.push(
+        hasAllGoldenBows(this.goldenBows)
+          ? 'RAINBOW SPOOL UNLOCKED!'
+          : 'GOLDEN BOW EARNED!',
+      )
+    }
     this.roundClear = ROUND_CLEAR_TICKS
     this.banner = {
       text: a.marshal ? 'MARSHAL WRAPPED!' : 'EVENT CLEAR!',
@@ -1806,6 +1836,10 @@ class RibbonRiders implements ArcadeGameInstance {
 
   private afterClear() {
     if (this.mode === 'midway') return this.startRound(this.level + 1)
+    if (this.fair === SECRET_FAIR_INDEX) {
+      if (this.node?.id === 'spool-itself') return this.finishFestival()
+      return this.openMenu('board')
+    }
     if (this.node?.marshal) return this.openMenu('shop')
     this.openMenu('board')
   }
@@ -1839,12 +1873,17 @@ class RibbonRiders implements ArcadeGameInstance {
       continued: this.continued,
       champion: this.champion,
       ...(this.encore ? { encore: true } : {}),
+      ...(this.goldenBows.length ? { goldenBows: [...this.goldenBows] } : {}),
+      ...(this.trueChampion ? { trueChampion: true } : {}),
     }
   }
 
   /** Four Grand Marshals beaten: keep the trophy and roll the festival credits. */
   private finishFestival() {
     this.champion = true
+    this.trueEnding =
+      this.fair === SECRET_FAIR_INDEX && this.cleared.has('spool-itself')
+    this.trueChampion ||= this.trueEnding
     this.fair = 0
     this.tickets = Math.min(MAX_TICKETS, this.tickets)
     this.writeSave()
@@ -1866,6 +1905,8 @@ class RibbonRiders implements ArcadeGameInstance {
       ? ['continue', 'new', 'midway']
       : ['new', 'midway']
     if (this.champion) this.titleChoices.splice(-1, 0, 'encore')
+    if (hasAllGoldenBows(this.goldenBows))
+      this.titleChoices.splice(-1, 0, 'spool')
     this.openMenu('title')
     this.banner = null
   }
@@ -1927,6 +1968,7 @@ class RibbonRiders implements ArcadeGameInstance {
   }
 
   private chooseTitle(choice: TitleChoice) {
+    if (choice === 'spool' && !hasAllGoldenBows(this.goldenBows)) return
     this.menu = null
     this.sound.play('start')
     if (choice === 'midway') {
@@ -1940,12 +1982,14 @@ class RibbonRiders implements ArcadeGameInstance {
     this.nextExtra = EXTRA_EVERY * (Math.floor(this.score / EXTRA_EVERY) + 1)
     this.lives = offer && !offer.continued ? offer.lives : START_LIVES
     this.tickets = offer?.tickets ?? 0
-    const carriedKit = offer?.kit ?? (this.encore ? this.savePoint?.kit : null)
+    const carriedKit =
+      offer?.kit ??
+      (this.encore || choice === 'spool' ? this.savePoint?.kit : null)
     this.kit = carriedKit
       ? { ...carriedKit, patterns: [...carriedKit.patterns] }
       : newKit()
     this.continued = false
-    this.openFairground(offer?.fair ?? 0)
+    this.openFairground(choice === 'spool' ? SECRET_FAIR_INDEX : (offer?.fair ?? 0))
   }
 
   private leaveShop() {
@@ -2918,7 +2962,11 @@ class RibbonRiders implements ArcadeGameInstance {
     this.backdrop(g, FAIRGROUNDS[3]!.sky)
     drawText(
       g,
-      this.encore ? 'ENCORE CHAMPION!' : 'FESTIVAL CHAMPION!',
+      this.trueEnding
+        ? 'RAINBOW CHAMPION!'
+        : this.encore
+          ? 'ENCORE CHAMPION!'
+          : 'FESTIVAL CHAMPION!',
       W / 2,
       40,
       {
@@ -2928,12 +2976,12 @@ class RibbonRiders implements ArcadeGameInstance {
         outline: INK,
       },
     )
-    drawText(g, 'FOUR FAIRS. FOUR MARSHALS.', W / 2, 75, {
+    drawText(g, this.trueEnding ? 'FIVE FAIRS. ONE FESTIVAL.' : 'FOUR FAIRS. FOUR MARSHALS.', W / 2, 75, {
       align: 'center',
       color: RAMPS.cream[4],
       outline: INK,
     })
-    drawText(g, 'THE RIBBONS LIGHT THE NIGHT', W / 2, 96, {
+    drawText(g, this.trueEnding ? 'THE SKY BLOOMS IN EVERY COLOUR' : 'THE RIBBONS LIGHT THE NIGHT', W / 2, 96, {
       align: 'center',
       color: RAMPS.pink[3],
       outline: INK,
@@ -2985,16 +3033,17 @@ class RibbonRiders implements ArcadeGameInstance {
     )
     const labels: Record<TitleChoice, string> = {
       continue: this.offer
-        ? `CONTINUE: ${FAIRGROUNDS[this.offer.fair]!.name}`
+        ? `CONTINUE: ${fairgroundAt(this.offer.fair).name}`
         : 'CONTINUE',
       new: 'NEW FESTIVAL',
       encore: 'ENCORE (MIRRORED FESTIVAL)',
       midway: 'THE MIDWAY (ENDLESS)',
+      spool: 'THE RAINBOW SPOOL (SECRET)',
     }
     this.titleChoices.forEach((c, k) => {
-      const y = 140 + k * 23
+      const y = 122 + k * 20
       const on = k === m.cursor
-      hudPanel(g, 30, y - 6, W - 60, 20, on ? RAMPS.gold : undefined)
+      hudPanel(g, 30, y - 5, W - 60, 18, on ? RAMPS.gold : undefined)
       drawText(g, labels[c], W / 2, y, {
         align: 'center',
         color: on ? '#ffffff' : RAMPS.cream[3],
@@ -3010,8 +3059,13 @@ class RibbonRiders implements ArcadeGameInstance {
         { align: 'center', color: RAMPS.pink[3], outline: INK },
       )
     }
+    drawText(g, `GOLDEN BOWS ${this.goldenBows.length}/4`, W / 2, 248, {
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
     if (this.champion) {
-      drawText(g, '* FESTIVAL CHAMPION *', W / 2, 248, {
+      drawText(g, this.trueChampion ? '* RAINBOW CHAMPION *' : '* FESTIVAL CHAMPION *', W / 2, 264, {
         align: 'center',
         color: RAMPS.gold[4],
         outline: INK,
@@ -3109,7 +3163,13 @@ class RibbonRiders implements ArcadeGameInstance {
       })
       drawText(
         g,
-        a.crew.length ? this.crewNames(a.crew) : a.intro,
+        a.special
+          ? this.goldenBows.includes(f.id)
+            ? 'GOLDEN BOW EARNED'
+            : 'GOLDEN BOW: BEAT PAR. RIDE KINDLY.'
+          : a.crew.length
+            ? this.crewNames(a.crew)
+            : a.intro,
         12,
         H - 30,
         { color: RAMPS.teal[3], outline: INK },

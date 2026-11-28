@@ -21,6 +21,12 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       blurb:
         'Your client is dead. Work the motel, satisfy two ghosts and earn a lead into sixty years of Monstrique.',
     },
+    {
+      id: 2,
+      title: 'Beach Hex',
+      blurb:
+        'The knife says Starlite Pictures, 1964. Run an old reel, read an unpaid invoice and find the face scratched off a sleeve.',
+    },
   ],
   meters: [{ id: 'leads', label: 'Leads', min: 0, max: 10, start: 0 }],
   factions: [],
@@ -141,6 +147,20 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
         alt: 'Iris pins the last photo to a cork board of motel clues while Norb, at arm’s length with a pointer, taps a chalk outline of a fifth jewelled dagger.',
       },
     },
+    {
+      id: 'five-knives',
+      title: 'I Made Five Knives',
+      tone: 'secret',
+      summary:
+        'Chapter Two: the reel, the invoice and the scratched sleeve bring Francesca Stein to admit she made five Hexblades, and only four were ever photographed.',
+      hint: 'Chapter Two. Prove the stitched woman was there, then ask her what she made.',
+      about: ['iris', 'nico'],
+      art: {
+        brief:
+          'A stitched scientist actress with a lightning-streaked beehive holds up an empty velvet case with five dagger-shaped hollows between two crackling Tesla coils, Iris with her camera and tiny gloved Norb peeking from behind a tin robot costume, neon noir comedy',
+        alt: 'Francesca Stein holds an empty five-slot knife case between two Tesla coils while Iris listens and Norb hides behind a tin robot costume.',
+      },
+    },
   ],
   moments: [
     {
@@ -204,6 +224,45 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       art: {
         brief:
           'Two expressive spectral adult women, one agent and one observant companion, appear in a gloomy motel room mirror, playful supernatural mystery',
+      },
+    },
+    {
+      id: 'midnight-matinee',
+      title: 'Midnight Matinee',
+      caption:
+        'Clem threads the 1964 reel and the Starlite screen shows the day they cut Francesca.',
+      kind: 'scene',
+      act: 2,
+      about: ['iris', 'nico'],
+      art: {
+        brief:
+          'A forty-foot drive-in screen over moonlit surf playing a black-and-white beach-party film of monster starlets receiving jewelled knives, Iris photographing it from the gravel lot, Norb standing on a towel',
+      },
+    },
+    {
+      id: 'scratched-sleeve',
+      title: 'The Scratched Sleeve',
+      caption:
+        'A low flash and a carhop’s gossip put a name to the face scratched off the 1964 sleeve.',
+      kind: 'scene',
+      act: 2,
+      about: ['iris', 'nico'],
+      art: {
+        brief:
+          'Iris holds her camera flash low beside a glass memorabilia case in a retro drive-in snack bar, the raking light revealing a scratched-away beehive silhouette on an old surf-record sleeve, a bat-woman carhop leaning in to gossip',
+      },
+    },
+    {
+      id: 'francesca-confesses',
+      title: 'Five Knives',
+      caption:
+        'Francesca Stein: “I made five knives. Four went on the poster.”',
+      kind: 'scene',
+      act: 2,
+      about: ['iris', 'nico'],
+      art: {
+        brief:
+          'A stitched scientist actress in a lab coat beside a blueprint of five numbered jewelled daggers and an empty velvet case, Tesla coils arcing blue, comic noir mystery, no gore',
       },
     },
   ],

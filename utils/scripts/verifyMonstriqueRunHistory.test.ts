@@ -65,7 +65,10 @@ const editions: MonstriqueAudience[] = ['general', 'mature']
 
 // --- 1. The third ending ----------------------------------------------------
 
-assert.deepEqual([...CASE_ENDINGS].sort(), [...MONSTRIQUE_ENDINGS].sort())
+assert.deepEqual(
+  [...CASE_ENDINGS].filter((ending) => ending !== 'five-knives').sort(),
+  [...MONSTRIQUE_ENDINGS].sort(),
+)
 for (const spec of [MONSTRESS_CONVENTION, MONSTRIQUE_GENERAL_SPEC])
   assert.deepEqual(
     spec.endings.map((ending) => ending.id).sort(),
@@ -419,7 +422,9 @@ for (const edition of editions) {
       `${edition} walk ${walk}: the full file stays open (${state.room})`,
     )
   }
-  for (const ending of CASE_ENDINGS)
+  // Chapter Two's ending has its own graph search in
+  // verifyMonstriqueChapter2.test.ts.
+  for (const ending of MONSTRIQUE_ENDINGS)
     assert.ok(reached.has(ending), edition + ' graph reaches ' + ending)
 }
 

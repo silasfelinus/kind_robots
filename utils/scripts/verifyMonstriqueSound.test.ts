@@ -92,7 +92,7 @@ assert.ok(
 assert.deepEqual(monstriqueCuesFor(base, base), [])
 
 const moods = Object.keys(MONSTRIQUE_THEMES) as MonstriqueMood[]
-assert.equal(moods.length, 7)
+assert.equal(moods.length, 9)
 const leads = new Set<string>()
 for (const mood of moods) {
   const theme = MONSTRIQUE_THEMES[mood]

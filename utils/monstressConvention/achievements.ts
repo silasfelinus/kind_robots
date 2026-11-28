@@ -6,7 +6,12 @@
 // case, never by loading a save. Nothing here depends on mature-only content:
 // the general edition can earn every one.
 
-import { SCORE_TABLE, type CaseEnding, type CaseState } from './prologue'
+import {
+  CHAPTER_ONE_ENDINGS,
+  SCORE_TABLE,
+  type CaseEnding,
+  type CaseState,
+} from './prologue'
 
 const FLAG_ACHIEVEMENTS: ReadonlyArray<readonly [string, string]> = [
   ['odette-hired-us', 'monstress-convention-dead-client'],
@@ -14,6 +19,8 @@ const FLAG_ACHIEVEMENTS: ReadonlyArray<readonly [string, string]> = [
   ['fangs-returned', 'monstress-convention-rental-fangs'],
   ['violet-paid', 'monstress-convention-bill-squared'],
   ['billboard-shot', 'monstress-convention-billboard'],
+  ['reel-running', 'monstress-convention-midnight-matinee'],
+  ['invoice-returned', 'monstress-convention-credit-due'],
 ]
 
 const EVIDENCE_ACHIEVEMENTS: ReadonlyArray<readonly [string, string]> = [
@@ -22,17 +29,23 @@ const EVIDENCE_ACHIEVEMENTS: ReadonlyArray<readonly [string, string]> = [
   ['knife-prop-mark', 'monstress-convention-prop-mark'],
   // The camera-and-fangs close-up is the case's one working combination.
   ['fangs-detail', 'monstress-convention-combiner'],
+  ['sleeve-face', 'monstress-convention-scratched-sleeve'],
 ]
 
 const ENDING_ACHIEVEMENTS: Readonly<Record<CaseEnding, string>> = {
   'lead-earned': 'monstress-convention-ending-lead',
   reckless: 'monstress-convention-ending-reckless',
   'fifth-hexblade': 'monstress-convention-ending-hexblade',
+  'five-knives': 'monstress-convention-ending-five-knives',
 }
 
-export const MONSTRIQUE_ENDINGS = Object.keys(
-  ENDING_ACHIEVEMENTS,
-) as CaseEnding[]
+/**
+ * Chapter One's endings: the ones "Both Sides" and "Three Front Pages" count.
+ * Chapter Two's ending has its own achievement.
+ */
+export const MONSTRIQUE_ENDINGS: CaseEnding[] = [...CHAPTER_ONE_ENDINGS]
+const chapterOneEnding = (ending: CaseEnding | null): boolean =>
+  !!ending && MONSTRIQUE_ENDINGS.includes(ending)
 
 const GENERAL_ROWS = SCORE_TABLE.filter((row) => !row.mature)
 
@@ -70,7 +83,10 @@ function earnedBy(state: CaseState): Set<string> {
     codes.add('monstress-convention-convention')
   if (state.ending) {
     codes.add(ENDING_ACHIEVEMENTS[state.ending])
-    if (generalCaseScore(state) >= GENERAL_MAX_SCORE)
+    if (
+      chapterOneEnding(state.ending) &&
+      generalCaseScore(state) >= GENERAL_MAX_SCORE
+    )
       codes.add('monstress-convention-full-file')
   }
   return codes
@@ -88,7 +104,7 @@ export function achievementsFor(
 ): string[] {
   const before = earnedBy(prev)
   const earned = [...earnedBy(next)].filter((code) => !before.has(code))
-  if (next.ending && next.ending !== prev.ending) {
+  if (chapterOneEnding(next.ending) && next.ending !== prev.ending) {
     if (endingsSeen >= 2) earned.push('monstress-convention-both-endings')
     if (endingsSeen >= MONSTRIQUE_ENDINGS.length)
       earned.push('monstress-convention-all-endings')

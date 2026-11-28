@@ -130,6 +130,46 @@ export const WALK_AREAS: Record<RoomId, WalkArea> = {
     blocked: [{ x: 64, y: 66, w: 22, h: 8 }],
     entry: { x: 12, y: 90 },
   },
+  'drive-in': {
+    floor: [{ x: 2, y: 66, w: 96, h: 32 }],
+    blocked: [{ x: 4, y: 66, w: 20, h: 6 }],
+    entry: { x: 50, y: 94 },
+    entries: {
+      'city-map': { x: 50, y: 94 },
+      'projection-booth': { x: 88, y: 72 },
+      'snack-bar': { x: 10, y: 80 },
+      'starlite-office': { x: 82, y: 90 },
+    },
+  },
+  'projection-booth': {
+    floor: [{ x: 4, y: 68, w: 92, h: 30 }],
+    blocked: [{ x: 4, y: 68, w: 18, h: 8 }],
+    entry: { x: 88, y: 92 },
+  },
+  'snack-bar': {
+    floor: [{ x: 2, y: 68, w: 96, h: 30 }],
+    blocked: [],
+    entry: { x: 50, y: 94 },
+  },
+  'starlite-office': {
+    floor: [{ x: 2, y: 68, w: 96, h: 30 }],
+    blocked: [{ x: 70, y: 68, w: 22, h: 7 }],
+    entry: { x: 90, y: 92 },
+  },
+  'science-cinema': {
+    floor: [{ x: 2, y: 68, w: 96, h: 30 }],
+    blocked: [],
+    entry: { x: 14, y: 92 },
+    entries: {
+      'city-map': { x: 14, y: 92 },
+      'francesca-lab': { x: 84, y: 88 },
+    },
+  },
+  'francesca-lab': {
+    floor: [{ x: 2, y: 68, w: 96, h: 30 }],
+    blocked: [{ x: 30, y: 68, w: 22, h: 6 }],
+    entry: { x: 88, y: 92 },
+  },
 }
 
 /** Where Iris stands on arrival: at the door she came through, if known. */

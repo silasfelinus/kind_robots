@@ -10,7 +10,9 @@ import {
   type MonstriqueAudience,
 } from '~/utils/monstressConvention/edition'
 import {
+  beginChapterTwo,
   newCase,
+  newChapterTwo,
   restoreCase,
   switchInvestigator,
   type CaseAction,
@@ -40,6 +42,7 @@ import {
   recordRun,
   type CaseRun,
 } from '~/utils/monstressConvention/runHistory'
+import { CHAPTER_TWO_OPENERS } from '~/utils/monstressConvention/chapterTwo'
 
 export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
   const user = useUserStore()
@@ -102,6 +105,10 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
   )
   const runs = computed(() =>
     audience.value === 'mature' ? matureRuns.value : generalRuns.value,
+  )
+  /** A case file already holds a Chapter One lead, so Chapter Two can open. */
+  const chapterTwoUnlocked = computed(() =>
+    runs.value.some((run) => CHAPTER_TWO_OPENERS.includes(run.ending)),
   )
   const currentLine = computed(
     () =>
@@ -464,6 +471,12 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
       result.state.flags.includes('ghost-kiss')
     )
       kit.unlock('moments', 'cold-kiss')
+    if (result.state.flags.includes('reel-running'))
+      kit.unlock('moments', 'midnight-matinee')
+    if (result.state.evidence.includes('sleeve-face'))
+      kit.unlock('moments', 'scratched-sleeve')
+    if (result.state.flags.includes('chapter-two-filed'))
+      kit.unlock('moments', 'francesca-confesses')
     if (result.state.ending) kit.unlock('endings', result.state.ending)
     if (result.state.ending && !prev.ending)
       storeRuns(
@@ -520,6 +533,22 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
 
   function begin(): void {
     const fresh = newCase(nextCaseSeed(runs.value))
+    if (audience.value === 'mature') matureState.value = fresh
+    else generalState.value = fresh
+    feedback.value = ''
+    activeCutscene.value = null
+    persist()
+  }
+
+  /** Files the Chapter One lead and opens Chapter Two on the same case. */
+  function continueChapter(): void {
+    commit(beginChapterTwo(state.value))
+  }
+
+  /** Starts Chapter Two fresh, for a player whose case files hold a lead. */
+  function beginChapterTwoCase(): void {
+    if (!chapterTwoUnlocked.value) return
+    const fresh = newChapterTwo(nextCaseSeed(runs.value))
     if (audience.value === 'mature') matureState.value = fresh
     else generalState.value = fresh
     feedback.value = ''
@@ -593,6 +622,9 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     initialize,
     verifyAudience,
     begin,
+    chapterTwoUnlocked,
+    continueChapter,
+    beginChapterTwoCase,
     forgetCase,
     takeAction,
     move,

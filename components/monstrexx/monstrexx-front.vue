@@ -92,6 +92,27 @@
           </span>
         </button>
         <button
+          v-if="story.chapterTwoUnlocked"
+          type="button"
+          class="mx-choice"
+          data-testid="monstrexx-chapter-two"
+          @click="startChapterTwo"
+        >
+          <span class="mx-choice-icon"
+            ><Icon name="kind-icon:movie" class="size-6"
+          /></span>
+          <span class="min-w-0 flex-1 text-left">
+            <strong>{{
+              confirmingChapter ? 'START OVER?' : 'CHAPTER TWO'
+            }}</strong>
+            <small>{{
+              confirmingChapter
+                ? 'Press again to replace this save'
+                : 'Beach Hex, from the drive-in lead'
+            }}</small>
+          </span>
+        </button>
+        <button
           type="button"
           class="mx-choice"
           data-testid="monstrexx-settings"
@@ -596,6 +617,7 @@ const spec = computed(() =>
 const hasAchievementDefinitions =
   achievementsForGame('monstress-convention').length > 0
 const confirming = ref(false)
+const confirmingChapter = ref(false)
 const confirmingErase = ref(false)
 const eraseFeedback = ref('')
 const scrapTab = ref<'people' | 'moments' | 'albums' | 'endings' | 'cases'>(
@@ -677,7 +699,19 @@ function startNew(): void {
 
 function chooseContinue(): void {
   confirming.value = false
+  confirmingChapter.value = false
   if (story.value.hasSavedCase) emit('continue')
+}
+
+function startChapterTwo(): void {
+  confirming.value = false
+  if (story.value.hasSavedCase && !confirmingChapter.value) {
+    confirmingChapter.value = true
+    return
+  }
+  confirmingChapter.value = false
+  story.value.beginChapterTwoCase()
+  emit('continue')
 }
 
 function openPanel(value: Exclude<FrontPanel, null>): void {

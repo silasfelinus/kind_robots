@@ -38,6 +38,8 @@ export type MonstriqueCharacterId =
   | 'blobzo'
   | 'delta'
   | 'cherie'
+  | 'clem'
+  | 'deedee'
 
 export type SpriteHair =
   | 'bob'
@@ -863,7 +865,7 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
   francesca: {
     id: 'francesca',
     name: 'Francesca Stein',
-    hotspots: [],
+    hotspots: ['francesca'],
     speakerNames: ['Francesca'],
     role: 'Stitched scientist-actress who built the Hexblades; cut in 1964, rehired in 1974',
     species: 'reanimated stitched woman',
@@ -893,9 +895,86 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
       streak: '#ffffff',
     },
     lora: lora('mnstq_francesca'),
-    general: false,
+    general: true,
     monsterStar: true,
     bio: 'Wrote the science-themed stage props for Beach Hex and made the five Hexblades. Runs a midnight science-cinema on Bolt Street and wants credit for her props.',
+    canonNotes: [
+      'Chapter Two (Beach Hex) is hers: the 1964 reel, her unpaid prop invoice and the sleeve her face was scratched off. She ends it with "I made five knives."',
+      'Her grudge: Odette sold her Hexblade drawings as replica letter openers in 1999. Her flirt payoff (the coil kiss) is mature-edition only; her general-edition lines stay prickly and proud.',
+    ],
+  },
+  clem: {
+    id: 'clem',
+    name: 'Clem',
+    hotspots: ['clem'],
+    speakerNames: ['Clem'],
+    role: 'Night projectionist at the Starlite Drive-In since 1964, keeper of the reels',
+    species: 'human man',
+    apparentAge: 'adult man who looks about 80',
+    silhouette:
+      'a stooped wiry old man with a white pompadour, hugging a big silver film reel',
+    identity: [
+      'wiry stooped adult man about eighty',
+      'proud white pompadour, thick black-rimmed glasses, bushy eyebrows',
+      'a toothpick in the corner of his mouth and a projector-light squint',
+    ],
+    wardrobe:
+      'teal bowling shirt printed with film reels, brown cardigan, baggy trousers, tartan carpet slippers, flashlight on the belt',
+    acting:
+      'Cranky and sentimental. Cradles reels like babies, squints sideways at anyone near the carbon rods.',
+    expressions: expressions(),
+    never: ['frail', 'pitiable', 'villain framing'],
+    sprite: {
+      height: 0.9,
+      heads: 4.6,
+      build: 'scrawny',
+      skin: '#e6c2a4',
+      hair: '#f2f2ee',
+      hairStyle: 'comb-over',
+      outfit: '#2f8a8a',
+      accent: '#7a5636',
+      prop: 'none',
+      glasses: true,
+    },
+    lora: lora('mnstq_clem'),
+    general: true,
+    bio: 'Has threaded the Starlite’s projectors since he was sixteen, the summer they shot Beach Hex on the beach outside. Kept the 1964 reel the sponsor pulled.',
+  },
+  deedee: {
+    id: 'deedee',
+    name: 'Dee Dee',
+    hotspots: ['deedee'],
+    speakerNames: ['Dee Dee'],
+    role: 'Bat-woman carhop at the Starlite snack bar and the beach’s best gossip',
+    species: 'bat woman',
+    apparentAge: 'adult woman who looks about 25',
+    silhouette:
+      'big pointed bat ears, small folded wings and roller skates, a tray of floats held high',
+    identity: [
+      'adult bat-woman about twenty-five with lilac-grey fur at her temples',
+      'big pointed bat ears, little upturned bat nose, two tiny fangs',
+      'small leathery wings folded at her back',
+    ],
+    wardrobe:
+      '1960s carhop uniform: teal knee-length dress, pink apron, paper soda-jerk cap, name badge, white roller skates',
+    acting:
+      'Bubbly and nosy. Leans in with a hand cupped by her mouth, spins on her skates mid-sentence.',
+    expressions: expressions(),
+    never: ['scary', 'feral', 'childlike'],
+    sprite: {
+      height: 0.96,
+      heads: 5,
+      build: 'slim',
+      skin: '#c9b8d6',
+      hair: '#8f7fa3',
+      hairStyle: 'cap',
+      outfit: '#2fa6a0',
+      accent: '#ff8fb8',
+      prop: 'none',
+    },
+    lora: lora('mnstq_deedee'),
+    general: true,
+    bio: 'Works the Starlite snack bar on skates. Her Aunt Bea scratched one face off every 1964 Beach Hex sleeve at the pressing plant, by order of the sponsor.',
   },
   vespa: {
     id: 'vespa',
@@ -1081,7 +1160,7 @@ export function modelForHotspot(hotspotId: string): CharacterModel | null {
  * `Name:` tag. Narration and untagged lines return null.
  */
 export function speakerOf(line: string): CharacterModel | null {
-  const match = /^\s*([A-Z][A-Za-z]+):/.exec(line)
+  const match = /^\s*([A-Z][A-Za-z]+(?: [A-Z][A-Za-z]+)?):/.exec(line)
   if (!match) return null
   const name = match[1]
   return (

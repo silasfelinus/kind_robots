@@ -592,6 +592,9 @@ jobs:
       - name: Monstrique cut-out rig pivots, clip timing and motion fallbacks
         run: npx tsx utils/scripts/verifyMonstriqueRig.test.ts
 
+      - name: Monstrique Chapter Two, Beach Hex clue routes, editions and saves
+        run: npx tsx utils/scripts/verifyMonstriqueChapter2.test.ts
+
   contract_2:
     name: Contract shard 2/4
     runs-on: ubuntu-latest

@@ -350,7 +350,9 @@ assert.match(
 // projects/monstress-convention/art/ENDINGS-R2.yaml (mc-ending-fifth-hexblade);
 // until it is delivered the ending keeps its brief and alt and no src, so the
 // kit shows its image-shaped fallback and the ending card shows no picture.
-const PLATES_QUEUED = new Set(['fifth-hexblade'])
+// Chapter Two's I Made Five Knives plate is queued the same way in
+// projects/monstress-convention/art/CH2-ENDING-R1.yaml (mc-ending-five-knives).
+const PLATES_QUEUED = new Set(['fifth-hexblade', 'five-knives'])
 for (const spec of [MONSTRESS_CONVENTION, MONSTRIQUE_GENERAL_SPEC])
   for (const ending of spec.endings) {
     const src = ending.art?.src

@@ -9,6 +9,7 @@ import {
 import { createStory } from '../everyVillainTactics/firstBellStory'
 import {
   ONE_SHOT_MENU,
+  ORIGIN_STAGE_LEADS,
   SCRAPBOOK_MOMENTS,
   emptyScrapbook,
   type Scrapbook,
@@ -190,7 +191,8 @@ assert.ok(
 const titles = ONE_SHOT_MENU.map(
   (entry) => STAGE_PRESETS.find((stage) => stage.id === entry.id)!.title,
 )
-assert.equal(titles.length, 24)
+assert.equal(titles.length, 11 + Object.keys(ORIGIN_STAGE_LEADS).length)
+assert.equal(new Set(titles).size, titles.length)
 const oneShots = titles.map((stage) => result({ mode: 'oneshot', stage }))
 assert.ok(achievementsProven(book([], oneShots), []).includes(C.oneShotSweep))
 assert.ok(

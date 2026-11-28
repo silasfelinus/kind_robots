@@ -815,6 +815,195 @@ for (const [stageId, lead, target, start, flag] of [
     { x: 3, y: 3 },
     'bell-ward-unbound',
   ],
+  [
+    'when-two-plus-two-screamed',
+    'magic-genius',
+    { x: 6, y: 2 },
+    { x: 3, y: 2 },
+    'proof-bridge-complete',
+  ],
+  [
+    'heir-who-said-no',
+    'magic-birthright',
+    { x: 4, y: 4 },
+    { x: 3, y: 4 },
+    'hearth-pact-unbound',
+  ],
+  [
+    'empty-applause',
+    'magic-social',
+    { x: 4, y: 2 },
+    { x: 4, y: 2 },
+    'applause-contract-rewritten',
+  ],
+  [
+    'ashes-of-the-ledger',
+    'mutant-fire',
+    { x: 4, y: 2 },
+    { x: 3, y: 2 },
+    'ash-intervention',
+  ],
+  [
+    'balcony-witness',
+    'mutant-air',
+    { x: 5, y: 1 },
+    { x: 3, y: 1 },
+    'balcony-intervention',
+  ],
+  [
+    'bridge-of-last-chances',
+    'mutant-earth',
+    { x: 4, y: 3 },
+    { x: 4, y: 3 },
+    'bridge-intervention',
+  ],
+  [
+    'ship-with-no-port',
+    'mutant-water',
+    { x: 5, y: 3 },
+    { x: 3, y: 3 },
+    'ferry-intervention',
+  ],
+  [
+    'four-hands-and-a-promise',
+    'mutant-discipline',
+    { x: 4, y: 2 },
+    { x: 3, y: 2 },
+    'rig-intervention',
+  ],
+  [
+    'probability-of-panic',
+    'mutant-genius',
+    { x: 5, y: 2 },
+    { x: 2, y: 2 },
+    'forecast-intervention',
+  ],
+  [
+    'keys-to-the-shelter',
+    'mutant-birthright',
+    { x: 4, y: 3 },
+    { x: 3, y: 3 },
+    'keys-intervention',
+  ],
+  [
+    'friend-nobody-remembers',
+    'mutant-social',
+    { x: 4, y: 2 },
+    { x: 4, y: 2 },
+    'slate-intervention',
+  ],
+  [
+    'furnace-lift',
+    'tech-fire',
+    { x: 4, y: 2 },
+    { x: 3, y: 2 },
+    'furnace-intervention',
+  ],
+  [
+    'last-skyway',
+    'tech-air',
+    { x: 5, y: 1 },
+    { x: 3, y: 1 },
+    'skyway-intervention',
+  ],
+  [
+    'foundation-day',
+    'tech-earth',
+    { x: 4, y: 3 },
+    { x: 4, y: 3 },
+    'foundation-intervention',
+  ],
+  [
+    'flooded-platform',
+    'tech-water',
+    { x: 5, y: 3 },
+    { x: 3, y: 3 },
+    'platform-intervention',
+  ],
+  [
+    'parade-that-couldnt-stop',
+    'tech-discipline',
+    { x: 4, y: 2 },
+    { x: 3, y: 2 },
+    'parade-intervention',
+  ],
+  [
+    'grandmas-password',
+    'tech-genius',
+    { x: 5, y: 2 },
+    { x: 2, y: 2 },
+    'bakery-intervention',
+  ],
+  [
+    'museum-of-tomorrow',
+    'tech-birthright',
+    { x: 4, y: 3 },
+    { x: 3, y: 3 },
+    'museum-intervention',
+  ],
+  [
+    'refuge-in-orbit',
+    'alien-fire',
+    { x: 5, y: 2 },
+    { x: 3, y: 2 },
+    'orbit-intervention',
+  ],
+  [
+    'treaty-in-the-clouds',
+    'alien-air',
+    { x: 5, y: 1 },
+    { x: 3, y: 1 },
+    'treaty-intervention',
+  ],
+  [
+    'museum-that-moved',
+    'alien-earth',
+    { x: 4, y: 3 },
+    { x: 4, y: 3 },
+    'fossil-intervention',
+  ],
+  [
+    'song-for-the-drowned',
+    'alien-water',
+    { x: 5, y: 3 },
+    { x: 3, y: 3 },
+    'tide-intervention',
+  ],
+  [
+    'orders-from-home',
+    'alien-discipline',
+    { x: 4, y: 2 },
+    { x: 3, y: 2 },
+    'warrant-intervention',
+  ],
+  [
+    'small-future',
+    'alien-genius',
+    { x: 5, y: 2 },
+    { x: 2, y: 2 },
+    'future-intervention',
+  ],
+  [
+    'missing-coronation',
+    'alien-birthright',
+    { x: 4, y: 3 },
+    { x: 3, y: 3 },
+    'crown-intervention',
+  ],
+  [
+    'everyone-inside',
+    'alien-social',
+    { x: 4, y: 2 },
+    { x: 4, y: 2 },
+    'hive-intervention',
+  ],
+  [
+    'edited-rescue',
+    'tech-social',
+    { x: 4, y: 2 },
+    { x: 4, y: 2 },
+    'edit-intervention',
+  ],
 ] as const) {
   const stage = clonePreset(stageId)
   assert.deepEqual(stageProblems(stage), [])
@@ -826,22 +1015,56 @@ for (const [stageId, lead, target, start, flag] of [
     actor.y = stage.civilians![0]!.y
     actor.ap = 2
     assert.equal(rescueSelected(state), false)
+    const originBlocked: Record<string, { x: number; y: number }> = {
+      'ashes-of-the-ledger': { x: 0, y: 2 },
+      'balcony-witness': { x: 0, y: 3 },
+      'bridge-of-last-chances': { x: 0, y: 3 },
+      'ship-with-no-port': { x: 0, y: 1 },
+      'four-hands-and-a-promise': { x: 0, y: 4 },
+      'probability-of-panic': { x: 0, y: 0 },
+      'keys-to-the-shelter': { x: 0, y: 1 },
+      'friend-nobody-remembers': { x: 0, y: 3 },
+      'furnace-lift': { x: 0, y: 2 },
+      'last-skyway': { x: 0, y: 4 },
+      'foundation-day': { x: 0, y: 3 },
+      'flooded-platform': { x: 0, y: 1 },
+      'parade-that-couldnt-stop': { x: 0, y: 4 },
+      'grandmas-password': { x: 0, y: 0 },
+      'museum-of-tomorrow': { x: 0, y: 1 },
+      'refuge-in-orbit': { x: 0, y: 2 },
+      'treaty-in-the-clouds': { x: 0, y: 4 },
+      'museum-that-moved': { x: 0, y: 3 },
+      'song-for-the-drowned': { x: 0, y: 1 },
+      'orders-from-home': { x: 0, y: 4 },
+      'small-future': { x: 0, y: 0 },
+      'missing-coronation': { x: 0, y: 1 },
+      'everyone-inside': { x: 0, y: 3 },
+      'edited-rescue': { x: 0, y: 3 },
+    }
     const blockedStart =
-      stageId === 'orchard-under-asphalt'
+      originBlocked[stageId] ??
+      (stageId === 'orchard-under-asphalt'
         ? { x: 3, y: 2 }
         : stageId === 'overdue-thunder'
           ? { x: 0, y: 2 }
           : stageId === 'bell-and-the-door'
             ? { x: 1, y: 3 }
-            : { x: 2, y: 2 }
+            : stageId === 'when-two-plus-two-screamed'
+              ? { x: 0, y: 2 }
+              : stageId === 'heir-who-said-no'
+                ? { x: 0, y: 4 }
+                : stageId === 'empty-applause'
+                  ? { x: 3, y: 2 }
+                  : { x: 2, y: 2 })
     actor.x = blockedStart.x
     actor.y = blockedStart.y
     assert.equal(useSelectedPower(state, target), false)
     actor.x = start.x
     actor.y = start.y
-    actor.ap = 1
+    const cost = lead.startsWith('magic-') ? 2 : 1
+    actor.ap = cost - 1
     assert.equal(useSelectedPower(state, target), false)
-    actor.ap = 2
+    actor.ap = cost
     assert.deepEqual(selectedPowerTargets(state), [target])
     assert.equal(useSelectedPower(state, target), true)
     assert.equal(actor.ap, 0)
@@ -892,6 +1115,33 @@ assert.deepEqual(ORIGIN_STAGE_LEADS, {
   'future-in-the-glass': 'magic-water',
   'overdue-thunder': 'magic-air',
   'bell-and-the-door': 'magic-discipline',
+  'when-two-plus-two-screamed': 'magic-genius',
+  'heir-who-said-no': 'magic-birthright',
+  'empty-applause': 'magic-social',
+  'ashes-of-the-ledger': 'mutant-fire',
+  'balcony-witness': 'mutant-air',
+  'bridge-of-last-chances': 'mutant-earth',
+  'ship-with-no-port': 'mutant-water',
+  'four-hands-and-a-promise': 'mutant-discipline',
+  'probability-of-panic': 'mutant-genius',
+  'keys-to-the-shelter': 'mutant-birthright',
+  'friend-nobody-remembers': 'mutant-social',
+  'furnace-lift': 'tech-fire',
+  'last-skyway': 'tech-air',
+  'foundation-day': 'tech-earth',
+  'flooded-platform': 'tech-water',
+  'parade-that-couldnt-stop': 'tech-discipline',
+  'grandmas-password': 'tech-genius',
+  'museum-of-tomorrow': 'tech-birthright',
+  'refuge-in-orbit': 'alien-fire',
+  'treaty-in-the-clouds': 'alien-air',
+  'museum-that-moved': 'alien-earth',
+  'song-for-the-drowned': 'alien-water',
+  'orders-from-home': 'alien-discipline',
+  'small-future': 'alien-genius',
+  'missing-coronation': 'alien-birthright',
+  'everyone-inside': 'alien-social',
+  'edited-rescue': 'tech-social',
 })
 for (const [stage, signature] of Object.entries(ORIGIN_STAGE_LEADS)) {
   assert.equal(canStartOneShot(stage, signature), true)

@@ -17,6 +17,7 @@ on:
       - 'utils/scripts/verifySavePlumberGears.test.ts'
       - 'utils/scripts/verifySavePlumberPreview.test.ts'
       - 'utils/scripts/verifyCabinetSavePlumberScalePlates.test.ts'
+      - 'utils/scripts/verifyCabinetSavePlumberSpringfruit.test.ts'
       - 'utils/scripts/verifyCabinetSavePlumberGurgle.test.ts'
       - 'utils/scripts/verifyCabinetSavePlumberWildwater.test.ts'
       - 'utils/scripts/verifyCabinetSavePlumberPottingShed.test.ts'
@@ -54,6 +55,8 @@ jobs:
         run: npx tsx utils/scripts/verifySavePlumberPreview.test.ts
       - name: Verify scale plates and sluice gates
         run: npx tsx utils/scripts/verifyCabinetSavePlumberScalePlates.test.ts
+      - name: Verify springfruit bounce, carry, plates and Rootcellar solo route
+        run: npx tsx utils/scripts/verifyCabinetSavePlumberSpringfruit.test.ts
       - name: Verify Gurgle swimming, slurping and save isolation
         run: npx tsx utils/scripts/verifyCabinetSavePlumberGurgle.test.ts
       - name: Verify Wildwater activation, rooftop climb and persistent pearl

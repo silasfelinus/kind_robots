@@ -34,7 +34,12 @@ assert.throws(() =>
 const local: CrystalStreetSave = {
   ...initial,
   stamps: { ...initial.stamps, run: 20, scrapbook: 20 },
-  run: newRun({ seed: 'account-week' }),
+  run: newRun({
+    seed: 'account-week',
+    name: 'Tester',
+    pronouns: 'they/them',
+    archetype: 'jock',
+  }),
   scrapbook: { runs: [], endings: ['one'], friends: ['friend-one'] },
 }
 const remote: CrystalStreetSave = {

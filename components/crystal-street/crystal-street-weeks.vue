@@ -34,7 +34,12 @@
             </p>
             <p class="text-xs opacity-75">
               {{ entry.name }} vs {{ villainById(entry.villain)?.name }} ·
-              {{ entry.special ? SPECIAL_ENDINGS[entry.special].title : TIER_LABELS[entry.tier] }} ·
+              {{
+                entry.special
+                  ? SPECIAL_ENDINGS[entry.special].title
+                  : TIER_LABELS[entry.tier]
+              }}
+              ·
               {{ new Date(entry.endedAt).toLocaleDateString() }}
             </p>
             <p class="text-xs opacity-75">

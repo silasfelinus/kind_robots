@@ -7,7 +7,10 @@ import {
   renderedArtReceiptCount,
 } from '../crystalStreet/renderedArt'
 
-import { CRYSTAL_STREET_TOWN_PAINTING, weekEndingArt } from '../crystalStreet/artPresentation'
+import {
+  CRYSTAL_STREET_TOWN_PAINTING,
+  weekEndingArt,
+} from '../crystalStreet/artPresentation'
 
 import { allArtPrompts } from '../crystalStreet/artPrompts'
 import {
@@ -103,7 +106,11 @@ assert.equal(
   '/crystal-street/endings/special-family.webp',
 )
 assert.equal(
-  weekEndingArt({ villain: 'frieda-krueger', tier: 'best', special: 'final-girl' }),
+  weekEndingArt({
+    villain: 'frieda-krueger',
+    tier: 'best',
+    special: 'final-girl',
+  }),
   '/crystal-street/endings/frieda-krueger-best.webp',
 )
 const encounter = readFileSync(
@@ -138,7 +145,4 @@ for (const encounter of allEncounters()) {
     }
   }
 }
-assert.equal(
-  COMPANIONS.flatMap((companion) => companion.arc ?? []).length,
-  66,
-)
+assert.equal(COMPANIONS.flatMap((companion) => companion.arc ?? []).length, 66)

@@ -1062,7 +1062,11 @@ class BrickBloom implements ArcadeGameInstance {
       this.trueChampion = stored.trueChampion === true
       this.save = stored
       if (resumable(stored)) this.offer = stored
-      else if ((this.champion || hasAllGoldenSeeds(stored.golden)) && options.selectScreen) this.tourMenu = true
+      else if (
+        (this.champion || hasAllGoldenSeeds(stored.golden)) &&
+        options.selectScreen
+      )
+        this.tourMenu = true
     }
     this.startStage(1)
     if (!this.offer && options.selectScreen && !this.demo)
@@ -1074,7 +1078,15 @@ class BrickBloom implements ArcadeGameInstance {
   }
 
   get touchActions(): Readonly<Partial<Record<'a' | 'b', string>>> {
-    if (this.offer || this.bench || this.credits || this.tourMenu || this.clear > 0 || this.lost > 0) return {}
+    if (
+      this.offer ||
+      this.bench ||
+      this.credits ||
+      this.tourMenu ||
+      this.clear > 0 ||
+      this.lost > 0
+    )
+      return {}
     if (this.card) return { a: 'Skip' }
     if (this.balls.some((ball) => ball.stuck !== null)) return { a: 'Launch' }
     if (
@@ -1132,7 +1144,10 @@ class BrickBloom implements ArcadeGameInstance {
       ...(this.champion ? { champion: true } : {}),
       ...(this.trueChampion ? { trueChampion: true } : {}),
       ...(this.secondBloom ? { secondBloom: true } : {}),
-      ...(this.tour?.house === CONSERVATORY_INDEX && house === CONSERVATORY_INDEX ? { secret: true } : {}),
+      ...(this.tour?.house === CONSERVATORY_INDEX &&
+      house === CONSERVATORY_INDEX
+        ? { secret: true }
+        : {}),
     }
   }
 
@@ -1144,7 +1159,11 @@ class BrickBloom implements ArcadeGameInstance {
   /** Continue a saved tour: back at the Potting Bench before its glasshouse. */
   private resumeFrom(s: BloomSave) {
     this.secondBloom = s.secondBloom === true
-    if (s.secret) this.tour = { house: CONSERVATORY_INDEX, wall: houseAt(CONSERVATORY_INDEX)!.start }
+    if (s.secret)
+      this.tour = {
+        house: CONSERVATORY_INDEX,
+        wall: houseAt(CONSERVATORY_INDEX)!.start,
+      }
     this.score = s.continued ? 0 : s.score
     this.lives = s.continued ? START_LIVES : s.lives
     this.extraIndex = EXTRA_AT.filter((at) => at <= this.score).length
@@ -1209,8 +1228,10 @@ class BrickBloom implements ArcadeGameInstance {
 
   private updateTourMenu(input: InputFrame) {
     const choices = this.tourChoices
-    if (input.pressed.up) this.tourCursor = (this.tourCursor + choices.length - 1) % choices.length
-    if (input.pressed.down) this.tourCursor = (this.tourCursor + 1) % choices.length
+    if (input.pressed.up)
+      this.tourCursor = (this.tourCursor + choices.length - 1) % choices.length
+    if (input.pressed.down)
+      this.tourCursor = (this.tourCursor + 1) % choices.length
     if (input.pressed.a || input.pressed.start) {
       const choice = choices[this.tourCursor]
       this.startTour(choice === 'second', choice === 'secret')
@@ -1281,7 +1302,11 @@ class BrickBloom implements ArcadeGameInstance {
     const vault =
       vented && this.tour ? vaultAt(this.tour.house, vented.id) : null
     const safe = this.bricks.find(
-      (b) => vault && b.col === (mirrored ? COLS - 1 - vault.col : vault.col) && b.row === vault.row && !b.bolt,
+      (b) =>
+        vault &&
+        b.col === (mirrored ? COLS - 1 - vault.col : vault.col) &&
+        b.row === vault.row &&
+        !b.bolt,
     )
     if (safe) {
       safe.vault = true
@@ -1300,7 +1325,9 @@ class BrickBloom implements ArcadeGameInstance {
         hp: 2,
       })
     }
-    this.speed = levelCurve(stage, BLOOM_CURVES.speed) * (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1)
+    this.speed =
+      levelCurve(stage, BLOOM_CURVES.speed) *
+      (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1)
     this.resetRound()
     // The bench's starter seed: every wall of the house it was bought for starts with it.
     if (vented && this.kitLive && this.kit.seed) this.giveSeed(this.kit.seed)
@@ -1357,7 +1384,11 @@ class BrickBloom implements ArcadeGameInstance {
 
   /** The Lily Pond House's water fills the lower wall, boss pond included. */
   private get pond(): boolean {
-    return this.houseNow === POND || (this.houseNow === CONSERVATORY_INDEX && this.bricks.some((b) => b.kind === 'lily' || b.kind === 'bubble'))
+    return (
+      this.houseNow === POND ||
+      (this.houseNow === CONSERVATORY_INDEX &&
+        this.bricks.some((b) => b.kind === 'lily' || b.kind === 'bubble'))
+    )
   }
 
   /** A seed's timer, without the catch's points (the bench's starter seed). */
@@ -1392,7 +1423,9 @@ class BrickBloom implements ArcadeGameInstance {
     this.ring = null
     this.ringBrick = null
     this.puffs = []
-    this.speed = levelCurve(stage, BLOOM_CURVES.speed) * (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1)
+    this.speed =
+      levelCurve(stage, BLOOM_CURVES.speed) *
+      (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1)
     this.resetRound()
     if (this.kitLive && this.kit.seed) this.giveSeed(this.kit.seed)
     this.serve()
@@ -1520,7 +1553,10 @@ class BrickBloom implements ArcadeGameInstance {
       }
       return
     }
-    if (this.tourMenu) { this.updateTourMenu(input); return }
+    if (this.tourMenu) {
+      this.updateTourMenu(input)
+      return
+    }
     if (this.offer) {
       this.updateOffer(input)
       return
@@ -1747,7 +1783,9 @@ class BrickBloom implements ArcadeGameInstance {
       this.sound.play('pop')
     }
     for (const bump of this.bumpers) {
-      const cap = (levelCurve(this.level, BLOOM_CURVES.maxSpeed) * (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1))
+      const cap =
+        levelCurve(this.level, BLOOM_CURVES.maxSpeed) *
+        (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1)
       const v = bumperBounce(bump, ball, BALL_R, cap)
       if (!v) continue
       ball.vx = v.vx
@@ -1796,7 +1834,10 @@ class BrickBloom implements ArcadeGameInstance {
   private updateBoss() {
     const boss = this.boss!
     if (this.lost > 0 || this.clear > 0) return
-    const target = boss.id === 'thorn' ? this.balls.find((ball) => ball.stuck === null && ball.vy < 0) : undefined
+    const target =
+      boss.id === 'thorn'
+        ? this.balls.find((ball) => ball.stuck === null && ball.vy < 0)
+        : undefined
     stepBoss(boss, target?.x ?? this.paddleX, this.rng)
     // A guard phase ends when the last guard cracks: the face (or the bud) is open.
     if (guardPhase(boss) && !this.bricks.some((b) => b.guard)) {
@@ -2369,11 +2410,19 @@ class BrickBloom implements ArcadeGameInstance {
     }
     const oldY = ball.y
     ball.y += dy
-    if (boss?.id === 'thorn' && !boss.defeated && dy < 0 &&
-        oldY >= THORN_Y + BALL_R && ball.y < THORN_Y + BALL_R &&
-        Math.abs(ball.x - boss.x) <= thornWidth(boss) / 2 + BALL_R) {
+    if (
+      boss?.id === 'thorn' &&
+      !boss.defeated &&
+      dy < 0 &&
+      oldY >= THORN_Y + BALL_R &&
+      ball.y < THORN_Y + BALL_R &&
+      Math.abs(ball.x - boss.x) <= thornWidth(boss) / 2 + BALL_R
+    ) {
       const speed = Math.hypot(ball.vx, ball.vy)
-      const offset = Math.max(-1, Math.min(1, (ball.x - boss.x) / (thornWidth(boss) / 2)))
+      const offset = Math.max(
+        -1,
+        Math.min(1, (ball.x - boss.x) / (thornWidth(boss) / 2)),
+      )
       ball.y = THORN_Y + BALL_R + 0.1
       ball.vx = Math.sin(offset) * speed
       ball.vy = Math.cos(offset) * speed
@@ -2615,7 +2664,9 @@ class BrickBloom implements ArcadeGameInstance {
       return
     }
     // Where it lands decides the angle: steep in the middle, wide at the edges.
-    const max = (levelCurve(this.level, BLOOM_CURVES.maxSpeed) * (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1))
+    const max =
+      levelCurve(this.level, BLOOM_CURVES.maxSpeed) *
+      (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1)
     const speed = Math.min(max, Math.hypot(ball.vx, ball.vy) + 0.04)
     const angle = -Math.PI / 2 + offset * 1.05
     ball.vx = Math.cos(angle) * speed + this.paddleV * 0.08
@@ -2659,7 +2710,9 @@ class BrickBloom implements ArcadeGameInstance {
     const cy = r.y + r.h / 2
     // A prickle crate pricks the ball: every ball speeds up a step.
     if (b.kind === 'prickle') {
-      const cap = (levelCurve(this.level, BLOOM_CURVES.maxSpeed) * (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1))
+      const cap =
+        levelCurve(this.level, BLOOM_CURVES.maxSpeed) *
+        (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1)
       for (const ball of this.balls) {
         const s = Math.hypot(ball.vx, ball.vy)
         if (s === 0) continue
@@ -2721,7 +2774,9 @@ class BrickBloom implements ArcadeGameInstance {
     this.petals.push({ x: cx, y: cy, color })
     this.sound.play('pop')
     // Speed up a touch with every crate, up to the stage's cap.
-    const max = (levelCurve(this.level, BLOOM_CURVES.maxSpeed) * (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1))
+    const max =
+      levelCurve(this.level, BLOOM_CURVES.maxSpeed) *
+      (this.secondBloom || this.houseNow === CONSERVATORY_INDEX ? 1.15 : 1)
     for (const ball of this.balls) {
       const s = Math.hypot(ball.vx, ball.vy)
       if (s > 0 && s < max) {
@@ -3198,7 +3253,15 @@ class BrickBloom implements ArcadeGameInstance {
 
   private renderBoss(g: CanvasRenderingContext2D, boss: Boss) {
     if (boss.id === 'thorn') {
-      bevel(g, boss.x - thornWidth(boss) / 2, THORN_Y - 6, thornWidth(boss), 6, RAMPS.purple, { depth: 1 })
+      bevel(
+        g,
+        boss.x - thornWidth(boss) / 2,
+        THORN_Y - 6,
+        thornWidth(boss),
+        6,
+        RAMPS.purple,
+        { depth: 1 },
+      )
       glow(g, boss.x, THORN_Y - 3, 10, RAMPS.pink[3], 0.5)
       return
     }
@@ -3694,26 +3757,54 @@ class BrickBloom implements ArcadeGameInstance {
   private renderTourEnd(g: CanvasRenderingContext2D) {
     this.panel(g)
     const line = (text: string, y: number, color: string, scale = 1) =>
-      drawText(g, text, W / 2, y, { align: 'center', color, outline: INK, scale })
+      drawText(g, text, W / 2, y, {
+        align: 'center',
+        color,
+        outline: INK,
+        scale,
+      })
     if (this.credits) {
-      line(this.credits === 'true' ? 'GARDEN RESTORED!' : 'TOUR COMPLETE!', 76, RAMPS.gold[4], 2)
+      line(
+        this.credits === 'true' ? 'GARDEN RESTORED!' : 'TOUR COMPLETE!',
+        76,
+        RAMPS.gold[4],
+        2,
+      )
       line('FIVE GLASSHOUSES BLOOM AGAIN', 112, RAMPS.leaf[4])
-      line(this.credits === 'true' ? 'THORN WAS ONLY LONELY.' : 'THE GLOOM HAS LIFTED.', 135, RAMPS.pink[3])
+      line(
+        this.credits === 'true'
+          ? 'THORN WAS ONLY LONELY.'
+          : 'THE GLOOM HAS LIFTED.',
+        135,
+        RAMPS.pink[3],
+      )
       if (this.credits === 'true') {
         line('A NEW FRIEND JOINS THE GARDEN', 150, RAMPS.teal[4])
         drawDuo(g, W / 2, 180, 36, this.tick)
       }
-      line(`GOLDEN SEEDS ${this.golden.size}/${GOLDEN_TOTAL}`, 220, RAMPS.gold[3])
+      line(
+        `GOLDEN SEEDS ${this.golden.size}/${GOLDEN_TOTAL}`,
+        220,
+        RAMPS.gold[3],
+      )
       line('A: RETURN TO TOUR MENU', 266, '#ffffff')
       return
     }
     line('GLASSHOUSE TOUR', 65, RAMPS.gold[4], 2)
-    const labels = { tour: 'NEW GRAND TOUR', second: 'SECOND BLOOM - NEW GAME+', secret: 'MOONFLOWER CONSERVATORY' }
-    this.tourChoices.forEach((choice, i) => line(
-      (this.tourCursor === i ? '> ' : '') + labels[choice], 112 + i * 30,
-      this.tourCursor === i ? '#ffffff' : RAMPS.teal[3],
-    ))
-    if (!hasAllGoldenSeeds([...this.golden])) line(`MOONFLOWER LOCKED: ${this.golden.size}/5 SEEDS`, 220, RAMPS.gold[3])
+    const labels = {
+      tour: 'NEW GRAND TOUR',
+      second: 'SECOND BLOOM - NEW GAME+',
+      secret: 'MOONFLOWER CONSERVATORY',
+    }
+    this.tourChoices.forEach((choice, i) =>
+      line(
+        (this.tourCursor === i ? '> ' : '') + labels[choice],
+        112 + i * 30,
+        this.tourCursor === i ? '#ffffff' : RAMPS.teal[3],
+      ),
+    )
+    if (!hasAllGoldenSeeds([...this.golden]))
+      line(`MOONFLOWER LOCKED: ${this.golden.size}/5 SEEDS`, 220, RAMPS.gold[3])
     line('UP / DOWN   A: START', 266, RAMPS.leaf[4])
   }
 
@@ -3795,7 +3886,10 @@ class BrickBloom implements ArcadeGameInstance {
     const lanterns = this.bricks.filter((b) => b.kind === 'lantern')
     for (const b of this.bricks) {
       g.save()
-      if ((this.houseNow === NIGHT || this.houseNow === CONSERVATORY_INDEX) && !this.boss?.defeated) {
+      if (
+        (this.houseNow === NIGHT || this.houseNow === CONSERVATORY_INDEX) &&
+        !this.boss?.defeated
+      ) {
         const r = this.brickRect(b)
         const nearBall = this.balls.some(
           (ball) => Math.hypot(ball.x - r.x - r.w / 2, ball.y - r.y) < 50,

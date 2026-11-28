@@ -108,7 +108,11 @@ export const HOUSE_CARDS: Readonly<
     pests: 'FROG BOTS AND MIRROR BUGS',
     seed: 'D DUO PADDLE',
   },
-  moonflower: { tagline: 'SECRET GLASSHOUSE - MOONLIGHT', pests: 'REMIXED GARDEN BOTS', seed: 'ALL TEN SEEDS' },
+  moonflower: {
+    tagline: 'SECRET GLASSHOUSE - MOONLIGHT',
+    pests: 'REMIXED GARDEN BOTS',
+    seed: 'ALL TEN SEEDS',
+  },
   'night-bloom': {
     tagline: 'GLASSHOUSE 5 - MIDNIGHT',
     pests: 'GLOOM PUFFS AND SHADOWS',

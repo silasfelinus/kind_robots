@@ -27,7 +27,12 @@ import { LEFT, RIGHT, W } from './rules'
 import type { CrateKind } from './walls'
 
 export type BossId =
-  'mister-mulch' | 'tangle-rose' | 'sunny-saguaro' | 'queen-koi' | 'gloom-bloom' | 'thorn'
+  | 'mister-mulch'
+  | 'tangle-rose'
+  | 'sunny-saguaro'
+  | 'queen-koi'
+  | 'gloom-bloom'
+  | 'thorn'
 export type BossPhase = 1 | 2 | 3
 
 /** A guard crate (a face plate or a feeding root) as a wall cell, and the extra crates around it. */
@@ -268,14 +273,31 @@ export const BOSS_SPECS: Readonly<Record<BossId, BossSpec>> = {
     petals: 60,
   },
   thorn: {
-    id: 'thorn', name: 'THORN', home: { x: W / 2, y: 35 }, w: 46, h: 7,
-    hits: [0, 3, 4], every: [0, 0, 0], tell: 0,
+    id: 'thorn',
+    name: 'THORN',
+    home: { x: W / 2, y: 35 },
+    w: 46,
+    h: 7,
+    hits: [0, 3, 4],
+    every: [0, 0, 0],
+    tell: 0,
     cells: [
-      g(2, 2, 2), g(5, 2, 2), g(6, 2, 2), g(9, 2, 2),
-      x(1, 3, 'glow'), x(10, 3, 'glow'), x(4, 4, 'puffball'), x(7, 4, 'puffball'),
+      g(2, 2, 2),
+      g(5, 2, 2),
+      g(6, 2, 2),
+      g(9, 2, 2),
+      x(1, 3, 'glow'),
+      x(10, 3, 'glow'),
+      x(4, 4, 'puffball'),
+      x(7, 4, 'puffball'),
     ],
-    phases: ['CRACK THE FOUR ROOTS ON THORNS SIDE', 'GET THE BALL PAST THE TOP PADDLE', 'THORN RALLIES FASTER. AIM FOR THE GAPS'],
-    score: 80_000, petals: 80,
+    phases: [
+      'CRACK THE FOUR ROOTS ON THORNS SIDE',
+      'GET THE BALL PAST THE TOP PADDLE',
+      'THORN RALLIES FASTER. AIM FOR THE GAPS',
+    ],
+    score: 80_000,
+    petals: 80,
   },
 }
 

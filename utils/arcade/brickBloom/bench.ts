@@ -206,7 +206,11 @@ export function readBloomSave(raw: unknown): BloomSave | null {
         ),
       ]
     : []
-  if (r.secret === true && (r.house !== HOUSES.length || !hasAllGoldenSeeds(golden))) return null
+  if (
+    r.secret === true &&
+    (r.house !== HOUSES.length || !hasAllGoldenSeeds(golden))
+  )
+    return null
   const k =
     r.kit && typeof r.kit === 'object' && !Array.isArray(r.kit)
       ? (r.kit as Record<string, unknown>)
@@ -230,14 +234,31 @@ export function readBloomSave(raw: unknown): BloomSave | null {
       hint: k.hint === true,
     },
     golden,
-    ...(r.champion === true || (r.house === HOUSES.length && r.secret !== true) ? { champion: true } : {}),
-    ...(r.trueChampion === true && hasAllGoldenSeeds(golden) ? { trueChampion: true, champion: true } : {}),
-    ...(r.secondBloom === true && r.champion === true ? { secondBloom: true } : {}),
-    ...(r.secret === true && r.house === HOUSES.length && hasAllGoldenSeeds(golden) ? { secret: true } : {}),
+    ...(r.champion === true || (r.house === HOUSES.length && r.secret !== true)
+      ? { champion: true }
+      : {}),
+    ...(r.trueChampion === true && hasAllGoldenSeeds(golden)
+      ? { trueChampion: true, champion: true }
+      : {}),
+    ...(r.secondBloom === true && r.champion === true
+      ? { secondBloom: true }
+      : {}),
+    ...(r.secret === true &&
+    r.house === HOUSES.length &&
+    hasAllGoldenSeeds(golden)
+      ? { secret: true }
+      : {}),
   }
 }
 
 /** A save worth offering to continue: a later glasshouse, not yet finished. */
 export function resumable(s: BloomSave | null): s is BloomSave {
-  return !!s && ((s.house > 0 && s.house < HOUSES.length) || (s.house === HOUSES.length && s.secret === true && hasAllGoldenSeeds(s.golden)) || (s.house === 0 && s.secondBloom === true))
+  return (
+    !!s &&
+    ((s.house > 0 && s.house < HOUSES.length) ||
+      (s.house === HOUSES.length &&
+        s.secret === true &&
+        hasAllGoldenSeeds(s.golden)) ||
+      (s.house === 0 && s.secondBloom === true))
+  )
 }

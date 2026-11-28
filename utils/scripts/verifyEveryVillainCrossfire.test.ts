@@ -2039,7 +2039,7 @@ assert.ok(store.includes('personalFinaleNode('))
 // The bot can lose: never promote a losing or stalled route to a victory.
 type CombatPerspective = 'hero' | 'villain'
 type CombatOutcome = TrainingState['phase']
-type CombatPolicy = 'standard' | 'objective' | 'adaptive'
+type CombatPolicy = 'standard' | 'objective' | 'adaptive' | 'breach'
 
 function drainCombatDialogue(
   save: EvtSave,
@@ -2126,7 +2126,8 @@ function combatAct(
   state.selected = unit.id
   if (rescueSelected(state)) return true
   const rivals = state.units.filter((u) => u.team === 'rival' && u.hp > 0)
-  const adaptive = policy === 'adaptive'
+  const breach = policy === 'breach'
+  const adaptive = policy === 'adaptive' || breach
   const objectivePolicy = policy !== 'standard'
   const victory = state.rules?.victory
   const boss = victory?.kind === 'defeat-boss' ? victory.unit : null
@@ -2226,6 +2227,42 @@ function combatAct(
     .sort((a, b) => b.score - a.score)[0]
   if (power && power.score >= 1.25 && useSelectedPower(state, power.target))
     return true
+
+  if (breach && !unit.moved && !unit.fired && unit.ap > 1) {
+    const value = (point: { x: number; y: number }) => {
+      const best = Math.max(
+        0,
+        ...rivals.map((target) => {
+          const hit = previewShot({ ...unit, ...point }, target, state.map).hit
+          return hit > 0
+            ? hit * (target.hp <= 2 ? 1.5 : 1) + (target.id === boss ? hit : 0)
+            : 0
+        }),
+      )
+      const exposure = exposureAt(state, unit, point).reduce(
+        (sum, chance) => sum + chance.hit,
+        0,
+      )
+      const danger =
+        state.field?.fire.some((f) => f.x === point.x && f.y === point.y) ||
+        state.rules?.hazards.some((h) => h.x === point.x && h.y === point.y)
+      return best - exposure * 0.25 - (danger ? 100 : 0)
+    }
+    const current = value(unit)
+    const firingPosition = reachableCells(state.map, state.units, unit)
+      .filter((cell) => cell.cost < unit.ap)
+      .map((cell) => ({ cell, score: value(cell) }))
+      .sort(
+        (a, b) =>
+          b.score - a.score || a.cell.y - b.cell.y || a.cell.x - b.cell.x,
+      )[0]
+    if (
+      firingPosition &&
+      firingPosition.score > current + 8 &&
+      moveSelected(state, firingPosition.cell)
+    )
+      return true
+  }
   if (
     shot &&
     !unit.fired &&
@@ -2350,7 +2387,7 @@ function playCombat(
   for (let round = 0; round < limit && state.phase === 'active'; round++) {
     dialogue()
     const squad = state.units.filter((u) => u.team === 'squad')
-    if (policy === 'adaptive')
+    if (policy === 'adaptive' || policy === 'breach')
       squad.sort(
         (a, b) =>
           Number(b.identity.endsWith('-social')) -
@@ -2409,6 +2446,8 @@ const combatCoverage = CROSSFIRE_CHAPTERS.map((chapter) => ({
   firstTryVictories: 0,
   adaptiveAttempts: 0,
   adaptiveVictories: 0,
+  breachAttempts: 0,
+  breachVictories: 0,
   victory: 0,
   defeat: 0,
   active: 0,
@@ -2497,6 +2536,25 @@ for (const person of IDENTITY_ARCS) {
           diagnostics.push(
             chapter.id + ':adaptive:' + second + '->' + result.outcome,
           )
+          if (result.outcome !== 'victory' && chapter.id === 'science-lab') {
+            const third = result.outcome
+            if (campaign) {
+              const checkpoint = snapshotCrossfire(campaign, result.save)
+              assert.ok(checkpoint)
+              const retry = retryCrossfire(checkpoint)
+              assert.ok(retry)
+              assert.deepEqual(retry.active.state, opening.state)
+              assert.deepEqual(retry.completed, checkpoint.completed)
+              retryOpening = retry.active
+            }
+            tally.breachAttempts++
+            result = playCombat(retryOpening, perspective, 'breach')
+            tally.actions += result.actions
+            if (result.outcome === 'victory') tally.breachVictories++
+            diagnostics.push(
+              chapter.id + ':breach:' + third + '->' + result.outcome,
+            )
+          }
         }
       }
       if (result.outcome !== 'victory') {
@@ -2547,8 +2605,15 @@ for (const tally of combatCoverage) {
     tally.retryAttempts,
   )
   assert.equal(
-    tally.firstTryVictories + tally.retryVictories + tally.adaptiveVictories,
+    tally.firstTryVictories +
+      tally.retryVictories +
+      tally.adaptiveVictories +
+      tally.breachVictories,
     tally.victory,
+  )
+  assert.ok(tally.breachVictories <= tally.breachAttempts)
+  assert.ok(
+    tally.breachAttempts <= tally.adaptiveAttempts - tally.adaptiveVictories,
   )
   assert.ok(tally.victory > 0, tally.chapter + ': no earned victories')
 }

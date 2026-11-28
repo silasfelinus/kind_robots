@@ -14,7 +14,8 @@
  * speed), an additive talk layer, then a one-shot gesture blended over the
  * top. `poseRig` is pure and deterministic so tests can sample any instant.
  */
-import type { CaseAction, CaseState } from '../monstressConvention/prologue'
+import type { CaseState } from '../monstressConvention/prologue'
+import { isContactJoke, type ContactAction } from './contact'
 
 export interface RigBox {
   x: number
@@ -501,9 +502,14 @@ export function ancestry(rig: CutoutRig, id: string): string[] {
   return chain
 }
 
-/** Scene gestures for the two leads after an action. */
+/**
+ * Scene gestures for the two leads after an action. Iris reaches to take,
+ * use or photograph (the camera goes up), points when she looks, and recoils
+ * when nothing happens. Norb never reaches: he recoils from contact jokes
+ * (contact.ts) and rebuffs, and both leads startle at a ghost.
+ */
 export function leadGestures(
-  action: Pick<CaseAction, 'verb'> | null,
+  action: ContactAction | null,
   previous: CaseState,
   next: CaseState,
   ghostFlags: readonly string[] = ['odette-met', 'violet-met'],
@@ -516,12 +522,16 @@ export function leadGestures(
   )
     return { iris: 'recoil', norb: 'recoil' }
   if (next.rebuffs > previous.rebuffs) gestures.norb = 'recoil'
+  if (isContactJoke(action, previous, next)) gestures.norb = 'recoil'
   if (!action) return gestures
   if (previous.actor !== 'iris') return gestures
   if (next === previous) gestures.iris = 'recoil'
-  else if (action.verb === 'take' || action.verb === 'use')
+  else if (
+    action.verb === 'take' ||
+    action.verb === 'use' ||
+    action.verb === 'photograph'
+  )
     gestures.iris = 'reach'
-  else if (action.verb === 'look' || action.verb === 'photograph')
-    gestures.iris = 'point'
+  else if (action.verb === 'look') gestures.iris = 'point'
   return gestures
 }

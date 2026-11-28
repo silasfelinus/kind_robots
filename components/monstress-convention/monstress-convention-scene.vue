@@ -259,6 +259,13 @@
               <path d="M320 380H755" stroke="#eabf8d" stroke-width="13" />
             </g>
           </svg>
+          <MonstriqueStageObjects
+            v-if="backdrop"
+            :views="objectViews"
+            :cues="objectCueList"
+            :iris-x="iris.x"
+            :iris-y="iris.y"
+          />
           <div class="mc-shadow absolute inset-0" aria-hidden="true" />
           <div
             class="mc-cast pointer-events-none absolute inset-0"
@@ -761,7 +768,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  shallowRef,
+  watch,
+} from 'vue'
 import { useMonstressConventionStore } from '~/stores/monstressConventionStore'
 import { useMonstriquePublicStore } from '~/stores/monstriquePublicStore'
 import {
@@ -824,6 +838,13 @@ import {
   figureFor,
   portraitFor,
 } from '~/utils/monstrique/stageArt'
+import {
+  interactionBeat,
+  stageHotspots,
+  stageObjectViews,
+  type ObjectCue,
+  type StageObjectId,
+} from '~/utils/monstrique/stageObjects'
 import { MONSTRESS_CONVENTION } from '~/utils/playbookKit/games/monstressConvention'
 import { ENDING_ROUTE_NOTES } from '~/utils/monstressConvention/runHistory'
 import { CHAPTER_TWO_OPENERS } from '~/utils/monstressConvention/chapterTwo'
@@ -901,9 +922,10 @@ let gestureKey = 0
 const facing = ref<'left' | 'right'>('right')
 let walkTimer: ReturnType<typeof setTimeout> | null = null
 let reducedMotion = false
-const room = computed(() =>
-  roomForAudience(story.value.state.room, audience.value),
-)
+const room = computed(() => {
+  const here = roomForAudience(story.value.state.room, audience.value)
+  return { ...here, hotspots: stageHotspots(here, story.value.state) }
+})
 const activeHotspot = computed(() =>
   room.value.hotspots.find((hotspot) => hotspot.id === selected.value),
 )
@@ -1056,11 +1078,47 @@ function cueGestures(gestures: Partial<Record<LeadId, RigGesture>>): void {
   }
 }
 
+const shownCase = shallowRef(story.value.state)
+const opened = ref<StageObjectId[]>([])
+const objectCueList = shallowRef<Array<ObjectCue & { key: number }>>([])
+const objectViews = computed(() =>
+  stageObjectViews(shownCase.value, audience.value, opened.value),
+)
+let objectTimer: ReturnType<typeof setTimeout> | null = null
+let objectCueKey = 0
+
+function clearObjectTimer(): void {
+  if (objectTimer) clearTimeout(objectTimer)
+  objectTimer = null
+}
+
+function playObjectCues(cues: ObjectCue[]): void {
+  clearObjectTimer()
+  const land = () => {
+    objectTimer = null
+    for (const cue of cues)
+      if (cue.cue === 'swing-open' && !opened.value.includes(cue.id))
+        opened.value = [...opened.value, cue.id]
+    shownCase.value = story.value.state
+    objectCueList.value = cues.map((cue) => ({
+      ...cue,
+      key: ++objectCueKey,
+    }))
+  }
+  const delay = Math.max(...cues.map((cue) => cue.delayMs))
+  objectTimer = setTimeout(land, delay)
+}
+
 function act(action: CaseAction): void {
   const before = story.value.state
   story.value.takeAction(action)
   actedState = story.value.state
-  cueGestures(leadGestures(action, before, story.value.state))
+  const beat = interactionBeat(action, before, story.value.state, {
+    opened: opened.value,
+    reducedMotion,
+  })
+  cueGestures(beat.gestures)
+  if (beat.cues.length) playObjectCues(beat.cues)
 }
 
 watch(
@@ -1068,6 +1126,12 @@ watch(
   (next, previous) => {
     if (previous && next !== previous && next !== actedState)
       cueGestures(leadGestures(null, previous, next))
+    if (opened.value.length && !next.flags.includes('crime-room-access'))
+      opened.value = []
+    if (!objectTimer || next.room !== shownCase.value.room) {
+      clearObjectTimer()
+      shownCase.value = next
+    }
   },
 )
 const followMs = computed(() => (walkMs.value ? walkMs.value + 180 : 0))
@@ -1153,7 +1217,10 @@ onMounted(() => {
   else if (props.entry === 'new') screen.value = 'intro'
   else if (story.value.state.transcript.length > 1) screen.value = 'stage'
 })
-onBeforeUnmount(stopWalking)
+onBeforeUnmount(() => {
+  stopWalking()
+  clearObjectTimer()
+})
 
 const sound = useMonstriqueSoundStore()
 const kit = usePlaybookKitStore()

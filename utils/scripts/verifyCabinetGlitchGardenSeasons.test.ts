@@ -253,7 +253,9 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
     for (const plan of garden.waves) {
       const one = lapWave(plan, 1)
       const two = lapWave(plan, 2)
-      assert.ok(one.speed > plan.speed && two.speed > one.speed)
+      assert.equal(one.speed, Math.min(3.5, plan.speed + 0.25))
+      assert.equal(two.speed, Math.min(3.5, plan.speed + 0.5))
+      assert.ok(two.speed >= one.speed && one.speed >= plan.speed)
       assert.ok(one.heads >= plan.heads && one.snail && one.crawlers)
     }
 }

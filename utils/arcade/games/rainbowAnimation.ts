@@ -19,8 +19,9 @@ import {
  * Each is eight evenly spaced frames of a reviewed WAN 2.2 loop (conductor T030-ANIMATION-2026-11-23, framed
  * -v2 cells, 2026-11-24 PT review), matte keyed, centred on the creature and sized to its still. Kept: the
  * picket's fin flutter, the urchin's puff, the anchor's paddling fins (third take) and the lantern's pulse (third
- * take, its green matte spill recoloured into the tentacles' blue). Rejected: spiral (turns to face the camera
- * in both takes), relay and coral (near-static), skimmer (source cut at the edge).
+ * take, its green matte spill recoloured into the tentacles' blue). Rejected here: spiral (turns to face the
+ * camera in both takes), relay (near-static), skimmer (source cut at the edge). Coral's first take was near-static
+ * too; a later reviewed take ships as its sprite's idle atlas (RAINBOW_IDLE_ATLASES 'enemies/coral').
  */
 export const RAINBOW_ENEMY_ATLASES: Readonly<
   Record<string, { frames: number; fps: number }>

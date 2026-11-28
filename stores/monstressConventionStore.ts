@@ -5,7 +5,9 @@ import { useAchievementStore } from '~/stores/achievementStore'
 import { useUserStore } from '~/stores/userStore'
 import { performFetch } from '~/stores/utils'
 import {
+  beginChapterTwo,
   newCase,
+  newChapterTwo,
   monstrexxKitId,
   performAction,
   restoreCase,
@@ -30,6 +32,7 @@ import {
   recordRun,
   type CaseRun,
 } from '~/utils/monstressConvention/runHistory'
+import { CHAPTER_TWO_OPENERS } from '~/utils/monstressConvention/chapterTwo'
 
 export const useMonstressConventionStore = defineStore(
   'monstressConvention',
@@ -52,6 +55,9 @@ export const useMonstressConventionStore = defineStore(
         feedback.value ||
         state.value.transcript[state.value.transcript.length - 1] ||
         '',
+    )
+    const chapterTwoUnlocked = computed(() =>
+      runs.value.some((run) => CHAPTER_TWO_OPENERS.includes(run.ending)),
     )
     const saveKey = computed(
       () => 'kr-monstress-case-v2-' + (user.user?.id ?? 'guest'),
@@ -160,6 +166,12 @@ export const useMonstressConventionStore = defineStore(
       if (next.flags.includes('fangs-returned'))
         kit.unlock('moments', 'rental-fangs')
       if (next.flags.includes('ghost-kiss')) kit.unlock('moments', 'cold-kiss')
+      if (next.flags.includes('reel-running'))
+        kit.unlock('moments', 'midnight-matinee')
+      if (next.evidence.includes('sleeve-face'))
+        kit.unlock('moments', 'scratched-sleeve')
+      if (next.flags.includes('chapter-two-filed'))
+        kit.unlock('moments', 'francesca-confesses')
       if (next.ending) kit.unlock('endings', next.ending)
       if (next.ending && !prev.ending)
         storeRuns(
@@ -202,6 +214,20 @@ export const useMonstressConventionStore = defineStore(
     function begin(): void {
       if (!authorized.value) return
       commit(newCase(nextCaseSeed(runs.value)))
+      activeCutscene.value = null
+      opened.value = true
+    }
+
+    function continueChapter(): void {
+      if (!authorized.value) return
+      const result = beginChapterTwo(state.value)
+      if (result.changed) commit(result.state)
+      else feedback.value = result.line
+    }
+
+    function beginChapterTwoCase(): void {
+      if (!authorized.value || !chapterTwoUnlocked.value) return
+      commit(newChapterTwo(nextCaseSeed(runs.value)))
       activeCutscene.value = null
       opened.value = true
     }
@@ -252,6 +278,9 @@ export const useMonstressConventionStore = defineStore(
       verifyAccess,
       load,
       begin,
+      chapterTwoUnlocked,
+      continueChapter,
+      beginChapterTwoCase,
       forgetCase,
       takeAction,
       move,

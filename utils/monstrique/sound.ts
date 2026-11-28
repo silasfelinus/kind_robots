@@ -5,7 +5,15 @@
  * rebuffs. WebAudio starts only after a real player gesture. The cue and mood
  * rules are pure, so Node tests cover them without a browser.
  */
-import type { CaseState } from '../monstressConvention/prologue'
+import type { CaseState, RoomId } from '../monstressConvention/prologue'
+
+const BEACH_ROOMS: readonly RoomId[] = [
+  'drive-in',
+  'projection-booth',
+  'snack-bar',
+  'starlite-office',
+]
+const LAB_ROOMS: readonly RoomId[] = ['science-cinema', 'francesca-lab']
 
 export type MonstriqueMood =
   | 'title'
@@ -15,6 +23,8 @@ export type MonstriqueMood =
   | 'convention'
   | 'ending-lead'
   | 'ending-reckless'
+  | 'beach'
+  | 'lab'
 
 export type MonstriqueCue =
   | 'evidence'
@@ -76,12 +86,18 @@ export function monstriqueMoodFor(
   onStage: boolean,
 ): MonstriqueMood {
   if (!state || !onStage) return 'title'
-  if (state.ending === 'lead-earned' || state.ending === 'fifth-hexblade')
+  if (
+    state.ending === 'lead-earned' ||
+    state.ending === 'fifth-hexblade' ||
+    state.ending === 'five-knives'
+  )
     return 'ending-lead'
   if (state.ending === 'reckless') return 'ending-reckless'
   if (state.room === 'odette-room') return 'crime'
   if (state.room === 'city-map') return 'city'
   if (state.room === 'convention-center') return 'convention'
+  if (BEACH_ROOMS.includes(state.room)) return 'beach'
+  if (LAB_ROOMS.includes(state.room)) return 'lab'
   return 'motel'
 }
 
@@ -247,6 +263,38 @@ export const MONSTRIQUE_THEMES: Record<MonstriqueMood, MonstriqueTheme> = {
     padWave: 'triangle',
     energy: 0.5,
     rain: 0.3,
+    brushes: false,
+  },
+  beach: {
+    bpm: 150,
+    chords: [
+      [52, 56, 59],
+      [57, 61, 64],
+      [59, 63, 66],
+      [57, 61, 64],
+    ],
+    lead: [76, 76, 76, 75, 76, R, 71, R, 73, 73, 73, 71, 73, R, 68, R],
+    bass: [40, 44, 47, 44, 45, 49, 52, 49, 47, 51, 54, 51, 45, 49, 52, 49],
+    leadWave: 'square',
+    padWave: 'triangle',
+    energy: 0.8,
+    rain: 0,
+    brushes: true,
+  },
+  lab: {
+    bpm: 104,
+    chords: [
+      [45, 48, 52],
+      [44, 48, 51],
+      [43, 46, 50],
+      [44, 47, 52],
+    ],
+    lead: [69, R, 72, 76, R, 75, R, 72, 68, R, 71, 75, R, 74, R, R],
+    bass: [33, R, 40, R, 32, R, 39, R, 31, R, 38, R, 32, R, 40, R],
+    leadWave: 'sawtooth',
+    padWave: 'sine',
+    energy: 0.55,
+    rain: 0.15,
     brushes: false,
   },
 }

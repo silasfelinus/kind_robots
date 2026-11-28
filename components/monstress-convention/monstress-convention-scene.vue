@@ -66,8 +66,11 @@
         class="mc-action-bar flex shrink-0 flex-wrap items-center gap-2 px-3 py-2"
       >
         <div class="min-w-0 flex-1">
-          <p class="mc-eyebrow">
-            {{ room.floor === 2 ? 'SECOND FLOOR' : 'GROUND FLOOR' }}
+          <p class="mc-eyebrow truncate">
+            {{
+              room.district ??
+              (room.floor === 2 ? 'SECOND FLOOR' : 'GROUND FLOOR')
+            }}
           </p>
           <h2 class="mc-location truncate">{{ room.label }}</h2>
         </div>
@@ -181,43 +184,65 @@
             <rect width="1000" height="580" fill="url(#mc-wall)" />
             <path d="M0 375L1000 360V580H0Z" fill="url(#mc-floor)" />
             <path d="M0 370L1000 356" stroke="#c29b99" stroke-width="11" />
-            <rect
-              x="85"
-              y="110"
-              width="250"
-              height="265"
-              fill="#31273c"
-              stroke="#bb9a98"
-              stroke-width="24"
-            />
-            <rect
-              x="110"
-              y="130"
-              width="200"
-              height="218"
-              fill="url(#mc-windowlight)"
-            />
-            <path d="M208 130V348" stroke="#402f4e" stroke-width="15" />
-            <rect
-              x="760"
-              y="105"
-              width="160"
-              height="266"
-              fill="#44334a"
-              stroke="#b09b99"
-              stroke-width="20"
-            />
-            <circle cx="840" cy="250" r="8" fill="#e9c9a9" />
-            <path
-              d="M395 380V235Q510 185 650 230V378Z"
-              fill="#55344e"
-              stroke="#bc9399"
-              stroke-width="18"
-            />
-            <path d="M425 312H615" stroke="#b68c8f" stroke-width="12" />
-            <path d="M500 0V75" stroke="#c6ada3" stroke-width="9" />
-            <path d="M410 70H585L615 120H380Z" fill="#d7bcb4" />
-            <circle cx="500" cy="115" r="35" fill="#ffe4bb" opacity=".8" />
+            <g v-if="!room.district">
+              <rect
+                x="85"
+                y="110"
+                width="250"
+                height="265"
+                fill="#31273c"
+                stroke="#bb9a98"
+                stroke-width="24"
+              />
+              <rect
+                x="110"
+                y="130"
+                width="200"
+                height="218"
+                fill="url(#mc-windowlight)"
+              />
+              <path d="M208 130V348" stroke="#402f4e" stroke-width="15" />
+              <rect
+                x="760"
+                y="105"
+                width="160"
+                height="266"
+                fill="#44334a"
+                stroke="#b09b99"
+                stroke-width="20"
+              />
+              <circle cx="840" cy="250" r="8" fill="#e9c9a9" />
+              <path
+                d="M395 380V235Q510 185 650 230V378Z"
+                fill="#55344e"
+                stroke="#bc9399"
+                stroke-width="18"
+              />
+              <path d="M425 312H615" stroke="#b68c8f" stroke-width="12" />
+              <path d="M500 0V75" stroke="#c6ada3" stroke-width="9" />
+              <path d="M410 70H585L615 120H380Z" fill="#d7bcb4" />
+              <circle cx="500" cy="115" r="35" fill="#ffe4bb" opacity=".8" />
+            </g>
+            <g v-else data-testid="monstrique-district-fallback">
+              <rect width="1000" height="360" fill="#1c1f3d" />
+              <rect
+                x="250"
+                y="40"
+                width="500"
+                height="250"
+                fill="#d9d3e8"
+                opacity=".35"
+                stroke="#8f86b8"
+                stroke-width="14"
+              />
+              <path
+                d="M300 290V360M700 290V360"
+                stroke="#6b5d8f"
+                stroke-width="16"
+              />
+              <circle cx="870" cy="80" r="34" fill="#ffe4bb" opacity=".7" />
+              <path d="M0 360H1000" stroke="#c29b99" stroke-width="11" />
+            </g>
             <g v-if="story.state.room === 'convention-center'">
               <path d="M0 0H130L170 360H20Z" fill="#842a58" />
               <path d="M880 0H1000V370H840Z" fill="#842a58" />
@@ -345,7 +370,7 @@
           </button>
         </div>
         <p class="mc-scene-stamp">
-          {{ room.floor === 2 ? 'UPSTAIRS' : 'LAST CALL' }}
+          {{ room.district ?? (room.floor === 2 ? 'UPSTAIRS' : 'LAST CALL') }}
         </p>
 
         <aside
@@ -595,7 +620,9 @@
           class="mc-ending-card max-h-full max-w-lg space-y-4 overflow-y-auto text-center"
           data-testid="monstrique-ending-card"
         >
-          <p class="mc-eyebrow">CHAPTER ONE · THE LAST CALL</p>
+          <p class="mc-eyebrow" data-testid="monstrique-ending-chapter">
+            {{ chapterLabel }}
+          </p>
           <h2 class="text-3xl font-bold">{{ endingTitle }}</h2>
           <p class="mc-ending-line">{{ story.currentLine }}</p>
           <p
@@ -605,9 +632,20 @@
             {{ endingRoute }} This case is in your case files on the title
             scrapbook.
           </p>
-          <button class="mc-action-primary" type="button" @click="begin">
-            NEW CASE
-          </button>
+          <div class="flex flex-wrap justify-center gap-2">
+            <button
+              v-if="canContinue"
+              class="mc-action-primary"
+              type="button"
+              data-testid="monstrique-continue-chapter"
+              @click="continueChapter"
+            >
+              CHAPTER TWO: BEACH HEX
+            </button>
+            <button class="mc-action-primary" type="button" @click="begin">
+              NEW CASE
+            </button>
+          </div>
         </div>
       </div>
     </template>
@@ -634,12 +672,13 @@ import {
 } from '~/utils/monstressConvention/navigation'
 import {
   availableTopics,
-  caseScore,
+  chapterMaxScore,
+  chapterOf,
+  chapterScore,
   EVIDENCE,
   GRACES,
   HOTEL_ROOMS,
   ITEMS,
-  maxScore,
   TOPICS,
   type CaseAction,
   type RoomId,
@@ -668,6 +707,7 @@ import {
 } from '~/utils/monstrique/stageArt'
 import { MONSTRESS_CONVENTION } from '~/utils/playbookKit/games/monstressConvention'
 import { ENDING_ROUTE_NOTES } from '~/utils/monstressConvention/runHistory'
+import { CHAPTER_TWO_OPENERS } from '~/utils/monstressConvention/chapterTwo'
 import { useMonstriqueSoundStore } from '~/stores/monstriqueSoundStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import { monstriqueCuesFor, monstriqueMoodFor } from '~/utils/monstrique/sound'
@@ -695,6 +735,17 @@ const reachedEnding = computed(() =>
 const endingTitle = computed(() => reachedEnding.value?.title ?? 'Case Closed')
 const endingRoute = computed(() =>
   story.value.state.ending ? ENDING_ROUTE_NOTES[story.value.state.ending] : '',
+)
+const chapterLabel = computed(() =>
+  chapterOf(story.value.state) === 2
+    ? 'CHAPTER TWO · BEACH HEX'
+    : 'CHAPTER ONE · THE LAST CALL',
+)
+const canContinue = computed(
+  () =>
+    chapterOf(story.value.state) === 1 &&
+    !!story.value.state.ending &&
+    CHAPTER_TWO_OPENERS.includes(story.value.state.ending),
 )
 const endingPlate = computed(() => {
   const art = reachedEnding.value?.art
@@ -725,8 +776,10 @@ const activeHotspot = computed(() =>
 const activeTopics = computed(() =>
   selected.value ? availableTopics(story.value.state, selected.value) : [],
 )
-const score = computed(() => caseScore(story.value.state))
-const scoreMax = computed(() => maxScore(audience.value))
+const score = computed(() => chapterScore(story.value.state, audience.value))
+const scoreMax = computed(() =>
+  chapterMaxScore(story.value.state, audience.value),
+)
 const scoreGain = ref(0)
 const scoreBump = ref(0)
 watch(score, (now, before) => {
@@ -962,6 +1015,16 @@ function begin(): void {
   walkMs.value = 0
   iris.value = entryPoint(story.value.state.room)
   screen.value = 'intro'
+}
+
+function continueChapter(): void {
+  story.value.continueChapter()
+  selected.value = null
+  held.value = null
+  drawer.value = null
+  stopWalking()
+  walkMs.value = 0
+  iris.value = entryPoint(story.value.state.room)
 }
 
 function selectHotspot(id: string): void {

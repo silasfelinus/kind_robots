@@ -11,6 +11,7 @@ import {
   type KitSave,
 } from '../playbookKit/settings'
 import { restoreCase, type CaseState } from './prologue'
+import { CHAPTER_TWO_MATURE_FLAGS } from './chapterTwo'
 import type { MonstriqueAudience } from './edition'
 import { mergeRuns, parseRuns, type CaseRun } from './runHistory'
 
@@ -33,7 +34,11 @@ export const accountSaveSlot = (edition: MonstriqueAudience): string =>
 
 /** Items and flags that only the mature edition can produce. */
 const MATURE_ONLY_ITEMS = new Set(['garlic-protection'])
-const MATURE_ONLY_FLAGS = new Set(['ghost-kiss', 'bought-protection'])
+const MATURE_ONLY_FLAGS = new Set([
+  'ghost-kiss',
+  'bought-protection',
+  ...CHAPTER_TWO_MATURE_FLAGS,
+])
 
 export function generalSafeCase(state: CaseState): boolean {
   return (

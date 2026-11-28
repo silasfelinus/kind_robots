@@ -10,10 +10,13 @@
 import {
   CASE_ENDINGS,
   caseScore,
+  endingChapter,
   maxScore,
+  type CaseChapter,
   type CaseEnding,
   type CaseState,
 } from './prologue'
+import { chapterTwoMaxScore, chapterTwoScore } from './chapterTwo'
 import { GENERAL_MAX_SCORE, generalCaseScore } from './achievements'
 import type { MonstriqueAudience } from './edition'
 
@@ -26,6 +29,8 @@ type RunNote = {
   missed: string
   earned: (state: CaseState) => boolean
   mature?: true
+  /** Chapter Two notes only appear on Chapter Two case files. */
+  chapter?: 2
 }
 
 const has = (state: CaseState, key: string) =>
@@ -91,6 +96,49 @@ export const RUN_NOTES = {
     earned: (state) => has(state, 'ghost-kiss'),
     mature: true,
   },
+  'reel-ran': {
+    done: 'Clem ran the 1964 reel on the big screen',
+    missed: 'Clem never got to run the 1964 reel on the big screen.',
+    earned: (state) => has(state, 'reel-running'),
+    chapter: 2,
+  },
+  'invoice-returned': {
+    done: 'Francesca got her 1964 invoice back',
+    missed: 'Francesca never got her 1964 invoice back.',
+    earned: (state) => has(state, 'invoice-returned'),
+    chapter: 2,
+  },
+  'harker-file-2': {
+    done: 'Odette opened Harker File #2',
+    missed: 'Odette never opened Harker File #2 back at Room 205.',
+    earned: (state) => has(state, 'harker-file-2'),
+    chapter: 2,
+  },
+  'pommel-five': {
+    done: 'Violet remembered the number on the pommel',
+    missed: 'Nobody asked Violet what the Starlite turned up.',
+    earned: (state) => has(state, 'pommel-five'),
+    chapter: 2,
+  },
+  'starlite-safe': {
+    done: 'The Starlite safe gave up its 1999 licence',
+    missed: 'The Starlite safe stayed shut.',
+    earned: (state) => has(state, 'merch-license'),
+    chapter: 2,
+  },
+  remaster: {
+    done: 'The jukebox played the remaster',
+    missed: 'Nobody played the remaster on the jukebox.',
+    earned: (state) => has(state, 'remaster-credit'),
+    chapter: 2,
+  },
+  'coil-kiss': {
+    done: 'Francesca blew every fuse in the lab',
+    missed: 'Francesca never blew the fuses.',
+    earned: (state) => has(state, 'francesca-spark'),
+    mature: true,
+    chapter: 2,
+  },
 } satisfies Record<string, RunNote>
 
 export type RunNoteId = keyof typeof RUN_NOTES
@@ -100,6 +148,41 @@ const MATURE_NOTES = new Set<string>(
   NOTE_IDS.filter((id) => (RUN_NOTES[id] as RunNote).mature),
 )
 
+function noteChapter(id: RunNoteId): CaseChapter {
+  return (RUN_NOTES[id] as RunNote).chapter ?? 1
+}
+
+/** The notes a case file for this ending and edition can carry. */
+function notesAllowed(
+  ending: CaseEnding,
+  edition: MonstriqueAudience,
+): RunNoteId[] {
+  const chapter = endingChapter(ending)
+  return NOTE_IDS.filter(
+    (id) =>
+      noteChapter(id) === chapter &&
+      (edition === 'mature' || !MATURE_NOTES.has(id)),
+  )
+}
+
+/** The score a case file for this ending is out of, in this edition. */
+export function runMaxScore(
+  ending: CaseEnding,
+  edition: MonstriqueAudience,
+): number {
+  if (endingChapter(ending) === 2) return chapterTwoMaxScore(edition)
+  return edition === 'general' ? GENERAL_MAX_SCORE : maxScore('mature')
+}
+
+function runScore(
+  state: CaseState,
+  ending: CaseEnding,
+  edition: MonstriqueAudience,
+): number {
+  if (endingChapter(ending) === 2) return chapterTwoScore(state, edition)
+  return edition === 'general' ? generalCaseScore(state) : caseScore(state)
+}
+
 /** Where each ending leaves the case, and the route it did not take. */
 export const ENDING_ROUTE_NOTES: Record<CaseEnding, string> = {
   reckless:
@@ -108,6 +191,8 @@ export const ENDING_ROUTE_NOTES: Record<CaseEnding, string> = {
     'Filed with the convention lead. The bucket trail back at the motel went cold.',
   'fifth-hexblade':
     'Filed in full, bucket trail and all. One more headline exists, for the impatient.',
+  'five-knives':
+    'Filed with the reel, the invoice and the sleeve. Francesca made five knives, and only four were ever photographed.',
 }
 
 export interface CaseRun {
@@ -126,11 +211,13 @@ export interface CaseRun {
   rebuffs: number
 }
 
-function notesFor(state: CaseState, edition: MonstriqueAudience): RunNoteId[] {
-  return NOTE_IDS.filter(
-    (id) =>
-      (edition === 'mature' || !MATURE_NOTES.has(id)) &&
-      (RUN_NOTES[id] as RunNote).earned(state),
+function notesFor(
+  state: CaseState,
+  ending: CaseEnding,
+  edition: MonstriqueAudience,
+): RunNoteId[] {
+  return notesAllowed(ending, edition).filter((id) =>
+    (RUN_NOTES[id] as RunNote).earned(state),
   )
 }
 
@@ -148,11 +235,11 @@ export function runEntryFor(
     edition,
     finishedAt,
     seed: state.seed,
-    score: general ? generalCaseScore(state) : caseScore(state),
-    maxScore: general ? GENERAL_MAX_SCORE : maxScore('mature'),
+    score: runScore(state, state.ending, edition),
+    maxScore: runMaxScore(state.ending, edition),
     moves: Math.max(0, state.transcript.length - 1),
     clues: state.evidence.length,
-    notes: notesFor(state, edition),
+    notes: notesFor(state, state.ending, edition),
     rebuffs: general ? 0 : state.rebuffs,
   }
 }
@@ -198,7 +285,7 @@ function parseRun(value: unknown, edition: MonstriqueAudience): CaseRun | null {
   )
     return null
   if (!Number.isSafeInteger(raw.seed)) return null
-  const top = edition === 'general' ? GENERAL_MAX_SCORE : maxScore('mature')
+  const top = runMaxScore(raw.ending as CaseEnding, edition)
   const score = count(raw.score, top)
   const moves = count(raw.moves, 100000)
   const clues = count(raw.clues, 1000)
@@ -212,10 +299,8 @@ function parseRun(value: unknown, edition: MonstriqueAudience): CaseRun | null {
     !Array.isArray(raw.notes)
   )
     return null
-  const notes = NOTE_IDS.filter(
-    (id) =>
-      (raw.notes as unknown[]).includes(id) &&
-      (edition === 'mature' || !MATURE_NOTES.has(id)),
+  const notes = notesAllowed(raw.ending as CaseEnding, edition).filter((id) =>
+    (raw.notes as unknown[]).includes(id),
   )
   return {
     id: raw.id,
@@ -252,11 +337,8 @@ export function parseRuns(
 
 /** The alternate routes a case file points at, most useful first. */
 export function missedLeads(run: CaseRun, limit = 3): string[] {
-  return NOTE_IDS.filter(
-    (id) =>
-      !run.notes.includes(id) &&
-      (run.edition === 'mature' || !MATURE_NOTES.has(id)),
-  )
+  return notesAllowed(run.ending, run.edition)
+    .filter((id) => !run.notes.includes(id))
     .slice(0, limit)
     .map((id) => RUN_NOTES[id].missed)
 }

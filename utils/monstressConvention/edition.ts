@@ -9,6 +9,11 @@ import {
   type RoomId,
 } from './prologue'
 import { MONSTRESS_CONVENTION } from '../playbookKit/games/monstressConvention'
+import {
+  CHAPTER_TWO_MATURE_HOTSPOTS,
+  CHAPTER_TWO_ROOMS,
+  CHAPTER_TWO_TOPICS,
+} from './chapterTwo'
 
 export type MonstriqueAudience = 'general' | 'mature'
 
@@ -68,6 +73,17 @@ const GENERAL_HOTSPOTS: Record<RoomId, readonly string[]> = {
   ],
   'city-map': ['drive-in', 'joke-shop', 'mansion', 'sewers'],
   'convention-center': ['idol-poster', 'mummy-actress'],
+  ...(Object.fromEntries(
+    Object.values(CHAPTER_TWO_ROOMS).map((room) => [
+      room.id,
+      room.hotspots
+        .map((hotspot) => hotspot.id)
+        .filter(
+          (id) =>
+            !(CHAPTER_TWO_MATURE_HOTSPOTS as readonly string[]).includes(id),
+        ),
+    ]),
+  ) as unknown as Record<keyof typeof CHAPTER_TWO_ROOMS, readonly string[]>),
 }
 
 const GENERAL_INVENTORY = new Set([
@@ -75,6 +91,8 @@ const GENERAL_INVENTORY = new Set([
   'motel-key',
   'odette-purse',
   'plastic-fangs',
+  'reel-can',
+  'invoice-sheet',
 ])
 
 const GENERAL_TOPICS = new Set([
@@ -92,6 +110,7 @@ const GENERAL_TOPICS = new Set([
   'fan-alibi',
   'idol-schedule',
   'norb-shirt',
+  ...Object.keys(CHAPTER_TWO_TOPICS),
 ])
 
 const GENERAL_APPROVED_MOMENTS = new Set([
@@ -99,6 +118,9 @@ const GENERAL_APPROVED_MOMENTS = new Set([
   'dead-client',
   'rental-fangs',
   'two-ghosts',
+  'midnight-matinee',
+  'scratched-sleeve',
+  'francesca-confesses',
 ])
 const GENERAL_APPROVED_CAST = new Set([
   'iris',
@@ -112,6 +134,7 @@ const GENERAL_APPROVED_ENDINGS = new Set([
   'lead-earned',
   'reckless',
   'fifth-hexblade',
+  'five-knives',
 ])
 
 function isGeneralRoom(id: string): id is RoomId {

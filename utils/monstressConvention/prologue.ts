@@ -9,8 +9,31 @@
  * hired to play a vampire, are ghosts bound to Room 205; Odette is the
  * client. Flirting is a verb, favours earn gratitude, and gratitude never
  * gates a required clue. Story canon: conductor
- * projects/monstress-convention/STORY-BIBLE.md.
+ * projects/monstress-convention/STORY-BIBLE.md. Chapter Two (Beach Hex) lives
+ * in chapterTwo.ts and plugs into the same engine and save.
  */
+import {
+  CHAPTER_TWO_ENDING,
+  CHAPTER_TWO_EVIDENCE,
+  CHAPTER_TWO_GATES,
+  CHAPTER_TWO_GRACES,
+  CHAPTER_TWO_ITEMS,
+  CHAPTER_TWO_LOCKED,
+  CHAPTER_TWO_OPENERS,
+  CHAPTER_TWO_ROOMS,
+  CHAPTER_TWO_TOPICS,
+  CHAPTER_TWO_TOPIC_TARGETS,
+  chapterTwoCombine,
+  chapterTwoFlirt,
+  chapterTwoInterview,
+  chapterTwoItem,
+  chapterTwoMaxScore,
+  chapterTwoScore,
+  chapterTwoVerb,
+  isChapterTwoRoom,
+  type ChapterTwoRoomId,
+} from './chapterTwo'
+
 export type Investigator = 'iris' | 'nico'
 export type RoomId =
   | 'motel-exterior'
@@ -22,9 +45,12 @@ export type RoomId =
   | 'odette-room'
   | 'city-map'
   | 'convention-center'
+  | ChapterTwoRoomId
 export type Verb =
   'walk' | 'look' | 'talk' | 'take' | 'use' | 'photograph' | 'ask' | 'flirt'
-export type CaseEnding = 'lead-earned' | 'reckless' | 'fifth-hexblade'
+export type CaseEnding =
+  'lead-earned' | 'reckless' | 'fifth-hexblade' | 'five-knives'
+export type CaseChapter = 1 | 2
 
 /**
  * The bucket trail that turns the convention lead into the full file: the
@@ -40,11 +66,22 @@ export const FIFTH_HEXBLADE_CLUES = [
   'violet-scent',
 ] as const
 
-export const CASE_ENDINGS: readonly CaseEnding[] = [
+/** Chapter One's three endings. */
+export const CHAPTER_ONE_ENDINGS: readonly CaseEnding[] = [
   'lead-earned',
   'reckless',
   'fifth-hexblade',
 ]
+
+/** Every ending a case file can record, Chapter One's first. */
+export const CASE_ENDINGS: readonly CaseEnding[] = [
+  ...CHAPTER_ONE_ENDINGS,
+  CHAPTER_TWO_ENDING,
+]
+
+export function endingChapter(ending: CaseEnding): CaseChapter {
+  return ending === CHAPTER_TWO_ENDING ? 2 : 1
+}
 
 export interface HotelHotspot {
   id: string
@@ -56,6 +93,8 @@ export interface HotelHotspot {
 export interface HotelRoom {
   id: RoomId
   label: string
+  /** Where in Midnight City the room is, for rooms away from the motel. */
+  district?: string
   floor: number
   caption: string
   exits: RoomId[]
@@ -77,6 +116,10 @@ export interface CaseState {
   /** How many times Norb has turned Iris down. Escalates the gag. */
   rebuffs: number
   ending: CaseEnding | null
+  /** The chapter being played. Absent (Chapter One) on older saves. */
+  chapter?: CaseChapter
+  /** Endings of the chapters already filed in this case, oldest first. */
+  filed?: CaseEnding[]
 }
 export interface CaseAction {
   verb: Verb | 'combine'
@@ -352,7 +395,12 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
     floor: 0,
     caption:
       'Midnight City by night, which is the only way it comes: a convention hall, a joke shop, a vampire’s mansion, a drive-in by the beach and something under the drains.',
-    exits: ['motel-exterior', 'convention-center'],
+    exits: [
+      'motel-exterior',
+      'convention-center',
+      'drive-in',
+      'science-cinema',
+    ],
     hotspots: [
       {
         id: 'drive-in',
@@ -408,6 +456,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
       },
     ],
   },
+  ...CHAPTER_TWO_ROOMS,
 }
 
 export const CITY_DESTINATIONS = [
@@ -453,6 +502,7 @@ export const TOPICS: Record<string, string> = {
   'norb-shirt': 'Norb’s MONSTRIQUE T-shirt',
   'workplace-conduct': 'Workplace conduct',
   'power-structures': 'Who has power over whom',
+  ...CHAPTER_TWO_TOPICS,
 }
 
 export const EVIDENCE: Record<string, string> = {
@@ -479,6 +529,7 @@ export const EVIDENCE: Record<string, string> = {
   'fangs-detail': 'A rental serial number on Violet’s costume fangs',
   'compact-shade':
     'Odette’s compact is porcelain powder; the bucket smear is old tan greasepaint',
+  ...CHAPTER_TWO_EVIDENCE,
 }
 
 export const ITEMS: Record<string, string> = {
@@ -487,11 +538,13 @@ export const ITEMS: Record<string, string> = {
   'odette-purse': 'Odette’s purse',
   'plastic-fangs': 'Violet’s rental fangs',
   'garlic-protection': 'Garlic-scented protection',
+  ...CHAPTER_TWO_ITEMS,
 }
 
 /** Characters whose good graces can be earned in this chapter. */
 export const GRACES: Record<string, { name: string; max: number }> = {
   violet: { name: 'Violet Wisp', max: 2 },
+  ...CHAPTER_TWO_GRACES,
 }
 
 const NORB_REBUFFS = [
@@ -561,6 +614,37 @@ export function caseScore(state: CaseState): number {
         : state.evidence.includes(row.key) || state.flags.includes(row.key)
     return earned ? sum + row.points : sum
   }, 0)
+}
+
+export function chapterOf(state: Pick<CaseState, 'chapter'>): CaseChapter {
+  return state.chapter === 2 ? 2 : 1
+}
+
+/** The running score for the chapter being played. */
+export function chapterScore(
+  state: CaseState,
+  audience: 'general' | 'mature' = 'mature',
+): number {
+  return chapterOf(state) === 2
+    ? chapterTwoScore(state, audience)
+    : caseScore(state)
+}
+
+/** The most the chapter being played can score in this edition. */
+export function chapterMaxScore(
+  state: Pick<CaseState, 'chapter'>,
+  audience: 'general' | 'mature' = 'mature',
+): number {
+  return chapterOf(state) === 2
+    ? chapterTwoMaxScore(audience)
+    : maxScore(audience)
+}
+
+/** "Chapter One has gone to press", in the chapter's own words. */
+function pressLine(state: CaseState): string {
+  return chapterOf(state) === 2
+    ? 'Chapter Two has gone to press.'
+    : 'Chapter One has gone to press.'
 }
 
 /** The sardonic narrator who answers when nothing sensible happens. */
@@ -660,7 +744,7 @@ export function newCase(seed = 1): CaseState {
 }
 
 function copyState(state: CaseState): CaseState {
-  return {
+  const next: CaseState = {
     ...state,
     flags: [...state.flags],
     evidence: [...state.evidence],
@@ -670,6 +754,8 @@ function copyState(state: CaseState): CaseState {
     transcript: [...state.transcript],
     gratitude: { ...state.gratitude },
   }
+  if (state.filed) next.filed = [...state.filed]
+  return next
 }
 function add(list: string[], value: string): void {
   if (!list.includes(value)) list.push(value)
@@ -712,15 +798,39 @@ export function switchInvestigator(state: CaseState): CaseResult {
   return withLine({ ...state, actor }, line)
 }
 
+/**
+ * Why a room is closed to this case right now, or null when Iris may enter.
+ * Chapter Two rooms need Chapter Two plus their own lead.
+ */
+export function roomLock(state: CaseState, room: RoomId): string | null {
+  if (isChapterTwoRoom(room)) {
+    if (chapterOf(state) !== 2) return CHAPTER_TWO_LOCKED['drive-in']
+    return has(state, CHAPTER_TWO_GATES[room].flag)
+      ? null
+      : CHAPTER_TWO_LOCKED[room]
+  }
+  if (room === 'odette-room' && !has(state, 'crime-room-access'))
+    return 'Room 205 is sealed. Find a legitimate way in, or at least a plausible one.'
+  if (
+    (room === 'city-map' || room === 'convention-center') &&
+    !has(state, 'city-lead')
+  )
+    return 'Norb: The city can wait until the motel evidence points somewhere.'
+  return null
+}
+
 export function travel(state: CaseState, destination: RoomId): CaseResult {
-  if (state.ending)
-    return withLine(state, 'Chapter One has gone to press.', false)
+  if (state.ending) return withLine(state, pressLine(state), false)
   if (!HOTEL_ROOMS[state.room].exits.includes(destination))
     return withLine(
       state,
       'There is no direct way there from this room.',
       false,
     )
+  const lock = isChapterTwoRoom(destination)
+    ? roomLock(state, destination)
+    : null
+  if (lock) return withLine(state, lock, false)
   if (destination === 'odette-room' && !has(state, 'crime-room-access'))
     return withLine(
       state,
@@ -783,7 +893,10 @@ export function availableTopics(state: CaseState, target: string): string[] {
       'iris-neck',
     ],
   }
-  return (supported[target] ?? []).filter(
+  return [
+    ...(supported[target] ?? []),
+    ...(CHAPTER_TWO_TOPIC_TARGETS[target] ?? []),
+  ].filter(
     (topic) =>
       state.topics.includes(topic) &&
       !state.asked.includes(state.actor + ':' + target + ':' + topic),
@@ -805,6 +918,8 @@ function interview(
   add(next.asked, state.actor + ':' + target + ':' + topic)
   const iris = state.actor === 'iris'
   const key = target + ':' + topic
+  const chapterTwo = chapterTwoInterview(state, next, target, topic)
+  if (chapterTwo) return chapterTwo
 
   switch (key) {
     case 'marta:room-access':
@@ -1015,6 +1130,8 @@ function flirt(state: CaseState, target: string): CaseResult {
     return withLine(state, 'Iris: No. Not even for the plot.', false)
   const next = copyState(state)
   add(next.flags, 'flirted-' + target)
+  const chapterTwo = chapterTwoFlirt(state, next, target)
+  if (chapterTwo) return chapterTwo
   if (target === 'nico') {
     const line = NORB_REBUFFS[next.rebuffs % NORB_REBUFFS.length]!
     next.rebuffs += 1
@@ -1072,6 +1189,8 @@ function useItem(state: CaseState, item: string, target: string): CaseResult {
       false,
     )
   const next = copyState(state)
+  const chapterTwo = chapterTwoItem(state, next, item, target)
+  if (chapterTwo) return chapterTwo
   if (item === 'plastic-fangs' && target === 'violet-ghost') {
     drop(next.inventory, item)
     add(next.flags, 'fangs-returned')
@@ -1176,6 +1295,8 @@ function combineItems(
       'Iris needs two different items from her own pockets.',
       false,
     )
+  const chapterTwo = chapterTwoCombine(state, first, second)
+  if (chapterTwo) return chapterTwo
   if (
     (first === 'camera' && second === 'plastic-fangs') ||
     (first === 'plastic-fangs' && second === 'camera')
@@ -1213,8 +1334,7 @@ export function performAction(
   state: CaseState,
   action: CaseAction,
 ): CaseResult {
-  if (state.ending)
-    return withLine(state, 'Chapter One has gone to press.', false)
+  if (state.ending) return withLine(state, pressLine(state), false)
   if (action.verb === 'combine')
     return combineItems(state, action.item ?? '', action.target)
   const hotspot = HOTEL_ROOMS[state.room].hotspots.find(
@@ -1245,6 +1365,8 @@ export function performAction(
   const target = action.target
   const verb = action.verb
   const iris = state.actor === 'iris'
+  const chapterTwo = chapterTwoVerb(state, next, verb, target)
+  if (chapterTwo) return chapterTwo
 
   if (verb === 'look') {
     if (target === 'guest-ledger') {
@@ -1264,6 +1386,11 @@ export function performAction(
       add(next.topics, 'knife-origin')
       if (!iris && has(next, 'knife-photo'))
         add(next.evidence, 'knife-prop-mark')
+    } else if (target === 'drive-in' && chapterOf(state) === 2) {
+      return withLine(
+        next,
+        'Iris: The Starlite Drive-In, out on Hexwater Beach, where the 1964 Beach Hex pictures still play. Norb: Use the exits, Iris. I will sit on the towel.',
+      )
     } else if (
       target === 'mansion' ||
       target === 'joke-shop' ||
@@ -1559,6 +1686,12 @@ export function performAction(
     )
   }
   if (target === 'desk' && verb === 'use') {
+    if (chapterOf(state) === 2)
+      return withLine(
+        state,
+        'Norb: Chapter One is filed. Chapter Two goes to press when Francesca Stein tells us about the knives, not before.',
+        false,
+      )
     if (!has(next, 'double-murder'))
       return withLine(
         state,
@@ -1589,6 +1722,12 @@ export function performAction(
     )
   }
   if (target === 'idol-poster' && verb === 'photograph') {
+    if (chapterOf(state) === 2)
+      return withLine(
+        state,
+        'Iris: Six Decades of Screams, still on the wall. Norb: We have this one on file, Iris. The knife points at the beach now.',
+        false,
+      )
     if (!has(next, 'city-lead'))
       return withLine(
         state,
@@ -1641,6 +1780,14 @@ export function restoreCase(value: unknown): CaseState | null {
   }
   if (raw.ending !== null && !CASE_ENDINGS.includes(raw.ending as CaseEnding))
     return null
+  if (raw.chapter !== undefined && raw.chapter !== 1 && raw.chapter !== 2)
+    return null
+  if (
+    raw.filed !== undefined &&
+    (!Array.isArray(raw.filed) ||
+      !raw.filed.every((ending) => CASE_ENDINGS.includes(ending)))
+  )
+    return null
   if (!Number.isInteger(raw.seed)) return null
   const gratitude: Record<string, number> = {}
   if (raw.version === 3) {
@@ -1662,12 +1809,17 @@ export function restoreCase(value: unknown): CaseState | null {
   )
 }
 
-const ROOM_GATES: Partial<Record<RoomId, { flag: string; fallback: RoomId }>> =
-  {
-    'odette-room': { flag: 'crime-room-access', fallback: 'balcony' },
-    'city-map': { flag: 'city-lead', fallback: 'motel-exterior' },
-    'convention-center': { flag: 'city-lead', fallback: 'motel-exterior' },
-  }
+const ROOM_FALLBACKS: Partial<Record<RoomId, RoomId>> = {
+  'odette-room': 'balcony',
+  'city-map': 'motel-exterior',
+  'convention-center': 'motel-exterior',
+  ...(Object.fromEntries(
+    Object.entries(CHAPTER_TWO_GATES).map(([room, gate]) => [
+      room,
+      gate.fallback,
+    ]),
+  ) as Partial<Record<RoomId, RoomId>>),
+}
 
 function unique(list: string[]): string[] {
   return [...new Set(list)]
@@ -1686,10 +1838,118 @@ function repairCase(state: CaseState): CaseState {
   state.topics = unique(state.topics).filter((topic) => topic in TOPICS)
   state.flags = unique(state.flags)
   state.asked = unique(state.asked)
-  const gate = ROOM_GATES[state.room]
-  if (gate && !has(state, gate.flag)) state.room = gate.fallback
+  repairChapter(state)
+  for (let hop = 0; hop < 4; hop++) {
+    const fallback = ROOM_FALLBACKS[state.room]
+    if (!fallback || !roomLock(state, state.room)) break
+    state.room = fallback
+  }
   if (!state.transcript.length) state.transcript = [...newCase().transcript]
   return state
+}
+
+/**
+ * A Chapter Two save must have filed a Chapter One lead; an ending always
+ * belongs to the chapter being played. Saves from before Chapter Two carry
+ * neither field and come back exactly as they were.
+ */
+function repairChapter(state: CaseState): void {
+  const filed = unique(state.filed ?? []) as CaseEnding[]
+  if (
+    state.chapter === 2 &&
+    !filed.some((ending) => CHAPTER_TWO_OPENERS.includes(ending))
+  )
+    state.chapter = 1
+  if (state.chapter === 2) state.filed = filed
+  else {
+    delete state.chapter
+    delete state.filed
+  }
+  if (state.ending && endingChapter(state.ending) !== chapterOf(state))
+    state.ending = null
+}
+
+/** Chapter One evidence a case needs to have earned the drive-in lead. */
+const CHAPTER_ONE_LEAD = {
+  flags: [
+    'crime-room-access',
+    'double-murder-discovered',
+    'odette-met',
+    'odette-hired-us',
+    'violet-met',
+    'city-lead',
+  ],
+  evidence: [
+    'double-murder',
+    'knife-photo',
+    'knife-prop-mark',
+    'ice-timing',
+    'fan-photo',
+    'fan-exonerated',
+    'ghost-odette',
+    'ghost-violet',
+    'idol-poster',
+  ],
+  topics: [
+    'ghost-accounts',
+    'knife-origin',
+    'agent-deals',
+    'harker-files',
+    'violet-fee',
+    'violet-witness',
+    'missing-fangs',
+    'idol-schedule',
+  ],
+}
+
+/**
+ * Carries a case whose Chapter One lead is filed (`lead-earned` or
+ * `fifth-hexblade`) into Chapter Two. Everything found so far stays in the
+ * notebook; the ending is kept in `filed` and the case reopens on the city
+ * map with the drive-in lead.
+ */
+export function beginChapterTwo(state: CaseState): CaseResult {
+  if (
+    chapterOf(state) !== 1 ||
+    !state.ending ||
+    !CHAPTER_TWO_OPENERS.includes(state.ending)
+  )
+    return withLine(
+      state,
+      'Norb: Chapter Two needs a lead we can stand behind. File one first.',
+      false,
+    )
+  const next = copyState(state)
+  next.chapter = 2
+  next.filed = [...(state.filed ?? []), state.ending]
+  next.ending = null
+  next.room = 'city-map'
+  add(next.flags, 'city-lead')
+  add(next.flags, 'beach-lead')
+  add(next.topics, 'harker-file-two')
+  add(next.topics, 'hexblades')
+  return withLine(
+    next,
+    state.ending === 'fifth-hexblade'
+      ? 'Norb: Four knives in the shrine, five dents in the velvet, and a stamp that says STARLITE PICTURES, BEACH HEX, 1964. The Starlite Drive-In still runs at Hexwater Beach. Chapter Two, Iris. Get the car. I will sit on the towel.'
+      : 'Norb: STARLITE PICTURES, BEACH HEX, 1964. The Starlite Drive-In still runs at Hexwater Beach, and the 1964 pictures still play there. Chapter Two, Iris. Get the car. I will sit on the towel.',
+  )
+}
+
+/**
+ * A fresh Chapter Two case for a player whose case files already hold a
+ * Chapter One lead: the minimum Chapter One evidence, filed as `lead-earned`.
+ */
+export function newChapterTwo(seed = 1): CaseState {
+  const base = newCase(seed)
+  return beginChapterTwo({
+    ...base,
+    room: 'convention-center',
+    flags: [...CHAPTER_ONE_LEAD.flags],
+    evidence: [...CHAPTER_ONE_LEAD.evidence],
+    topics: [...CHAPTER_ONE_LEAD.topics],
+    ending: 'lead-earned',
+  }).state
 }
 
 export const monstrexxKitId = (accountId: string | number): string =>

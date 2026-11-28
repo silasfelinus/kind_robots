@@ -387,6 +387,48 @@ export const CUTSCENES: Cutscene[] = [
       },
     ],
   },
+  {
+    id: 'beach-hex-drive',
+    title: 'Chapter Two: Beach Hex',
+    trigger: 'beach-lead',
+    matureOnly: false,
+    shots: [
+      {
+        id: 'beach-1',
+        title: 'Hexwater Beach',
+        caption:
+          'Chapter Two. The coast road to Hexwater Beach, where a 1964 beach-party picture still flickers over the surf.',
+        setting:
+          'a battered convertible on a moonlit coast road above a faded seaside drive-in, its giant screen glowing over the waves',
+        cast: [
+          {
+            character: 'iris',
+            expression: 'smirk',
+            x: 35,
+            pose: 'driving with one elbow on the door',
+          },
+          {
+            character: 'norb',
+            expression: 'annoyed',
+            x: 70,
+            pose: 'clutching a towel in the back seat against the sea wind',
+          },
+        ],
+        action:
+          'the car crests the hill and the Starlite Drive-In comes into view, a rubber sea monster forty feet tall on its screen',
+        framing: 'wide tracking shot that cranes up to reveal the screen',
+        line: 'Norb: Sand, Iris. Sand gets into everything. It is the glitter of the natural world.',
+        gag: 'The shooting-star sign is missing two bulbs and reads STAR TE.',
+        camera: {
+          move: 'crane-down',
+          lensMm: 28,
+          seconds: 6,
+          animation:
+            'Sea wind snatches Norb’s towel; he catches it with two gloved fingers and refolds it on his lap.',
+        },
+      },
+    ],
+  },
 ]
 
 export function coldOpen(audience: MonstriqueAudience): Cutscene {

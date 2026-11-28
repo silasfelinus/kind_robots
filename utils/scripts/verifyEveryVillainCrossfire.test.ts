@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
+  gridDistance,
+  reachableCells,
+  tileAt,
+} from '../everyVillainTactics/combat'
+import {
   CROSSFIRE_CHAPTERS,
   advanceCrossfire,
   applyCrossfireCarryover,
@@ -38,6 +43,21 @@ import {
   personalRooftopNode,
 } from '../everyVillainTactics/personalRooftopScenes'
 import {
+  PERSONAL_CROSSWALK_LINES,
+  personalCrosswalkNode,
+} from '../everyVillainTactics/personalCrosswalkScenes'
+import {
+  PERSONAL_BREACH_LINES,
+  personalBreachNode,
+} from '../everyVillainTactics/personalBreachScenes'
+import {
+  PERSONAL_FINALE_LINES,
+  personalFinaleNode,
+} from '../everyVillainTactics/personalFinaleScenes'
+import { PROM_NIGHT_FINALE_SCRIPT } from '../everyVillainTactics/promNightFinaleScript'
+import { UNDER_COMET_BREACH_SCRIPT } from '../everyVillainTactics/underCometBreachScript'
+import { CROSSWALK_CRISIS_SCRIPT } from '../everyVillainTactics/crosswalkCrisisScript'
+import {
   PERSONAL_SUPPORT_VOICES,
   personalSupportVoice,
 } from '../everyVillainTactics/personalSupportVoices'
@@ -61,16 +81,34 @@ import {
   pendingScriptScene,
   walkScene,
 } from '../everyVillainTactics/sceneGraph'
-import { createSave, evtSaveKey, loadSave } from '../everyVillainTactics/saves'
+import {
+  createSave,
+  evtSaveKey,
+  loadSave,
+  type EvtSave,
+} from '../everyVillainTactics/saves'
 import {
   mergeBattleResults,
   scoreFromSave,
 } from '../everyVillainTactics/scores'
 import { clonePreset, stageProblems } from '../everyVillainTactics/studio'
 import {
+  endTurn,
+  exposureAt,
+  fireSelected,
+  hunkerSelected,
   isCrossfireFoilStage,
+  moveSelected,
+  overwatchSelected,
+  previewSelectedPower,
+  previewShot,
+  rescueSelected,
   scriptedFoilFor,
+  selectedPowerTargets,
   trainingState,
+  useSelectedPower,
+  type TrainingState,
+  type Unit,
 } from '../everyVillainTactics/training'
 
 assert.deepEqual(
@@ -1147,6 +1185,7 @@ for (const person of IDENTITY_ARCS) {
 assert.equal(personalFinales.size, 192)
 
 const personalScenes = new Set<string>()
+const firstBellVoices = new Set<string>()
 for (const person of IDENTITY_ARCS) {
   for (const perspective of ['hero', 'villain'] as const) {
     const run = createStory()
@@ -1182,6 +1221,8 @@ for (const person of IDENTITY_ARCS) {
         .join(' ')
       assert.ok(!personalScenes.has(dialogue), person.signature + ':' + beat)
       personalScenes.add(dialogue)
+      firstBellVoices.add(scene.lines[0]!.text)
+      firstBellVoices.add(scene.lines[1]!.text)
       assert.equal(
         scene.choices.length,
         beat === 'victory' || beat === 'defeat' ? 1 : 2,
@@ -1211,6 +1252,71 @@ for (const person of IDENTITY_ARCS) {
   }
 }
 assert.equal(personalScenes.size, 480)
+assert.equal(firstBellVoices.size, 960)
+
+for (const person of IDENTITY_ARCS) {
+  for (const perspective of ['hero', 'villain'] as const) {
+    const battle = trainingState(41, undefined, {
+      lead: person.signature,
+      foil: personalCastFor(person.signature)!.foil,
+      crossfireCast: 2,
+    })
+    const allies = battle.units.filter(
+      (unit) => unit.team === 'squad' && unit.id !== 'backdraft',
+    )
+    assert.equal(allies.length, 2)
+    for (const ally of allies) ally.hp = 0
+    const run = createStory()
+    const before = JSON.stringify({ battle, run })
+    for (const beat of [
+      'arrival',
+      'alarm',
+      'reckoning',
+      'victory',
+      'defeat',
+    ] as const) {
+      const scene = storyMoment(
+        perspective,
+        beat,
+        person.signature,
+        run,
+        battle,
+      )
+      assert.ok(
+        scene.lines.every(
+          (line) =>
+            line.speaker === person.hero.alias ||
+            line.speaker === 'FIELD REPORT',
+        ),
+        person.signature + ':' + perspective + ':' + beat,
+      )
+      assert.ok(
+        scene.lines.some(
+          (line) => line.text === 'No supporting fighter is available.',
+        ),
+      )
+      assert.equal(
+        scene.choices.length,
+        beat === 'victory' || beat === 'defeat' ? 1 : 2,
+      )
+    }
+    assert.equal(JSON.stringify({ battle, run }), before)
+    const survivor = allies[1]!
+    survivor.hp = survivor.maxHp
+    const survivorName = IDENTITY_ARCS.find(
+      (identity) => identity.signature === survivor.identity,
+    )!.hero.alias
+    const arrival = storyMoment(
+      perspective,
+      'arrival',
+      person.signature,
+      run,
+      battle,
+    )
+    assert.equal(arrival.lines[1]?.speaker, survivorName)
+    assert.equal(arrival.lines.at(-1)?.speaker, survivorName)
+  }
+}
 
 // Across every canonical lead and both allegiances, each support action is
 // previewed, applied to a real living fighter, persisted, and never replayed.
@@ -1501,6 +1607,8 @@ for (const lead of Object.keys(PERSONAL_SCIENCE_LINES)) {
         assert.ok(
           state.units.some((u) => u.id === line.speaker && u.team === 'squad'),
         )
+        if (/\b(?:I|me|my|mine)\b/i.test(line.text))
+          assert.equal(line.speaker, 'backdraft')
         scienceVoices.add(line.text)
       }
       assert.equal(
@@ -1575,6 +1683,8 @@ for (const lead of Object.keys(PERSONAL_ROOFTOP_LINES)) {
         assert.ok(
           state.units.some((u) => u.id === line.speaker && u.team === 'squad'),
         )
+        if (/\b(?:I|me|my|mine)\b/i.test(line.text))
+          assert.equal(line.speaker, 'backdraft')
         roofVoices.add(line.text)
       }
       assert.equal(
@@ -1609,3 +1719,545 @@ for (const lead of Object.keys(PERSONAL_ROOFTOP_LINES)) {
 }
 assert.equal(roofVoices.size, 720)
 assert.ok(store.includes('personalRooftopNode('))
+
+const crosswalkNodes = CROSSWALK_CRISIS_SCRIPT.scenes.flatMap(
+  (scene) => scene.nodes,
+)
+const crosswalkVoices = new Set<string>()
+assert.deepEqual(
+  Object.keys(PERSONAL_CROSSWALK_LINES).sort(),
+  IDENTITY_ARCS.map((identity) => identity.signature).sort(),
+)
+for (const lead of Object.keys(PERSONAL_CROSSWALK_LINES)) {
+  for (const perspective of ['hero', 'villain'] as const) {
+    const state = trainingState(41, clonePreset('crosswalk-crisis'), {
+      lead,
+      foil: personalCastFor(lead)!.foil,
+      crossfireCast: 2,
+    })
+    const arrival = walkScene(CROSSWALK_CRISIS_SCRIPT.scenes[0]!, [], {
+      state,
+      perspective,
+    })
+    assert.ok(
+      arrival?.nodes.some(
+        (node) => node.id === (perspective === 'hero' ? 'ah' : 'av'),
+      ),
+    )
+    const before = JSON.stringify(state)
+    let changed = 0
+    for (const node of crosswalkNodes) {
+      const line = personalCrosswalkNode(
+        node,
+        lead,
+        'crosswalk-crisis',
+        true,
+        state,
+      )
+      assert.deepEqual(line.choices, node.choices)
+      assert.deepEqual(line.branch, node.branch)
+      assert.equal(line.next, node.next)
+      assert.equal(line.id, node.id)
+      if (line !== node) {
+        changed++
+        assert.ok(line.text.length > 10 && line.text.length <= 400)
+        assert.notEqual(line.text, node.text)
+        assert.ok(
+          state.units.some((u) => u.id === line.speaker && u.team === 'squad'),
+        )
+        if (/\b(?:I|me|my|mine)\b/i.test(line.text))
+          assert.equal(line.speaker, 'backdraft')
+        crosswalkVoices.add(line.text)
+      }
+      assert.equal(
+        personalCrosswalkNode(node, lead, 'crosswalk-crisis', false, state),
+        node,
+      )
+      assert.equal(
+        personalCrosswalkNode(node, lead, 'science-lab', true, state),
+        node,
+      )
+      assert.equal(
+        personalCrosswalkNode(
+          node,
+          'constructor',
+          'crosswalk-crisis',
+          true,
+          state,
+        ),
+        node,
+      )
+      assert.equal(
+        personalCrosswalkNode(node, lead, 'crosswalk-crisis', true, {
+          ...state,
+          crossfireCast: 1,
+        }),
+        node,
+      )
+    }
+    assert.equal(changed, 16)
+    assert.equal(JSON.stringify(state), before)
+  }
+}
+assert.equal(crosswalkVoices.size, 768)
+assert.ok(store.includes('personalCrosswalkNode('))
+
+const breachNodes = UNDER_COMET_BREACH_SCRIPT.scenes.flatMap(
+  (scene) => scene.nodes,
+)
+const breachVoices = new Set<string>()
+assert.deepEqual(
+  Object.keys(PERSONAL_BREACH_LINES).sort(),
+  IDENTITY_ARCS.map((identity) => identity.signature).sort(),
+)
+for (const lead of Object.keys(PERSONAL_BREACH_LINES)) {
+  for (const perspective of ['hero', 'villain'] as const) {
+    const state = trainingState(41, clonePreset('under-comet-breach'), {
+      lead,
+      foil: personalCastFor(lead)!.foil,
+      crossfireCast: 2,
+    })
+    const arrival = walkScene(UNDER_COMET_BREACH_SCRIPT.scenes[0]!, [], {
+      state,
+      perspective,
+    })
+    assert.ok(
+      arrival?.nodes.some(
+        (node) => node.id === (perspective === 'hero' ? 'oh' : 'ov'),
+      ),
+    )
+    const before = JSON.stringify(state)
+    let changed = 0
+    for (const node of breachNodes) {
+      const line = personalBreachNode(
+        node,
+        lead,
+        'under-comet-breach',
+        true,
+        state,
+      )
+      assert.deepEqual(line.choices, node.choices)
+      assert.deepEqual(line.branch, node.branch)
+      assert.equal(line.next, node.next)
+      assert.equal(line.id, node.id)
+      if (line !== node) {
+        changed++
+        assert.ok(line.text.length > 10 && line.text.length <= 400)
+        assert.notEqual(line.text, node.text)
+        assert.ok(
+          state.units.some((u) => u.id === line.speaker && u.team === 'squad'),
+        )
+        if (/\b(?:I|me|my|mine)\b/i.test(line.text))
+          assert.equal(line.speaker, 'backdraft')
+        breachVoices.add(line.text)
+      }
+      assert.equal(
+        personalBreachNode(node, lead, 'under-comet-breach', false, state),
+        node,
+      )
+      assert.equal(
+        personalBreachNode(node, lead, 'science-lab', true, state),
+        node,
+      )
+      assert.equal(
+        personalBreachNode(
+          node,
+          'constructor',
+          'under-comet-breach',
+          true,
+          state,
+        ),
+        node,
+      )
+      assert.equal(
+        personalBreachNode(node, lead, 'under-comet-breach', true, {
+          ...state,
+          crossfireCast: 1,
+        }),
+        node,
+      )
+    }
+    assert.equal(changed, 15)
+    assert.equal(JSON.stringify(state), before)
+  }
+}
+assert.equal(breachVoices.size, 720)
+assert.ok(store.includes('personalBreachNode('))
+
+const finaleNodes = PROM_NIGHT_FINALE_SCRIPT.scenes.flatMap(
+  (scene) => scene.nodes,
+)
+const finaleVoices = new Set<string>()
+assert.deepEqual(
+  Object.keys(PERSONAL_FINALE_LINES).sort(),
+  IDENTITY_ARCS.map((identity) => identity.signature).sort(),
+)
+for (const lead of Object.keys(PERSONAL_FINALE_LINES)) {
+  for (const perspective of ['hero', 'villain'] as const) {
+    const state = trainingState(41, clonePreset('prom-night-finale'), {
+      lead,
+      foil: personalCastFor(lead)!.foil,
+      crossfireCast: 2,
+    })
+    const arrival = walkScene(PROM_NIGHT_FINALE_SCRIPT.scenes[0]!, [], {
+      state,
+      perspective,
+    })
+    assert.ok(
+      arrival?.nodes.some(
+        (node) => node.id === (perspective === 'hero' ? 'oh' : 'ov'),
+      ),
+    )
+    const before = JSON.stringify(state)
+    let changed = 0
+    for (const node of finaleNodes) {
+      const line = personalFinaleNode(
+        node,
+        lead,
+        'prom-night-finale',
+        true,
+        state,
+      )
+      assert.deepEqual(line.choices, node.choices)
+      assert.deepEqual(line.branch, node.branch)
+      assert.equal(line.next, node.next)
+      assert.equal(line.id, node.id)
+      if (line !== node) {
+        changed++
+        assert.ok(line.text.length > 10 && line.text.length <= 400)
+        assert.notEqual(line.text, node.text)
+        assert.ok(
+          state.units.some((u) => u.id === line.speaker && u.team === 'squad'),
+        )
+        if (/\b(?:I|me|my|mine)\b/i.test(line.text))
+          assert.equal(line.speaker, 'backdraft')
+        finaleVoices.add(line.text)
+      }
+      assert.equal(
+        personalFinaleNode(node, lead, 'prom-night-finale', false, state),
+        node,
+      )
+      assert.equal(
+        personalFinaleNode(node, lead, 'science-lab', true, state),
+        node,
+      )
+      assert.equal(
+        personalFinaleNode(
+          node,
+          'constructor',
+          'prom-night-finale',
+          true,
+          state,
+        ),
+        node,
+      )
+      assert.equal(
+        personalFinaleNode(node, lead, 'prom-night-finale', true, {
+          ...state,
+          crossfireCast: 1,
+        }),
+        node,
+      )
+    }
+    assert.equal(changed, 17)
+    assert.equal(JSON.stringify(state), before)
+  }
+}
+assert.equal(finaleVoices.size, 816)
+assert.ok(store.includes('personalFinaleNode('))
+
+// Combat-driven coverage complements the synthetic checkpoint fixtures above.
+// The bot can lose: never promote a losing or stalled route to a victory.
+type CombatPerspective = 'hero' | 'villain'
+type CombatOutcome = TrainingState['phase']
+
+function drainCombatDialogue(save: EvtSave, perspective: CombatPerspective) {
+  const { state, story, stage } = save
+  if (!stage) {
+    enqueueBeat(story, state)
+    for (let guard = 0; story.current && guard < 8; guard++) {
+      const scene = storyMoment(
+        perspective,
+        story.current,
+        save.leadSignature,
+        story,
+        state,
+      )
+      const choice =
+        scene.choices[
+          perspective === 'villain' && scene.choices.length > 1 ? 1 : 0
+        ]!
+      assert.ok(applyChoice(story, state, perspective, choice.effect))
+    }
+    assert.equal(story.current, null, 'First Bell dialogue drains')
+    return
+  }
+  const script = stage.script
+  assert.ok(script)
+  for (let guard = 0; guard <= script.scenes.length; guard++) {
+    latchScenes(state, script, stage)
+    const scene = pendingScriptScene(state, script)
+    if (!scene) return
+    const path: number[] = []
+    let walk = walkScene(scene, path, { state, perspective })
+    while (walk && !walk.done && path.length < 12) {
+      const node = walk.nodes.at(-1)
+      assert.ok(node?.choices?.length)
+      path.push(perspective === 'villain' && node.choices.length > 1 ? 1 : 0)
+      walk = walkScene(scene, path, { state, perspective })
+    }
+    assert.ok(walk?.done, stage.id + ':' + scene.id)
+    assert.ok(finishScene(state, scene, path, perspective))
+    assert.equal(finishScene(state, scene, path, perspective), false)
+  }
+  assert.fail(stage.id + ': dialogue queue did not drain')
+}
+
+function combatAct(state: TrainingState, unit: Unit): boolean {
+  state.selected = unit.id
+  if (rescueSelected(state)) return true
+  const rivals = state.units.filter((u) => u.team === 'rival' && u.hp > 0)
+  const shot = rivals
+    .map((target) => ({
+      target,
+      hit: previewShot(unit, target, state.map).hit,
+    }))
+    .filter((candidate) => candidate.hit > 0)
+    .sort((a, b) => b.hit - a.hit || a.target.hp - b.target.hp)[0]
+  const power = selectedPowerTargets(state)
+    .map((target) => ({ target, preview: previewSelectedPower(state, target) }))
+    .filter((candidate) => candidate.preview)
+    .map(({ target, preview }) => ({
+      target,
+      score: preview!.effects.reduce((score, effect) => {
+        const actor = state.units.find((u) => u.id === effect.id)
+        return (
+          score +
+          (effect.side === 'enemy'
+            ? (effect.damage * (preview!.chance ?? 100)) / 100 +
+              effect.statuses.length * 0.2
+            : Math.min(effect.heal, (actor?.maxHp ?? 0) - (actor?.hp ?? 0)) *
+                1.8 +
+              effect.ap * 0.6)
+        )
+      }, 0),
+    }))
+    .sort((a, b) => b.score - a.score)[0]
+  if (power && power.score >= 1.25 && useSelectedPower(state, power.target))
+    return true
+  if (shot && shot.hit >= 60 && fireSelected(state, shot.target)) return true
+
+  const victory = state.rules?.victory
+  const waiting = (state.civilians ?? []).filter((c) => c.status === 'waiting')
+  const goals =
+    victory?.kind === 'rescue' && waiting.length
+      ? waiting
+      : victory?.kind === 'hold-zone'
+        ? victory.cells
+        : victory?.kind === 'defeat-boss'
+          ? rivals.filter((r) => r.id === victory.unit)
+          : rivals
+  const distance = (p: { x: number; y: number }) =>
+    Math.min(30, ...goals.map((goal) => gridDistance(p, goal)))
+  const positionScore = (p: { x: number; y: number; cost: number }) => {
+    const aim = Math.max(
+      0,
+      ...rivals.map(
+        (r) => previewShot({ ...unit, x: p.x, y: p.y }, r, state.map).hit,
+      ),
+    )
+    const exposed = exposureAt(state, unit, p).reduce(
+      (sum, e) => sum + e.hit,
+      0,
+    )
+    const danger =
+      state.field?.fire.some((f) => f.x === p.x && f.y === p.y) ||
+      state.rules?.hazards.some((h) => h.x === p.x && h.y === p.y)
+    const objective =
+      victory?.kind === 'rescue' || victory?.kind === 'hold-zone'
+    return (
+      (victory?.kind === 'survive'
+        ? -exposed
+        : -distance(p) * (objective ? 35 : 12) - exposed * 0.3) +
+      aim * (objective ? 0.15 : 0.6) +
+      (tileAt(state.map, p).cover ? 8 : 0) -
+      p.cost * 8 -
+      (danger ? 60 : 0)
+    )
+  }
+  if (!unit.moved) {
+    const current = positionScore({ ...unit, cost: 0 })
+    const best = reachableCells(state.map, state.units, unit)
+      .map((cell) => ({ cell, score: positionScore(cell) }))
+      .sort(
+        (a, b) =>
+          b.score - a.score || a.cell.y - b.cell.y || a.cell.x - b.cell.x,
+      )[0]
+    if (best && best.score > current && moveSelected(state, best.cell))
+      return true
+  }
+  if (shot && fireSelected(state, shot.target)) return true
+  if (victory?.kind === 'survive' && hunkerSelected(state)) return true
+  return overwatchSelected(state) || hunkerSelected(state)
+}
+
+function playCombat(save: EvtSave, perspective: CombatPerspective) {
+  let state = structuredClone(save.state)
+  let story = structuredClone(save.story)
+  let actions = 0
+  const limit = (state.turnLimit ?? 16) + 1
+  const tag =
+    save.leadSignature +
+    ':' +
+    perspective +
+    ':' +
+    (save.stage?.id ?? 'first-bell')
+  const roundSave = () =>
+    createSave({
+      slot: 'auto',
+      perspective,
+      leadSignature: save.leadSignature,
+      foilSignature: save.foilSignature,
+      stage: save.stage,
+      state,
+      story,
+    })
+  const dialogue = () => {
+    const live = { ...save, state, story }
+    drainCombatDialogue(live, perspective)
+  }
+  for (let round = 0; round < limit && state.phase === 'active'; round++) {
+    dialogue()
+    for (const unit of state.units.filter((u) => u.team === 'squad')) {
+      for (
+        let step = 0;
+        step < 5 && state.phase === 'active' && unit.hp > 0 && unit.ap > 0;
+        step++
+      ) {
+        if (!combatAct(state, unit)) break
+        actions++
+        dialogue()
+      }
+    }
+    endTurn(state)
+    dialogue()
+    const occupied = new Set<string>()
+    for (const unit of state.units) {
+      assert.ok(unit.hp >= 0 && unit.hp <= unit.maxHp, tag + ': HP')
+      assert.ok(unit.ap >= 0 && unit.ap <= 2, tag + ': AP')
+      if (unit.hp <= 0) continue
+      const key = unit.x + ',' + unit.y
+      assert.ok(!occupied.has(key), tag + ': stacked units')
+      assert.ok(!tileAt(state.map, unit).wall, tag + ': unit in wall')
+      occupied.add(key)
+    }
+    const loaded = loadSave(roundSave())
+    assert.ok(loaded.ok, tag + ': ' + (loaded.ok ? '' : loaded.reason))
+    assert.deepEqual(
+      loaded.save.state,
+      JSON.parse(JSON.stringify(state)),
+      tag + ': checkpoint state',
+    )
+    state = loaded.save.state
+    story = loaded.save.story
+  }
+  if (state.turnLimit !== null)
+    assert.notEqual(state.phase, 'active', tag + ': expired mission')
+  return { save: roundSave(), actions, outcome: state.phase }
+}
+
+const combatCoverage = CROSSFIRE_CHAPTERS.map((chapter) => ({
+  chapter: chapter.id,
+  attempts: 0,
+  actions: 0,
+  victory: 0,
+  defeat: 0,
+  active: 0,
+}))
+let fullCampaignVictories = 0
+let fullCampaignAttempts = 0
+const campaignStops: Record<CombatOutcome, number> = {
+  victory: 0,
+  defeat: 0,
+  active: 0,
+}
+for (const person of IDENTITY_ARCS) {
+  const cast = personalCastFor(person.signature)!
+  for (const perspective of ['hero', 'villain'] as const) {
+    let campaign: ReturnType<typeof newCrossfireJournal> = null
+    for (const [index, chapter] of CROSSFIRE_CHAPTERS.entries()) {
+      const stage = index === 0 ? null : clonePreset(chapter.id)
+      const story = createStory()
+      if (stage) story.current = null
+      // Independent starts keep later missions covered when an earlier
+      // chapter defeats the bot. A surviving campaign uses earned carryover.
+      const opening =
+        campaign?.active ??
+        createSave({
+          slot: 'auto',
+          perspective,
+          leadSignature: person.signature,
+          foilSignature: cast.foil,
+          stage,
+          state: trainingState(0x53a1b7 + index * 997, stage ?? undefined, {
+            lead: person.signature,
+            foil: cast.foil,
+            crossfireCast: 2,
+          }),
+          story,
+        })
+      if (index === 0) {
+        campaign = newCrossfireJournal(opening)
+        assert.ok(campaign)
+        fullCampaignAttempts++
+      }
+      const result = playCombat(opening, perspective)
+      const tally = combatCoverage[index]!
+      tally.attempts++
+      tally.actions += result.actions
+      tally[result.outcome]++
+      if (!campaign) continue
+      const checkpoint = snapshotCrossfire(campaign, result.save)
+      assert.ok(checkpoint)
+      assert.ok(readCrossfireJournal(JSON.stringify(checkpoint)))
+      if (result.outcome !== 'victory') {
+        assert.equal(advanceCrossfire(checkpoint), null)
+        const retry = retryCrossfire(checkpoint)
+        assert.ok(retry)
+        assert.equal(retry.active.state.phase, 'active')
+        assert.deepEqual(retry.completed, checkpoint.completed)
+        campaignStops[result.outcome]++
+        campaign = null
+        continue
+      }
+      const next = advanceCrossfire(checkpoint)
+      assert.ok(next)
+      if (next.finished) {
+        assert.equal(next.completed.length, 6)
+        assert.ok(crossfireFinale(next, next.active))
+        assert.ok(readCrossfireJournal(JSON.stringify(next)))
+        fullCampaignVictories++
+        campaignStops.victory++
+      }
+      campaign = next
+    }
+  }
+}
+for (const tally of combatCoverage) {
+  assert.equal(tally.attempts, 96)
+  assert.equal(tally.victory + tally.defeat + tally.active, tally.attempts)
+  assert.ok(tally.actions > 0, tally.chapter + ': no legal actions exercised')
+}
+assert.equal(fullCampaignAttempts, 96)
+assert.equal(
+  Object.values(campaignStops).reduce((a, b) => a + b, 0),
+  96,
+)
+console.log(
+  JSON.stringify({
+    combatCoverage,
+    fullCampaignAttempts,
+    fullCampaignVictories,
+    campaignStops,
+  }),
+)

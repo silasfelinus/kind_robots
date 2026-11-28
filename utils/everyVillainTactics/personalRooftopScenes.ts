@@ -840,6 +840,16 @@ export const PERSONAL_ROOFTOP_LINES: Readonly<
   ],
 }
 
+const LEAD_SPOKEN: Readonly<Record<string, readonly string[]>> = {
+  'magic-birthright': ['s1'],
+  'tech-earth': ['t1'],
+  'tech-genius': ['c1', 't1'],
+  'mutant-fire': ['c1', 'cw'],
+  'mutant-air': ['t1'],
+  'psychic-earth': ['s1'],
+  'psychic-genius': ['w1'],
+}
+
 export function personalRooftopNode(
   node: SceneNode,
   lead: string,
@@ -860,18 +870,9 @@ export function personalRooftopNode(
   const ally = state.units.find(
     (unit) => unit.team === 'squad' && unit.id !== 'backdraft' && unit.hp > 0,
   )
-  const speaker = [
-    'c1',
-    'cw',
-    'cj',
-    'w1',
-    'j1',
-    't1',
-    's1',
-    'vw',
-    'vj',
-  ].includes(node.id)
-    ? (ally?.id ?? 'backdraft')
-    : 'backdraft'
+  const supportingLine =
+    ['c1', 'cw', 'cj', 'w1', 'j1', 't1', 's1', 'vw', 'vj'].includes(node.id) &&
+    !LEAD_SPOKEN[lead]?.includes(node.id)
+  const speaker = supportingLine ? (ally?.id ?? 'backdraft') : 'backdraft'
   return { ...node, speaker, text }
 }

@@ -581,6 +581,8 @@ export function storyMoment(
     IDENTITY_ARCS.find(
       (identity) => identity.signature === support?.identity,
     ) ?? identityFor('tech-genius')
+  const supportAvailable = !state || Boolean(support)
+  const routeSpeaker = supportAvailable ? supporter.hero.alias : 'FIELD REPORT'
   const scene =
     personal && person
       ? {
@@ -588,7 +590,7 @@ export function storyMoment(
           title: personal[0],
           lines: [
             a(person.hero.alias, personal[1]),
-            state && !support
+            !supportAvailable
               ? a('FIELD REPORT', 'No supporting fighter is available.')
               : a(supporter.hero.alias, personal[2]),
           ],
@@ -625,7 +627,7 @@ export function storyMoment(
   if (personal && person && beat === 'arrival' && lead !== 'accident-fire') {
     lines.push(
       a(
-        supporter.hero.alias,
+        routeSpeaker,
         role === 'hero'
           ? 'The catwalk gives us a view of the trapped students; the service corridor offers cover. Choose how we approach.'
           : 'The rigging gives us a view of the vault; the service corridor conceals our approach. Which route are we securing?',
@@ -635,7 +637,7 @@ export function storyMoment(
   if (beat === 'arrival' && lead === 'accident-fire') {
     if (personal && person) {
       lines.push(
-        fullCast
+        fullCast || !supportAvailable
           ? a(
               person.hero.alias,
               role === 'hero'
@@ -644,10 +646,12 @@ export function storyMoment(
             )
           : PERSONAL_ROUTE[role],
         a(
-          supporter.hero.alias,
-          role === 'hero'
-            ? 'I can cover the catwalk or the service corridor. We need a route that keeps the rescue team together.'
-            : 'Choose the rigging or the service hall. I will not sign off on a plan that seals our own exit.',
+          routeSpeaker,
+          !supportAvailable
+            ? 'The catwalk offers a scouting angle; the service corridor offers cover. Choose a route without companion support.'
+            : role === 'hero'
+              ? 'I can cover the catwalk or the service corridor. We need a route that keeps the rescue team together.'
+              : 'Choose the rigging or the service hall. I will not sign off on a plan that seals our own exit.',
         ),
       )
     } else {

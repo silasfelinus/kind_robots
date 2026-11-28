@@ -4,6 +4,9 @@ import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
 import { personalCastFor } from '~/utils/everyVillainTactics/personalCasts'
 import { personalScienceNode } from '~/utils/everyVillainTactics/personalScienceScenes'
 import { personalRooftopNode } from '~/utils/everyVillainTactics/personalRooftopScenes'
+import { personalCrosswalkNode } from '~/utils/everyVillainTactics/personalCrosswalkScenes'
+import { personalBreachNode } from '~/utils/everyVillainTactics/personalBreachScenes'
+import { personalFinaleNode } from '~/utils/everyVillainTactics/personalFinaleScenes'
 import {
   actorAt,
   aliasFor,
@@ -825,8 +828,29 @@ export const useEveryVillainTacticsStore = defineStore(
           crossfireActive.value && !previewSceneId.value,
           state.value,
         )
-        const node = personalRooftopNode(
+        const rooftopNode = personalRooftopNode(
           scienceNode,
+          leadSignature.value,
+          draft.value.id,
+          crossfireActive.value && !previewSceneId.value,
+          state.value,
+        )
+        const crosswalkNode = personalCrosswalkNode(
+          rooftopNode,
+          leadSignature.value,
+          draft.value.id,
+          crossfireActive.value && !previewSceneId.value,
+          state.value,
+        )
+        const breachNode = personalBreachNode(
+          crosswalkNode,
+          leadSignature.value,
+          draft.value.id,
+          crossfireActive.value && !previewSceneId.value,
+          state.value,
+        )
+        const node = personalFinaleNode(
+          breachNode,
           leadSignature.value,
           draft.value.id,
           crossfireActive.value && !previewSceneId.value,

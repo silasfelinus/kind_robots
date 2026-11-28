@@ -1162,6 +1162,7 @@ for (const person of IDENTITY_ARCS) {
 assert.equal(personalFinales.size, 192)
 
 const personalScenes = new Set<string>()
+const firstBellVoices = new Set<string>()
 for (const person of IDENTITY_ARCS) {
   for (const perspective of ['hero', 'villain'] as const) {
     const run = createStory()
@@ -1197,6 +1198,8 @@ for (const person of IDENTITY_ARCS) {
         .join(' ')
       assert.ok(!personalScenes.has(dialogue), person.signature + ':' + beat)
       personalScenes.add(dialogue)
+      firstBellVoices.add(scene.lines[0]!.text)
+      firstBellVoices.add(scene.lines[1]!.text)
       assert.equal(
         scene.choices.length,
         beat === 'victory' || beat === 'defeat' ? 1 : 2,
@@ -1226,6 +1229,64 @@ for (const person of IDENTITY_ARCS) {
   }
 }
 assert.equal(personalScenes.size, 480)
+assert.equal(firstBellVoices.size, 960)
+
+for (const person of IDENTITY_ARCS) {
+  for (const perspective of ['hero', 'villain'] as const) {
+    const battle = trainingState(41, undefined, {
+      lead: person.signature,
+      foil: personalCastFor(person.signature)!.foil,
+      crossfireCast: 2,
+    })
+    const allies = battle.units.filter(
+      (unit) => unit.team === 'squad' && unit.id !== 'backdraft',
+    )
+    assert.equal(allies.length, 2)
+    for (const ally of allies) ally.hp = 0
+    const run = createStory()
+    const before = JSON.stringify({ battle, run })
+    for (const beat of [
+      'arrival',
+      'alarm',
+      'reckoning',
+      'victory',
+      'defeat',
+    ] as const) {
+      const scene = storyMoment(perspective, beat, person.signature, run, battle)
+      assert.ok(
+        scene.lines.every(
+          (line) =>
+            line.speaker === person.hero.alias || line.speaker === 'FIELD REPORT',
+        ),
+        person.signature + ':' + perspective + ':' + beat,
+      )
+      assert.ok(
+        scene.lines.some(
+          (line) => line.text === 'No supporting fighter is available.',
+        ),
+      )
+      assert.equal(
+        scene.choices.length,
+        beat === 'victory' || beat === 'defeat' ? 1 : 2,
+      )
+    }
+    assert.equal(JSON.stringify({ battle, run }), before)
+    const survivor = allies[1]!
+    survivor.hp = survivor.maxHp
+    const survivorName = IDENTITY_ARCS.find(
+      (identity) => identity.signature === survivor.identity,
+    )!.hero.alias
+    const arrival = storyMoment(
+      perspective,
+      'arrival',
+      person.signature,
+      run,
+      battle,
+    )
+    assert.equal(arrival.lines[1]?.speaker, survivorName)
+    assert.equal(arrival.lines.at(-1)?.speaker, survivorName)
+  }
+}
 
 // Across every canonical lead and both allegiances, each support action is
 // previewed, applied to a real living fighter, persisted, and never replayed.

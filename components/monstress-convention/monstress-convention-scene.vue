@@ -134,222 +134,50 @@
         @keydown.right.prevent="selectAdjacent(1)"
         @keydown="stepByKey"
       >
-        <svg
-          class="mc-painted-scene absolute inset-0 size-full"
-          viewBox="0 0 1000 580"
-          preserveAspectRatio="xMidYMid slice"
+        <img
+          v-if="backdrop"
+          :src="backdrop.src"
+          alt=""
           aria-hidden="true"
+          class="mc-ambient absolute inset-0 size-full object-cover"
+        />
+        <div
+          ref="worldEl"
+          class="mc-world absolute"
+          data-testid="monstrique-stage-world"
+          :style="worldStyle"
         >
-          <defs>
-            <linearGradient id="mc-wall" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#2e314e" />
-              <stop offset="1" stop-color="#75515b" />
-            </linearGradient>
-            <linearGradient id="mc-windowlight" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#ffc693" />
-              <stop offset="1" stop-color="#a35b89" />
-            </linearGradient>
-            <linearGradient id="mc-floor" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#2e253b" />
-              <stop offset="1" stop-color="#5f2e47" />
-            </linearGradient>
-          </defs>
-          <g v-if="story.state.room === 'motel-exterior'">
-            <rect width="1000" height="580" fill="#141c38" />
-            <circle cx="780" cy="100" r="58" fill="#e6cbb7" opacity=".82" />
-            <path
-              d="M0 310L180 270L320 320L580 290L820 330L1000 260V580H0Z"
-              fill="#242a42"
-            />
-            <rect x="75" y="160" width="850" height="340" fill="#4b374b" />
-            <rect x="110" y="190" width="780" height="245" fill="#715569" />
-            <path d="M95 170H905L940 205H60Z" fill="#211e2e" />
-            <g v-for="col in 5" :key="col">
-              <rect
-                :x="135 + (col - 1) * 150"
-                y="218"
-                width="94"
-                height="95"
-                fill="#1e2034"
-              />
-              <rect
-                :x="142 + (col - 1) * 150"
-                y="224"
-                width="80"
-                height="80"
-                fill="url(#mc-windowlight)"
-              />
-              <path
-                :d="'M' + (182 + (col - 1) * 150) + ' 224v80'"
-                stroke="#27273d"
-                stroke-width="7"
-              />
-            </g>
-            <rect
-              x="435"
-              y="329"
-              width="132"
-              height="171"
-              rx="6"
-              fill="#19192d"
-            />
-            <rect x="449" y="342" width="103" height="150" fill="#956b76" />
-            <rect
-              x="110"
-              y="142"
-              width="500"
-              height="57"
-              rx="8"
-              fill="#2a162d"
-              stroke="#fa6f9f"
-              stroke-width="7"
-            />
-            <text
-              x="134"
-              y="182"
-              fill="#ffd7e8"
-              font-size="31"
-              font-weight="900"
-              letter-spacing="4"
-            >
-              LAST CALL MOTEL
-            </text>
-            <path d="M0 500H1000V580H0Z" fill="#2d2c49" />
-            <path
-              d="M20 545L380 500M520 500L990 555"
-              stroke="#7692a4"
-              opacity=".7"
-              stroke-width="5"
-            />
-          </g>
-          <g v-else-if="story.state.room === 'ice-alcove'">
-            <rect width="1000" height="580" fill="#1e3046" />
-            <path d="M0 340L1000 300V580H0Z" fill="#594756" />
-            <rect
-              x="220"
-              y="72"
-              width="565"
-              height="440"
-              rx="18"
-              fill="#678da8"
-              stroke="#1b3446"
-              stroke-width="26"
-            />
-            <rect
-              x="295"
-              y="128"
-              width="420"
-              height="230"
-              rx="14"
-              fill="#1b4058"
-              stroke="#a9d8e2"
-              stroke-width="14"
-            />
-            <path d="M310 303L710 303" stroke="#8bc0d4" stroke-width="21" />
-            <text
-              x="355"
-              y="265"
-              fill="#c8ebef"
-              font-size="92"
-              font-weight="900"
-              letter-spacing="12"
-            >
-              ICE
-            </text>
-            <rect
-              x="325"
-              y="397"
-              width="350"
-              height="76"
-              rx="12"
-              fill="#152b41"
-            />
-            <circle cx="830" cy="468" r="38" fill="#91b7be" />
-            <path
-              d="M0 525H1000"
-              stroke="#889fa8"
-              stroke-width="15"
-              opacity=".4"
-            />
-          </g>
-          <g v-else-if="story.state.room === 'balcony'">
-            <rect width="1000" height="580" fill="#343342" />
-            <path d="M0 580L850 130H1000V580Z" fill="#514652" />
-            <path d="M70 550L850 120" stroke="#ad7f7d" stroke-width="27" />
-            <path d="M130 570L920 130" stroke="#202c39" stroke-width="9" />
-            <path d="M200 0V580M780 0V580" stroke="#77747d" stroke-width="40" />
-            <path d="M260 160H770" stroke="#b6a7a3" stroke-width="20" />
-            <circle
-              cx="730"
-              cy="155"
-              r="43"
-              fill="#c99e72"
-              stroke="#292d3c"
-              stroke-width="13"
-            />
-            <rect x="650" y="210" width="220" height="215" fill="#242431" />
-          </g>
-          <g v-else-if="story.state.room === 'odette-room'">
-            <rect width="1000" height="580" fill="#392b47" />
-            <path d="M0 440L1000 360V580H0Z" fill="#231f33" />
-            <rect
-              x="370"
-              y="80"
-              width="320"
-              height="340"
-              rx="90"
-              fill="#6f566c"
-              stroke="#c4a1ad"
-              stroke-width="18"
-            />
-            <rect
-              x="405"
-              y="112"
-              width="250"
-              height="274"
-              rx="85"
-              fill="#a0a0b7"
-              opacity=".7"
-            />
-            <path d="M440 335Q520 140 610 335" fill="#d0d0e1" opacity=".24" />
-            <ellipse
-              cx="520"
-              cy="210"
-              rx="46"
-              ry="55"
-              fill="#dce7ed"
-              opacity=".52"
-            />
-            <path
-              d="M455 255Q520 220 585 255L620 360H420Z"
-              fill="#e7eff4"
-              opacity=".4"
-            />
-            <ellipse
-              cx="650"
-              cy="218"
-              rx="38"
-              ry="49"
-              fill="#d6bee9"
-              opacity=".65"
-            />
-            <path d="M610 348Q650 230 686 348" fill="#ddc4ed" opacity=".55" />
-            <path d="M400 470L550 470L520 492Z" fill="#b9aec5" />
-
-            <path
-              d="M40 410H350V515H40Z"
-              fill="#744d5a"
-              stroke="#a28485"
-              stroke-width="18"
-            />
-            <path
-              d="M720 395H970V495H720Z"
-              fill="#744d5a"
-              stroke="#a28485"
-              stroke-width="18"
-            />
-          </g>
-          <g v-else>
+          <img
+            v-if="backdrop"
+            :key="backdrop.src"
+            :src="backdrop.src"
+            :alt="backdrop.alt"
+            class="mc-backdrop absolute inset-0 size-full object-cover"
+            data-testid="monstrique-room-backdrop"
+            :data-art-image="backdrop.artImageId"
+          />
+          <svg
+            v-else
+            class="mc-painted-scene absolute inset-0 size-full"
+            data-testid="monstrique-room-fallback"
+            viewBox="0 0 1000 580"
+            preserveAspectRatio="xMidYMid slice"
+            aria-hidden="true"
+          >
+            <defs>
+              <linearGradient id="mc-wall" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#2e314e" />
+                <stop offset="1" stop-color="#75515b" />
+              </linearGradient>
+              <linearGradient id="mc-windowlight" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ffc693" />
+                <stop offset="1" stop-color="#a35b89" />
+              </linearGradient>
+              <linearGradient id="mc-floor" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#2e253b" />
+                <stop offset="1" stop-color="#5f2e47" />
+              </linearGradient>
+            </defs>
             <rect width="1000" height="580" fill="url(#mc-wall)" />
             <path d="M0 375L1000 360V580H0Z" fill="url(#mc-floor)" />
             <path d="M0 370L1000 356" stroke="#c29b99" stroke-width="11" />
@@ -396,78 +224,105 @@
               <rect x="330" y="375" width="420" height="145" fill="#5f314d" />
               <path d="M320 380H755" stroke="#eabf8d" stroke-width="13" />
             </g>
-            <g v-if="story.state.room === 'front-office'">
-              <rect x="160" y="330" width="680" height="155" fill="#80566b" />
-              <path d="M135 335H860" stroke="#deb6a9" stroke-width="19" />
-              <rect x="370" y="348" width="260" height="65" fill="#efd0b0" />
-            </g>
-          </g>
-        </svg>
-        <div class="mc-shadow absolute inset-0" aria-hidden="true" />
-        <div
-          class="mc-cast pointer-events-none absolute inset-0"
-          data-testid="monstrique-stage-cast"
-          aria-hidden="true"
-        >
-          <MonstriqueCharacterSprite
-            v-for="actor in stageNpcs"
-            :key="actor.hotspot"
-            class="mc-npc absolute"
-            :style="{
-              left: actor.x + '%',
-              top: actor.y + '%',
-              height: 46 * actor.scale + '%',
-            }"
-            :character="actor.character"
-            :mood="speaker === actor.character ? speakerMood : undefined"
-            :talking="speaker === actor.character"
-            :facing="actor.x > iris.x ? 'left' : 'right'"
-          />
+          </svg>
+          <div class="mc-shadow absolute inset-0" aria-hidden="true" />
           <div
-            v-if="showNorbFollower"
-            class="mc-germ-zone absolute"
-            :style="walkerStyle(norb, 0, followMs)"
-          />
-          <MonstriqueCharacterSprite
-            v-if="showNorbFollower"
-            class="mc-walker absolute"
-            :style="walkerStyle(norb, 52 * 0.68, followMs)"
-            character="norb"
-            :mood="speaker === 'norb' ? speakerMood : 'annoyed'"
-            :talking="speaker === 'norb'"
-            :facing="norb.x > iris.x ? 'left' : 'right'"
-          />
-          <MonstriqueCharacterSprite
-            class="mc-walker absolute"
-            data-testid="monstrique-iris-walker"
-            :data-walking="walking ? 'true' : 'false'"
-            :style="walkerStyle(iris, 52, walkMs)"
-            character="iris"
-            :mood="speaker === 'iris' ? speakerMood : 'smirk'"
-            :talking="speaker === 'iris'"
-            :facing="irisFacing"
-          />
+            class="mc-cast pointer-events-none absolute inset-0"
+            data-testid="monstrique-stage-cast"
+            aria-hidden="true"
+          >
+            <template v-for="actor in stageNpcs" :key="actor.hotspot">
+              <div
+                v-if="actor.figure"
+                class="mc-figure absolute"
+                :class="{
+                  'is-ghost': actor.figure.float,
+                  'is-talking': speaker === actor.character,
+                }"
+                :style="{
+                  left: actor.x + '%',
+                  top: actor.y + '%',
+                  height: actor.height + '%',
+                  zIndex: Math.round(actor.y),
+                }"
+                :data-character="actor.character"
+                data-testid="monstrique-stage-figure"
+              >
+                <img
+                  :src="actor.figure.src"
+                  :alt="actor.figure.alt"
+                  :width="actor.figure.width"
+                  :height="actor.figure.height"
+                  class="mc-figure-art"
+                  :style="
+                    actor.cut
+                      ? { clipPath: 'inset(0 0 ' + actor.cut * 100 + '% 0)' }
+                      : undefined
+                  "
+                />
+              </div>
+              <MonstriqueCharacterSprite
+                v-else
+                class="mc-npc absolute"
+                :class="{ 'is-marked': actor.marked }"
+                :style="{
+                  left: actor.x + '%',
+                  top: actor.y + '%',
+                  height: actor.height + '%',
+                  zIndex: Math.round(actor.y),
+                }"
+                :character="actor.character"
+                :mood="speaker === actor.character ? speakerMood : undefined"
+                :talking="speaker === actor.character"
+                :facing="actor.x > iris.x ? 'left' : 'right'"
+              />
+            </template>
+            <div
+              v-if="showNorbFollower"
+              class="mc-germ-zone absolute"
+              :style="walkerStyle(norb, 0, followMs)"
+            />
+            <MonstriqueCharacterSprite
+              v-if="showNorbFollower"
+              class="mc-walker absolute"
+              :style="walkerStyle(norb, 0.68, followMs)"
+              character="norb"
+              :mood="speaker === 'norb' ? speakerMood : 'annoyed'"
+              :talking="speaker === 'norb'"
+              :facing="norb.x > iris.x ? 'left' : 'right'"
+            />
+            <MonstriqueCharacterSprite
+              class="mc-walker absolute"
+              data-testid="monstrique-iris-walker"
+              :data-walking="walking ? 'true' : 'false'"
+              :style="walkerStyle(iris, 1, walkMs)"
+              character="iris"
+              :mood="speaker === 'iris' ? speakerMood : 'smirk'"
+              :talking="speaker === 'iris'"
+              :facing="irisFacing"
+            />
+          </div>
+
+          <button
+            v-for="hotspot in room.hotspots"
+            :key="hotspot.id"
+            type="button"
+            class="mc-hotspot absolute"
+            :class="{ 'is-selected': selected === hotspot.id }"
+            :style="{ left: hotspot.x + '%', top: hotspot.y + '%' }"
+            :aria-pressed="selected === hotspot.id"
+            :aria-label="'Inspect ' + hotspot.label"
+            @click="selectHotspot(hotspot.id)"
+          >
+            <span class="mc-hotspot-pip"
+              ><Icon name="kind-icon:search" class="size-4"
+            /></span>
+            <span class="mc-hotspot-name">{{ hotspot.label }}</span>
+          </button>
         </div>
         <p class="mc-scene-stamp">
           {{ room.floor === 2 ? 'UPSTAIRS' : 'LAST CALL' }}
         </p>
-
-        <button
-          v-for="hotspot in room.hotspots"
-          :key="hotspot.id"
-          type="button"
-          class="mc-hotspot absolute"
-          :class="{ 'is-selected': selected === hotspot.id }"
-          :style="{ left: hotspot.x + '%', top: hotspot.y + '%' }"
-          :aria-pressed="selected === hotspot.id"
-          :aria-label="'Inspect ' + hotspot.label"
-          @click="selectHotspot(hotspot.id)"
-        >
-          <span class="mc-hotspot-pip"
-            ><Icon name="kind-icon:search" class="size-4"
-          /></span>
-          <span class="mc-hotspot-name">{{ hotspot.label }}</span>
-        </button>
 
         <aside
           v-if="drawer"
@@ -587,8 +442,15 @@
           :class="'is-' + (speaker ?? 'narrator')"
           data-testid="monstrique-speaker-portrait"
         >
+          <img
+            v-if="speakerPortrait"
+            :src="speakerPortrait.src"
+            :alt="speakerPortrait.alt"
+            class="size-full object-cover"
+            data-testid="monstrique-painted-portrait"
+          />
           <MonstriqueCharacterSprite
-            v-if="speaker"
+            v-else-if="speaker"
             class="mc-bust size-full"
             bust
             :character="speaker"
@@ -733,9 +595,9 @@ import {
   travelForAudience,
 } from '~/utils/monstressConvention/edition'
 import {
-  WALK_AREAS,
   approachPoint,
-  depthScale,
+  entryPoint,
+  figureHeight,
   findPath,
   followerPoint,
   nearestWalkable,
@@ -761,6 +623,12 @@ import {
   type MonstriqueCharacterId,
 } from '~/utils/monstrique/characterModels'
 import { coldOpen } from '~/utils/monstrique/cutscenes'
+import {
+  STAGE_MARKS,
+  backdropFor,
+  figureFor,
+  portraitFor,
+} from '~/utils/monstrique/stageArt'
 import { MONSTRESS_CONVENTION } from '~/utils/playbookKit/games/monstressConvention'
 import { useMonstriqueSoundStore } from '~/stores/monstriqueSoundStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
@@ -790,9 +658,8 @@ const endingPlate = computed(() => {
 const drawer = ref<'case' | 'map' | null>(null)
 const selected = ref<string | null>(null)
 const held = ref<string | null>(null)
-const iris = ref<StagePoint>({
-  ...WALK_AREAS[story.value.state.room].entry,
-})
+const iris = ref<StagePoint>(entryPoint(story.value.state.room))
+const worldEl = ref<HTMLElement | null>(null)
 const walkMs = ref(0)
 const walking = ref(false)
 const facing = ref<'left' | 'right'>('right')
@@ -830,20 +697,46 @@ const speakerMood = computed(() => {
   return 'neutral'
 })
 
+const backdrop = computed(() => backdropFor(story.value.state.room))
+const speakerPortrait = computed(() =>
+  speaker.value ? portraitFor(speaker.value, speakerMood.value) : null,
+)
+const worldStyle = computed(() => ({
+  '--focus': String(iris.value.x / 100),
+  transitionDuration: walkMs.value + 'ms',
+}))
+
 const stageNpcs = computed(() =>
   room.value.hotspots.flatMap((hotspot) => {
     const model = modelForHotspot(hotspot.id)
-    return model
-      ? [
-          {
+    if (!model) return []
+    const mark = backdrop.value ? STAGE_MARKS[hotspot.id] : undefined
+    const figure = mark ? figureFor(model.id) : null
+    return [
+      mark
+        ? {
+            hotspot: hotspot.id,
+            character: model.id,
+            x: mark.x,
+            y: mark.y,
+            height:
+              figureHeight(story.value.state.room, mark.y) *
+              model.sprite.height,
+            cut: mark.cut ?? 0,
+            figure,
+            marked: true,
+          }
+        : {
             hotspot: hotspot.id,
             character: model.id,
             x: hotspot.x,
             y: Math.max(hotspot.y, 40 * model.sprite.height + 2),
-            scale: model.sprite.height,
+            height: 46 * model.sprite.height,
+            cut: 0,
+            figure: null,
+            marked: false,
           },
-        ]
-      : []
+    ]
   }),
 )
 const irisFacing = computed(() =>
@@ -870,7 +763,7 @@ const shortcuts = computed(() => {
 
 function walkerStyle(
   point: StagePoint,
-  height: number,
+  stature: number,
   ms: number,
 ): Record<string, string> {
   const style: Record<string, string> = {
@@ -878,7 +771,9 @@ function walkerStyle(
     top: point.y + '%',
     transitionDuration: ms + 'ms',
   }
-  if (height) style.height = height * depthScale(point.y) + '%'
+  if (stature) style.zIndex = String(Math.round(point.y))
+  if (stature)
+    style.height = stature * figureHeight(story.value.state.room, point.y) + '%'
   return style
 }
 
@@ -915,10 +810,10 @@ function walkToPoint(target: StagePoint): void {
 
 watch(
   () => story.value.state.room,
-  (next) => {
+  (next, previous) => {
     stopWalking()
     walkMs.value = 0
-    iris.value = { ...WALK_AREAS[next].entry }
+    iris.value = entryPoint(next, previous)
   },
 )
 watch(activeHotspot, (hotspot) => {
@@ -973,7 +868,7 @@ function begin(): void {
   drawer.value = null
   stopWalking()
   walkMs.value = 0
-  iris.value = { ...WALK_AREAS[story.value.state.room].entry }
+  iris.value = entryPoint(story.value.state.room)
   screen.value = 'intro'
 }
 
@@ -984,7 +879,7 @@ function selectHotspot(id: string): void {
 function walkTo(event: MouseEvent): void {
   const target = event.target as Element | null
   if (target?.closest('button, aside')) return
-  const stage = event.currentTarget as HTMLElement
+  const stage = worldEl.value ?? (event.currentTarget as HTMLElement)
   const bounds = stage.getBoundingClientRect()
   if (bounds.width === 0 || bounds.height === 0) return
   selected.value = null
@@ -1094,6 +989,64 @@ function verbIcon(verb: Verb): string {
 .mc-npc {
   translate: -50% -86%;
 }
+.mc-npc.is-marked {
+  translate: -50% -100%;
+}
+.mc-world {
+  --world-w: min(calc(100cqw / 0.5), calc(100cqh * 1.75 / 0.94));
+  --world-h: calc(var(--world-w) / 1.75);
+  --world-o: max(0px, calc(var(--world-w) - 100cqw));
+  width: var(--world-w);
+  height: var(--world-h);
+  left: calc(
+    (100cqw - var(--world-w)) / 2 +
+      clamp(
+        calc(var(--world-o) / -2),
+        calc(var(--world-w) * (0.5 - var(--focus, 0.5))),
+        calc(var(--world-o) / 2)
+      )
+  );
+  top: calc(
+    min(0px, 100cqh - var(--world-h)) + max(0px, (100cqh - var(--world-h)) / 2)
+  );
+  transition-property: left;
+  transition-timing-function: linear;
+}
+.mc-ambient {
+  filter: blur(1.5rem) brightness(0.45) saturate(1.1);
+  transform: scale(1.15);
+}
+.mc-figure {
+  translate: -50% -100%;
+}
+.mc-figure-art {
+  display: block;
+  width: auto;
+  height: 100%;
+  max-width: none;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 0.4rem 0.5rem rgb(0 0 0 / 0.45));
+}
+.mc-figure.is-ghost {
+  opacity: 0.9;
+  animation: mc-float 3.6s ease-in-out infinite;
+}
+.mc-figure.is-ghost .mc-figure-art {
+  filter: drop-shadow(0 0 0.8rem rgb(190 210 255 / 0.7));
+}
+.mc-figure.is-talking .mc-figure-art {
+  animation: mc-talk 0.55s ease-in-out infinite alternate;
+}
+@keyframes mc-float {
+  50% {
+    transform: translateY(-2.5%);
+  }
+}
+@keyframes mc-talk {
+  to {
+    transform: scale(1.015, 0.99);
+  }
+}
 .mc-walker {
   translate: -50% -100%;
   transition-property: left, top, height;
@@ -1153,8 +1106,13 @@ function verbIcon(verb: Verb): string {
 }
 @media (prefers-reduced-motion: reduce) {
   .mc-walker,
-  .mc-germ-zone {
+  .mc-germ-zone,
+  .mc-world {
     transition: none;
+  }
+  .mc-figure.is-ghost,
+  .mc-figure.is-talking .mc-figure-art {
+    animation: none;
   }
   .mc-score-gain {
     animation: none;
@@ -1371,6 +1329,7 @@ function verbIcon(verb: Verb): string {
   background: #ad4878;
 }
 .mc-scene {
+  container-type: size;
   background: #20253a;
 }
 .mc-painted-scene {

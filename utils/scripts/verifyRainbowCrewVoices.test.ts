@@ -27,9 +27,10 @@ const after = (
   players: number,
   allegiance: 'rebel' | 'loyal' | null,
   mask: number | null,
-) =>
-  Array.from({ length: 5 }, (_, line) =>
-    finaleDialogue(
+) => {
+  const lines: NonNullable<ReturnType<typeof finaleDialogue>>[] = []
+  for (let line = 0; ; line++) {
+    const said = finaleDialogue(
       'A09.AFTER',
       line * AFTER + 1,
       players,
@@ -37,8 +38,11 @@ const after = (
       'restore',
       allegiance,
       mask,
-    )!,
-  )
+    )
+    if (!said) return lines
+    lines.push(said)
+  }
+}
 
 // S2: every road epilogue is reachable with the party mask the engine always passes.
 const LOYAL = [
@@ -53,23 +57,38 @@ const REBEL = [
   /C\.A\.T\.S\. answers to the Ocean now/,
   /No ranks on this broadcast/,
 ]
+// Story critic round 2 (R2-2): the road epilogue goes to the pilot after the party epilogue's speaker, so these
+// crews hear Maribel, Maribel, Solenne and Azure; a lone pilot's rebel ending skips it, and the send-off closes.
 const MASKS = [1, 3, 7, 15]
+const ROAD_VOICE = [0, 0, 2, 1]
 for (let crew = 1; crew <= 4; crew++) {
   const loyal = after(crew, 'loyal', MASKS[crew - 1]!)
-  assert.match(loyal[3]!.text, LOYAL[crew - 1]!, `loyal ${crew}: road epilogue`)
+  assert.equal(loyal.length, 5)
+  assert.match(
+    loyal[3]!.text,
+    LOYAL[ROAD_VOICE[crew - 1]!]!,
+    `loyal ${crew}: road epilogue`,
+  )
   assert.ok(
     !loyal.some(
       (line) => line.text === rainbowPartyTrack(MASKS[crew - 1]!).epilogue.text,
     ),
     `loyal ${crew}: no rebel-toned party line`,
   )
-  assert.match(loyal[4]!.text, /Motherland expects us home/)
+  assert.match(loyal[4]!.text, /Motherland expects us/)
   const rebel = after(crew, 'rebel', MASKS[crew - 1]!)
+  assert.equal(rebel.length, crew === 1 ? 5 : 6)
   assert.ok(
     'partyAuthored' in rebel[3]! && rebel[3]!.partyAuthored,
     `rebel ${crew}: the crew's own party line`,
   )
-  assert.match(rebel[4]!.text, REBEL[crew - 1]!, `rebel ${crew}: road epilogue`)
+  if (crew > 1)
+    assert.match(
+      rebel[4]!.text,
+      REBEL[ROAD_VOICE[crew - 1]!]!,
+      `rebel ${crew}: road epilogue`,
+    )
+  assert.match(rebel.at(-1)!.text, /Let us fly/, `rebel ${crew}: send-off`)
 }
 // S7: the crew's epilogue belongs to a pilot, not a seat. A Solenne-and-Vivi crew (mask 12) hears Vivi's own
 // line, never another pilot's role read in her voice, and no epilogue names another pilot.
@@ -332,7 +351,7 @@ assert.match(failureLines(3, 1, 3)[1]!, /1 of our six rescues made it home/)
     new URL('../arcade/games/rainbowPrincessPreview.ts', import.meta.url),
     'utf8',
   )
-  assert.match(engine, /rainbowContinueLine\(checkpoint\.act\)/)
+  assert.match(engine, /rainbowContinueLine\(checkpoint\.act, activePlayers\)/)
   assert.match(engine, /BACK IN THE FIGHT/)
 }
 

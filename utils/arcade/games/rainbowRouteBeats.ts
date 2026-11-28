@@ -3,8 +3,10 @@
 // Rainbow Bullet Hell Space Princess, conductor rainbow t-027/t-012 (ROUTE-MAP.md sections 5 and 6): the scenes
 // that change because of the detours the crew flew, and the route stingers that close an ending.
 //
-// Scene windows are fixed lengths, so a route beat never adds a line: it replaces one named line of the scene,
-// always one that carries no instruction (fork directions, telegraphs) and no allegiance line. The detours now
+// Scene windows are fixed lengths, so a route beat normally never adds a line: it replaces one named line of the
+// scene, always one that carries no instruction (fork directions, telegraphs) and no allegiance line. The one
+// exception is the final choice (A09.TURN), whose window has room for a fourth line: there the beat follows the
+// crew's own line instead of silencing it (independent story critic round 2, R2-9). The detours now
 // follow their origin Acts (S03 -> X1 -> S04, S04 -> X2 -> S05, S06 -> X3 -> S07, S07 -> X4 -> S08), so the
 // "arrived via" beats sit on the Act after each detour; ROUTE-MAP's older "III via X1" row moves to Act IV, and
 // the Choir's voice in the depot argument lands on Act V.
@@ -39,8 +41,10 @@ export const NO_ROUTE: RainbowRouteFlags = {
 
 type Line = { speaker: string; text: string }
 type Beat = {
-  /** Which line of the scene it replaces. */
+  /** Which line of the scene it replaces, or where it goes in when it `inserts`. */
   line: number
+  /** The beat is a line of its own at `line` instead of replacing one. */
+  inserts?: true
   /** The replacement for these flags and this crew (lead first), or null when the scene plays as written. */
   say: (route: RainbowRouteFlags, crew: readonly string[]) => Line | null
 }
@@ -141,7 +145,8 @@ export const RAINBOW_ROUTE_BEATS: Readonly<Record<string, Beat>> = {
         : null,
   },
   'A09.TURN': {
-    line: 2,
+    line: 3,
+    inserts: true,
     say: (r) =>
       r.liltMemoryRecovered && r.crownEcho
         ? {
@@ -164,7 +169,7 @@ export const RAINBOW_ROUTE_BEATS: Readonly<Record<string, Beat>> = {
 
 /**
  * The scene's lines with its route beat in place (a copy; the scene's own list is untouched). A beat aimed past
- * the scene's last line is ignored, so a shortened scene can never grow.
+ * the scene's last line is ignored, so a shortened scene can never grow; an inserting beat follows that line.
  */
 export function withRainbowRouteBeat<L extends Line>(
   lines: readonly L[],
@@ -173,11 +178,13 @@ export function withRainbowRouteBeat<L extends Line>(
   crew: readonly string[],
 ): readonly L[] {
   const beat = route && RAINBOW_ROUTE_BEATS[id]
-  if (!beat || beat.line >= lines.length) return lines
+  if (!beat || beat.line > lines.length) return lines
+  if (!beat.inserts && beat.line === lines.length) return lines
   const said = beat.say(route, crew)
   if (!said) return lines
   const changed = [...lines]
-  changed[beat.line] = { ...lines[beat.line]!, ...said }
+  if (beat.inserts) changed.splice(beat.line, 0, said as L)
+  else changed[beat.line] = { ...lines[beat.line]!, ...said }
   return changed
 }
 

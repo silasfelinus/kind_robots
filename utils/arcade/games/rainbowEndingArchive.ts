@@ -16,19 +16,19 @@ const CHOICES = [
     choice: 'restore',
     title: 'Restore the Crown',
     summary:
-      'The Crown woke with its first rule whole again. This page was pressed before the roads were charted, so it keeps only the choice.',
+      'The Crown woke with its first rule whole again. Whatever road the crew flew, it chose to mend.',
   },
   {
     choice: 'evacuate',
     title: 'Free the Fleet',
     summary:
-      'Every fleet the Crown held flew home on its own heading. This page was pressed before the roads were charted, so it keeps only the choice.',
+      'Every fleet the Crown held flew home on its own heading. Whatever road the crew flew, it chose to let them go.',
   },
   {
     choice: 'sever',
     title: 'Cut the Leash',
     summary:
-      'The Crown let go of the Ocean for good. This page was pressed before the roads were charted, so it keeps only the choice.',
+      'The Crown let go of the Ocean for good. Whatever road the crew flew, it chose to cut the leash.',
   },
 ] as const satisfies ReadonlyArray<{
   choice: FinaleChoice
@@ -52,7 +52,9 @@ const STOOD_DOWN = {
 /**
  * Record both a broadly earned final choice and its exact allegiance.
  * Historical saves only held the broad choice; never retroactively guess
- * whether those flights rebelled or stayed loyal.
+ * whether those flights rebelled or stayed loyal. A crew that stood down
+ * flew neither road to its end, so it earns its own page and no road page
+ * (story critic round 2, R2-4).
  */
 export function rainbowEndingMemoryIds(
   choice: FinaleChoice,
@@ -60,9 +62,8 @@ export function rainbowEndingMemoryIds(
   stoodDown = false,
 ): string[] {
   const choiceId = `ending-${choice}`
-  const ids =
-    road === null ? [choiceId] : [choiceId, `ending-${road}-${choice}`]
-  return stoodDown ? [...ids, STOOD_DOWN.id] : ids
+  if (stoodDown) return [choiceId, STOOD_DOWN.id]
+  return road === null ? [choiceId] : [choiceId, `ending-${road}-${choice}`]
 }
 
 /**

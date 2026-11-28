@@ -175,7 +175,7 @@ export const RAINBOW_PARTY_TRACKS: Readonly<Record<number, RainbowPartyTrack>> =
       ],
       epilogue: {
         speaker: 'Vivi',
-        text: 'I broadcast the names, not the ranks. The galaxy heard them.',
+        text: 'We put the chorus back in. Now the whole Ocean sings it, and nobody plays solo.',
       },
     },
     9: {

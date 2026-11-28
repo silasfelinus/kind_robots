@@ -674,7 +674,7 @@
                 {{
                   entry.unlocked
                     ? entry.summary
-                    : 'Finish the Eclipse Palace to discover this ending.'
+                    : 'Reach the Eclipse Crown to discover this ending.'
                 }}
               </p>
             </div>

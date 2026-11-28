@@ -27,11 +27,14 @@ assert.equal(new Set(ids).size, 10)
 // Story critic S20: the scrapbook speaks in-world, and a crew that turned at the Crown has its own page.
 for (const entry of fresh)
   assert.doesNotMatch(entry.summary, /original record|does not prove|save/i)
+// Story critic round 2 (R2-4): a crew that stood down earns its choice and its own page, never a rebel road page
+// it did not fly, and no page claims it was pressed before the roads were charted.
 assert.deepEqual(rainbowEndingMemoryIds('evacuate', 'rebel', true), [
   'ending-evacuate',
-  'ending-rebel-evacuate',
   'ending-stood-down',
 ])
+for (const entry of fresh)
+  assert.doesNotMatch(entry.summary, /before the roads were charted/)
 assert.equal(
   rainbowEndingArchive(['ending-stood-down']).find((entry) => entry.unlocked)
     ?.title,

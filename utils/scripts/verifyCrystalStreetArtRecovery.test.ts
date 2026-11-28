@@ -9,6 +9,21 @@ import {
 
 import { CRYSTAL_STREET_TOWN_PAINTING, weekEndingArt } from '../crystalStreet/artPresentation'
 
+import { allArtPrompts } from '../crystalStreet/artPrompts'
+import {
+  ARCHETYPES,
+  AVATARS,
+  CHARACTERS,
+  COMPANIONS,
+  DECKS,
+  ITEMS,
+  LOCATIONS,
+  SPECIAL_ENDINGS,
+  TITLE_ART,
+  VILLAINS,
+  allEncounters,
+} from '../crystalStreet/rules'
+
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 
 assert.equal(renderedArtReceiptCount, 3040)
@@ -98,4 +113,32 @@ const encounter = readFileSync(
 assert.match(encounter, /image: art\.sourceFor\(choiceArtPath/)
 console.log(
   'Crystal Street: 3,040 existing render links; known rejects excluded.',
+)
+
+const prompts = allArtPrompts({
+  villains: VILLAINS,
+  companions: COMPANIONS,
+  locations: LOCATIONS,
+  decks: DECKS,
+  items: ITEMS,
+  avatars: AVATARS,
+  cliques: ARCHETYPES,
+  characters: CHARACTERS,
+  specialEndings: SPECIAL_ENDINGS,
+  title: TITLE_ART,
+})
+const keys = new Set(prompts.map(({ key }) => key))
+assert.equal(keys.size, prompts.length, 'unique authored art paths')
+for (const encounter of allEncounters()) {
+  assert.ok(keys.has(`scenes/${encounter.id}`), encounter.id)
+  for (const choice of encounter.choices) {
+    for (const result of ['success', 'failure']) {
+      const key = `outcomes/${encounter.id}--${choice.id}-${result}`
+      assert.ok(keys.has(key), key)
+    }
+  }
+}
+assert.equal(
+  COMPANIONS.flatMap((companion) => companion.arc ?? []).length,
+  66,
 )

@@ -122,6 +122,9 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
   const accountChecked = ref(false)
   const accountHasSave = ref(false)
   const guestProgress = ref(false)
+  const accountReady = computed(
+    () => !accountOwner.value || accountHasSave.value || accountChecked.value,
+  )
   const canImportDevice = computed(
     () =>
       !!accountOwner.value &&
@@ -219,6 +222,7 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
         throw new Error('Read failed or account changed')
       const { save, revision } = result.data
       if (
+        save === undefined ||
         (save === null && revision !== null) ||
         (save !== null &&
           (!Number.isSafeInteger(revision) || Number(revision) < 0))
@@ -328,6 +332,11 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
     } catch {
       storageWarning.value = 'This browser could not read the local save.'
     }
+    scheduleSync(0)
+  }
+
+  function retryAccount(): void {
+    retries = 0
     scheduleSync(0)
   }
 
@@ -485,6 +494,8 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
     storageWarning,
     accountOwner,
     accountStatus,
+    accountReady,
+    retryAccount,
     canImportDevice,
     importDeviceProgress,
     encounter,

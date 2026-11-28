@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import {
   MAX_ACTION_POINTS,
   gridDistance,
+  pathDistance,
   reachableCells,
   tileAt,
 } from '../everyVillainTactics/combat'
@@ -1971,6 +1972,7 @@ assert.ok(store.includes('personalFinaleNode('))
 // The bot can lose: never promote a losing or stalled route to a victory.
 type CombatPerspective = 'hero' | 'villain'
 type CombatOutcome = TrainingState['phase']
+type CombatPolicy = 'standard' | 'objective'
 
 function drainCombatDialogue(save: EvtSave, perspective: CombatPerspective) {
   const { state, story, stage } = save
@@ -2014,17 +2016,35 @@ function drainCombatDialogue(save: EvtSave, perspective: CombatPerspective) {
   assert.fail(stage.id + ': dialogue queue did not drain')
 }
 
-function combatAct(state: TrainingState, unit: Unit): boolean {
+function combatAct(
+  state: TrainingState,
+  unit: Unit,
+  policy: CombatPolicy,
+): boolean {
   state.selected = unit.id
   if (rescueSelected(state)) return true
   const rivals = state.units.filter((u) => u.team === 'rival' && u.hp > 0)
+  const objectivePolicy = policy === 'objective'
+  const victory = state.rules?.victory
+  const boss = victory?.kind === 'defeat-boss' ? victory.unit : null
+  const shotValue = (target: Unit, hit: number) =>
+    hit +
+    (objectivePolicy
+      ? (target.id === boss ? 120 : 0) +
+        (target.hp <= 2 ? 30 : 0) +
+        (target.signatureTarget || target.seismicTarget ? 20 : 0)
+      : 0)
   const shot = rivals
     .map((target) => ({
       target,
       hit: previewShot(unit, target, state.map).hit,
     }))
     .filter((candidate) => candidate.hit > 0)
-    .sort((a, b) => b.hit - a.hit || a.target.hp - b.target.hp)[0]
+    .sort(
+      (a, b) =>
+        shotValue(b.target, b.hit) - shotValue(a.target, a.hit) ||
+        a.target.hp - b.target.hp,
+    )[0]
   const power = selectedPowerTargets(state)
     .map((target) => ({ target, preview: previewSelectedPower(state, target) }))
     .filter((candidate) => candidate.preview)
@@ -2035,8 +2055,9 @@ function combatAct(state: TrainingState, unit: Unit): boolean {
         return (
           score +
           (effect.side === 'enemy'
-            ? (effect.damage * (preview!.chance ?? 100)) / 100 +
-              effect.statuses.length * 0.2
+            ? (effect.damage * (preview!.chance ?? 100)) / 100 *
+                (objectivePolicy && effect.id === boss ? 3 : 1) +
+              effect.statuses.length * (objectivePolicy ? 0.45 : 0.2)
             : Math.min(effect.heal, (actor?.maxHp ?? 0) - (actor?.hp ?? 0)) *
                 1.8 +
               effect.ap * 0.6)
@@ -2046,9 +2067,14 @@ function combatAct(state: TrainingState, unit: Unit): boolean {
     .sort((a, b) => b.score - a.score)[0]
   if (power && power.score >= 1.25 && useSelectedPower(state, power.target))
     return true
-  if (shot && shot.hit >= 60 && fireSelected(state, shot.target)) return true
+  if (
+    shot &&
+    shot.hit >= (objectivePolicy && shot.target.id === boss ? 30 : 60) &&
+    (!objectivePolicy || !boss || shot.target.id === boss || unit.moved) &&
+    fireSelected(state, shot.target)
+  )
+    return true
 
-  const victory = state.rules?.victory
   const waiting = (state.civilians ?? []).filter((c) => c.status === 'waiting')
   const goals =
     victory?.kind === 'rescue' && waiting.length
@@ -2059,11 +2085,18 @@ function combatAct(state: TrainingState, unit: Unit): boolean {
           ? rivals.filter((r) => r.id === victory.unit)
           : rivals
   const distance = (p: { x: number; y: number }) =>
-    Math.min(30, ...goals.map((goal) => gridDistance(p, goal)))
+    Math.min(
+      30,
+      ...goals.map((goal) =>
+        objectivePolicy
+          ? pathDistance(state.map, [], p, goal)
+          : gridDistance(p, goal),
+      ),
+    )
   const positionScore = (p: { x: number; y: number; cost: number }) => {
     const aim = Math.max(
       0,
-      ...rivals.map(
+      ...rivals.filter((r) => !objectivePolicy || !boss || r.id === boss).map(
         (r) => previewShot({ ...unit, x: p.x, y: p.y }, r, state.map).hit,
       ),
     )
@@ -2079,8 +2112,9 @@ function combatAct(state: TrainingState, unit: Unit): boolean {
     return (
       (victory?.kind === 'survive'
         ? -exposed
-        : -distance(p) * (objective ? 35 : 12) - exposed * 0.3) +
-      aim * (objective ? 0.15 : 0.6) +
+        : -distance(p) * (objective ? 35 : objectivePolicy ? 16 : 12) -
+          exposed * (objectivePolicy ? 0.45 : 0.3)) +
+      aim * (objective ? 0.15 : objectivePolicy ? 0.85 : 0.6) +
       (tileAt(state.map, p).cover ? 8 : 0) -
       p.cost * 8 -
       (danger ? 60 : 0)
@@ -2102,11 +2136,15 @@ function combatAct(state: TrainingState, unit: Unit): boolean {
   return overwatchSelected(state) || hunkerSelected(state)
 }
 
-function playCombat(save: EvtSave, perspective: CombatPerspective) {
+function playCombat(
+  save: EvtSave,
+  perspective: CombatPerspective,
+  policy: CombatPolicy = 'standard',
+) {
   let state = structuredClone(save.state)
   let story = structuredClone(save.story)
   let actions = 0
-  const limit = (state.turnLimit ?? 16) + 1
+  const limit = (state.turnLimit ?? (policy === 'objective' ? 48 : 16)) + 1
   const tag =
     save.leadSignature +
     ':' +
@@ -2135,7 +2173,7 @@ function playCombat(save: EvtSave, perspective: CombatPerspective) {
         step < 5 && state.phase === 'active' && unit.hp > 0 && unit.ap > 0;
         step++
       ) {
-        if (!combatAct(state, unit)) break
+        if (!combatAct(state, unit, policy)) break
         actions++
         dialogue()
       }
@@ -2176,6 +2214,9 @@ const combatCoverage = CROSSFIRE_CHAPTERS.map((chapter) => ({
   chapter: chapter.id,
   attempts: 0,
   actions: 0,
+  retryAttempts: 0,
+  retryVictories: 0,
+  firstTryVictories: 0,
   victory: 0,
   defeat: 0,
   active: 0,
@@ -2187,9 +2228,14 @@ const campaignStops: Record<CombatOutcome, number> = {
   defeat: 0,
   active: 0,
 }
+const earnedRoutes: string[] = []
+const routeDiagnostics: Record<string, string[]> = {}
 for (const person of IDENTITY_ARCS) {
   const cast = personalCastFor(person.signature)!
   for (const perspective of ['hero', 'villain'] as const) {
+    const route = person.signature + ':' + perspective
+    const diagnostics: string[] = []
+    routeDiagnostics[route] = diagnostics
     let campaign: ReturnType<typeof newCrossfireJournal> = null
     for (const [index, chapter] of CROSSFIRE_CHAPTERS.entries()) {
       const stage = index === 0 ? null : clonePreset(chapter.id)
@@ -2217,10 +2263,38 @@ for (const person of IDENTITY_ARCS) {
         assert.ok(campaign)
         fullCampaignAttempts++
       }
-      const result = playCombat(opening, perspective)
+      let result = playCombat(opening, perspective)
       const tally = combatCoverage[index]!
       tally.attempts++
       tally.actions += result.actions
+      if (result.outcome === 'victory') tally.firstTryVictories++
+      else {
+        const first = result.outcome
+        let retryOpening = opening
+        if (campaign) {
+          const checkpoint = snapshotCrossfire(campaign, result.save)
+          assert.ok(checkpoint)
+          assert.equal(advanceCrossfire(checkpoint), null)
+          const retry = retryCrossfire(checkpoint)
+          assert.ok(retry)
+          assert.deepEqual(retry.completed, checkpoint.completed)
+          assert.equal(retry.active.state.phase, 'active')
+          assert.deepEqual(retry.active.state, opening.state)
+          retryOpening = retry.active
+        }
+        tally.retryAttempts++
+        result = playCombat(retryOpening, perspective, 'objective')
+        tally.actions += result.actions
+        if (result.outcome === 'victory') tally.retryVictories++
+        diagnostics.push(chapter.id + ':' + first + '->' + result.outcome)
+      }
+      if (result.outcome !== 'victory') {
+        const living = result.save.state.units
+          .filter((unit) => unit.hp > 0)
+          .map((unit) => unit.id + '=' + unit.hp)
+          .join(',')
+        diagnostics.push(chapter.id + ':round=' + result.save.state.turn + ':' + living)
+      }
       tally[result.outcome]++
       if (!campaign) continue
       const checkpoint = snapshotCrossfire(campaign, result.save)
@@ -2243,6 +2317,7 @@ for (const person of IDENTITY_ARCS) {
         assert.ok(crossfireFinale(next, next.active))
         assert.ok(readCrossfireJournal(JSON.stringify(next)))
         fullCampaignVictories++
+        earnedRoutes.push(route)
         campaignStops.victory++
       }
       campaign = next
@@ -2253,8 +2328,17 @@ for (const tally of combatCoverage) {
   assert.equal(tally.attempts, 96)
   assert.equal(tally.victory + tally.defeat + tally.active, tally.attempts)
   assert.ok(tally.actions > 0, tally.chapter + ': no legal actions exercised')
+  assert.equal(tally.firstTryVictories + tally.retryAttempts, 96)
+  assert.equal(tally.firstTryVictories + tally.retryVictories, tally.victory)
+  assert.ok(tally.victory > 0, tally.chapter + ': no earned victories')
 }
 assert.equal(fullCampaignAttempts, 96)
+assert.equal(Object.keys(routeDiagnostics).length, 96)
+assert.equal(new Set(earnedRoutes).size, fullCampaignVictories)
+assert.ok(fullCampaignVictories > 0, 'no earned full campaigns')
+const identitiesWithoutEarnedCampaign = IDENTITY_ARCS.filter(
+  (person) => !earnedRoutes.some((route) => route.startsWith(person.signature + ':')),
+).map((person) => person.signature)
 assert.equal(
   Object.values(campaignStops).reduce((a, b) => a + b, 0),
   96,
@@ -2265,5 +2349,8 @@ console.log(
     fullCampaignAttempts,
     fullCampaignVictories,
     campaignStops,
+    earnedRoutes,
+    identitiesWithoutEarnedCampaign,
+    routeDiagnostics,
   }),
 )

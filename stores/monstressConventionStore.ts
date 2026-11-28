@@ -6,6 +6,7 @@ import { useUserStore } from '~/stores/userStore'
 import { performFetch } from '~/stores/utils'
 import {
   beginChapterTwo,
+  beginRetraction,
   newCase,
   newChapterTwo,
   monstrexxKitId,
@@ -225,6 +226,14 @@ export const useMonstressConventionStore = defineStore(
       else feedback.value = result.line
     }
 
+    /** Fails a reckless headline forward into the retraction mini-case. */
+    function printRetraction(): void {
+      if (!authorized.value) return
+      const result = beginRetraction(state.value)
+      if (result.changed) commit(result.state)
+      else feedback.value = result.line
+    }
+
     function beginChapterTwoCase(): void {
       if (!authorized.value || !chapterTwoUnlocked.value) return
       commit(newChapterTwo(nextCaseSeed(runs.value)))
@@ -280,6 +289,7 @@ export const useMonstressConventionStore = defineStore(
       begin,
       chapterTwoUnlocked,
       continueChapter,
+      printRetraction,
       beginChapterTwoCase,
       forgetCase,
       takeAction,

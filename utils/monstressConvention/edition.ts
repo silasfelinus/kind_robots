@@ -62,7 +62,7 @@ const GENERAL_HOTSPOTS: Record<RoomId, readonly string[]> = {
   'ice-alcove': ['ice-machine', 'maintenance-log', 'sewer-hatch'],
   balcony: ['room-door', 'footprints'],
   'investigators-room': ['desk', 'nico'],
-  'neighbor-room': ['neighbor', 'wall-clock'],
+  'neighbor-room': ['neighbor', 'wall-clock', 'fire-escape'],
   'odette-room': [
     'knife',
     'odette-body',
@@ -156,7 +156,7 @@ const GENERAL_ROOM_205 =
 
 const GENERAL_LINES: Record<string, string> = {
   'ask:neighbor:unknown-visitor':
-    'Dolores: Two women were talking about a film contract. I heard the ice arrive, a thump, and silence. Nobody used the front door afterward.',
+    'Dolores: Two women were talking about a film contract. I heard the ice arrive, a thump, and silence. Nobody used the front door afterward. My window opens on the fire escape, and it runs past theirs, if anyone needs to check on them.',
   'ask:odette-ghost:ghost-accounts':
     'Odette: I was looking at Violet. Then the knife seemed to float on its own. Neither of us saw who moved it.',
   'ask:odette-ghost:harker-files':

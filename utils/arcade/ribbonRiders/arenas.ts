@@ -53,7 +53,12 @@ export type ArenaSpec = {
   /** Edges that wrap round: ride off one side, come in on the other. */
   wrap?: { x?: boolean; y?: boolean }
   /** The closing wall: a cell in from every side each `every` ticks, to `max`; null for none. */
-  shrink?: { every: number; max: number; shape?: 'spiral' } | null
+  shrink?: {
+    every: number
+    max: number
+    shape?: 'spiral'
+    mirrorSpiral?: boolean
+  } | null
   portals?: readonly (readonly [
     readonly [number, number],
     readonly [number, number],
@@ -298,7 +303,10 @@ export function buildArena(spec: ArenaSpec): BuiltArena {
   }
   if (spec.shrink?.shape === 'spiral')
     spiralCells().forEach((cell, i) => {
-      spiralRank[cell] = i
+      const key = spec.shrink?.mirrorSpiral
+        ? idx(GRID - 1 - (cell % GRID), Math.floor(cell / GRID))
+        : cell
+      spiralRank[key] = i
     })
   return { spec, terrain, gates, gateAt, banks, bankAt, portalAt, spiralRank }
 }

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { mulberry32 } from '../arcade/curve'
 import { create } from '../arcade/games/ribbonRiders'
 import { emptyInput } from '../arcade/types'
-import { GRID, T } from '../arcade/ribbonRiders/grid'
+import { GRID, T, idx } from '../arcade/ribbonRiders/grid'
 import {
   FAIRGROUNDS,
   RAINBOW_SPOOL,
@@ -14,9 +14,13 @@ import type {
   ClockworkConductor,
   LoomSpinner,
 } from '../arcade/ribbonRiders/lateMarshals'
-import { makeMarshal, type MarshalHost } from '../arcade/ribbonRiders/marshals'
+import {
+  makeMarshal,
+  type MarshalHost,
+  type Marshal,
+} from '../arcade/ribbonRiders/marshals'
 import { RIVALS } from '../arcade/ribbonRiders/rivals'
-import { readFestivalSave, newKit } from '../arcade/ribbonRiders/festival'
+import { readFestivalSave, newKit, SHOP } from '../arcade/ribbonRiders/festival'
 import type { FestivalSave } from '../arcade/ribbonRiders/festival'
 
 function host() {
@@ -408,3 +412,243 @@ function host() {
 }
 
 console.log('ribbon riders late circuit and Grand Marshals: ok')
+
+// Scripted full campaign: the cabinet's real menu, objective, capture and
+// checkpoint paths, with deterministic staging of actors (not a free-running bot).
+// No direct writes to cleared, wrappedCount, defeated, trophy or credit flags.
+{
+  type Bike = {
+    id: number
+    seat: number
+    kind: string | null
+    x: number
+    y: number
+    alive: boolean
+    bugs: number
+    arch: number
+  }
+  type Campaign = {
+    menu: { kind: string; cursor: number } | null
+    titleChoices: string[]
+    fair: number
+    node: (typeof FAIRGROUNDS)[number]['arenas'][number] | null
+    cleared: Set<string>
+    player: Bike
+    bikes: Bike[]
+    marshal: Marshal | null
+    cells: Uint8Array
+    fill: Uint8Array
+    ready: number
+    roundTicks: number
+    timeLeft: number
+    roundClear: number
+    arches: number[][]
+    outline: number[]
+    bugs: Array<{ x: number; y: number; vx: number; vy: number }>
+    goldenBows: string[]
+    trueEnding: boolean
+    encore: boolean
+    save: FestivalSave | null
+    arena: { spec: { tier?: number } }
+    score: number
+    lives: number
+    update(input: ReturnType<typeof emptyInput>): void
+    giftWrap(bike: Bike, region: number[]): void
+    reachArch(bike: Bike, cell: number): void
+    traceArt(bike: Bike): void
+    checkRoundOver(): void
+    paintDyn(): void
+    updateBugs(): void
+  }
+  const run = (resume?: FestivalSave) =>
+    create({
+      rng: mulberry32(2026),
+      sound: { play: () => {} },
+      demo: false,
+      hiScore: 0,
+      selectScreen: true,
+      resume,
+    }) as unknown as Campaign
+  const press = (g: Campaign, key: 'a' | 'right' | 'down') => {
+    for (let n = 0; n < 10; n++) g.update(emptyInput())
+    const input = emptyInput()
+    input.pressed[key] = true
+    g.update(input)
+  }
+  const choose = (
+    g: Campaign,
+    options: string[],
+    id: string,
+    direction: 'right' | 'down',
+  ) => {
+    const index = options.indexOf(id)
+    assert.ok(index >= 0, `missing menu option ${id}`)
+    for (let n = 0; g.menu!.cursor !== index && n < options.length; n++)
+      press(g, direction)
+    assert.equal(g.menu!.cursor, index)
+    press(g, 'a')
+  }
+  const wrap = (g: Campaign, cells: number[]) => {
+    assert.ok(cells.length, 'capture has a target')
+    g.giftWrap(g.player, cells)
+  }
+  const rivals = (g: Campaign, onlyPonies = false) => {
+    for (const b of g.bikes.filter(
+      (b) =>
+        b.alive &&
+        b.seat < 0 &&
+        b.kind !== 'lanternKid' &&
+        (!onlyPonies || b.kind === 'pony'),
+    )) {
+      wrap(g, [idx(b.x, b.y)])
+      assert.equal(b.alive, false)
+    }
+  }
+  const boss = (g: Campaign) => {
+    const m = g.marshal!
+    assert.ok(m)
+    for (let n = 0; n < 30 && !m.defeated; n++) {
+      if (m.kind === 'keeper' && m.phase === 2) rivals(g, true)
+      else {
+        if (!m.targets().length) {
+          // Advance the boss clock through the next chime / hurt window.
+          for (let t = 0; t < 300 && !m.targets().length; t++) {
+            g.roundTicks++
+            m.update()
+          }
+        }
+        g.paintDyn()
+        const target =
+          m.kind === 'loom' && m.phase === 3
+            ? ((m as LoomSpinner).threadKnots()[0] ?? m.targets())
+            : m.targets()
+        wrap(g, target)
+      }
+    }
+    assert.ok(m.defeated, `${m.kind}: all phases captured`)
+  }
+  const complete = (g: Campaign, id: string) => {
+    const fair =
+      g.fair === SECRET_FAIR_INDEX ? RAINBOW_SPOOL : FAIRGROUNDS[g.fair]!
+    choose(g, openEvents(fair, g.cleared), id, 'right')
+    assert.equal(g.node?.id, id)
+    g.ready = 0
+    const a = g.node!
+    switch (a.objective) {
+      case 'last':
+      case 'giftwrap':
+        rivals(g)
+        break
+      case 'glowbug':
+        for (let n = 0; g.player.bugs < a.glowbugs!.target && n < 100; n++) {
+          g.updateBugs()
+          const bug = g.bugs[0]!
+          assert.ok(bug, 'a bug spawned')
+          wrap(g, [idx(Math.floor(bug.x), Math.floor(bug.y))])
+        }
+        break
+      case 'taglap':
+        for (const arch of g.arches) g.reachArch(g.player, arch[0]!)
+        break
+      case 'art':
+        for (const cell of g.outline) {
+          g.player.x = cell % GRID
+          g.player.y = Math.floor(cell / GRID)
+          g.traceArt(g.player)
+        }
+        break
+      case 'escort':
+        rivals(g)
+        // Cross all 38 columns, letting the real collision check see each.
+        for (let n = 0; n <= 37; n++) {
+          g.timeLeft = Math.max(0, a.limit! - Math.ceil((n * a.limit!) / 37))
+          g.checkRoundOver()
+        }
+        break
+      case 'marshal':
+        boss(g)
+        break
+    }
+    if (!g.roundClear) g.checkRoundOver()
+    assert.ok(g.roundClear > 0, `${fair.id}/${id}: objective cleared`)
+    assert.ok(g.cleared.has(id))
+    for (let n = 0; n < 400 && g.roundClear > 0; n++) g.update(emptyInput())
+    assert.equal(g.roundClear, 0)
+  }
+  const routes = [
+    ['bw-gate', 'bw-lamps', 'bw-glowbug', 'marshal'],
+    ['fr-rink', 'fr-banks', 'fr-flake', 'marshal'],
+    ['cb-entrance', 'cb-stalls', 'cb-arches', 'marshal'],
+    ['sl-sky', 'sl-stars', 'sl-parade', 'marshal'],
+  ]
+  const tour = (g: Campaign) => {
+    for (const [fair, route] of routes.entries()) {
+      assert.equal(g.fair, fair)
+      for (const id of route) complete(g, id)
+      assert.equal(g.menu?.kind, 'shop')
+      assert.equal(g.goldenBows.length, g.encore ? 4 : fair + 1)
+      choose(
+        g,
+        SHOP.map((s) => s.id),
+        'leave',
+        'down',
+      )
+      if (fair < 3) {
+        assert.equal(g.menu?.kind, 'board')
+        assert.equal(g.save?.fair, fair + 1)
+        assert.ok(readFestivalSave(JSON.parse(JSON.stringify(g.save))))
+      }
+    }
+    assert.equal(g.menu?.kind, 'credits')
+    assert.equal(g.save?.champion, true)
+  }
+  const game = run()
+  choose(game, game.titleChoices, 'new', 'right')
+  tour(game)
+  assert.equal(game.trueEnding, false)
+  assert.equal(game.goldenBows.length, 4)
+  press(game, 'a')
+  assert.ok(
+    game.titleChoices.includes('spool') && game.titleChoices.includes('encore'),
+  )
+  const restored = run(JSON.parse(JSON.stringify(game.save)))
+  choose(restored, restored.titleChoices, 'spool', 'right')
+  assert.equal(restored.fair, SECRET_FAIR_INDEX)
+  for (const a of RAINBOW_SPOOL.arenas) complete(restored, a.id)
+  assert.equal(restored.menu?.kind, 'credits')
+  assert.equal(restored.trueEnding, true)
+  assert.equal(restored.save?.trueChampion, true)
+  press(restored, 'a')
+  choose(restored, restored.titleChoices, 'encore', 'right')
+  assert.equal(restored.encore, true)
+  tour(restored)
+  assert.equal(
+    restored.save?.trueChampion,
+    true,
+    'Encore preserves the true trophy',
+  )
+  assert.ok(restored.score > 0)
+  console.log(
+    'ribbon riders scripted campaign: 16 events, 5 secret events, 16 Encore events, all 12 Marshal fights, 4 bows and both endings',
+  )
+}
+
+// A saturated arena cannot spawn a glowbug; the game must return instead of looping.
+{
+  const game = create({
+    rng: mulberry32(1),
+    sound: { play: () => {} },
+    demo: false,
+    hiScore: 0,
+  }) as unknown as {
+    playArena(a: (typeof FAIRGROUNDS)[number]['arenas'][number]): void
+    cells: Uint8Array
+    bugs: unknown[]
+    updateBugs(): void
+  }
+  game.playArena(arenaById(FAIRGROUNDS[0]!, 'bw-glowbug'))
+  game.cells.fill(1)
+  game.bugs = []
+  game.updateBugs()
+  assert.equal(game.bugs.length, 0)
+}

@@ -1136,7 +1136,11 @@ class RibbonRiders implements ArcadeGameInstance {
           b.conveyorSteps = 0
           const dir = ((t -
             T.CONVEYOR +
-            (this.marshal?.kind === 'conductor' && this.beat % 2 ? 2 : 0)) %
+            (this.marshal?.kind === 'conductor' &&
+            this.marshal.phase === 2 &&
+            this.beat % 2
+              ? 2
+              : 0)) %
             4) as Dir
           const shift = this.next(nx, ny, dir)
           if (
@@ -1344,7 +1348,9 @@ class RibbonRiders implements ArcadeGameInstance {
     for (const b of this.bikes) {
       if (b.alive) this.reachBug(b, idx(b.x, b.y))
     }
-    while (this.bugs.length < plan.lit) this.spawnBug()
+    // A nearly full board may have no legal bug spawn. Retry next tick, never hang.
+    const missing = Math.max(0, plan.lit - this.bugs.length)
+    for (let k = 0; k < missing; k++) this.spawnBug()
   }
 
   private reachBug(b: Bike, key: number) {
@@ -2510,7 +2516,11 @@ class RibbonRiders implements ArcadeGameInstance {
       if (isConveyor(t)) {
         const d = ((t -
           T.CONVEYOR +
-          (this.marshal?.kind === 'conductor' && this.beat % 2 ? 2 : 0)) %
+          (this.marshal?.kind === 'conductor' &&
+          this.marshal.phase === 2 &&
+          this.beat % 2
+            ? 2
+            : 0)) %
           4) as Dir
         g.fillStyle = rgba(RAMPS.teal[3], 0.45)
         g.fillRect(x, y, CELL, CELL)

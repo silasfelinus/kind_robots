@@ -672,6 +672,10 @@ export function encoreArena(a: FairArena): FairArena {
   return {
     ...a,
     tier: a.tier + 4,
+    shrink:
+      a.shrink?.shape === 'spiral'
+        ? { ...a.shrink, mirrorSpiral: !a.shrink.mirrorSpiral }
+        : a.shrink,
     features: a.features.map((f) =>
       f.kind === 'pad'
         ? { ...f, x: flip(f.x), dir: turn(f.dir) }

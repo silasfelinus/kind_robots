@@ -469,10 +469,16 @@ const menu = computed<MenuItem[]>(() => {
         `${runs} ${runs === 1 ? 'week' : 'weeks'} · ${store.metVillains.size} nightmares · ${store.scrapbook.friends.length} friends`,
     })
   items.push({
+    view: 'achievements',
+    label: 'Achievements',
+    icon: 'kind-icon:reward',
+    detail: () => 'Discover every deed',
+  })
+  items.push({
     view: 'settings',
     label: 'Settings',
     icon: 'kind-icon:settings',
-    detail: () => 'Text size, contrast, motion, credits',
+    detail: () => 'Text, contrast, motion, audio, credits',
   })
   return items
 })

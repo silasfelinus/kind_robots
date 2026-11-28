@@ -34,6 +34,32 @@
           </div>
         </fieldset>
 
+        <fieldset
+          v-for="control in VOLUME_CONTROLS"
+          :key="control.key"
+          class="cs-card space-y-2 p-3"
+        >
+          <legend class="cs-kicker px-1">{{ control.label }}</legend>
+          <label
+            :for="`cs-${control.key}`"
+            class="flex items-center justify-between text-xs"
+          >
+            <span>{{ control.hint }}</span>
+            <span>{{ store.settings[control.key] }}%</span>
+          </label>
+          <input
+            :id="`cs-${control.key}`"
+            type="range"
+            min="0"
+            max="100"
+            step="5"
+            class="range range-primary range-sm w-full"
+            :value="store.settings[control.key]"
+            :aria-label="control.label"
+            @input="setVolume(control.key, $event)"
+          />
+        </fieldset>
+
         <fieldset class="cs-card space-y-2 p-3">
           <legend class="cs-kicker px-1">About</legend>
           <p class="text-xs opacity-80">
@@ -106,14 +132,17 @@ import {
   type CrystalStreetSettings,
 } from '~/stores/crystalStreetStore'
 
+type ChoiceKey = Exclude<keyof CrystalStreetSettings, VolumeKey>
+type VolumeKey = 'effectsVolume' | 'musicVolume'
+
 type Group = {
-  [K in keyof CrystalStreetSettings]: {
+  [K in ChoiceKey]: {
     key: K
     label: string
     hint: string
     options: { value: CrystalStreetSettings[K]; label: string }[]
   }
-}[keyof CrystalStreetSettings]
+}[ChoiceKey]
 
 const GROUPS: Group[] = [
   {
@@ -165,13 +194,22 @@ const GROUPS: Group[] = [
   },
 ]
 
+const VOLUME_CONTROLS: { key: VolumeKey; label: string; hint: string }[] = [
+  { key: 'effectsVolume', label: 'Effects volume', hint: 'Dice and game cues' },
+  { key: 'musicVolume', label: 'Music volume', hint: 'Theme music video' },
+]
+
 defineEmits<{ credits: [] }>()
 
 const store = useCrystalStreetStore()
 const abandonArmed = ref(false)
 const resetArmed = ref(false)
 
-function pick(key: keyof CrystalStreetSettings, value: string): void {
+function setVolume(key: VolumeKey, event: Event): void {
+  store.setSetting(key, Number((event.target as HTMLInputElement).value))
+}
+
+function pick(key: ChoiceKey, value: string): void {
   store.setSetting(key, value as never)
 }
 

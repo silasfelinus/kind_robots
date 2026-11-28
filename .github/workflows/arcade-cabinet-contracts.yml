@@ -24,8 +24,7 @@ on:
       - 'utils/scripts/verifyArcadeSoundtrackMixer.test.ts'
       - 'utils/scripts/verifySpectrumRecordedMusic.test.ts'
       - 'utils/scripts/verifyCabinetSpectrumSaveRace.test.ts'
-      - 'utils/scripts/verifyCabinetRibbonRidersFairgrounds.test.ts'
-      - 'utils/scripts/verifyCabinetRibbonRidersLate.test.ts'
+      - 'utils/scripts/verifyCabinetRibbonRiders*.test.ts'
       - 'public/audio/arcade/superkate-spectrum/**'
       - 'server/api/arcade/saves/**'
       - '.github/workflows/arcade-cabinet-contracts.yml'
@@ -64,6 +63,7 @@ jobs:
         run: |
           npx tsx utils/scripts/verifyCabinetRibbonRidersFairgrounds.test.ts
           npx tsx utils/scripts/verifyCabinetRibbonRidersLate.test.ts
+          npx tsx utils/scripts/verifyCabinetRibbonRidersHazards.test.ts
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Rescue Rally — 1-4 seats by keyboard, gamepad and touch

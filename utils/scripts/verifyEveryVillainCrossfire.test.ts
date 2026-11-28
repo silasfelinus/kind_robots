@@ -1209,11 +1209,23 @@ for (const person of IDENTITY_ARCS) {
     assert.ok(!foilEndings.has(reply))
     foilEndings.add(reply)
     assert.equal(personalFoilEnding(person.signature, cast.foil, index, 1), '')
-    assert.equal(personalFoilEnding(person.signature, cast.foil, index, undefined), '')
-    assert.equal(personalFoilEnding(person.signature, person.signature, index, 2), '')
+    assert.equal(
+      personalFoilEnding(person.signature, cast.foil, index, undefined),
+      '',
+    )
+    assert.equal(
+      personalFoilEnding(person.signature, person.signature, index, 2),
+      '',
+    )
     const completed = chapterHistory(rescues as number[], evidence as number[])
     for (const perspective of ['hero', 'villain'] as const) {
-      const route = { ...journal, lead: person.signature, foil: cast.foil, perspective, completed }
+      const route = {
+        ...journal,
+        lead: person.signature,
+        foil: cast.foil,
+        perspective,
+        completed,
+      }
       const current = {
         ...journal.active,
         state: {
@@ -1225,7 +1237,11 @@ for (const person of IDENTITY_ARCS) {
       const ending = crossfireFinale(route, current)
       assert.equal(ending?.path, path)
       assert.ok(ending?.text.includes(foilName + ': “' + reply + '”'))
-      assert.ok(ending?.text.endsWith(PERSONAL_CAMPAIGNS[person.signature]!.endings[index]!))
+      assert.ok(
+        ending?.text.endsWith(
+          PERSONAL_CAMPAIGNS[person.signature]!.endings[index]!,
+        ),
+      )
       const legacy = crossfireFinale(route, {
         ...current,
         state: { ...current.state, crossfireCast: 1 },
@@ -2050,13 +2066,19 @@ function drainCombatDialogue(
         scene.id === 'arrival'
           ? scene.choices[1 - defaultIndex]?.effect
           : scene.id === 'alarm'
-            ? wounded ? 'rescue' : 'contain'
+            ? wounded
+              ? 'rescue'
+              : 'contain'
             : scene.id === 'reckoning'
-              ? wounded ? 'spare' : 'press'
+              ? wounded
+                ? 'spare'
+                : 'press'
               : undefined
       const choice =
         (policy === 'adaptive' &&
-          scene.choices.find((candidate) => candidate.effect === adaptiveEffect)) ||
+          scene.choices.find(
+            (candidate) => candidate.effect === adaptiveEffect,
+          )) ||
         scene.choices[defaultIndex]!
       assert.ok(applyChoice(story, state, perspective, choice.effect))
     }
@@ -2080,9 +2102,13 @@ function drainCombatDialogue(
         (unit) => unit.team === 'squad' && unit.hp > 0 && unit.hp < unit.maxHp,
       )
       const preferred = node.choices.findIndex((choice) =>
-        choice.effects.some((effect) => effect.kind === (wounded ? 'heal' : 'suppress')),
+        choice.effects.some(
+          (effect) => effect.kind === (wounded ? 'heal' : 'suppress'),
+        ),
       )
-      path.push(policy === 'adaptive' && preferred >= 0 ? preferred : defaultIndex)
+      path.push(
+        policy === 'adaptive' && preferred >= 0 ? preferred : defaultIndex,
+      )
       walk = walkScene(scene, path, { state, perspective })
     }
     assert.ok(walk?.done, stage.id + ':' + scene.id)
@@ -2110,8 +2136,10 @@ function combatAct(
       ? (target.id === boss ? 120 : 0) +
         (target.hp <= 2 ? 30 : 0) +
         (target.signatureTarget || target.seismicTarget ? 20 : 0) +
-        (adaptive ? (target.hp <= 2 ? 28 : -target.hp * 4) +
-          (target.statuses.includes('marked') ? 12 : 0) : 0)
+        (adaptive
+          ? (target.hp <= 2 ? 28 : -target.hp * 4) +
+            (target.statuses.includes('marked') ? 12 : 0)
+          : 0)
       : 0)
   const shot = rivals
     .map((target) => ({
@@ -2127,9 +2155,14 @@ function combatAct(
   const tacticalPosition = (point: { x: number; y: number }) => {
     const aim = Math.max(
       0,
-      ...rivals.map((target) => previewShot({ ...unit, ...point }, target, state.map).hit),
+      ...rivals.map(
+        (target) => previewShot({ ...unit, ...point }, target, state.map).hit,
+      ),
     )
-    const exposure = exposureAt(state, unit, point).reduce((sum, shot) => sum + shot.hit, 0)
+    const exposure = exposureAt(state, unit, point).reduce(
+      (sum, shot) => sum + shot.hit,
+      0,
+    )
     const goals =
       victory?.kind === 'rescue'
         ? (state.civilians ?? []).filter((c) => c.status === 'waiting')
@@ -2138,9 +2171,17 @@ function combatAct(
           : boss
             ? rivals.filter((rival) => rival.id === boss)
             : rivals
-    const distance = Math.min(30, ...goals.map((goal) => pathDistance(state.map, [], point, goal)))
-    const danger = state.field?.fire.some((fire) => fire.x === point.x && fire.y === point.y) ||
-      state.rules?.hazards.some((hazard) => hazard.x === point.x && hazard.y === point.y)
+    const distance = Math.min(
+      30,
+      ...goals.map((goal) => pathDistance(state.map, [], point, goal)),
+    )
+    const danger =
+      state.field?.fire.some(
+        (fire) => fire.x === point.x && fire.y === point.y,
+      ) ||
+      state.rules?.hazards.some(
+        (hazard) => hazard.x === point.x && hazard.y === point.y,
+      )
     return (
       aim * 0.025 -
       exposure * (unit.hp <= 2 ? 0.025 : 0.012) -
@@ -2161,14 +2202,19 @@ function combatAct(
             ? ((effect.damage * (preview!.chance ?? 100)) / 100) *
                 (objectivePolicy && effect.id === boss ? 3 : 1) +
               effect.statuses.length * (objectivePolicy ? 0.45 : 0.2) +
-              (adaptive && actor && effect.damage >= actor.hp && effect.damage > 0
-                ? 1.6 * (preview!.chance ?? 100) / 100
+              (adaptive &&
+              actor &&
+              effect.damage >= actor.hp &&
+              effect.damage > 0
+                ? (1.6 * (preview!.chance ?? 100)) / 100
                 : 0)
             : Math.min(effect.heal, (actor?.maxHp ?? 0) - (actor?.hp ?? 0)) *
                 (adaptive && actor && actor.hp <= 2 ? 3 : 1.8) +
               effect.ap * (adaptive && actor && !actor.fired ? 1.15 : 0.6) +
               (adaptive && actor
-                ? (effect.statuses.includes('guarded') ? exposureAt(state, actor, actor).length * 0.55 : 0) +
+                ? (effect.statuses.includes('guarded')
+                    ? exposureAt(state, actor, actor).length * 0.55
+                    : 0) +
                   (effect.cleanse && !actor.fired ? 0.65 : 0) +
                   (effect.moveTo && effect.id === unit.id
                     ? tacticalPosition(effect.moveTo) - tacticalPosition(unit)
@@ -2183,8 +2229,14 @@ function combatAct(
   if (
     shot &&
     !unit.fired &&
-    shot.hit >= (adaptive ? (shot.target.hp <= 2 ? 40 : 75) :
-      objectivePolicy && shot.target.id === boss ? 30 : 60) &&
+    shot.hit >=
+      (adaptive
+        ? shot.target.hp <= 2
+          ? 40
+          : 75
+        : objectivePolicy && shot.target.id === boss
+          ? 30
+          : 60) &&
     (!objectivePolicy || !boss || shot.target.id === boss || unit.moved) &&
     fireSelected(state, shot.target)
   )
@@ -2228,7 +2280,14 @@ function combatAct(
       (victory?.kind === 'survive'
         ? -exposed
         : -distance(p) * (objective ? 35 : objectivePolicy ? 16 : 12) -
-          exposed * (adaptive ? (unit.hp <= 2 ? 0.95 : 0.65) : objectivePolicy ? 0.45 : 0.3)) +
+          exposed *
+            (adaptive
+              ? unit.hp <= 2
+                ? 0.95
+                : 0.65
+              : objectivePolicy
+                ? 0.45
+                : 0.3)) +
       aim * (objective ? 0.15 : adaptive ? 1.2 : objectivePolicy ? 0.85 : 0.6) +
       (tileAt(state.map, p).cover ? (adaptive ? 14 : 8) : 0) -
       p.cost * 8 -
@@ -2248,9 +2307,14 @@ function combatAct(
       return true
   }
   if (shot && !unit.fired && fireSelected(state, shot.target)) return true
-  if ((victory?.kind === 'survive' ||
-    (adaptive && exposureAt(state, unit, unit).length > 0 &&
-      (unit.fired || unit.hp <= 2))) && hunkerSelected(state)) return true
+  if (
+    (victory?.kind === 'survive' ||
+      (adaptive &&
+        exposureAt(state, unit, unit).length > 0 &&
+        (unit.fired || unit.hp <= 2))) &&
+    hunkerSelected(state)
+  )
+    return true
   return overwatchSelected(state) || hunkerSelected(state)
 }
 
@@ -2287,9 +2351,11 @@ function playCombat(
     dialogue()
     const squad = state.units.filter((u) => u.team === 'squad')
     if (policy === 'adaptive')
-      squad.sort((a, b) =>
-        Number(b.identity.endsWith('-social')) - Number(a.identity.endsWith('-social')) ||
-        Number(b.weapon === 'long') - Number(a.weapon === 'long'),
+      squad.sort(
+        (a, b) =>
+          Number(b.identity.endsWith('-social')) -
+            Number(a.identity.endsWith('-social')) ||
+          Number(b.weapon === 'long') - Number(a.weapon === 'long'),
       )
     for (const unit of squad) {
       for (
@@ -2428,7 +2494,9 @@ for (const person of IDENTITY_ARCS) {
           result = playCombat(retryOpening, perspective, 'adaptive')
           tally.actions += result.actions
           if (result.outcome === 'victory') tally.adaptiveVictories++
-          diagnostics.push(chapter.id + ':adaptive:' + second + '->' + result.outcome)
+          diagnostics.push(
+            chapter.id + ':adaptive:' + second + '->' + result.outcome,
+          )
         }
       }
       if (result.outcome !== 'victory') {
@@ -2474,7 +2542,10 @@ for (const tally of combatCoverage) {
   assert.equal(tally.victory + tally.defeat + tally.active, tally.attempts)
   assert.ok(tally.actions > 0, tally.chapter + ': no legal actions exercised')
   assert.equal(tally.firstTryVictories + tally.retryAttempts, 96)
-  assert.equal(tally.retryVictories + tally.adaptiveAttempts, tally.retryAttempts)
+  assert.equal(
+    tally.retryVictories + tally.adaptiveAttempts,
+    tally.retryAttempts,
+  )
   assert.equal(
     tally.firstTryVictories + tally.retryVictories + tally.adaptiveVictories,
     tally.victory,

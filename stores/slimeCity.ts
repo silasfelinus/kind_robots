@@ -462,13 +462,19 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const cpuRewardsAvailable = computed(() => net.value?.user.isAdmin ?? false)
   async function startCpuBattle(
     format: DeckFormat = clashFormat.value,
+    selected?: ClashRewardSetup,
   ): Promise<void> {
+    const cards = selected?.format === 'solo' ? selected.cards : playSolo.value
+    const alliance =
+      selected?.format === 'alliance' ? selected.deck : playAlliance.value
     if (!cpuRewardsAvailable.value) {
       launchClash({
         kind: 'practice',
         format,
         enemy: rivalFor(activeTeam.value),
         seed: rollSeed(),
+        cards: format === 'solo' ? [...cards] : undefined,
+        alliance: format === 'alliance' ? alliance : undefined,
       })
       return
     }
@@ -491,8 +497,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           teamId: activeTeam.value,
           clash:
             format === 'alliance'
-              ? { format, deck: playAlliance.value }
-              : { format, cards: playSolo.value },
+              ? { format, deck: alliance }
+              : { format, cards },
         }),
       })
       if (!result.success || !result.data)
@@ -504,8 +510,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         enemy: result.data.foeId,
         seed: result.data.seed,
         rewardId: result.data.id,
-        cards: format === 'solo' ? [...playSolo.value] : undefined,
-        alliance: format === 'alliance' ? playAlliance.value : undefined,
+        cards: format === 'solo' ? [...cards] : undefined,
+        alliance: format === 'alliance' ? alliance : undefined,
       })
     } catch (error) {
       progressError.value =
@@ -2183,10 +2189,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
    * The CLASH tab: a reward match against the CPU when your account is
    * loaded (server-issued seed and rival, verified replay), else practice.
    */
-  function playClashFormat(format: DeckFormat = clashFormat.value): void {
+  function playClashFormat(
+    format: DeckFormat = clashFormat.value,
+    selected?: ClashRewardSetup,
+  ): void {
     clashFormat.value = format
     if (progressLoaded.value && correctAccount()) {
-      void startCpuBattle(format)
+      void startCpuBattle(format, selected)
       return
     }
     launchClash({
@@ -2194,6 +2203,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       format,
       enemy: rivalFor(activeTeam.value),
       seed: rollSeed(),
+      cards: selected?.format === 'solo' ? selected.cards : undefined,
+      alliance: selected?.format === 'alliance' ? selected.deck : undefined,
     })
   }
   /** A finished Clash match reports here exactly once. */

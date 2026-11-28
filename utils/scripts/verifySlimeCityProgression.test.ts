@@ -34,6 +34,7 @@ import {
   pacificPeriod,
   RARE_COUNT,
   rarityOf,
+  recordChallengeBattle,
   refreshPeriods,
   restoreProgression,
 } from '../slimeCity/progression'
@@ -50,7 +51,7 @@ assert.equal(levelFor(0), 1)
 assert.equal(levelFor(99), 1)
 assert.equal(levelFor(100), 2)
 assert.equal(nextLevelXp(100), 400)
-assert.equal(CHALLENGES.length, 6)
+assert.equal(CHALLENGES.length, 10)
 // Silas, 2026-11-09 PT: "We exchange meat, for chrissakes." Meat is the
 // city's money: the quest board and the Meat Exchange say so out loud.
 assert.ok(
@@ -169,6 +170,58 @@ assert.equal(
   'No reward farming beyond daily cap',
 )
 assert.equal(capped.daily.paidBattles, DAILY_PAID_BATTLES)
+
+// Mode quests use verified format, not the deck's starter/constructed source.
+{
+  const faction = {
+    victor: 'player' as const,
+    mode: 'clash',
+    format: 'solo' as const,
+    teamId: 'catgirls' as const,
+    plays: ['lynx'],
+  }
+  const alliance = {
+    ...faction,
+    format: 'alliance' as const,
+    teamId: 'ironjaw' as const,
+  }
+  const first = awardOutcome(fresh, { ...faction, receipt: 'faction-1' }, now)
+  assert.equal(first.daily.factionWins, 1)
+  assert.equal(first.daily.allianceWins, 0)
+  assert.equal(
+    currentChallenges(first, now).find((c) => c.id === 'daily-faction-win')
+      ?.ready,
+    true,
+  )
+  const both = awardOutcome(first, { ...alliance, receipt: 'alliance-1' }, now)
+  assert.equal(both.daily.allianceWins, 1)
+  assert.equal(both.weekly.crews.length, 2)
+  const paidQuest = claimChallenge(both, 'daily-alliance-win', now)
+  assert.equal(paidQuest.meat, both.meat + 25)
+  assert.equal(claimChallenge(paidQuest, 'daily-alliance-win', now), paidQuest)
+  const duelWin = recordChallengeBattle(both.daily, alliance)
+  assert.equal(duelWin.allianceWins, 2)
+  assert.equal(duelWin.paidBattles, both.daily.paidBattles)
+  const duelLoss = recordChallengeBattle(duelWin, {
+    ...faction,
+    victor: 'enemy',
+  })
+  assert.equal(duelLoss.factionWins, 1)
+  assert.equal(duelLoss.battles, duelWin.battles + 1)
+  const reset = refreshPeriods(both, pt('2026-10-31T07:01:00Z'))
+  assert.equal(reset.daily.factionWins, 0)
+  assert.equal(reset.daily.allianceWins, 0)
+  assert.equal(reset.weekly.factionWins, 1)
+  assert.equal(reset.weekly.allianceWins, 1)
+  const legacy = JSON.parse(JSON.stringify(both))
+  delete legacy.daily.factionWins
+  delete legacy.daily.allianceWins
+  const restored = restoreProgression(legacy, now)
+  assert.equal(restored.daily.factionWins, 0)
+  assert.equal(restored.daily.allianceWins, 0)
+  assert.equal(restored.meat, both.meat)
+  assert.equal(restored.daily.wins, both.daily.wins)
+}
 
 // Silas, 2026-11-11 PT: packs draw from every non-starter card, duplicates
 // can come again, and each duplicate refunds Meat (at most half a pack when

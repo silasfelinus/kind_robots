@@ -114,7 +114,7 @@ type Probe = {
   mower: { x: number; y: number; caps: number[] } | null
   shed: { cursor: number; ticks: number } | null
   menu: {
-    items: Array<{ garden: number; resume: boolean }>
+    items: Array<{ garden: number; resume: boolean; mode?: string }>
     cursor: number
   } | null
   save: ReturnType<typeof readGardenSave>
@@ -652,7 +652,7 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
     selectScreen: true,
   })
   assert.deepEqual(
-    s.menu!.items.map((i) => i.garden),
+    s.menu!.items.filter((i) => !i.mode).map((i) => i.garden),
     [0, 1, 2],
   )
   s.update(press('down'))

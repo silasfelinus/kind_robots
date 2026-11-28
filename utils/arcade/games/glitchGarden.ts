@@ -53,6 +53,9 @@
 // time (two with the shed's second beam), so get close to fire faster.
 
 import { drawText } from '../font'
+import { mulberry32 } from '../curve'
+import { dailyGardenPlan, endlessGardenStep, gardenMedals } from './glitchGardenModes'
+import type { GardenMode } from './glitchGardenModes'
 import {
   INK,
   RAMPS,
@@ -352,6 +355,7 @@ type Menu = {
     garden: number
     resume: boolean
     overgrown?: boolean
+    mode?: GardenMode | 'medals'
   }>
   cursor: number
 }
@@ -889,6 +893,23 @@ class GlitchGarden implements ArcadeGameInstance {
   private trueChampion = false
   private credits: 'season' | 'true' | null = null
   private selectEnabled = false
+  private mode: GardenMode = 'campaign'
+  private dailyDay = ''
+  private medals: Record<string, number> = {}
+  private waveFullPatch = false
+  private medalPage = false
+  private earned = new Set<string>()
+  get mastered(): readonly string[] {
+    return [...this.earned]
+  }
+
+  get scoreBoard(): string | null {
+    return this.mode === 'endless' ? 'glitch-garden' : null
+  }
+
+  get menuOpen(): boolean {
+    return !!this.menu || this.medalPage || !!this.credits || !!this.shed
+  }
   private rootLane = 6
   private shed: Shed | null = null
   private menu: Menu | null = null
@@ -920,6 +941,7 @@ class GlitchGarden implements ArcadeGameInstance {
       this.trowels = new Set(stored.trowels)
       this.champion = stored.champion === true
       this.trueChampion = stored.trueChampion === true
+      this.medals = { ...stored.medals }
       this.save = stored
     }
     this.openGardenMenu(stored?.run ?? null)
@@ -933,10 +955,7 @@ class GlitchGarden implements ArcadeGameInstance {
         garden: run.garden,
         resume: true,
       })
-    if (
-      this.selectEnabled &&
-      (this.reached > 1 || this.champion || hasAllTrowels(this.trowels))
-    )
+    if (this.selectEnabled)
       for (let g = 0; g < this.reached; g++)
         items.push({
           label: `${g + 1}  ${GARDENS[g]!.name}`,
@@ -956,6 +975,13 @@ class GlitchGarden implements ArcadeGameInstance {
         resume: false,
         overgrown: true,
       })
+    if (this.selectEnabled) {
+      items.push(
+        { label: 'ENDLESS LAWN', garden: 0, resume: false, mode: 'endless' },
+        { label: 'DAILY GARDEN', garden: 0, resume: false, mode: 'daily' },
+        { label: 'MEDAL BOARD', garden: 0, resume: false, mode: 'medals' },
+      )
+    }
     if (items.length) {
       if (!items.some((i) => !i.resume))
         items.push({
@@ -1574,7 +1600,11 @@ class GlitchGarden implements ArcadeGameInstance {
       return
     }
     this.level = level
-    const garden = gardenAt(step.garden)
+    const authoredGarden = gardenAt(step.garden)
+    const garden =
+      this.mode === 'daily'
+        ? { ...authoredGarden, layout: dailyGardenPlan(this.dailyDay).layout }
+        : authoredGarden
     const fresh = this.planted !== step.garden
     this.garden = garden
     if (fresh) {
@@ -1629,6 +1659,7 @@ class GlitchGarden implements ArcadeGameInstance {
     this.beesCrossed = 0
     this.kindLost = false
     this.sprayersLost = 0
+    this.waveFullPatch = this.multiplier === MAX_MULTIPLIER
     this.rakedLeaves = 0
     this.crow = null
     this.crowTimer = CROW_EVERY
@@ -1676,17 +1707,19 @@ class GlitchGarden implements ArcadeGameInstance {
       // A new garden: its title card, a save point, and one more garden for the select.
       this.card = CARD_TICKS
       this.banner = null
-      this.reached = Math.min(
-        GARDENS.length,
-        Math.max(this.reached, step.garden + 1),
-      )
-      this.writeSave(true)
+      if (this.mode === 'campaign') {
+        this.reached = Math.min(
+          GARDENS.length,
+          Math.max(this.reached, step.garden + 1),
+        )
+        this.writeSave(true)
+      }
     }
   }
 
   /** What to keep: the gardens reached, the trowels, and (mid-run) where to pick up. */
   private writeSave(run: boolean) {
-    if (this.demo) return
+    if (this.demo || this.mode !== 'campaign') return
     const step = this.step
     this.save = {
       v: 1,
@@ -1694,6 +1727,8 @@ class GlitchGarden implements ArcadeGameInstance {
       trowels: [...this.trowels],
       ...(this.champion ? { champion: true } : {}),
       ...(this.trueChampion ? { trueChampion: true } : {}),
+      ...(Object.keys(this.medals).length ? { medals: { ...this.medals } } : {}),
+      ...(this.save?.dailyBest ? { dailyBest: this.save.dailyBest } : {}),
       run: run
         ? {
             garden: step.garden,
@@ -1709,6 +1744,17 @@ class GlitchGarden implements ArcadeGameInstance {
 
   /** On to the next step of the year (the shed, a wave, a boss), wrapping into the next lap. */
   private advance() {
+    if (this.mode === 'daily') {
+      this.recordDaily(true)
+      this.over = true
+      this.banner = { text: 'DAILY GARDEN FIXED!', sub: this.dailyDay, ticks: 9999 }
+      return
+    }
+    if (this.mode === 'endless') {
+      const next = endlessGardenStep(this.level + 1)
+      this.beginStep(next.index, next.lap, this.level + 1)
+      return
+    }
     let index = this.stepIndex + 1
     let lap = this.lap
     if (this.stepIndex >= CAMPAIGN.length) {
@@ -1736,6 +1782,8 @@ class GlitchGarden implements ArcadeGameInstance {
   private finishYear(secret: boolean) {
     this.champion = true
     this.trueChampion ||= secret
+    this.earn('four-seasons')
+    if (secret) this.earn('midnight-bloom')
     this.credits = secret ? 'true' : 'season'
     this.beams = []
     this.writeSave(false)
@@ -1804,7 +1852,12 @@ class GlitchGarden implements ArcadeGameInstance {
     if (input.pressed.down) menu.cursor = (menu.cursor + 1) % n
     if (!(input.pressed.a || input.pressed.start)) return
     const item = menu.items[menu.cursor]!
+    if (item.mode === 'medals') {
+      this.medalPage = true
+      return
+    }
     this.menu = null
+    this.mode = item.mode ?? 'campaign'
     const run = item.resume ? this.save?.run : null
     this.score = run?.score ?? 0
     this.lives = run?.lives ?? START_LIVES
@@ -1815,6 +1868,13 @@ class GlitchGarden implements ArcadeGameInstance {
     this.nextExtra = extraAt(this.extras + 1)
     this.planted = -1
     const lap = run?.lap ?? (item.overgrown ? 1 : 0)
+    if (this.mode === 'daily') {
+      this.dailyDay = new Date().toISOString().slice(0, 10)
+      const daily = dailyGardenPlan(this.dailyDay)
+      this.rng = mulberry32(daily.seed)
+      this.beginStep(daily.index, 0, 1)
+      return
+    }
     const index = gardenStart(item.garden)
     this.beginStep(index, lap, this.levelAt(index, lap))
   }
@@ -1878,6 +1938,11 @@ class GlitchGarden implements ArcadeGameInstance {
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.over) return
+    if (this.medalPage) {
+      if (input.pressed.a || input.pressed.b || input.pressed.start)
+        this.medalPage = false
+      return
+    }
     if (this.credits) {
       if (input.pressed.a || input.pressed.start) {
         this.credits = null
@@ -1964,9 +2029,33 @@ class GlitchGarden implements ArcadeGameInstance {
       this.addScore(KIND_BONUS, W / 2, HUD + 60)
       sub = sub ? `${sub}  KIND +${KIND_BONUS}` : `KIND BONUS +${KIND_BONUS}`
     }
-    if (goal && this.objectiveDone && this.sprayersLost === 0) {
+    const mask = gardenMedals(
+      this.sprayersLost === 0,
+      this.wave.bees > 0 && !this.kindLost,
+      this.waveFullPatch,
+    )
+    if (mask & 1) this.earn('clean-patch')
+    if (mask & 2) this.earn('kind-pollinator')
+    if (mask & 4) this.earn('full-patch')
+    if (this.mode === 'endless' && this.level >= 20)
+      this.earn('endless-twenty')
+    if (this.mode === 'campaign' && !this.demo && this.lap === 0) {
+      const key = String(this.level - 1)
+      const earned = (this.medals[key] ?? 0) | mask
+      if (earned) {
+        this.medals[key] = earned
+        if (this.save) this.save = { ...this.save, medals: { ...this.medals } }
+      }
+    }
+    if (
+      this.mode === 'campaign' &&
+      goal &&
+      this.objectiveDone &&
+      this.sprayersLost === 0
+    ) {
       if (!this.trowels.has(this.garden.id)) {
         this.trowels.add(this.garden.id)
+        if (hasAllTrowels(this.trowels)) this.earn('golden-gardener')
         this.petals += TROWEL_PETALS
         sub = 'GOLDEN TROWEL!'
         this.sound.play('extra')
@@ -2056,6 +2145,7 @@ class GlitchGarden implements ArcadeGameInstance {
 
   private registerHit() {
     this.streak++
+    if (this.multiplier === MAX_MULTIPLIER) this.waveFullPatch = true
     if (this.volley) this.volley.hits++
   }
 
@@ -3505,6 +3595,7 @@ class GlitchGarden implements ArcadeGameInstance {
     if (this.lives <= 0) {
       this.over = true
       this.banner = { text: 'GAME OVER', ticks: 9999 }
+      if (this.mode === 'daily') this.recordDaily(false)
       this.writeSave(false)
       return
     }
@@ -3563,6 +3654,23 @@ class GlitchGarden implements ArcadeGameInstance {
   }
 
   // --- scoring and effects ----------------------------------------------------
+
+  private earn(id: string) {
+    if (!this.demo) this.earned.add(id)
+  }
+
+  private recordDaily(cleared: boolean) {
+    if (this.demo) return
+    const prior = this.save?.dailyBest
+    const today = prior?.day === this.dailyDay ? prior : null
+    if (cleared) this.earn('daily-bloom')
+    const dailyBest = {
+      day: this.dailyDay,
+      score: Math.max(this.score, today?.score ?? 0),
+      cleared: cleared || !!today?.cleared,
+    }
+    if (this.save) this.save = { ...this.save, dailyBest }
+  }
 
   private addScore(points: number, x: number, y: number) {
     if (this.demo) return
@@ -3842,6 +3950,7 @@ class GlitchGarden implements ArcadeGameInstance {
     if (this.shed) this.renderShed(g, this.shed)
     if (this.menu) this.renderMenu(g, this.menu)
     if (this.credits) this.renderCredits(g)
+    if (this.medalPage) this.renderMedals(g)
   }
 
   /** The lawn and the flowerbed, painted once per garden in its own colours. */
@@ -4317,19 +4426,46 @@ class GlitchGarden implements ArcadeGameInstance {
         i * Math.min(22, Math.floor((H - HUD - 90) / menu.items.length))
       if (on) {
         g.fillStyle = rgba(RAMPS.leaf[2], 0.35)
-        g.fillRect(14, y - 4, W - 28, 18)
+        g.fillRect(14, y - 4, W - 28, Math.min(18, Math.floor((H - HUD - 90) / menu.items.length) - 1))
       }
       drawText(g, `${on ? '>' : ' '} ${item.label}`, 18, y, {
         color: item.resume ? RAMPS.gold[3] : '#ffffff',
         outline: INK,
       })
-      if (this.trowels.has(garden.id))
+      if (!item.mode && this.trowels.has(garden.id))
         drawText(g, '*', W - 20, y, { color: RAMPS.gold[4], outline: INK })
     })
     drawText(g, 'UP/DOWN PICK  A START', W / 2, H - 24, {
       align: 'center',
       color: RAMPS.leaf[3],
       outline: INK,
+    })
+  }
+
+  private renderMedals(g: CanvasRenderingContext2D) {
+    g.fillStyle = rgba(INK, 0.94)
+    g.fillRect(0, HUD, W, H - HUD)
+    drawText(g, 'GARDEN MEDALS', W / 2, HUD + 12, {
+      align: 'center', color: '#ffffff', scale: 2, outline: INK,
+    })
+    drawText(g, 'C CLEAN   K KIND   F FULL PATCH', W / 2, HUD + 36, {
+      align: 'center', color: RAMPS.gold[3], outline: INK,
+    })
+    for (let index = 0; index < 50; index++) {
+      const x = 9 + (index % 5) * 45
+      const y = HUD + 55 + Math.floor(index / 5) * 19
+      const bits = this.medals[String(index)] ?? 0
+      drawText(g, String(index + 1).padStart(2, '0'), x, y, {
+        color: '#ffffff', outline: INK,
+      })
+      for (const [i, label] of ['C', 'K', 'F'].entries())
+        drawText(g, label, x + 13 + i * 8, y, {
+          color: bits & (1 << i) ? RAMPS.gold[4] : RAMPS.steel[2],
+          outline: INK,
+        })
+    }
+    drawText(g, 'A / B RETURN', W / 2, H - 20, {
+      align: 'center', color: RAMPS.leaf[3], outline: INK,
     })
   }
 
@@ -4674,7 +4810,7 @@ class GlitchGarden implements ArcadeGameInstance {
         color: RAMPS.gold[3],
         shadow: INK,
       })
-    drawText(g, `WAVE ${this.level}`, W - 4, 8, {
+    drawText(g, this.mode === 'daily' ? 'DAILY' : `WAVE ${this.level}`, W - 4, 8, {
       align: 'right',
       color: RAMPS.leaf[3],
       shadow: INK,

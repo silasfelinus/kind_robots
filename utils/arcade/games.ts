@@ -10,6 +10,7 @@
 import type { ArcadeGameMeta, ArcadeGameModule } from './types'
 import { spectrumBoardKey } from './leaderboard'
 import { MASTERY_GOALS } from './pinball/rules/mastery'
+import { GARDEN_MASTERY } from './games/glitchGardenModes'
 import {
   RAINBOW_DIFFICULTY_NAMES,
   RAINBOW_MASTERY,
@@ -596,6 +597,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#a855f7',
     shelf: 'growing',
     controls: 'Move, spray',
+    mastery: GARDEN_MASTERY,
   },
   {
     slug: 'quilt-quest',

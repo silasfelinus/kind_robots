@@ -67,7 +67,9 @@ export type Unit = Fighter & {
   team: Team
   maxHp: number
   henchmanName?: string
-  henchmanType?: 'burrow' | 'phase' | 'windup' | 'cinder' | 'hush'
+  henchmanType?: 'burrow' | 'phase' | 'windup' | 'cinder' | 'hush' | 'drytap'
+  drytapTarget?: Cell | null
+  drytapSlick?: Cell | null
   cinderTarget?: Cell | null
   hushTarget?: Cell | null
   burrowTarget?: Cell | null
@@ -199,6 +201,11 @@ export const HENCHMAN_TELLS: Record<
     label: 'CLAIM CINDER',
     tell: 'Stamps an INSURED tile within three tiles and sight. It ignites on the next enemy turn. Leave the tile, find water, or disarm the one-hit clerk.',
   },
+  drytap: {
+    crest: '⊗',
+    label: 'DRYTAP OCTOPUS',
+    tell: 'Marks a wet tile to siphon next turn, leaving slick ground that costs one extra movement AP. Stand on or beside the marked red valve and shut it off for one AP, or disarm the octopus.',
+  },
   hush: {
     crest: '≈',
     label: 'HUSHWING',
@@ -269,6 +276,7 @@ export function exposureAt(
         u.henchmanType !== 'windup' &&
         u.henchmanType !== 'cinder' &&
         u.henchmanType !== 'hush' &&
+        u.henchmanType !== 'drytap' &&
         !u.lieutenantName &&
         !u.signatureBoss,
     )
@@ -447,7 +455,7 @@ const LACKEY_CREWS: Partial<
     NonNullable<StageDraft['encounter']>,
     {
       signature: SignaturePowerId
-      type: 'phase' | 'windup' | 'cinder' | 'hush'
+      type: 'phase' | 'windup' | 'cinder' | 'hush' | 'drytap'
       ranks: string[]
     }
   >
@@ -461,6 +469,11 @@ const LACKEY_CREWS: Partial<
     signature: 'accident-fire',
     type: 'cinder',
     ranks: ['Claims Adjuster', 'Policy Clerk'],
+  },
+  'drytap-octopi': {
+    signature: 'accident-water',
+    type: 'drytap',
+    ranks: ['Meter Reader', 'Pipe Inspector'],
   },
   hushwings: {
     signature: 'accident-air',
@@ -490,8 +503,22 @@ function fieldLackeyCrew(state: TrainingState, stage?: StageDraft) {
       unit.phaseVictim = null
     } else if (crew.type === 'cinder') unit.cinderTarget = null
     else if (crew.type === 'hush') unit.hushTarget = null
-    else unit.windupRewinding = false
+    else if (crew.type === 'drytap') {
+      unit.drytapTarget = null
+      unit.drytapSlick = null
+    } else unit.windupRewinding = false
   })
+  if (crew.type === 'drytap') {
+    state.log =
+      species.captain +
+      ' leads the ' +
+      species.name +
+      '. A marked wet tile is siphoned next turn. Stand on or beside the red valve and shut it off for one AP.'
+    state.events = [
+      species.captain + ': The emergency supply to the households stays open.',
+    ]
+    return
+  }
   if (crew.type === 'hush') {
     state.log =
       species.captain +
@@ -637,7 +664,22 @@ export function availableMove(state: TrainingState, to: Cell) {
     state.phase !== 'active'
   )
     return false
-  return moveAP(walkDistance(state, unit, to), unit.mobility) <= unit.ap
+  return movementCost(state, unit, to) <= unit.ap
+}
+export function drytapSlickAt(state: TrainingState, point: Cell): boolean {
+  return state.units.some(
+    (unit) =>
+      unit.henchmanType === 'drytap' &&
+      unit.drytapSlick?.x === point.x &&
+      unit.drytapSlick?.y === point.y,
+  )
+}
+
+export function movementCost(state: TrainingState, unit: Unit, to: Cell) {
+  return (
+    moveAP(walkDistance(state, unit, to), unit.mobility) +
+    (drytapSlickAt(state, to) ? 1 : 0)
+  )
 }
 function note(state: TrainingState, message: string) {
   state.log = message
@@ -790,8 +832,7 @@ function triggerReactions(state: TrainingState, moved: Unit) {
 export function moveSelected(state: TrainingState, to: Cell): boolean {
   if (!availableMove(state, to)) return false
   const unit = selectedUnit(state)!
-  const distance = walkDistance(state, unit, to)
-  const cost = moveAP(distance, unit.mobility)
+  const cost = movementCost(state, unit, to)
   unit.ap -= cost
   unit.x = to.x
   unit.y = to.y
@@ -1734,7 +1775,9 @@ function rivalHazardAt(state: TrainingState, point: Point): boolean {
     state.rules?.hazards.some(
       (hazard) =>
         cellKey(hazard) === cellKey(point) &&
-        ((hazard.kind === 'water' && isWaterLive(state.turn)) ||
+        ((hazard.kind === 'water' &&
+          isWaterLive(state.turn) &&
+          !drytapSlickAt(state, hazard)) ||
           (hazard.kind === 'collapse' && hazard.round === state.turn)),
     )
   )
@@ -2012,6 +2055,101 @@ export function hushPlan(state: TrainingState, enemy: Unit): boolean {
   return true
 }
 
+/** A siphon targets an authored wet tile, not a moving hero. Each octopus
+ * can keep one drain open; its previous tile becomes wet again on a new siphon. */
+export function drytapPlan(state: TrainingState, enemy: Unit): boolean {
+  if (enemy.henchmanType !== 'drytap') return false
+  if (enemy.hp <= 0) return true
+  if (enemy.drytapTarget) {
+    enemy.ap = 0
+    enemy.drytapSlick = { ...enemy.drytapTarget }
+    enemy.drytapTarget = null
+    note(
+      state,
+      aliasFor(enemy) +
+        ' siphons the marked water. Slick ground costs an extra movement AP.',
+    )
+    return true
+  }
+  const wet = (state.rules?.hazards ?? [])
+    .filter(
+      (h) =>
+        h.kind === 'water' &&
+        !tileAt(state.map, h).wall &&
+        !drytapSlickAt(state, h) &&
+        !state.units.some(
+          (u) =>
+            u.hp > 0 && u.drytapTarget?.x === h.x && u.drytapTarget?.y === h.y,
+        ),
+    )
+    .sort(
+      (a, b) =>
+        gridDistance(enemy, a) - gridDistance(enemy, b) ||
+        a.y - b.y ||
+        a.x - b.x,
+    )
+  const target = wet.find(
+    (h) => gridDistance(enemy, h) <= 3 && lineOfSight(state.map, enemy, h),
+  )
+  if (target) {
+    enemy.drytapTarget = { x: target.x, y: target.y }
+    note(
+      state,
+      aliasFor(enemy) +
+        ' marks a red SHUTOFF valve. Close it before the next enemy turn.',
+    )
+  } else if (wet.length) {
+    // Use the ordinary movement budget, path, and reaction system.
+    const distance = (p: Cell) =>
+      Math.min(...wet.map((h) => gridDistance(p, h)))
+    const move = reachableCells(state.map, state.units, enemy)
+      .filter((p) => !rivalHazardAt(state, p))
+      .sort(
+        (a, b) =>
+          distance(a) - distance(b) ||
+          a.cost - b.cost ||
+          a.y - b.y ||
+          a.x - b.x,
+      )[0]
+    if (move && distance(move) < distance(enemy)) {
+      enemy.x = move.x
+      enemy.y = move.y
+      enemy.ap -= move.cost
+      enemy.moved = true
+      triggerReactions(state, enemy)
+    }
+  }
+  enemy.ap = 0
+  return true
+}
+
+export function drytapValveTarget(state: TrainingState): Unit | undefined {
+  const ally = selectedUnit(state)
+  if (state.phase !== 'active' || !ally || ally.ap < 1) return undefined
+  return state.units
+    .filter(
+      (unit) =>
+        unit.hp > 0 &&
+        unit.henchmanType === 'drytap' &&
+        unit.drytapTarget &&
+        gridDistance(ally, unit.drytapTarget) <= 1,
+    )
+    .sort((a, b) => a.id.localeCompare(b.id))[0]
+}
+
+export function closeDrytapValve(state: TrainingState): boolean {
+  const enemy = drytapValveTarget(state)
+  const ally = selectedUnit(state)
+  if (!enemy || !ally) return false
+  ally.ap--
+  enemy.drytapTarget = null
+  note(
+    state,
+    aliasFor(ally) + ' closes the red shutoff valve. The water supply is safe.',
+  )
+  return true
+}
+
 function enemyPlan(state: TrainingState, enemy: Unit) {
   if (
     signatureLieutenantPlan(state, enemy) ||
@@ -2020,7 +2158,8 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
     phasePlan(state, enemy) ||
     windupPlan(state, enemy) ||
     cinderPlan(state, enemy) ||
-    hushPlan(state, enemy)
+    hushPlan(state, enemy) ||
+    drytapPlan(state, enemy)
   )
     return
   if (retreatRival(state, enemy)) return
@@ -2104,7 +2243,11 @@ function roundEnd(state: TrainingState) {
   const round = state.turn
   const burning = new Set(field.fire.map(cellKey))
   const live = isWaterLive(round)
-    ? new Set(rules.hazards.filter((h) => h.kind === 'water').map(cellKey))
+    ? new Set(
+        rules.hazards
+          .filter((h) => h.kind === 'water' && !drytapSlickAt(state, h))
+          .map(cellKey),
+      )
     : new Set<string>()
   for (const unit of state.units.filter((u) => u.hp > 0)) {
     const fire = burning.has(cellKey(unit))

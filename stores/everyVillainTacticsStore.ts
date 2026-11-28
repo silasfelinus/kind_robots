@@ -20,6 +20,9 @@ import {
   overwatchSelected,
   hunkerSelected,
   hushLaneContains,
+  drytapSlickAt,
+  drytapValveTarget,
+  closeDrytapValve,
   elevationAt,
   previewShot,
   previewSelectedPower,
@@ -1039,7 +1042,7 @@ export const useEveryVillainTacticsStore = defineStore(
         fire: field.fire.some(same),
         fireNext: !!field.fireNext && same(field.fireNext),
         water:
-          hazard?.kind === 'water'
+          hazard?.kind === 'water' && !isDrytapSlick(point)
             ? isWaterLive(turn)
               ? ('live' as const)
               : ('calm' as const)
@@ -1079,6 +1082,27 @@ export const useEveryVillainTacticsStore = defineStore(
           unit.cinderTarget?.y === point.y,
       )
     }
+    function isDrytapWarning(point: Cell) {
+      return state.value.units.some(
+        (unit) =>
+          unit.hp > 0 &&
+          unit.henchmanType === 'drytap' &&
+          unit.drytapTarget?.x === point.x &&
+          unit.drytapTarget?.y === point.y,
+      )
+    }
+    function isDrytapSlick(point: Cell) {
+      return drytapSlickAt(state.value, point)
+    }
+    const hasDrytapWarning = computed(() =>
+      state.value.units.some((unit) => unit.hp > 0 && unit.drytapTarget),
+    )
+    const canCloseDrytapValve = computed(() => !!drytapValveTarget(state.value))
+    function shutDrytapValve() {
+      if (sceneBlocking.value) return
+      closeDrytapValve(state.value)
+      latch()
+    }
     function isHushWarning(point: Cell) {
       return state.value.units.some(
         (unit) =>
@@ -1110,26 +1134,28 @@ export const useEveryVillainTacticsStore = defineStore(
             ...PERSPECTIVES[perspective.value],
             headline: draft.value.objective,
             opening:
-              (draft.value.encounter === 'hushwings'
-                ? 'Nell No-Air leads the one-hit Hushwings. Leave the marked VACUUM corridor before the next enemy turn or disarm the moth to avoid suppression. '
-                : draft.value.encounter === 'quarry-lieutenant'
-                  ? 'Mags Hardpan is an independent four-HP lieutenant, not Foreman Thumpkin. Her drum warns of a 3×3 seismic blast. Move away or land a hit to interrupt it; the one-hit Warren Wreckers still burrow. '
-                  : draft.value.encounter === 'wombat-ronin'
-                    ? 'Lieutenant Teakettle’s Clockwork Wombat Ronin are one-hit teleporters. Each marks a clock-face exit beside a hero, on the side their cover misses, then phases through it next turn. Stand on the exit to jam it. '
-                    : draft.value.encounter === 'licensed-legends'
-                      ? 'Sir Cap-Permission’s Licensed Legends are one-hit wind-up mascots that swarm and block. One that starts its turn beside a hero stamps a seal that locks their signature power for a turn. '
-                      : draft.value.encounter === 'claim-cinders'
-                        ? 'Ash Invoice leads the one-hit Claim Cinders. Leave the INSURED tile before the next enemy turn, or disarm the clerk. Water prevents the stamp from burning. '
-                        : draft.value.encounter === 'warren-wreckers'
-                          ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. ' +
-                            (draft.value.waves?.length
-                              ? 'More shifts tunnel in on rounds ' +
-                                draft.value.waves
-                                  .map((w) => w.round)
-                                  .join(' and ') +
-                                ', each molehill marked a round early. Stand on one to cave it in. '
-                              : '')
-                          : '') +
+              (draft.value.encounter === 'drytap-octopi'
+                ? 'Deputy Plink leads the one-hit Drytap Octopi. Add wet tiles to the arena. Close a marked red valve for one AP before the siphon resolves. Slick ground costs an extra movement AP. '
+                : draft.value.encounter === 'hushwings'
+                  ? 'Nell No-Air leads the one-hit Hushwings. Leave the marked VACUUM corridor before the next enemy turn or disarm the moth to avoid suppression. '
+                  : draft.value.encounter === 'quarry-lieutenant'
+                    ? 'Mags Hardpan is an independent four-HP lieutenant, not Foreman Thumpkin. Her drum warns of a 3×3 seismic blast. Move away or land a hit to interrupt it; the one-hit Warren Wreckers still burrow. '
+                    : draft.value.encounter === 'wombat-ronin'
+                      ? 'Lieutenant Teakettle’s Clockwork Wombat Ronin are one-hit teleporters. Each marks a clock-face exit beside a hero, on the side their cover misses, then phases through it next turn. Stand on the exit to jam it. '
+                      : draft.value.encounter === 'licensed-legends'
+                        ? 'Sir Cap-Permission’s Licensed Legends are one-hit wind-up mascots that swarm and block. One that starts its turn beside a hero stamps a seal that locks their signature power for a turn. '
+                        : draft.value.encounter === 'claim-cinders'
+                          ? 'Ash Invoice leads the one-hit Claim Cinders. Leave the INSURED tile before the next enemy turn, or disarm the clerk. Water prevents the stamp from burning. '
+                          : draft.value.encounter === 'warren-wreckers'
+                            ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. ' +
+                              (draft.value.waves?.length
+                                ? 'More shifts tunnel in on rounds ' +
+                                  draft.value.waves
+                                    .map((w) => w.round)
+                                    .join(' and ') +
+                                  ', each molehill marked a round early. Stand on one to cave it in. '
+                                : '')
+                            : '') +
               draft.value.title +
               ' / ' +
               draft.value.venue +
@@ -1484,6 +1510,8 @@ export const useEveryVillainTacticsStore = defineStore(
         ...fieldClasses(point),
         'cinder-warning': isCinderWarning(point),
         'hush-warning': isHushWarning(point),
+        'drytap-warning': isDrytapWarning(point),
+        'drytap-slick': isDrytapSlick(point),
         elevated: heightAt(point) > 0,
       }
     }
@@ -1505,6 +1533,11 @@ export const useEveryVillainTacticsStore = defineStore(
       isPhaseWarning,
       isCinderWarning,
       isHushWarning,
+      isDrytapWarning,
+      isDrytapSlick,
+      hasDrytapWarning,
+      canCloseDrytapValve,
+      shutDrytapValve,
       oneShotScene,
       civilianCounts,
       canRescue,

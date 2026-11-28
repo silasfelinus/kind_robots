@@ -7173,7 +7173,15 @@ export class PlumberRun implements ArcadeGameInstance {
           if (this.sluiceOpen) {
             g.fillStyle = 'rgba(92, 120, 140, 0.35)'
             g.fillRect(x + 1, y, TILE - 2, 3)
-          } else {
+          } else if (
+            !drawSprite(
+              g,
+              PLUMBER_ART.prop('sluice-gate'),
+              x + TILE / 2,
+              y + TILE,
+              TILE,
+            )
+          ) {
             g.fillStyle = '#3f5868'
             g.fillRect(x, y, TILE, TILE)
             g.fillStyle = '#7fa3b8'
@@ -7443,6 +7451,16 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     for (const plate of this.plates) {
       const sink = plate.down ? 2 : 0
+      if (
+        drawSprite(
+          g,
+          PLUMBER_ART.prop(plate.down ? 'scale-plate-down' : 'scale-plate-up'),
+          plate.x,
+          plate.y,
+          8,
+        )
+      )
+        continue
       g.fillStyle = '#2a3238'
       g.fillRect(plate.x - 8, plate.y - 2, 16, 2)
       g.fillStyle = plate.down ? '#8ad66b' : '#d9a640'
@@ -7704,7 +7722,13 @@ export class PlumberRun implements ArcadeGameInstance {
     for (const thrown of this.thrown) crate(thrown.x, thrown.y)
     for (const fruit of this.fruits) {
       if (fruit.state === 'held' && this.mode !== 'play') continue
-      drawSpringfruit(g, fruit.x, fruit.y, fruit.squash ? 0.72 : 1)
+      const squash = fruit.squash ? 0.72 : 1
+      if (
+        !drawSprite(g, PLUMBER_ART.prop('springfruit'), fruit.x, fruit.y, 18, {
+          squash,
+        })
+      )
+        drawSpringfruit(g, fruit.x, fruit.y, squash)
     }
     if (this.carrying && this.mode === 'play')
       crate(this.hero.x, this.hero.y - 8)

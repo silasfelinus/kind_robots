@@ -108,6 +108,24 @@ for (let frame = 0; frame < 60; frame++) game.update(input)
 assert.equal(game.over, false)
 assert.equal(game.lives, 3)
 
+// Waterworks keyed sprites (conductor art/WATERWORKS-PROPS.yaml destinations); each
+// replaces a code-drawn fallback only once the painted file actually loads.
+for (const key of [
+  'springfruit',
+  'scale-plate-up',
+  'scale-plate-down',
+  'sluice-gate',
+])
+  assert.equal(
+    PLUMBER_ART.prop(key),
+    `/images/arcade/save-the-plumber/props/${key}.webp`,
+  )
+for (const pose of ['idle', 'puddle'])
+  assert.equal(
+    PLUMBER_ART.cast(`gurgle-${pose}`),
+    `/images/arcade/save-the-plumber/cast/gurgle-${pose}.webp`,
+  )
+
 console.log(
   'Save the Plumber art: paths, background keying, heroine handoff and fallbacks verified',
 )

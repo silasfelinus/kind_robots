@@ -61,7 +61,8 @@ const modes = [
   { id: 'alliance', name: 'Alliance' },
 ] as const
 const mode = ref<(typeof modes)[number]['id']>('alliance')
-if ((props.cpu || props.shared) && lab.clashFormat === 'solo') mode.value = 'faction'
+if ((props.cpu || props.shared) && lab.clashFormat === 'solo')
+  mode.value = 'faction'
 const deckId = ref('')
 const factionDeck = ref('starter')
 const constructed = computed(() =>

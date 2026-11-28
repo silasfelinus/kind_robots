@@ -126,10 +126,7 @@
         </article>
       </div>
 
-      <article
-        class="vs-card vs-players"
-        data-testid="slime-vs-players"
-      >
+      <article class="vs-card vs-players" data-testid="slime-vs-players">
         <h3>
           <span aria-hidden="true">⚔</span> VS PLAYERS
           <small
@@ -316,106 +313,106 @@
         <button type="button" @click="optionsDialog?.close()">CLOSE</button>
       </div>
       <SlimeCityTurnEmailPreference />
-        <form
-          class="vs-join vs-find"
-          data-testid="slime-vs-find"
-          @submit.prevent="findOrInvite"
+      <form
+        class="vs-join vs-find"
+        data-testid="slime-vs-find"
+        @submit.prevent="findOrInvite"
+      >
+        <input
+          v-model="lookup"
+          type="text"
+          autocomplete="off"
+          autocapitalize="off"
+          placeholder="Username or email"
+          aria-label="Find a player by username, or invite by email"
+          data-testid="slime-vs-lookup"
+        />
+        <button
+          type="submit"
+          :disabled="!lookup.trim() || pvp.searching"
+          data-testid="slime-vs-lookup-go"
         >
+          {{ isEmail ? 'EMAIL INVITE' : pvp.searching ? '…' : 'FIND' }}
+        </button>
+      </form>
+      <ul
+        v-if="pvp.players.length || pvp.searchMessage || mailNote"
+        class="vs-found"
+        aria-live="polite"
+      >
+        <li v-for="player in pvp.players" :key="player.id">
+          <span class="vs-avatar" aria-hidden="true">
+            <img
+              v-if="avatarOf(player)"
+              :src="avatarOf(player)"
+              alt=""
+              loading="lazy"
+            />
+            <template v-else>{{ initialOf(player.username) }}</template>
+          </span>
+          <b>{{ player.username }}</b>
+          <button
+            type="button"
+            :disabled="
+              requested.includes(player.id) ||
+              player.allowFriendRequests === false
+            "
+            :data-testid="'slime-vs-add-' + player.id"
+            @click="addFriend(player.id)"
+          >
+            {{
+              requested.includes(player.id)
+                ? 'REQUEST SENT'
+                : player.allowFriendRequests === false
+                  ? 'NOT ACCEPTING'
+                  : 'ADD FRIEND'
+            }}
+          </button>
+        </li>
+        <li v-if="pvp.searchMessage" class="vs-hint">
+          {{ pvp.searchMessage }}
+        </li>
+        <li v-if="mailNote" class="vs-hint">{{ mailNote }}</li>
+      </ul>
+      <div class="vs-player-actions">
+        <button
+          type="button"
+          class="vs-go"
+          title="Listed here for any player to join"
+          data-testid="slime-vs-open-challenge"
+          :disabled="pvp.sending || !duelDeck"
+          @click="challenge(true)"
+        >
+          OPEN CHALLENGE ›
+        </button>
+        <button
+          type="button"
+          class="vs-go is-quiet"
+          title="Only someone with your link can join"
+          data-testid="slime-vs-challenge"
+          :disabled="pvp.sending || !duelDeck"
+          @click="challenge(false)"
+        >
+          PRIVATE LINK ›
+        </button>
+        <form class="vs-join" @submit.prevent="joinInvite">
           <input
-            v-model="lookup"
+            v-model="invite"
             type="text"
-            autocomplete="off"
-            autocapitalize="off"
-            placeholder="Username or email"
-            aria-label="Find a player by username, or invite by email"
-            data-testid="slime-vs-lookup"
+            inputmode="url"
+            placeholder="Paste an invite link"
+            aria-label="Invite link or code"
+            data-testid="slime-vs-invite"
           />
           <button
             type="submit"
-            :disabled="!lookup.trim() || pvp.searching"
-            data-testid="slime-vs-lookup-go"
+            :disabled="!inviteId"
+            data-testid="slime-vs-join"
           >
-            {{ isEmail ? 'EMAIL INVITE' : pvp.searching ? '…' : 'FIND' }}
+            JOIN
           </button>
         </form>
-        <ul
-          v-if="pvp.players.length || pvp.searchMessage || mailNote"
-          class="vs-found"
-          aria-live="polite"
-        >
-          <li v-for="player in pvp.players" :key="player.id">
-            <span class="vs-avatar" aria-hidden="true">
-              <img
-                v-if="avatarOf(player)"
-                :src="avatarOf(player)"
-                alt=""
-                loading="lazy"
-              />
-              <template v-else>{{ initialOf(player.username) }}</template>
-            </span>
-            <b>{{ player.username }}</b>
-            <button
-              type="button"
-              :disabled="
-                requested.includes(player.id) ||
-                player.allowFriendRequests === false
-              "
-              :data-testid="'slime-vs-add-' + player.id"
-              @click="addFriend(player.id)"
-            >
-              {{
-                requested.includes(player.id)
-                  ? 'REQUEST SENT'
-                  : player.allowFriendRequests === false
-                    ? 'NOT ACCEPTING'
-                    : 'ADD FRIEND'
-              }}
-            </button>
-          </li>
-          <li v-if="pvp.searchMessage" class="vs-hint">
-            {{ pvp.searchMessage }}
-          </li>
-          <li v-if="mailNote" class="vs-hint">{{ mailNote }}</li>
-        </ul>
-          <div class="vs-player-actions">
-            <button
-              type="button"
-              class="vs-go"
-              title="Listed here for any player to join"
-              data-testid="slime-vs-open-challenge"
-              :disabled="pvp.sending || !duelDeck"
-              @click="challenge(true)"
-            >
-              OPEN CHALLENGE ›
-            </button>
-            <button
-              type="button"
-              class="vs-go is-quiet"
-              title="Only someone with your link can join"
-              data-testid="slime-vs-challenge"
-              :disabled="pvp.sending || !duelDeck"
-              @click="challenge(false)"
-            >
-              PRIVATE LINK ›
-            </button>
-            <form class="vs-join" @submit.prevent="joinInvite">
-              <input
-                v-model="invite"
-                type="text"
-                inputmode="url"
-                placeholder="Paste an invite link"
-                aria-label="Invite link or code"
-                data-testid="slime-vs-invite"
-              />
-              <button
-                type="submit"
-                :disabled="!inviteId"
-                data-testid="slime-vs-join"
-              >
-                JOIN
-              </button>
-            </form>
-          </div>
+      </div>
       <p v-if="pvp.error" class="vs-error" role="alert">{{ pvp.error }}</p>
     </dialog>
   </section>

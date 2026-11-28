@@ -4,6 +4,7 @@ import {
   enclosedPipeRooms,
   parseStage,
   SOLID_CRATE,
+  SOLID_LADDER,
   TILE,
 } from '../arcade/games/savePlumberLevels'
 import { PlumberRun } from '../arcade/games/savePlumberPreview'
@@ -11,9 +12,9 @@ import { emptyInput, type ArcadeButton } from '../arcade/types'
 
 const def = CAMPAIGN.find((stage) => stage.code === '1-2')!
 const stage = parseStage(def)
-assert.equal(stage.doors.length, 2)
-const [entrance, shed] = stage.doors
-assert.ok(entrance && shed)
+assert.equal(stage.doors.length, 4)
+const [entrance, shed, chimneyEntrance, chimney] = stage.doors
+assert.ok(entrance && shed && chimneyEntrance && chimney)
 assert.equal(entrance.col, 9)
 assert.equal(entrance.row, 21)
 assert.equal(shed.col, 30)
@@ -21,7 +22,7 @@ assert.equal(shed.row, 5)
 assert.equal(entrance.to, 1)
 assert.equal(shed.to, 0)
 const rooms = enclosedPipeRooms(stage)
-assert.equal(rooms.length, 1)
+assert.equal(rooms.length, 2)
 const run = new PlumberRun(
   { rng: () => 0.5, sound: { play() {} }, demo: false, hiScore: 0 },
   { customLevel: def },
@@ -96,4 +97,34 @@ walkTo(shed.col)
 press('down')
 assert.equal(run.activePipeRoom, undefined)
 
-console.log('Save the Plumber Copper Greenhouses potting shed: OK')
+walkTo(chimneyEntrance.col)
+assert.ok(run.ground)
+press('down')
+assert.equal(run.hero.x, chimney.col * TILE + TILE / 2)
+assert.deepEqual(run.activePipeRoom, rooms[1])
+assert.equal(chimney.to, 2)
+for (let row = 4; row <= 11; row++)
+  assert.equal(run.solidAt(74, row), SOLID_LADDER)
+const chimneyTokens = run.tokens
+walkTo(79)
+rest(30)
+assert.equal(run.hero.y + 20, 12 * TILE)
+walkTo(77)
+walkTo(79)
+assert.equal(run.tokens, chimneyTokens + 2, 'both floor tokens are reachable')
+walkTo(74)
+const climb = emptyInput()
+climb.held.up = true
+run.update(climb)
+assert.ok(run.climbing)
+for (let i = 0; i < 120 && run.climbing; i++) run.update(climb)
+assert.ok(run.ground)
+assert.equal(run.hero.y + 20, 4 * TILE)
+walkTo(chimney.col)
+press('down')
+assert.equal(run.hero.x, chimneyEntrance.col * TILE + TILE / 2)
+assert.equal(run.activePipeRoom, undefined)
+assert.equal(run.deaths, 0)
+assert.equal(run.lives, 3)
+
+console.log('Save the Plumber Copper Greenhouses shed and chimney: OK')

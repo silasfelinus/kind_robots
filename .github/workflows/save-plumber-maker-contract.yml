@@ -19,6 +19,7 @@ on:
       - 'utils/scripts/verifyCabinetSavePlumberScalePlates.test.ts'
       - 'utils/scripts/verifyCabinetSavePlumberGurgle.test.ts'
       - 'utils/scripts/verifyCabinetSavePlumberWildwater.test.ts'
+      - 'utils/scripts/verifyCabinetSavePlumberPottingShed.test.ts'
       - '.github/workflows/save-plumber-maker-contract.yml'
 permissions:
   contents: read
@@ -56,3 +57,5 @@ jobs:
         run: npx tsx utils/scripts/verifyCabinetSavePlumberGurgle.test.ts
       - name: Verify Wildwater activation, rooftop climb and persistent pearl
         run: npx tsx utils/scripts/verifyCabinetSavePlumberWildwater.test.ts
+      - name: Verify Copper Greenhouses shed and chimney traversal
+        run: npx tsx utils/scripts/verifyCabinetSavePlumberPottingShed.test.ts

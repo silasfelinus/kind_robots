@@ -713,9 +713,7 @@ export const RAINBOW_SPOOL: Fairground = {
 }
 
 export function fairgroundAt(index: number): Fairground {
-  return index === SECRET_FAIR_INDEX
-    ? RAINBOW_SPOOL
-    : FAIRGROUNDS[index]!
+  return index === SECRET_FAIR_INDEX ? RAINBOW_SPOOL : FAIRGROUNDS[index]!
 }
 
 export const FIRST_EVENT = 0

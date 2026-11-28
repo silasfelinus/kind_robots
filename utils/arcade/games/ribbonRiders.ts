@@ -1989,7 +1989,9 @@ class RibbonRiders implements ArcadeGameInstance {
       ? { ...carriedKit, patterns: [...carriedKit.patterns] }
       : newKit()
     this.continued = false
-    this.openFairground(choice === 'spool' ? SECRET_FAIR_INDEX : (offer?.fair ?? 0))
+    this.openFairground(
+      choice === 'spool' ? SECRET_FAIR_INDEX : (offer?.fair ?? 0),
+    )
   }
 
   private leaveShop() {
@@ -2976,16 +2978,32 @@ class RibbonRiders implements ArcadeGameInstance {
         outline: INK,
       },
     )
-    drawText(g, this.trueEnding ? 'FIVE FAIRS. ONE FESTIVAL.' : 'FOUR FAIRS. FOUR MARSHALS.', W / 2, 75, {
-      align: 'center',
-      color: RAMPS.cream[4],
-      outline: INK,
-    })
-    drawText(g, this.trueEnding ? 'THE SKY BLOOMS IN EVERY COLOUR' : 'THE RIBBONS LIGHT THE NIGHT', W / 2, 96, {
-      align: 'center',
-      color: RAMPS.pink[3],
-      outline: INK,
-    })
+    drawText(
+      g,
+      this.trueEnding
+        ? 'FIVE FAIRS. ONE FESTIVAL.'
+        : 'FOUR FAIRS. FOUR MARSHALS.',
+      W / 2,
+      75,
+      {
+        align: 'center',
+        color: RAMPS.cream[4],
+        outline: INK,
+      },
+    )
+    drawText(
+      g,
+      this.trueEnding
+        ? 'THE SKY BLOOMS IN EVERY COLOUR'
+        : 'THE RIBBONS LIGHT THE NIGHT',
+      W / 2,
+      96,
+      {
+        align: 'center',
+        color: RAMPS.pink[3],
+        outline: INK,
+      },
+    )
     for (let k = 0; k < 4; k++) {
       const y = 120 + k * 22
       drawSprite(g, bowSprite(RAMPS.gold[3]), 35, y)
@@ -3065,11 +3083,17 @@ class RibbonRiders implements ArcadeGameInstance {
       outline: INK,
     })
     if (this.champion) {
-      drawText(g, this.trueChampion ? '* RAINBOW CHAMPION *' : '* FESTIVAL CHAMPION *', W / 2, 264, {
-        align: 'center',
-        color: RAMPS.gold[4],
-        outline: INK,
-      })
+      drawText(
+        g,
+        this.trueChampion ? '* RAINBOW CHAMPION *' : '* FESTIVAL CHAMPION *',
+        W / 2,
+        264,
+        {
+          align: 'center',
+          color: RAMPS.gold[4],
+          outline: INK,
+        },
+      )
     }
     drawText(g, 'UP/DOWN TO CHOOSE   A TO RIDE', W / 2, H - 20, {
       align: 'center',

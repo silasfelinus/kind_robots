@@ -1256,8 +1256,12 @@ class GlitchGarden implements ArcadeGameInstance {
     if (!this.crow) {
       if (--this.crowTimer > 0) return
       this.crowTimer = CROW_EVERY
-      if (!this.flowers.length) return
-      const target = this.flowers[Math.floor(this.rng() * this.flowers.length)]!
+      const targets = this.flowers.filter(
+        (flower) =>
+          this.boss?.id !== 'root-kernel' || flower.col !== this.rootLane,
+      )
+      if (!targets.length) return
+      const target = targets[Math.floor(this.rng() * targets.length)]!
       const x = target.col < COLS / 2 ? W - 8 : 8
       const y = HUD + 16
       this.crow = {
@@ -2087,9 +2091,15 @@ class GlitchGarden implements ArcadeGameInstance {
     if (this.moth) consider(this.moth.x, this.moth.y)
     if (this.beetle) consider(this.beetle.x, this.beetle.y)
     if (this.snail) consider(this.snail.x, this.snail.y)
-    if (this.boss?.id === 'root-kernel' && !this.boss.defeated && beam.powers.length === 4) {
+    if (
+      this.boss?.id === 'root-kernel' &&
+      !this.boss.defeated &&
+      beam.powers.length === 4
+    ) {
       const root = this.rootPosition()
-      consider(root.x, root.y)
+      const gap = root.x - beam.x
+      beam.x += Math.sign(gap) * Math.min(1, Math.abs(gap))
+      return
     }
     const target = best as { x: number; d: number } | null
     if (!target) return
@@ -2996,7 +3006,9 @@ class GlitchGarden implements ArcadeGameInstance {
     this.crow = null
     this.frostSprite = null
     this.mole = null
+    this.apples = []
     this.leafPiles = []
+    this.cancelSplashes()
     for (let row = 5; row < BED_TOP - 2; row += 4)
       for (let col = (row + phase * 3) % 7; col < COLS; col += 7)
         if (Math.abs(col - this.rootLane) > 1)
@@ -3022,6 +3034,9 @@ class GlitchGarden implements ArcadeGameInstance {
     }
     this.beetleTimer = 420
     this.plantLeaves(this.wave.leaves, false)
+    this.leafPiles = this.leafPiles.filter(
+      (leaf) => Math.abs(leaf.col - this.rootLane) > 1,
+    )
     this.plantPumpkins(this.wave)
     this.plantFrost(this.wave.frost)
     this.plantSnowballs(this.wave.snowballs)

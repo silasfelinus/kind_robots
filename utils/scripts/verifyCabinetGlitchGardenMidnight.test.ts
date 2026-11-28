@@ -17,6 +17,13 @@ type Probe = {
   save: GardenSave | null
   flowers: Array<{ col: number; row: number; prism: Prism }>
   rootLane: number
+  worms: unknown[]
+  pumpkins: unknown[]
+  snowballs: unknown[]
+  leafPiles: unknown[]
+  inchworms: unknown[]
+  crow: unknown
+  crowTimer: number
   lap: number
   level: number
   update(input: ReturnType<typeof emptyInput>): void
@@ -25,6 +32,8 @@ type Probe = {
   newBeam(x: number, y: number, child: boolean): Beam
   pickUpPower(beam: Beam, col: number, row: number): void
   hitRootKernel(beam: Beam): boolean
+  stepBeam(beam: Beam): boolean
+  updateCrow(): void
   rootPosition(): { x: number; y: number }
 }
 const all = GARDENS.map((g) => g.id)
@@ -61,11 +70,27 @@ for (let phase = 1; phase <= 3; phase++) {
   assert.ok(g.hitRootKernel(weak))
   assert.equal(g.boss?.phase, phase, 'unpowered spray cannot damage the core')
   assert.ok(!g.boss?.defeated)
-  const full = g.newBeam(root.x, root.y, false)
-  for (const f of [...g.flowers].sort((a, b) => b.row - a.row))
-    g.pickUpPower(full, f.col, f.row)
+  if (phase === 2) {
+    g.crowTimer = 0
+    g.updateCrow()
+    assert.equal(g.crow, null, 'a crow cannot steal required core prisms')
+  }
+  // Isolate the core from the moving enemies, then fly a real beam from
+  // the flowerbed through the authored firing lane, not a synthetic hit.
+  g.worms = []
+  g.pumpkins = []
+  g.snowballs = []
+  g.leafPiles = []
+  g.inchworms = []
+  const full = g.newBeam(root.x, 288, false)
+  for (let i = 0; i < 60; i++) {
+    if (!g.stepBeam(full)) break
+  }
   assert.deepEqual(full.powers, PRISM_ORDER)
-  assert.ok(g.hitRootKernel(full))
+  assert.ok(
+    g.boss?.phase === phase + 1 || g.boss?.defeated,
+    'a real four-colour beam advances the core',
+  )
 }
 assert.ok(g.boss?.defeated)
 g.advance()

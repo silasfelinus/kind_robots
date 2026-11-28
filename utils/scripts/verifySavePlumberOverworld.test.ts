@@ -371,10 +371,7 @@ for (let i = 2; i <= PLUMBER_RUN_HISTORY_LIMIT + 3; i++)
     i + 100,
   )
 assert.equal(fullHistory.runs?.length, PLUMBER_RUN_HISTORY_LIMIT)
-assert.equal(
-  fullHistory.runs?.[0]?.id,
-  memoryId(PLUMBER_RUN_HISTORY_LIMIT + 3),
-)
+assert.equal(fullHistory.runs?.[0]?.id, memoryId(PLUMBER_RUN_HISTORY_LIMIT + 3))
 assert.ok(
   validPlumberCloudSave(readPlumberFile({ ...cloud, album: fullHistory })),
 )

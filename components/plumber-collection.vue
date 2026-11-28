@@ -88,7 +88,9 @@
           <strong>FILE {{ index + 1 }}</strong>
           <template v-if="slot">
             <span>{{ slot.name ?? heroineName(slot.heroine) }}</span>
-            <span>{{ slot.cleared ? 'ADVENTURE COMPLETE' : 'IN PROGRESS' }}</span>
+            <span>{{
+              slot.cleared ? 'ADVENTURE COMPLETE' : 'IN PROGRESS'
+            }}</span>
             <span
               >{{ slot.done?.length ?? 0 }} stages ·
               {{ slot.gears?.length ?? 0 }} gears</span
@@ -103,8 +105,8 @@
       </div>
       <p class="plumber-album-footnote">
         Souvenirs and the latest {{ PLUMBER_RUN_HISTORY_LIMIT }} adventure
-        memories survive replacing a run slot. Signed-in accounts sync their
-        own collection; guest progress stays on this device.
+        memories survive replacing a run slot. Signed-in accounts sync their own
+        collection; guest progress stays on this device.
       </p>
     </template>
     <template v-else>

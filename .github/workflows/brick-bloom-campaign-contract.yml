@@ -1,0 +1,40 @@
+name: Brick Bloom Campaign Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/arcade/**'
+      - 'utils/scripts/**'
+      - '.github/workflows/brick-bloom-campaign-contract.yml'
+      - 'package.json'
+      - 'package-lock.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: brick-bloom-campaign-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  brick-bloom:
+    name: Brick Bloom walls, bosses and campaign endings
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CYPRESS_INSTALL_BINARY: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Verify all greenhouse engine suites
+        run: |
+          for suite in utils/scripts/verifyCabinetBrickBloom*.test.ts; do
+            echo "::group::$suite"
+            npx --no-install tsx "$suite" || exit $?
+            echo "::endgroup::"
+          done

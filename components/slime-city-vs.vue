@@ -71,41 +71,12 @@
         </article>
         <article class="vs-card vs-cpu" data-testid="slime-vs-cpu">
           <h3>VS CPU</h3>
-          <div class="vs-format" role="group" aria-label="Deck format">
-            <button
-              type="button"
-              :aria-pressed="lab.clashFormat === 'solo'"
-              data-testid="slime-vs-solo"
-              @click="lab.clashFormat = 'solo'"
-            >
-              SOLO
-            </button>
-            <button
-              type="button"
-              :aria-pressed="lab.clashFormat === 'alliance'"
-              data-testid="slime-vs-alliance"
-              @click="lab.clashFormat = 'alliance'"
-            >
-              ALLIANCE
-            </button>
-          </div>
-          <label v-if="lab.clashFormat === 'alliance'" class="vs-deck">
-            <span>DECK</span>
-            <select
-              :value="lab.libraryId ?? ''"
-              data-testid="slime-vs-deck"
-              @change="pickDeck"
-            >
-              <option value="">{{ lab.team.name }} saved alliance</option>
-              <option
-                v-for="deck in readyDecks"
-                :key="deck.id"
-                :value="deck.id"
-              >
-                {{ deck.name }}
-              </option>
-            </select>
-          </label>
+          <SlimeCityDuelDeckPicker
+            v-model="cpuDeck"
+            :team="lab.activeTeam"
+            class="vs-cpu-deck"
+            cpu
+          />
           <p class="vs-note">
             {{
               lab.cpuRewardsAvailable && lab.progressLoaded
@@ -121,7 +92,7 @@
             <p class="vs-note">
               Unfinished match vs {{ teamName(lab.vsBout.launch.enemy) }} ·
               {{
-                lab.vsBout.launch.format === 'alliance' ? 'ALLIANCE' : 'SOLO'
+                lab.vsBout.launch.format === 'alliance' ? 'ALLIANCE' : 'FACTION'
               }}
               · {{ lab.vsBout.commands.length }} moves in
             </p>
@@ -150,8 +121,8 @@
             class="vs-go"
             :class="{ 'is-quiet': lab.vsBout }"
             data-testid="slime-vs-fight-cpu"
-            :disabled="lab.progressBusy"
-            @click="lab.playClashFormat()"
+            :disabled="lab.progressBusy || !cpuDeck"
+            @click="cpuDeck && lab.playClashFormat(cpuDeck.format, cpuDeck)"
           >
             FIGHT THE CPU ›
           </button>
@@ -452,15 +423,7 @@ function selectCrew(id: TeamId): void {
   if (id !== lab.activeTeam) lab.chooseTeam(id)
 }
 
-const readyDecks = computed(() =>
-  lab.library.filter(
-    (deck) => deck.general === lab.activeTeam && lab.libraryDeckReady(deck.id),
-  ),
-)
-function pickDeck(event: Event): void {
-  const id = (event.target as HTMLSelectElement).value
-  if (id) lab.selectLibraryDeck(id)
-}
+const cpuDeck = ref<ClashRewardSetup | null>(null)
 function teamName(id: TeamId): string {
   return TEAMS.find((team) => team.id === id)?.name ?? id
 }
@@ -730,6 +693,7 @@ onMounted(() => {
   align-items: center;
   gap: 0.4rem;
 }
+.vs-cpu .vs-cpu-deck,
 .vs-cpu .vs-deck,
 .vs-cpu .vs-note,
 .vs-cpu .vs-resume {

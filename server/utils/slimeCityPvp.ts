@@ -36,6 +36,8 @@ import {
 import { accountWithStory } from '~/utils/slimeCity/storySave'
 import {
   newProgression,
+  recordChallengeBattle,
+  refreshPeriods,
   restoreProgression,
 } from '~/utils/slimeCity/progression'
 import type { ClashState } from '~/utils/slimeCity/clash'
@@ -512,21 +514,37 @@ async function settleDuelMeat(
   const rewards = pvpMeatRewards(state, outcome, record.joinedAt, Date.now())
   if (record.guestId === null) return rewards
   const seats = [
-    { userId: row.userId, amount: rewards.player },
-    { userId: record.guestId, amount: rewards.enemy },
+    { userId: row.userId, amount: rewards.player, seat: 'player' as const },
+    { userId: record.guestId, amount: rewards.enemy, seat: 'enemy' as const },
   ].sort((a, b) => a.userId - b.userId)
-  for (const { userId, amount } of seats) {
+  for (const { userId, amount, seat } of seats) {
     if (!amount) continue
     const wallet = await tx.slimeCityAccount.upsert({
       where: { userId },
       update: {},
       create: { userId, data: asJson(newProgression()) },
     })
-    const before = restoreProgression(wallet.data)
+    const before = refreshPeriods(restoreProgression(wallet.data))
     const receipt = 'pvp:' + row.id
     if (before.receipts.includes(receipt)) continue
+    const questOutcome = {
+      victor:
+        outcome === 'draw'
+          ? ('draw' as const)
+          : outcome === seat
+            ? ('player' as const)
+            : ('enemy' as const),
+      mode: 'clash',
+      format: state.allies?.[seat] ? ('alliance' as const) : ('solo' as const),
+      teamId: state.teams[seat],
+      plays: state.commands.flatMap((command) =>
+        command.t === 'play' && command.side === seat ? [command.card] : [],
+      ),
+    }
     const after = {
       ...before,
+      daily: recordChallengeBattle(before.daily, questOutcome),
+      weekly: recordChallengeBattle(before.weekly, questOutcome),
       meat: before.meat + amount,
       receipts: [...before.receipts.slice(-255), receipt],
       lastReward: 'VS duel · +' + amount + ' Meat',

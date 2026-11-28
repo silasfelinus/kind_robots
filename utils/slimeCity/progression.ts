@@ -23,7 +23,14 @@ export const DAILY_PAID_BATTLES = 10
 export type Rarity = 'common' | 'uncommon' | 'rare'
 export type ChallengePeriod = 'daily' | 'weekly'
 export type ChallengeMetric =
-  'battles' | 'wins' | 'blackoutWins' | 'creatures' | 'plays' | 'crews'
+  | 'battles'
+  | 'wins'
+  | 'blackoutWins'
+  | 'factionWins'
+  | 'allianceWins'
+  | 'creatures'
+  | 'plays'
+  | 'crews'
 export interface Challenge {
   id: string
   period: ChallengePeriod
@@ -39,6 +46,8 @@ export interface ChallengeWindow {
   battles: number
   wins: number
   blackoutWins: number
+  factionWins: number
+  allianceWins: number
   creatures: number
   plays: number
   crews: string[]
@@ -175,7 +184,7 @@ export const CHALLENGES: Challenge[] = [
     id: 'daily-entry',
     period: 'daily',
     title: 'Punch the Meat Clock',
-    description: 'Finish one CPU bout. Every shift pays in Meat.',
+    description: 'Finish one eligible match. Every shift pays in Meat.',
     metric: 'battles',
     target: 1,
     meat: 20,
@@ -195,17 +204,58 @@ export const CHALLENGES: Challenge[] = [
     id: 'daily-summons',
     period: 'daily',
     title: 'Stock the Freezer',
-    description: 'Play three creature cards in CPU bouts.',
+    description: 'Play three creature cards in eligible matches.',
     metric: 'creatures',
     target: 3,
     meat: 25,
     xp: 25,
   },
   {
+    id: 'daily-faction-win',
+    period: 'daily',
+    title: 'Crew Cut',
+    description: 'Win one Faction match.',
+    metric: 'factionWins',
+    target: 1,
+    meat: 25,
+    xp: 25,
+  },
+  {
+    id: 'daily-alliance-win',
+    period: 'daily',
+    title: 'Double Chop',
+    description: 'Win one Alliance match.',
+    metric: 'allianceWins',
+    target: 1,
+    meat: 25,
+    xp: 25,
+  },
+  {
+    id: 'weekly-faction-wins',
+    period: 'weekly',
+    title: 'House Specialty',
+    description: 'Win three Faction matches.',
+    metric: 'factionWins',
+    target: 3,
+    meat: 60,
+    xp: 60,
+  },
+  {
+    id: 'weekly-alliance-wins',
+    period: 'weekly',
+    title: 'Mixed Meat Syndicate',
+    description: 'Win three Alliance matches.',
+    metric: 'allianceWins',
+    target: 3,
+    meat: 60,
+    xp: 60,
+  },
+  {
     id: 'weekly-victories',
     period: 'weekly',
     title: 'Prime Cut Champion',
-    description: 'Win five CPU bouts. The Exchange weighs every victory.',
+    description:
+      'Win five eligible matches. The Exchange weighs every victory.',
     metric: 'wins',
     target: 5,
     meat: 125,
@@ -225,7 +275,7 @@ export const CHALLENGES: Challenge[] = [
     id: 'weekly-cards',
     period: 'weekly',
     title: 'Butcher-Paper Riot',
-    description: 'Play 24 cards in CPU bouts.',
+    description: 'Play 24 cards in eligible matches.',
     metric: 'plays',
     target: 24,
     meat: 110,
@@ -307,6 +357,8 @@ function window(date: Date, period: ChallengePeriod): ChallengeWindow {
     battles: 0,
     wins: 0,
     blackoutWins: 0,
+    factionWins: 0,
+    allianceWins: 0,
     creatures: 0,
     plays: 0,
     crews: [],
@@ -428,6 +480,7 @@ export interface BattleOutcome {
   receipt: string
   /** 'blackout' (legacy) or 'clash'. Clash wins count as the pit's wins. */
   mode: string
+  format?: 'solo' | 'alliance'
   teamId: TeamId
   /** The player's card plays and how many of them were creatures. */
   plays: string[]
@@ -465,6 +518,40 @@ export function awardBattle(
     now,
   )
 }
+/** Update a period from a server-verified match, independently of base pay. */
+export function recordChallengeBattle(
+  win: ChallengeWindow,
+  outcome: Pick<
+    BattleOutcome,
+    'victor' | 'mode' | 'format' | 'teamId' | 'plays'
+  >,
+  paid = false,
+): ChallengeWindow {
+  const victory = outcome.victor === 'player'
+  const creatures = outcome.plays.filter((id) =>
+    CARDS.some((card) => card.id === id && card.kind === 'creature'),
+  ).length
+  return {
+    ...win,
+    battles: win.battles + 1,
+    wins: win.wins + Number(victory),
+    blackoutWins:
+      win.blackoutWins +
+      Number(
+        victory && (outcome.mode === 'blackout' || outcome.mode === 'clash'),
+      ),
+    factionWins: win.factionWins + Number(victory && outcome.format === 'solo'),
+    allianceWins:
+      win.allianceWins + Number(victory && outcome.format === 'alliance'),
+    creatures: win.creatures + creatures,
+    plays: win.plays + outcome.plays.length,
+    crews: win.crews.includes(outcome.teamId)
+      ? win.crews
+      : [...win.crews, outcome.teamId],
+    paidBattles: win.paidBattles + Number(paid),
+  }
+}
+
 /** Pay one verified battle: base XP and Meat, bounty counters, receipts. */
 export function awardOutcome(
   original: Progression,
@@ -481,25 +568,8 @@ export function awardOutcome(
   const earnedMeat = !paid
     ? 0
     : (outcome.meat ?? (victory ? 45 : draw ? 15 : 10))
-  const creatures = outcome.plays.filter((id) =>
-    CARDS.some((card) => card.id === id && card.kind === 'creature'),
-  ).length
-  const updateWindow = (win: ChallengeWindow): ChallengeWindow => ({
-    ...win,
-    battles: win.battles + 1,
-    wins: win.wins + Number(victory),
-    blackoutWins:
-      win.blackoutWins +
-      Number(
-        victory && (outcome.mode === 'blackout' || outcome.mode === 'clash'),
-      ),
-    creatures: win.creatures + creatures,
-    plays: win.plays + outcome.plays.length,
-    crews: win.crews.includes(outcome.teamId)
-      ? win.crews
-      : [...win.crews, outcome.teamId],
-    paidBattles: win.paidBattles + Number(paid),
-  })
+  const updateWindow = (win: ChallengeWindow): ChallengeWindow =>
+    recordChallengeBattle(win, outcome, paid)
   const ever = state.evergreen
   const bout = EVERGREEN_BOUTS.find((kind) => kind === outcome.bout)
   const evergreen: EvergreenLedger = {
@@ -719,6 +789,8 @@ export function restoreProgression(
       battles: n(w.battles),
       wins: n(w.wins),
       blackoutWins: n(w.blackoutWins),
+      factionWins: n(w.factionWins),
+      allianceWins: n(w.allianceWins),
       creatures: n(w.creatures),
       plays: n(w.plays),
       paidBattles: n(w.paidBattles),

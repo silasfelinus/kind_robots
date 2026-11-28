@@ -207,6 +207,7 @@ export function clashOutcome(
     victor: s.victor!,
     receipt: JSON.stringify(['clash', matchId]),
     mode: 'clash',
+    format: s.allies?.player ? 'alliance' : 'solo',
     teamId: s.teams.player,
     plays: s.commands
       .filter(

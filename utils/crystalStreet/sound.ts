@@ -10,6 +10,12 @@
 import type { RunState } from './rules'
 import type { EndingTier } from './types'
 
+export function normalizeVolume(value: unknown, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value)
+    ? Math.max(0, Math.min(100, Math.round(value)))
+    : fallback
+}
+
 export type Cue =
   | 'roll'
   | 'success'
@@ -73,10 +79,20 @@ export class StreetSound {
   private context: AudioContext | null = null
   private master: GainNode | null = null
   private noise: AudioBuffer | null = null
-  volume = 0.6
+  private level = 0.6
+
+  get volume(): number {
+    return this.level
+  }
+
+  set volume(value: number) {
+    this.level = Math.max(0, Math.min(1, value))
+    if (this.master) this.master.gain.value = 0.5 * this.level
+  }
 
   /** Play cues one after another; a roll leaves room for its rattle. */
   play(cues: readonly Cue[]): void {
+    if (!cues.length || this.volume === 0) return
     const context = this.ready()
     if (!context) return
     let at = context.currentTime + 0.02

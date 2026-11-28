@@ -41,6 +41,13 @@ import {
   cutsceneTriggeredBy,
   cutscenesFor,
 } from '../monstrique/cutscenes'
+import {
+  CAST_FIGURES,
+  CAST_PORTRAITS,
+  ROOM_BACKDROPS,
+  STAGE_MARKS,
+  portraitFor,
+} from '../monstrique/stageArt'
 
 const styles = Object.keys(ART_STYLES) as ArtStyleId[]
 const audiences: MonstriqueAudience[] = ['general', 'mature']
@@ -354,6 +361,95 @@ assert.match(
   repoFile('components/monstress-convention/monstress-convention-scene.vue'),
   /data-testid="monstrique-ending-plate"[\s\S]*?:src="endingPlate\.src"/,
 )
+
+// t-017: Chapter 1 painted rooms and cut-out cast (round CH1-CAST-AND-MOTEL-R1,
+// ArtImages 280900-280911, all general-safe) replace the vector stage art;
+// SVG survives only as the missing-art fallback.
+const painted = Object.keys(ROOM_BACKDROPS) as RoomId[]
+assert.deepEqual(painted.sort(), [
+  'balcony',
+  'front-office',
+  'ice-alcove',
+  'investigators-room',
+  'motel-exterior',
+  'neighbor-room',
+  'odette-room',
+])
+const publicFile = (src: string) =>
+  existsSync(new URL('../../public' + src, import.meta.url))
+for (const room of painted) {
+  const art = ROOM_BACKDROPS[room]!
+  assert.match(art.src, /^\/monstress-convention\/rooms\/[a-z0-9-]+\.webp$/)
+  assert.ok(publicFile(art.src), art.src + ' is committed')
+  assert.ok(art.alt.length > 40, room + ' backdrop alt text')
+  assert.ok(art.artImageId >= 280905 && art.artImageId <= 280911)
+  for (const audience of audiences)
+    for (const hotspot of roomForAudience(room, audience).hotspots) {
+      assert.ok(
+        hotspot.x >= 2 && hotspot.x <= 98 && hotspot.y >= 14 && hotspot.y <= 92,
+        room + '/' + hotspot.id + ' pip sits inside the painting safe area',
+      )
+      const model = modelForHotspot(hotspot.id)
+      if (model && model.id !== 'norb')
+        assert.ok(
+          STAGE_MARKS[hotspot.id],
+          hotspot.id + ' stands on a mark in a painted room',
+        )
+    }
+}
+assert.ok(!ROOM_BACKDROPS['city-map'] && !ROOM_BACKDROPS['convention-center'])
+for (const [id, figure] of Object.entries(CAST_FIGURES)) {
+  assert.match(figure.src, /^\/monstress-convention\/cast\/[a-z]+\.webp$/)
+  assert.ok(publicFile(figure.src), figure.src + ' is committed')
+  assert.ok(figure.alt.length > 30, id + ' figure alt text')
+  assert.ok(figure.artImageId >= 280900 && figure.artImageId <= 280904)
+  assert.ok(figure.width > 0 && figure.height > figure.width)
+  assert.ok(
+    CHARACTER_MODELS[id as keyof typeof CHARACTER_MODELS].hotspots.some(
+      (hotspot) => STAGE_MARKS[hotspot],
+    ),
+    id + ' has a stage mark',
+  )
+}
+assert.ok(!CAST_FIGURES.iris && !CAST_FIGURES.norb && !CAST_FIGURES.cleo)
+for (const [id, set] of Object.entries(CAST_PORTRAITS)) {
+  assert.ok(set.neutral, id + ' has a neutral portrait')
+  for (const portrait of Object.values(set)) {
+    assert.ok(publicFile(portrait.src), portrait.src + ' is committed')
+    assert.ok(portrait.alt.length > 0)
+  }
+}
+for (const mark of Object.values(STAGE_MARKS))
+  assert.ok(mark.x > 0 && mark.x < 100 && mark.y > 0 && mark.y <= 100)
+assert.equal(
+  portraitFor('odette', 'shock')?.src.endsWith('double-take.webp'),
+  true,
+)
+assert.equal(
+  portraitFor('violet', 'smirk')?.src.endsWith('laughing.webp'),
+  true,
+)
+assert.equal(
+  portraitFor('marta', 'shock')?.src.endsWith('marta-neutral.webp'),
+  true,
+)
+assert.equal(portraitFor('iris', 'neutral'), null)
+assert.match(
+  scene,
+  /v-if="backdrop"[\s\S]*?:src="backdrop\.src"[\s\S]*?:alt="backdrop\.alt"[\s\S]*?<svg\s+v-else[\s\S]*?data-testid="monstrique-room-fallback"/,
+  'painted backdrop first, SVG only as the fallback',
+)
+for (const room of painted)
+  assert.doesNotMatch(
+    scene,
+    new RegExp("story\\.state\\.room === '" + room + "'"),
+    room + ' no longer carries hand-drawn SVG',
+  )
+assert.match(
+  scene,
+  /data-testid="monstrique-stage-figure"[\s\S]*?:src="actor\.figure\.src"/,
+)
+assert.match(scene, /v-if="speakerPortrait"[\s\S]*?:src="speakerPortrait\.src"/)
 
 console.log(
   'Monstrique art pipeline: model sheets, multi-style prompts, LoRA datasets, dual-medium cutscenes, score and narrator passed',

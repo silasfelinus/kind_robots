@@ -30,61 +30,95 @@ export interface WalkArea {
   floor: StageRect[]
   blocked: StageRect[]
   entry: StagePoint
+  /** Where Iris appears when she arrives from a given room's door. */
+  entries?: Partial<Record<RoomId, StagePoint>>
+  /** Height (stage %) of a full-height character at the far and near floor. */
+  depth?: { farY: number; far: number; nearY: number; near: number }
 }
 
+/**
+ * Floors and furniture fitted to each painted background (utils/monstrique/
+ * stageArt.ts). Rooms without a painting keep their vector-set floors.
+ */
 export const WALK_AREAS: Record<RoomId, WalkArea> = {
   'motel-exterior': {
-    floor: [{ x: 2, y: 74, w: 96, h: 24 }],
-    blocked: [{ x: 78, y: 76, w: 8, h: 9 }],
-    entry: { x: 20, y: 90 },
+    floor: [{ x: 2, y: 67, w: 96, h: 31 }],
+    blocked: [
+      { x: 71, y: 64, w: 27, h: 13 },
+      { x: 57, y: 79, w: 6, h: 4 },
+    ],
+    entry: { x: 30, y: 88 },
+    entries: {
+      'front-office': { x: 27, y: 70 },
+      'ice-alcove': { x: 44, y: 70 },
+      'city-map': { x: 50, y: 95 },
+    },
+    depth: { farY: 67, far: 22, nearY: 98, near: 40 },
   },
   'front-office': {
-    floor: [{ x: 2, y: 64, w: 96, h: 34 }],
-    blocked: [
-      { x: 44, y: 64, w: 32, h: 10 },
-      { x: 80, y: 64, w: 18, h: 8 },
+    floor: [
+      { x: 1, y: 62, w: 14, h: 36 },
+      { x: 1, y: 93, w: 97, h: 5 },
+      { x: 70, y: 84, w: 12, h: 14 },
     ],
-    entry: { x: 12, y: 90 },
+    blocked: [],
+    entry: { x: 8, y: 90 },
+    entries: { balcony: { x: 76, y: 92 } },
+    depth: { farY: 62, far: 42, nearY: 98, near: 64 },
   },
   'ice-alcove': {
-    floor: [{ x: 2, y: 60, w: 96, h: 38 }],
-    blocked: [
-      { x: 46, y: 60, w: 18, h: 10 },
-      { x: 84, y: 60, w: 14, h: 12 },
+    floor: [
+      { x: 28, y: 79, w: 53, h: 19 },
+      { x: 21, y: 88, w: 8, h: 10 },
     ],
-    entry: { x: 12, y: 90 },
+    blocked: [],
+    entry: { x: 26, y: 94 },
+    entries: { balcony: { x: 74, y: 82 } },
+    depth: { farY: 79, far: 52, nearY: 98, near: 72 },
   },
   balcony: {
     floor: [
-      { x: 2, y: 84, w: 30, h: 14 },
-      { x: 20, y: 74, w: 30, h: 16 },
-      { x: 40, y: 62, w: 30, h: 16 },
-      { x: 60, y: 52, w: 38, h: 14 },
+      { x: 18, y: 84, w: 42, h: 14 },
+      { x: 19, y: 72, w: 31, h: 12 },
+      { x: 20, y: 62, w: 23, h: 10 },
+      { x: 21, y: 54, w: 16, h: 8 },
     ],
     blocked: [],
-    entry: { x: 12, y: 92 },
+    entry: { x: 26, y: 94 },
+    entries: {
+      'investigators-room': { x: 34, y: 62 },
+      'neighbor-room': { x: 56, y: 95 },
+      'odette-room': { x: 50, y: 87 },
+    },
+    depth: { farY: 54, far: 22, nearY: 98, near: 78 },
   },
   'investigators-room': {
-    floor: [{ x: 2, y: 64, w: 96, h: 34 }],
-    blocked: [
-      { x: 36, y: 76, w: 26, h: 14 },
-      { x: 24, y: 66, w: 14, h: 7 },
+    floor: [
+      { x: 42, y: 80, w: 14, h: 18 },
+      { x: 42, y: 93, w: 48, h: 5 },
+      { x: 80, y: 70, w: 10, h: 28 },
     ],
-    entry: { x: 88, y: 90 },
+    blocked: [{ x: 46, y: 84, w: 5, h: 3 }],
+    entry: { x: 85, y: 94 },
+    depth: { farY: 70, far: 50, nearY: 98, near: 74 },
   },
   'neighbor-room': {
-    floor: [{ x: 2, y: 64, w: 96, h: 34 }],
-    blocked: [{ x: 20, y: 64, w: 16, h: 6 }],
-    entry: { x: 12, y: 90 },
+    floor: [
+      { x: 10, y: 92, w: 45, h: 6 },
+      { x: 44, y: 80, w: 11, h: 18 },
+    ],
+    blocked: [],
+    entry: { x: 30, y: 95 },
+    depth: { farY: 80, far: 70, nearY: 98, near: 86 },
   },
   'odette-room': {
-    floor: [{ x: 2, y: 66, w: 96, h: 32 }],
-    blocked: [
-      { x: 34, y: 66, w: 30, h: 8 },
-      { x: 18, y: 78, w: 14, h: 8 },
-      { x: 62, y: 77, w: 14, h: 8 },
+    floor: [
+      { x: 1, y: 80, w: 18, h: 18 },
+      { x: 1, y: 93, w: 97, h: 5 },
     ],
-    entry: { x: 90, y: 92 },
+    blocked: [],
+    entry: { x: 10, y: 94 },
+    depth: { farY: 80, far: 66, nearY: 98, near: 82 },
   },
   'city-map': {
     floor: [{ x: 2, y: 60, w: 96, h: 38 }],
@@ -96,6 +130,12 @@ export const WALK_AREAS: Record<RoomId, WalkArea> = {
     blocked: [{ x: 64, y: 66, w: 22, h: 8 }],
     entry: { x: 12, y: 90 },
   },
+}
+
+/** Where Iris stands on arrival: at the door she came through, if known. */
+export function entryPoint(room: RoomId, from?: RoomId | null): StagePoint {
+  const area = WALK_AREAS[room]
+  return { ...((from && area.entries?.[from]) || area.entry) }
 }
 
 const CELL = 2
@@ -299,6 +339,21 @@ export function pathLength(from: StagePoint, path: StagePoint[]): number {
 export function depthScale(y: number): number {
   const t = Math.min(1, Math.max(0, (y - 50) / 48))
   return 0.72 + 0.28 * t
+}
+
+const DEFAULT_DEPTH = { farY: 50, far: 52 * 0.72, nearY: 98, near: 52 }
+
+/**
+ * Height, as a percentage of the stage, of a full-height character whose
+ * feet are at `y` in `room`, following the painting's perspective.
+ */
+export function figureHeight(room: RoomId, y: number): number {
+  const depth = WALK_AREAS[room].depth ?? DEFAULT_DEPTH
+  const t = Math.min(
+    1,
+    Math.max(0, (y - depth.farY) / (depth.nearY - depth.farY)),
+  )
+  return depth.far + (depth.near - depth.far) * t
 }
 
 /** Norb keeps a germ-safe distance on the floor, away from Iris. */

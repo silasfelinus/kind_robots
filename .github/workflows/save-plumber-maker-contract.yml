@@ -20,6 +20,7 @@ on:
       - 'utils/scripts/verifyCabinetSavePlumberGurgle.test.ts'
       - 'utils/scripts/verifyCabinetSavePlumberWildwater.test.ts'
       - 'utils/scripts/verifyCabinetSavePlumberPottingShed.test.ts'
+      - 'utils/scripts/verifyCabinetSavePlumberWorldOneRooms.test.ts'
       - '.github/workflows/save-plumber-maker-contract.yml'
 permissions:
   contents: read
@@ -59,3 +60,5 @@ jobs:
         run: npx tsx utils/scripts/verifyCabinetSavePlumberWildwater.test.ts
       - name: Verify Copper Greenhouses shed and chimney traversal
         run: npx tsx utils/scripts/verifyCabinetSavePlumberPottingShed.test.ts
+      - name: Verify Rustbolt press duct and Pump Tower boiler loop
+        run: npx tsx utils/scripts/verifyCabinetSavePlumberWorldOneRooms.test.ts

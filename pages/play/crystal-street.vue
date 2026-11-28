@@ -123,7 +123,11 @@
         @credits="view = 'credits'"
       />
       <crystal-street-theme v-else-if="view === 'theme'" />
-      <crystal-street-scrapbook v-else-if="view === 'scrapbook'" />
+      <crystal-street-scrapbook
+        v-else-if="view === 'scrapbook' || view === 'achievements'"
+        :key="view"
+        :initial="view === 'achievements' ? 'achievements' : 'weeks'"
+      />
       <crystal-street-title
         v-else-if="view === 'title' || !run"
         :shared="shared"
@@ -232,9 +236,15 @@ type View =
   | 'case'
   | 'pack'
   | 'scrapbook'
+  | 'achievements'
   | MenuScreen
 
-const MENU_SCREENS = new Set<View>(['settings', 'credits', 'theme'])
+const MENU_SCREENS = new Set<View>([
+  'settings',
+  'credits',
+  'theme',
+  'achievements',
+])
 
 const store = useCrystalStreetStore()
 // Every screen sits on one dial across the top (Silas, 2026-10-24 PT:
@@ -276,6 +286,11 @@ const dialItems = computed<DialItem[]>(() => {
   }
   if (store.scrapbook.runs.length || (r && !menuScreen.value))
     items.push({ id: 'scrapbook', label: 'Scrapbook', icon: 'kind-icon:book' })
+  items.push({
+    id: 'achievements',
+    label: 'Achievements',
+    icon: 'kind-icon:reward',
+  })
   if (!r || menuScreen.value)
     items.push({ id: 'theme', label: 'Trailer', icon: 'kind-icon:tv' })
   items.push({ id: 'settings', label: 'Settings', icon: 'kind-icon:settings' })
@@ -328,6 +343,13 @@ watch(view, (next) => {
 
 // Sound effects follow the week's moves (conductor crystal-street t-016).
 const sound = new StreetSound()
+watch(
+  () => [store.settings.sound, store.settings.effectsVolume] as const,
+  ([enabled, volume]) => {
+    sound.volume = enabled === 'on' ? volume / 100 : 0
+  },
+  { immediate: true },
+)
 watch(run, (next, prev) => {
   if (store.settings.sound === 'on') sound.play(cuesFor(prev, next))
 })

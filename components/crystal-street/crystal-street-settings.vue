@@ -171,6 +171,16 @@ const GROUPS: Group[] = [
     ],
   },
   {
+    key: 'readingSpeed',
+    label: 'Reading speed',
+    hint: 'Reveal story text at your pace, or show it all at once.',
+    options: [
+      { value: 'normal', label: 'Normal' },
+      { value: 'fast', label: 'Fast' },
+      { value: 'instant', label: 'Instant' },
+    ],
+  },
+  {
     key: 'contrast',
     label: 'Contrast',
     hint: 'High contrast makes panels solid and dims nothing.',

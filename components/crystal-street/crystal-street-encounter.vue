@@ -45,9 +45,13 @@
           </h2>
         </header>
 
-        <p v-if="!pending" class="text-sm leading-relaxed sm:text-base">
-          {{ encounter.text }}
-        </p>
+        <crystal-street-reading-text
+          v-if="!pending"
+          class="text-sm leading-relaxed sm:text-base"
+          :text="encounter.text"
+          :speed="store.settings.readingSpeed"
+          :reduced="store.settings.motion === 'reduced'"
+        />
 
         <template v-else-if="outcome">
           <p
@@ -64,7 +68,12 @@
           <p class="cs-label uppercase tracking-wider opacity-70">
             {{ chosen?.label }} · {{ pending.roll.breakdown.join(' · ') }}
           </p>
-          <p class="text-sm leading-relaxed sm:text-base">{{ outcome.text }}</p>
+          <crystal-street-reading-text
+            class="text-sm leading-relaxed sm:text-base"
+            :text="outcome.text"
+            :speed="store.settings.readingSpeed"
+            :reduced="store.settings.motion === 'reduced'"
+          />
           <ul class="flex flex-wrap gap-1">
             <li
               v-for="chip in chips"

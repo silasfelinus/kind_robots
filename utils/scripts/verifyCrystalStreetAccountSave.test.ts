@@ -10,6 +10,7 @@ import {
   type CrystalStreetSave,
 } from '../crystalStreet/accountSave'
 import { newRun } from '../crystalStreet/rules'
+import { readingDelay, readingStops } from '../crystalStreet/reading'
 
 const initial: CrystalStreetSave = {
   version: 1,
@@ -23,6 +24,13 @@ const roundTrip = (save: CrystalStreetSave) =>
   parseCrystalStreetSave(JSON.stringify(save))
 
 assert.deepEqual(roundTrip(initial), initial)
+assert.equal(roundTrip({ ...initial, settings: { ...DEFAULT_SETTINGS, readingSpeed: 'fast' } }).settings.readingSpeed, 'fast')
+assert.equal(parseCrystalStreetSave(JSON.stringify({ ...initial, settings: {} })).settings.readingSpeed, 'instant')
+assert.equal(readingDelay('normal', true), 0)
+assert.equal(readingDelay('instant', false), 0)
+assert.ok(readingDelay('normal', false) > readingDelay('fast', false))
+assert.deepEqual(readingStops('Two words.'), [4, 10])
+assert.deepEqual(readingStops(''), [])
 assert.notEqual(accountSaveKey(11), accountSaveKey(12))
 assert.throws(() => parseCrystalStreetSave('{"version":2}'))
 assert.throws(() =>

@@ -1,12 +1,14 @@
 import { repairRun, type LogEntry, type RunState } from './rules'
 import { normalizeVolume } from './sound'
 import { TIP_IDS } from './tips'
+import { type ReadingSpeed } from './reading'
 import type { EndingTier, SpecialEnding } from './types'
 
 export const SCRAPBOOK_LIMIT = 80
 
 export type CrystalStreetSettings = {
   textSize: 'small' | 'medium' | 'large'
+  readingSpeed: ReadingSpeed
   contrast: 'normal' | 'high'
   motion: 'full' | 'reduced'
   /** Coach tips: during the first week only, always, or never. */
@@ -19,6 +21,7 @@ export type CrystalStreetSettings = {
 
 export const DEFAULT_SETTINGS: CrystalStreetSettings = {
   textSize: 'medium',
+  readingSpeed: 'instant',
   contrast: 'normal',
   motion: 'full',
   tips: 'auto',
@@ -39,6 +42,11 @@ export function restoreSettings(raw: unknown): CrystalStreetSettings {
       'textSize',
       ['small', 'medium', 'large'],
       DEFAULT_SETTINGS.textSize,
+    ),
+    readingSpeed: pick(
+      'readingSpeed',
+      ['normal', 'fast', 'instant'],
+      DEFAULT_SETTINGS.readingSpeed,
     ),
     contrast: pick('contrast', ['normal', 'high'], DEFAULT_SETTINGS.contrast),
     motion: pick('motion', ['full', 'reduced'], DEFAULT_SETTINGS.motion),

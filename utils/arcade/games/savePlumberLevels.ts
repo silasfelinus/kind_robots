@@ -134,7 +134,7 @@ export const WORLD_ONE: StageDef[] = [
     name: 'Copper Greenhouses',
     wildwater: {
       name: 'Overgrowth',
-      tap: { col: 40, row: 5 },
+      tap: { col: 32, row: 5 },
       pearl: { col: 19, row: 3 },
       steps: [{ row: 18, from: 6, to: 9 }],
       bloomPistons: true,

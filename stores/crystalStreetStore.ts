@@ -30,6 +30,7 @@ import {
   type NewRunOptions,
   type RunState,
 } from '~/utils/crystalStreet/rules'
+import { normalizeVolume } from '~/utils/crystalStreet/sound'
 import { TIP_IDS, tipFor } from '~/utils/crystalStreet/tips'
 import type { EndingTier, SpecialEnding } from '~/utils/crystalStreet/types'
 import type { CompanionId, ItemId, LocationId } from '~/utils/crystalStreet/ids'
@@ -48,6 +49,8 @@ export type CrystalStreetSettings = {
   tips: 'auto' | 'on' | 'off'
   /** Synthesised sound effects for rolls, cards, dusk and endings. */
   sound: 'on' | 'off'
+  effectsVolume: number
+  musicVolume: number
 }
 
 export const DEFAULT_SETTINGS: CrystalStreetSettings = {
@@ -56,6 +59,8 @@ export const DEFAULT_SETTINGS: CrystalStreetSettings = {
   motion: 'full',
   tips: 'auto',
   sound: 'on',
+  effectsVolume: 60,
+  musicVolume: 80,
 }
 
 function restoreSettings(raw: unknown): CrystalStreetSettings {
@@ -75,6 +80,11 @@ function restoreSettings(raw: unknown): CrystalStreetSettings {
     motion: pick('motion', ['full', 'reduced'], DEFAULT_SETTINGS.motion),
     tips: pick('tips', ['auto', 'on', 'off'], DEFAULT_SETTINGS.tips),
     sound: pick('sound', ['on', 'off'], DEFAULT_SETTINGS.sound),
+    effectsVolume: normalizeVolume(
+      value.effectsVolume,
+      DEFAULT_SETTINGS.effectsVolume,
+    ),
+    musicVolume: normalizeVolume(value.musicVolume, DEFAULT_SETTINGS.musicVolume),
   }
 }
 

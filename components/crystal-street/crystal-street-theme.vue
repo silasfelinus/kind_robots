@@ -28,6 +28,8 @@
               poster="/crystal-street/video/theme-poster.webp"
               aria-label="Terrors on Crystal Street theme trailer"
               controls
+              :volume="store.settings.musicVolume / 100"
+              :muted="store.settings.musicVolume === 0"
               playsinline
               preload="none"
               data-testid="cs-theme-video"
@@ -70,6 +72,9 @@
 
 <script setup lang="ts">
 import { THEME_LYRICS } from '~/utils/crystalStreet/theme'
+import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
+
+const store = useCrystalStreetStore()
 </script>
 
 <style scoped>

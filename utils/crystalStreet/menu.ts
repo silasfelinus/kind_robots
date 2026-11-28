@@ -1,5 +1,5 @@
 // Screens reachable from the Terrors on Crystal Street main menu.
-export type MenuView = 'scrapbook' | 'settings' | 'theme'
+export type MenuView = 'scrapbook' | 'settings' | 'theme' | 'achievements'
 
 // Tabs inside the scrapbook show discoveries and anonymous locked slots.
 export type ScrapbookTab =

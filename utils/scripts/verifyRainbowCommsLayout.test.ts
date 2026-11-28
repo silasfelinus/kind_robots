@@ -10,6 +10,10 @@ const engine = readFileSync(
   new URL('../arcade/games/rainbowPrincessPreview.ts', import.meta.url),
   'utf8',
 )
+const hudLayout = readFileSync(
+  new URL('../arcade/games/rainbowHudLayout.ts', import.meta.url),
+  'utf8',
+)
 
 // Every pilot's status sits inside the 29 px HUD bar, so nothing covers the playfield or the boss bar
 // (gameplay critic D4, presentation critic P-08), and prompts sit just under the bar for any crew size.
@@ -49,8 +53,14 @@ assert.match(
   /bursts\.push\(\{ seat, pilot: kind, x: ship\.x, y: ship\.y, age: 0 \}\)/,
 )
 assert.match(engine, /for \(const burst of bursts\)/)
-assert.match(engine, /SUPER READY · TAP B/)
-assert.match(engine, /'A FIRE · B HOLD FOCUS\/TAP SUPER · X SPECIAL · Y EVADE'/)
+// The super caption and the Act I legend now come from the pure HUD layout (presentation critic round 2).
+assert.match(hudLayout, /'SUPER READY · TAP B'/)
+assert.match(engine, /RAINBOW_SUPER_CAPTION/)
+assert.match(
+  hudLayout,
+  /'A FIRE · B HOLD FOCUS\/TAP SUPER · X SPECIAL · Y EVADE'/,
+)
+assert.match(engine, /rainbowHudBarLayout\(/)
 assert.match(
   engine,
   /const HUD_LEFT = 44\n/,

@@ -95,7 +95,10 @@ function host() {
     assert.equal(marshal.coaches, car + 1)
     if (car < 4) {
       assert.equal(marshal.targets().length, 0)
-      assert.ok(!marshal.wrapped(new Set(old)), 'cannot claim the next coach before the chime')
+      assert.ok(
+        !marshal.wrapped(new Set(old)),
+        'cannot claim the next coach before the chime',
+      )
     }
   }
   assert.equal(marshal.phase, 2)
@@ -123,7 +126,10 @@ function host() {
   assert.ok(marshal.defeated)
   assert.equal(marshal.targets().length, 0)
   assert.ok(!marshal.wrapped(new Set([0])), 'no double reward after defeat')
-  assert.equal(clock.sayings.filter((s) => s === 'A COACH UNCOUPLES!').length, 5)
+  assert.equal(
+    clock.sayings.filter((s) => s === 'A COACH UNCOUPLES!').length,
+    5,
+  )
 }
 
 {
@@ -146,13 +152,22 @@ function host() {
   assert.equal(marshal.phase, 3)
   assert.equal(marshal.threadKnots().length, 4)
   assert.equal(marshal.targets().length, 20)
-  assert.ok(!marshal.wrapped(new Set([marshal.targets()[0]!])), 'a partial thread is not captured')
-  assert.ok(!marshal.wrapped(new Set([24 * GRID + 24])), 'hub locked until all four threads are claimed')
+  assert.ok(
+    !marshal.wrapped(new Set([marshal.targets()[0]!])),
+    'a partial thread is not captured',
+  )
+  assert.ok(
+    !marshal.wrapped(new Set([24 * GRID + 24])),
+    'hub locked until all four threads are claimed',
+  )
   for (let n = 0; n < 4; n++) {
     const knot = marshal.threadKnots()[0]!
     assert.ok(marshal.wrapped(new Set(knot)))
     assert.equal(marshal.threadKnots().length, 3 - n)
-    assert.ok(!marshal.wrapped(new Set(knot)), 'a claimed shuttle cannot score twice')
+    assert.ok(
+      !marshal.wrapped(new Set(knot)),
+      'a claimed shuttle cannot score twice',
+    )
     assert.equal(marshal.hits, 2)
   }
   assert.deepEqual(marshal.threads(), [])
@@ -381,7 +396,15 @@ function host() {
   const knot = loom.threadKnots()[0]!
   assert.ok(knot.every((i) => game.dyn[i] === 2))
   game.giftWrap(game.player, knot)
-  assert.ok(knot.every((i) => game.dyn[i] === 0 && game.cells[i] === game.player.id && game.fill[i] === 1), 'claimed shuttles become player-owned gifts in the real engine')
+  assert.ok(
+    knot.every(
+      (i) =>
+        game.dyn[i] === 0 &&
+        game.cells[i] === game.player.id &&
+        game.fill[i] === 1,
+    ),
+    'claimed shuttles become player-owned gifts in the real engine',
+  )
 }
 
 console.log('ribbon riders late circuit and Grand Marshals: ok')

@@ -123,7 +123,11 @@ game.stepBikes([p])
 assert.ok(game.blocked(25, 30), 'new ribbon flares without a persistent cell')
 assert.equal(game.cells[idx(25, 30)], 0)
 game.roundTicks = game.bellUntil
-assert.equal(game.blocked(25, 30), false, 'all temporary width disappears after two seconds')
+assert.equal(
+  game.blocked(25, 30),
+  false,
+  'all temporary width disappears after two seconds',
+)
 place(30, 31, 0)
 game.stepBikes([p])
 assert.deepEqual([p.x, p.y], [10, 10])

@@ -735,7 +735,11 @@ class RibbonRiders implements ArcadeGameInstance {
       rank >= 0 &&
       rank <
         this.spiralCount +
-          (lookahead && this.shrinkTimer < 90 && this.spiralCount < (this.arena.spec.shrink?.max ?? 0) * SPIRAL_STEP ? SPIRAL_STEP : 0)
+          (lookahead &&
+          this.shrinkTimer < 90 &&
+          this.spiralCount < (this.arena.spec.shrink?.max ?? 0) * SPIRAL_STEP
+            ? SPIRAL_STEP
+            : 0)
     )
       return true
     const t = this.arena.terrain[i]!
@@ -765,7 +769,8 @@ class RibbonRiders implements ArcadeGameInstance {
       const source = idx(p[0], p[1])
       if (!this.cells[source] || this.fill[source]) continue
       if (turnRight(this.ribbonHeading[source] as Dir) !== side) continue
-      if (this.bikes.some((b) => b.alive && b.x === p[0] && b.y === p[1])) continue
+      if (this.bikes.some((b) => b.alive && b.x === p[0] && b.y === p[1]))
+        continue
       return source
     }
     return -1
@@ -782,7 +787,11 @@ class RibbonRiders implements ArcadeGameInstance {
         : 0)
     if (!this.inside(x, y, m)) return true
     const i = idx(x, y)
-    return this.cells[i] !== 0 || this.terrainSolid(i, lookahead) || this.flareSourceAt(x, y) >= 0
+    return (
+      this.cells[i] !== 0 ||
+      this.terrainSolid(i, lookahead) ||
+      this.flareSourceAt(x, y) >= 0
+    )
   }
 
   /** Blocked for a Snowplow: ribbons are no wall to it, but gifts, terrain and bikes are. */
@@ -1225,7 +1234,8 @@ class RibbonRiders implements ArcadeGameInstance {
     const i = idx(x, y)
     const source = this.cells[i] ? i : this.flareSourceAt(x, y)
     if (source < 0 || this.terrainSolid(i)) return false
-    if (this.bikes.some((o) => o.alive && idx(o.x, o.y) === source)) return false
+    if (this.bikes.some((o) => o.alive && idx(o.x, o.y) === source))
+      return false
     b.snips--
     this.cells[source] = 0
     this.fill[source] = 0
@@ -1533,7 +1543,11 @@ class RibbonRiders implements ArcadeGameInstance {
         if (!this.inside(x, y)) return true
         const i = idx(x, y)
         const flare = this.flareSourceAt(x, y)
-        return team(this.cells[i]!) || (flare >= 0 && team(this.cells[flare]!)) || this.sideSolid(i)
+        return (
+          team(this.cells[i]!) ||
+          (flare >= 0 && team(this.cells[flare]!)) ||
+          this.sideSolid(i)
+        )
       },
       forbid: (i) =>
         this.bikes.some(
@@ -1565,7 +1579,8 @@ class RibbonRiders implements ArcadeGameInstance {
       this.wrappedCount++
       this.marshal?.rivalWrapped(r.kind!)
     }
-    const claimingThreads = this.marshal?.kind === 'loom' && this.marshal.phase === 3
+    const claimingThreads =
+      this.marshal?.kind === 'loom' && this.marshal.phase === 3
     const hit = this.marshal?.wrapped(inRegion) ?? false
     // Repaint released shuttle cells before turning the closed loop into a gift.
     if (hit && claimingThreads) this.paintDyn()

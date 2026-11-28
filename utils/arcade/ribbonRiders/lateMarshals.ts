@@ -116,7 +116,11 @@ export class ClockworkConductor implements Marshal {
     if (this.phase === 1) {
       for (let k = this.coaches; k < CAR_X.length; k++) {
         const loose = k === this.coaches && this.coachLoose
-        paintCells(dyn, hub(CAR_X[k]!, loose ? LOOSE_CAR_Y : CAR_Y), loose ? 2 : 1)
+        paintCells(
+          dyn,
+          hub(CAR_X[k]!, loose ? LOOSE_CAR_Y : CAR_Y),
+          loose ? 2 : 1,
+        )
       }
     } else if (this.phase === 2) {
       paintCells(dyn, this.tracks(), 1)
@@ -179,7 +183,10 @@ export class ClockworkConductor implements Marshal {
     if (this.phase === 3) drawCells(g, this.trail, RAMPS.purple[3])
     const centers =
       this.phase === 1
-        ? CAR_X.slice(this.coaches).map((x, i) => [x, i === 0 && this.coachLoose ? LOOSE_CAR_Y : CAR_Y])
+        ? CAR_X.slice(this.coaches).map((x, i) => [
+            x,
+            i === 0 && this.coachLoose ? LOOSE_CAR_Y : CAR_Y,
+          ])
         : [[this.phase === 2 ? 24 : this.engineX, ENGINE_Y]]
     for (const [x, y] of centers) {
       const px = x! * CELL - CELL
@@ -188,9 +195,16 @@ export class ClockworkConductor implements Marshal {
         depth: 2,
         outline: INK,
       })
-      const active = this.phase !== 1 || (this.coachLoose && x === CAR_X[this.coaches])
+      const active =
+        this.phase !== 1 || (this.coachLoose && x === CAR_X[this.coaches])
       if (active) glow(g, px + 9, py + 9, 16, RAMPS.ember[3], 0.5)
-      shadedOrb(g, px + 9, py + 9, 4, active ? (tick % 16 < 8 ? RAMPS.ember : RAMPS.gold) : RAMPS.steel)
+      shadedOrb(
+        g,
+        px + 9,
+        py + 9,
+        4,
+        active ? (tick % 16 < 8 ? RAMPS.ember : RAMPS.gold) : RAMPS.steel,
+      )
     }
   }
 }
@@ -215,7 +229,12 @@ export class LoomSpinner implements Marshal {
   /** The unravelled shuttles can be claimed individually by closing a loop around them. */
   threadKnots(): number[][] {
     if (this.phase !== 3 || this.defeated) return []
-    return [[12, 12], [36, 12], [12, 36], [36, 36]]
+    return [
+      [12, 12],
+      [36, 12],
+      [12, 36],
+      [36, 36],
+    ]
       .map(([x, y]) => Array.from({ length: 5 }, (_, j) => idx(x! - 2 + j, y!)))
       .filter((_, i) => !this.captured.has(i))
   }
@@ -258,18 +277,26 @@ export class LoomSpinner implements Marshal {
 
   targets(): number[] {
     if (this.defeated) return []
-    if (this.phase === 3 && this.captured.size < 4) return this.threadKnots().flat()
+    if (this.phase === 3 && this.captured.size < 4)
+      return this.threadKnots().flat()
     return this.constCenter
   }
 
   danger(): number[] {
-    return this.phase === 3 || this.defeated ? [] : this.threads(this.host.beat() + 1)
+    return this.phase === 3 || this.defeated
+      ? []
+      : this.threads(this.host.beat() + 1)
   }
 
   wrapped(region: ReadonlySet<number>): boolean {
     if (this.phase === 3 && this.captured.size < 4) {
       let hit = false
-      const centers = [[12, 12], [36, 12], [12, 36], [36, 36]]
+      const centers = [
+        [12, 12],
+        [36, 12],
+        [12, 36],
+        [36, 36],
+      ]
       for (const [i, [x, y]] of centers.entries()) {
         if (this.captured.has(i)) continue
         const knot = Array.from({ length: 5 }, (_, j) => idx(x! - 2 + j, y!))
@@ -282,7 +309,9 @@ export class LoomSpinner implements Marshal {
         this.host.sfx('level')
         this.host.say(
           this.captured.size === 4 ? 'THE HEART IS OPEN!' : 'THREAD CLAIMED!',
-          this.captured.size === 4 ? 'WRAP THE LOOM' : `${this.captured.size}/4 SHUTTLES WRAPPED`,
+          this.captured.size === 4
+            ? 'WRAP THE LOOM'
+            : `${this.captured.size}/4 SHUTTLES WRAPPED`,
         )
       }
       return hit
@@ -296,7 +325,10 @@ export class LoomSpinner implements Marshal {
       this.host.say('THE LOOM WEAVES A GRID!', 'FOLLOW THE MOVING GAP')
     } else if (this.hits === 2) {
       this.phase = 3
-      this.host.say('THE THREADS UNRAVEL!', 'CLAIM FOUR SHUTTLES, THEN THE HEART')
+      this.host.say(
+        'THE THREADS UNRAVEL!',
+        'CLAIM FOUR SHUTTLES, THEN THE HEART',
+      )
     } else {
       this.defeated = true
       this.host.say('THE STARS ARE WRAPPED!', 'THE LOOM BOWS')
@@ -308,7 +340,12 @@ export class LoomSpinner implements Marshal {
 
   render(g: CanvasRenderingContext2D, tick: number) {
     if (this.defeated) return
-    drawCells(g, this.threads(), this.phase === 3 ? RAMPS.gold[4] : RAMPS.sky[4], 0.65)
+    drawCells(
+      g,
+      this.threads(),
+      this.phase === 3 ? RAMPS.gold[4] : RAMPS.sky[4],
+      0.65,
+    )
     const x = 23 * CELL
     const y = ARENA_Y + 23 * CELL
     bevel(g, x, y, CELL * 3, CELL * 3, RAMPS.purple, {

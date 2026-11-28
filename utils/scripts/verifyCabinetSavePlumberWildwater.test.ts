@@ -5,7 +5,9 @@ import {
   HUSH_CEILING_ROW,
   HUSH_FLOOR_ROW,
   parseStage,
+  RUSTBOLT_KEEP,
   SLUICEGATE_STEPS,
+  SOLID_BELT_RIGHT,
   SOLID_LADDER,
   SOLID_LEDGE,
   TILE,
@@ -452,3 +454,65 @@ assert.deepEqual(
   ['1-sluice', '1-h'],
 )
 console.log('Save the Plumber Spillway Opens: OK')
+
+const assembly = RUSTBOLT_KEEP.wildwater!
+const factory = new PlumberRun(options, { customLevel: RUSTBOLT_KEEP })
+frame(factory)
+walkTo(factory, 35)
+frame(factory, [], ['down'])
+assert.ok(factory.activePipeRoom)
+walkTo(factory, assembly.tap.col)
+const foesBefore = factory.foes.length
+assert.ok(foesBefore > 0)
+frame(factory, [], ['x'])
+assert.equal(factory.wildwaterActive, true)
+assert.equal(factory.foes.length, 0)
+assert.equal(factory.solidAt(38, 21), SOLID_BELT_RIGHT)
+const crates = factory.platforms.filter((p) => p.kind === 'assembly')
+assert.equal(crates.length, 3)
+assert.notEqual(
+  factory.platformAt(crates[0]!, 0).x,
+  factory.platformAt(crates[0]!, 25).x,
+)
+walkTo(factory, 32)
+frame(factory, [], ['down'])
+assert.equal(factory.activePipeRoom, undefined)
+for (let i = 0; i < 8; i++) frame(factory)
+for (const crate of crates) {
+  for (let i = 0; i < 100; i++) {
+    const target = factory.platformAt(crate, factory.tick + 1).x + crate.w / 2
+    const error = target - factory.hero.x - factory.hero.vx * 5
+    const held: ArcadeButton[] = ['a']
+    if (error > 3) held.push('right')
+    if (error < -3) held.push('left')
+    frame(factory, held, i === 0 ? ['a'] : [])
+    assert.equal(factory.mode, 'play')
+    if (factory.ground && Math.abs(factory.hero.y + HERO_TALL - crate.y) < 0.1)
+      break
+  }
+  assert.equal(factory.hero.y + HERO_TALL, crate.y)
+  frame(factory, [], ['x'])
+  assert.equal(crate.sign, 0, 'X secures the crate stack')
+}
+for (let i = 0; i < 80 && factory.wildwaterActive; i++) {
+  const target = assembly.pearl.col * TILE + TILE / 2
+  const error = target - factory.hero.x
+  frame(factory, error > 3 ? ['right'] : error < -3 ? ['left'] : [])
+}
+assert.ok(factory.pearls.has('1-f'))
+assert.equal(factory.wildwaterActive, false)
+assert.equal(
+  factory.platforms.some((p) => p.kind === 'assembly'),
+  false,
+)
+assert.notEqual(factory.solidAt(38, 21), SOLID_BELT_RIGHT)
+assert.equal(factory.foes.length, foesBefore)
+assert.equal(factory.save, undefined)
+assert.deepEqual(
+  readPlumberFile({
+    ...saved,
+    slots: [{ ...saved.slots[0], pearls: ['1-f', '1-h', 'invalid'] }],
+  }).slots[0]?.pearls,
+  ['1-f', '1-h'],
+)
+console.log('Save the Plumber Assembly Line: OK')

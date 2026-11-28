@@ -250,7 +250,7 @@ type Mode =
 type Body = { x: number; y: number; vx: number; vy: number }
 
 type Platform = {
-  kind: 'piston' | 'lift' | 'raft' | 'lantern' | 'cargo'
+  kind: 'piston' | 'lift' | 'raft' | 'lantern' | 'cargo' | 'assembly'
   x: number
   y: number
   w: number
@@ -717,6 +717,8 @@ export class PlumberRun implements ArcadeGameInstance {
   private wildwaterSpent = false
   private wildwater: StageDef['wildwater']
   private wildwaterCells = new Set<number>()
+  private assemblyFoes: Foe[] | null = null
+  private assemblyFloor = new Map<number, number>()
   private ceilingLoopComplete = false
   private liftReverseAt: number | null = null
   private liftPhaseOffset = 0
@@ -1444,6 +1446,8 @@ export class PlumberRun implements ArcadeGameInstance {
     this.wildwaterSpent = false
     this.ceilingLoopComplete = false
     this.wildwaterCells.clear()
+    this.assemblyFoes = null
+    this.assemblyFloor.clear()
     this.liftReverseAt = null
     this.liftPhaseOffset = 0
     this.inactiveSwitchBlocks.clear()
@@ -2570,7 +2574,8 @@ export class PlumberRun implements ArcadeGameInstance {
       this.tryDoor()
       if (this.mode !== 'play') return
     }
-    const usedTap = keys.pressed.x && this.turnWildTap()
+    const usedTap =
+      keys.pressed.x && (this.turnWildTap() || this.lockAssemblyCrate())
     if (
       !usedMount &&
       !usedTap &&
@@ -2633,6 +2638,7 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.stage.gate !== null && !this.locked) {
       const gateX = (this.stage.gate + 1) * TILE + HALF
       if (hero.x > gateX + TILE) {
+        if (this.assemblyFoes) this.stopWildwater()
         this.locked = true
         for (let row = 1; row < this.groundRow; row++)
           this.setSolid(this.stage.gate, row, SOLID_BLOCK)
@@ -3713,7 +3719,33 @@ export class PlumberRun implements ArcadeGameInstance {
     if (Math.abs(this.hero.x - x) > 12 || Math.abs(this.hero.y + TALL - y) > 3)
       return false
     if (wild.ceilingLoop && this.mounted) return false
+    if (wild.assembly && this.heldRoller) return false
     this.wildwaterActive = true
+    if (wild.assembly) {
+      this.assemblyFoes = this.foes
+      this.foes = []
+      const { belt, crates } = wild.assembly
+      for (let col = belt.from; col <= belt.to; col++) {
+        const cell = belt.row * this.stage.cols + col
+        this.assemblyFloor.set(cell, this.solid[cell]!)
+        this.setSolid(col, belt.row, SOLID_BELT_RIGHT)
+      }
+      for (const crate of crates) {
+        const x = crate.col * TILE - TILE / 2
+        const y = crate.row * TILE
+        this.platforms.push({
+          kind: 'assembly',
+          x,
+          y,
+          w: TILE * 2,
+          baseX: x,
+          baseY: y,
+          sign: 1,
+          dx: 0,
+          dy: 0,
+        })
+      }
+    }
     if (wild.ceilingLoop) {
       this.ground = false
       this.ducking = false
@@ -3750,7 +3782,35 @@ export class PlumberRun implements ArcadeGameInstance {
     )
   }
 
+  private lockAssemblyCrate(): boolean {
+    const crate = this.riding
+    if (!this.wildwaterActive || crate?.kind !== 'assembly') return false
+    if (crate.sign !== 0) {
+      crate.baseX = crate.x
+      crate.sign = 0
+      this.sound.play('pickup')
+    }
+    return true
+  }
+
+  private get assemblyReady(): boolean {
+    return this.platforms
+      .filter((platform) => platform.kind === 'assembly')
+      .every((platform) => platform.sign === 0)
+  }
+
   private stopWildwater() {
+    if (this.assemblyFoes) {
+      this.foes.push(...this.assemblyFoes)
+      this.assemblyFoes = null
+      if (this.riding?.kind === 'assembly') {
+        this.riding = null
+        this.ground = false
+      }
+      this.platforms = this.platforms.filter((p) => p.kind !== 'assembly')
+      for (const [cell, solid] of this.assemblyFloor) this.solid[cell] = solid
+      this.assemblyFloor.clear()
+    }
     if (this.upsideParlour) {
       this.ground = false
       this.hero.vy = 0
@@ -3771,6 +3831,7 @@ export class PlumberRun implements ArcadeGameInstance {
     const wild = this.wildwater
     if (!wild || !this.wildwaterActive) return
     if (wild.ceilingLoop && !this.ceilingLoopComplete) return
+    if (wild.assembly && !this.assemblyReady) return
     const x = wild.pearl.col * TILE + TILE / 2
     const y = wild.pearl.row * TILE - 10
     if (
@@ -5392,6 +5453,11 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   platformAt(p: Platform, t: number): { x: number; y: number } {
+    if (p.kind === 'assembly')
+      return {
+        x: p.baseX + p.sign * 8 * Math.sin((t * Math.PI * 2) / 100),
+        y: p.baseY,
+      }
     if (this.isBloom(p)) return { x: p.baseX, y: p.baseY }
     if (p.kind === 'lantern' || p.kind === 'cargo') return { x: p.x, y: p.y }
     if (p.kind === 'raft')
@@ -7252,6 +7318,20 @@ export class PlumberRun implements ArcadeGameInstance {
     const t = this.tick
     for (const p of this.platforms) {
       if (p.kind === 'lantern' || p.kind === 'cargo') continue
+      if (p.kind === 'assembly') {
+        for (let k = 0; k < 2; k++)
+          drawSprite(
+            g,
+            PLUMBER_ART.prop('wooden-crate'),
+            p.x + (k + 0.5) * TILE,
+            p.y + TILE,
+            TILE,
+          )
+        g.fillStyle = p.sign === 0 ? '#76e1ad' : '#ffd98a'
+        g.fillRect(p.x, p.y, p.w, 3)
+        if (p.sign !== 0) this.text(g, 'X · STACK', p.x + p.w / 2, p.y - 8, 9)
+        continue
+      }
       if (p.kind === 'raft') {
         g.fillStyle = '#9c6b3e'
         g.fillRect(p.x, p.y, p.w, 7)
@@ -7544,6 +7624,7 @@ export class PlumberRun implements ArcadeGameInstance {
       g.fillRect(sx, sy, w, 2)
     }
     if (wild.ceilingLoop && !this.ceilingLoopComplete) return
+    if (wild.assembly && !this.assemblyReady) return
     const x = wild.pearl.col * TILE + TILE / 2
     const y = wild.pearl.row * TILE - 10
     g.fillStyle = '#e8fbff'

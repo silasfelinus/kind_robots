@@ -320,16 +320,24 @@ for (const players of [1, 2]) {
   let cleared: number | null = null
   let bossFrames = 0
   let before = a.snapshot
+  let leftActSeven: typeof before | null = null
   for (let frame = 0; frame < 460000 && cleared === null; frame++) {
     a.update(emptyInput())
     b.update(emptyInput())
     const after = a.snapshot
+    if (before.act === 'S07' && after.act !== 'S07') leftActSeven = before
     if (after.act === 'S08') {
       if (entered === null) {
         entered = frame
-        assert.equal(before.act, 'S07')
-        assert.equal(before.stage, 'aftermath')
-        assert.ok(before.actSevenFrame >= GLASS.bossStarts)
+        // A clean Act VII (the solo demo's, since Petal Wing's gun was retuned in gameplay critic r2 G3) earns
+        // the X4 Mirror Shoal detour on the way.
+        assert.ok(
+          before.act === 'S07' || before.act === 'X4',
+          `Act VIII follows Act VII or its X4 detour, not ${before.act}`,
+        )
+        assert.ok(leftActSeven, 'the crew flew Act VII first')
+        assert.equal(leftActSeven.stage, 'aftermath')
+        assert.ok(leftActSeven.actSevenFrame >= GLASS.bossStarts)
         assert.deepEqual(
           after.ships.map(({ lives, power, shield }) => ({
             lives,

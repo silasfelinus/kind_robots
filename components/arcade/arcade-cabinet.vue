@@ -291,16 +291,16 @@
           <div
             class="cabinet-buttons"
             :class="{
-              'cabinet-buttons--four': fourButtons && !duo,
+              'cabinet-buttons--four': fourTouch,
               'cabinet-buttons--labelled': labelled,
             }"
             :style="placedAt(touchPlan?.clusters[seat]?.buttons)"
           >
-            <template v-if="fourButtons && !duo">
+            <template v-if="fourTouch">
               <button
                 type="button"
                 class="cabinet-ball cabinet-ball-x"
-                aria-label="X button"
+                :aria-label="duo ? `Player ${seat + 1} X button` : 'X button'"
                 @pointerdown.prevent="holdButton($event, 'x', seat)"
                 @pointerup.prevent="press('x', false, seat)"
                 @pointercancel="press('x', false, seat)"
@@ -314,7 +314,7 @@
               <button
                 type="button"
                 class="cabinet-ball cabinet-ball-y"
-                aria-label="Y button"
+                :aria-label="duo ? `Player ${seat + 1} Y button` : 'Y button'"
                 @pointerdown.prevent="holdButton($event, 'y', seat)"
                 @pointerup.prevent="press('y', false, seat)"
                 @pointercancel="press('y', false, seat)"
@@ -388,8 +388,11 @@
 
       <div v-else class="cabinet-panel">
         <p v-if="!touchControls && duo" class="cabinet-hint">
-          1P: WASD · Space or F = A · G or X = B &nbsp;·&nbsp; 2P: arrows · / =
-          A · . or right Shift = B &nbsp;·&nbsp;
+          1P: WASD · Space or F = A · G or X = B
+          <template v-if="fourButtons">· R = X · T = Y</template>
+          &nbsp;·&nbsp; 2P: arrows · / = A · . or right Shift = B
+          <template v-if="fourButtons">· ; = X · ' = Y</template>
+          &nbsp;·&nbsp;
           <template v-if="players > 2">
             {{ players === 3 ? '3P' : '3P and 4P' }}: a gamepad each
             &nbsp;·&nbsp;
@@ -893,6 +896,11 @@ const duo = computed(() => players.value > 1)
 /** A twin-stick game played solo (t-027): the arrows, the right stick or a touch stick aim. */
 const twinStick = computed(() => meta.value?.twinStick === true && !duo.value)
 const fourButtons = computed(() => meta.value?.fourButtons === true)
+/** X and Y on screen: solo always, co-op where the planned layout has room for them. */
+const fourTouch = computed(
+  () =>
+    fourButtons.value && (!duo.value || touchPlan.value?.fourButtons === true),
+)
 /** Aiming is live only while such a game plays, so menus keep the arrows. */
 const aiming = computed(() => twinStick.value && phase.value === 'playing')
 /** The game's own menu is up mid-play (ArcadeGameInstance.menuOpen). */
@@ -1076,7 +1084,7 @@ const touchPlan = computed<TouchStagePlan | null>(() => {
       area,
       aspect: (meta.value?.width ?? 4) / (meta.value?.height ?? 3),
       seats: players.value,
-      fourButtons: fourButtons.value && !duo.value,
+      fourButtons: fourButtons.value,
       labelled: labelled.value,
       minShare: meta.value?.touchClearMinShare,
       cornerChips: canFullscreen.value ? 2 : 1,
@@ -3606,6 +3614,11 @@ onBeforeUnmount(() => {
 
 .cabinet-overlay--duo .cabinet-ball-a {
   margin-bottom: calc(var(--key) * 0.35);
+}
+
+.cabinet-overlay--duo .cabinet-buttons--four .cabinet-ball {
+  width: var(--ball);
+  height: var(--ball);
 }
 
 .cabinet-cluster-2 .cabinet-key {

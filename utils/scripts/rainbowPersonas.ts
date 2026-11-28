@@ -232,6 +232,10 @@ export function flyPersona(
   cap = 360000,
   onHit?: (before: Snap, seat: number, act: string) => void,
   onFrame?: (snap: Snap, frame: number) => void,
+  /** Fly this pilot in seat 1 (RAINBOW_PILOTS index) through the real cabinet select; unset, the default crew. */
+  pilot?: number,
+  /** A probe's last word on each seat's input (park a seat, hold a button), after the persona decides. */
+  steer?: (snap: Snap, seat: number, input: InputFrame) => void,
 ): PersonaRun {
   const game = createRainbowPrincessPreview({
     players: crew,
@@ -239,7 +243,22 @@ export function flyPersona(
     rng: seeded(seed),
     sound: { play() {} },
     hiScore: 0,
+    selectScreen: pilot !== undefined,
   })
+  if (pilot !== undefined) {
+    // Row 0 rotates the whole crew one pilot per press; A launches after the menu's beat.
+    const none = () => Array.from({ length: crew }, () => emptyInput())
+    for (let step = 0; step < pilot; step++) {
+      const keys = none()
+      keys[0]!.pressed.right = true
+      game.update(keys[0]!, keys)
+      game.update(emptyInput(), none())
+    }
+    for (let wait = 0; wait < 30; wait++) game.update(emptyInput(), none())
+    const launch = none()
+    launch[0]!.pressed.a = true
+    game.update(launch[0]!, launch)
+  }
   const acts: string[] = []
   const livesLost: Record<string, number> = {}
   const hits: Record<string, number> = {}
@@ -282,7 +301,12 @@ export function flyPersona(
       }
       input.held.a = true
       if (persona !== 'idle' && ship.lives > 0) {
-        const decides = persona === 'novice' ? frame % 18 === seat : true
+        // A retry is never a frame-perfect replay: each continue moves when a novice looks up by a scrambled
+        // amount, or a novice who died in a stretch with no rng in it could die the same way after every
+        // continue, forever (a fixed shift per continue can still line up with the length of a lap).
+        const glance = (Math.imul(continues + 1, 2654435761) >>> 16) % 18
+        const decides =
+          persona === 'novice' ? (frame + glance) % 18 === seat : true
         if (persona === 'camper' && big.length) held[seat] = [0, 0]
         else if (decides)
           held[seat] = choose(
@@ -325,6 +349,7 @@ export function flyPersona(
             input.pressed.y = true
         }
       }
+      steer?.(snap, seat, input)
       seats.push(input)
     }
     if (snap.continueLeft > 0 && offeredAt === null) offeredAt = where

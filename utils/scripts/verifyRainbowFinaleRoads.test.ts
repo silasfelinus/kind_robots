@@ -89,7 +89,7 @@ for (const art of [RAINBOW_FLAGSHIP_ART, RAINBOW_FLAGSHIP_ART.phase2]) {
     boss.heartX > boss.x,
     'the bridge tower sits aft of the clamped Crown',
   )
-  boss.hp = boss.maxHp / 2
+  boss.hp = boss.maxHp * ECLIPSE_CROWN.heartBreaksAt
   let fans = 0
   for (let i = 0; i < 900; i++) {
     const shots = stepEclipseCrownBoss(boss, target)
@@ -105,7 +105,7 @@ for (const art of [RAINBOW_FLAGSHIP_ART, RAINBOW_FLAGSHIP_ART.phase2]) {
 {
   const boss = createEclipseCrownBoss(400, 'crown', true)
   for (let i = 0; i < 400; i++) stepEclipseCrownBoss(boss, target)
-  boss.hp = boss.maxHp / 2
+  boss.hp = boss.maxHp * ECLIPSE_CROWN.heartBreaksAt
   let pleaFrames = 0
   let ended = 0
   for (let i = 0; i < CROWN_PLEA.frames + 400; i++) {
@@ -120,7 +120,7 @@ for (const art of [RAINBOW_FLAGSHIP_ART, RAINBOW_FLAGSHIP_ART.phase2]) {
   assert.equal(ended, 1)
   assert.ok(pleaFrames >= CROWN_PLEA.frames)
   const unsworn = createEclipseCrownBoss(400, 'crown', false)
-  unsworn.hp = unsworn.maxHp / 2
+  unsworn.hp = unsworn.maxHp * ECLIPSE_CROWN.heartBreaksAt
   for (let i = 0; i < 200; i++) stepEclipseCrownBoss(unsworn, target)
   assert.equal(unsworn.plea, 0)
 }

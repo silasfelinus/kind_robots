@@ -110,7 +110,7 @@ export const SAVE_PLUMBER_KEYS: Record<string, ArcadeButton> = {
   KeyF: 'y',
 }
 
-/** Two on one keyboard: player 1 on the left of the board... */
+/** Two on one keyboard: player 1 on the left of the board (X and Y on R/T above F/G, or C/V beside Z/X)... */
 export const P1_KEYS: Record<string, ArcadeButton> = {
   KeyW: 'up',
   KeyS: 'down',
@@ -122,10 +122,14 @@ export const P1_KEYS: Record<string, ArcadeButton> = {
   KeyG: 'b',
   KeyX: 'b',
   ShiftLeft: 'b',
+  KeyR: 'x',
+  KeyC: 'x',
+  KeyT: 'y',
+  KeyV: 'y',
   Enter: 'start',
 }
 
-/** ...and player 2 on the arrows, with the keys beside them. */
+/** ...and player 2 on the arrows, with the keys beside them (X and Y on ; and ' above . and /, or numpad 1 and 2 above 0 and .). */
 export const P2_KEYS: Record<string, ArcadeButton> = {
   ArrowUp: 'up',
   ArrowDown: 'down',
@@ -136,6 +140,10 @@ export const P2_KEYS: Record<string, ArcadeButton> = {
   Period: 'b',
   ShiftRight: 'b',
   NumpadDecimal: 'b',
+  Semicolon: 'x',
+  Numpad1: 'x',
+  Quote: 'y',
+  Numpad2: 'y',
   NumpadEnter: 'start',
 }
 

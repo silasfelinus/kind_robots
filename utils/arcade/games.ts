@@ -927,7 +927,7 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
       'X  PILOT SPECIAL',
       'Y  EVADE: ROLL · DASH · BLINK · BOOST',
       'START  PAUSE',
-      '1 TO 4 LOCAL PILOTS',
+      '1 TO 4 PILOTS · P3 AND P4 ON GAMEPADS',
       'CADET · PILOT · ACE DIFFICULTY',
       'EACH ACT START SAVES',
     ],

@@ -21,7 +21,10 @@ export type TouchStageRequest = {
   aspect: number
   /** Seated players, 1 to 4: each gets a d-pad and buttons. */
   seats: number
-  /** A solo player gets four face buttons (A, B, X, Y) rather than two. */
+  /**
+   * The game has four face buttons (A, B, X, Y). A solo player always gets all four; a co-op crew
+   * gets them where the extra row costs (almost) none of the stage (COOP_FOUR_SHARE), else A and B.
+   */
   fourButtons: boolean
   /**
    * The solo face buttons carry the game's names (ArcadeGameMeta.buttonLabels), so they are drawn
@@ -47,6 +50,8 @@ export type TouchCluster = {
 
 export type TouchStagePlan = {
   kind: 'rails' | 'band'
+  /** Every cluster carries X and Y as well as A and B. */
+  fourButtons: boolean
   /** One d-pad key, and one face button, in CSS px. */
   key: number
   ball: number
@@ -81,6 +86,8 @@ const KEY_STEPS = [1, 0.9, 0.8]
 const MIN_KEY = 24
 /** One pilot keeps the floating controls when moving them off the stage would cost more than this. */
 const SOLO_MIN_SHARE = 0.8
+/** Co-op clusters take X and Y only when that keeps this share of the stage the two-button layout gives. */
+const COOP_FOUR_SHARE = 0.95
 
 const clamp = (low: number, value: number, high: number) =>
   Math.max(low, Math.min(high, value))
@@ -106,6 +113,17 @@ function parts(
   fourButtons: boolean,
   labelled = false,
 ): Parts {
+  if (seats > 1 && fourButtons) {
+    // X over B and Y over A, in the co-op gap (the cabinet's .cabinet-overlay--duo rules).
+    const ball = key * 1.1
+    return {
+      key,
+      ball,
+      pad: key * 3,
+      buttons: { width: ball * 2 + 0.5 * REM, height: ball * 2 + 0.5 * REM },
+      tag: TAG,
+    }
+  }
   if (seats > 1) {
     const ball = key * 1.15
     return {
@@ -245,6 +263,7 @@ function rails(request: TouchStageRequest, p: Parts): TouchStagePlan | null {
   }
   return {
     kind: 'rails',
+    fourButtons: false,
     key: p.key,
     ball: p.ball,
     reserve,
@@ -363,6 +382,7 @@ function band(
       : null
   return {
     kind: 'band',
+    fourButtons: false,
     key: p.key,
     ball: p.ball,
     reserve,
@@ -408,6 +428,38 @@ export function planTouchStage(
   const seats = Math.max(1, Math.min(4, Math.round(request.seats)))
   const { area, aspect } = request
   if (area.width <= 0 || area.height <= 0 || aspect <= 0) return null
+  const whole = Math.min(area.width, area.height * aspect)
+  const solo = seats === 1
+  const two = bestPlan(request, seats, viewportMin, solo && request.fourButtons)
+  const four =
+    !solo && request.fourButtons
+      ? bestPlan(request, seats, viewportMin, true)
+      : null
+  const coopFour = Boolean(
+    four && (!two || four.score >= COOP_FOUR_SHARE * two.score),
+  )
+  const best = coopFour ? four : two
+  if (!best) return null
+  if (
+    solo &&
+    best.plan.stage.width * best.plan.stage.height <
+      (request.minShare ?? SOLO_MIN_SHARE) * whole * (whole / aspect)
+  )
+    return null
+  return {
+    ...best.plan,
+    fourButtons: solo ? request.fourButtons : coopFour,
+  }
+}
+
+/** The arrangement with the best score for one button set, or null when nothing fits. */
+function bestPlan(
+  request: TouchStageRequest,
+  seats: number,
+  viewportMin: number,
+  fourButtons: boolean,
+): { plan: TouchStagePlan; score: number } | null {
+  const { area, aspect } = request
   const usual = defaultTouchKey(seats, viewportMin)
   const whole = Math.min(area.width, area.height * aspect)
   const upright = area.height > area.width
@@ -415,7 +467,7 @@ export function planTouchStage(
   for (const step of KEY_STEPS) {
     const key = usual * step
     if (key < MIN_KEY) break
-    const p = parts(key, seats, request.fourButtons, request.labelled)
+    const p = parts(key, seats, fourButtons, request.labelled)
     const candidates = [rails({ ...request, seats }, p)]
     for (let columns = 1; columns <= seats; columns++)
       candidates.push(band({ ...request, seats }, p, columns))
@@ -431,12 +483,5 @@ export function planTouchStage(
       if (!best || score > best.score + 0.5) best = { plan, score }
     }
   }
-  if (!best) return null
-  if (
-    seats === 1 &&
-    best.plan.stage.width * best.plan.stage.height <
-      (request.minShare ?? SOLO_MIN_SHARE) * whole * (whole / aspect)
-  )
-    return null
-  return best.plan
+  return best
 }

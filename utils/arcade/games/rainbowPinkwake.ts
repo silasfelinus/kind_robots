@@ -336,7 +336,7 @@ export function pinkwakeDialogue(
     'A01.GUARD': [
       {
         speaker: 'Lilt-7',
-        text: 'Big contact! An urchin guardian. Its ring always leaves a gap: find it.',
+        text: 'Big contact! An urchin guardian. Hold B to focus your fire, and find the gap in its ring.',
       },
       {
         speaker: partner,

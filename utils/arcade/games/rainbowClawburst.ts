@@ -16,6 +16,11 @@ export type ClawburstBoss = {
   nextVolley: number
   /** The lane the next rail shot or punch is aimed at, locked when its warning begins. */
   aimY: number
+  /**
+   * Where along that lane: the pilot's own x, so the bolt crosses the pilot rather than a point in front of
+   * them (gameplay critic r2 G5: a pilot parked at the far left edge, above the bolt's line, was never hit).
+   */
+  aimX: number
   /** Which armour fist throws the next phase-2 fan: 1 below the body, -1 above it. */
   fist: 1 | -1
   volleys: number
@@ -53,6 +58,7 @@ export function createClawburstBoss(
     phase: 1,
     nextVolley: CLAWBURST.firstVolley,
     aimY: 135,
+    aimX: 80,
     fist: 1,
     volleys: 0,
     exposedUntil: 0,
@@ -105,8 +111,10 @@ export function stepClawburstBoss(
       Math.abs(ship.y - boss.y) < Math.abs(best.y - boss.y) ? ship : best,
     living[0] ?? { x: 80, y: 135, lives: 1 },
   )
-  if (boss.frame === boss.nextVolley - warningLength(boss))
+  if (boss.frame === boss.nextVolley - warningLength(boss)) {
     boss.aimY = nearest.y
+    boss.aimX = nearest.x
+  }
   if (boss.frame < boss.nextVolley) return []
 
   boss.volleys++
@@ -122,7 +130,7 @@ export function stepClawburstBoss(
   const muzzle = { x: boss.x - 34, y: boss.y }
   if (boss.phase === 1) {
     // Rail shot: one fast bolt down the marked lane, with two slow escorts that close the near gaps.
-    const theta = Math.atan2(boss.aimY - muzzle.y, 80 - muzzle.x)
+    const theta = Math.atan2(boss.aimY - muzzle.y, boss.aimX - muzzle.x)
     fire(muzzle.x, muzzle.y, theta, 4.2)
     fire(muzzle.x, muzzle.y, theta - 0.32, 1.5)
     fire(muzzle.x, muzzle.y, theta + 0.32, 1.5)
@@ -142,7 +150,7 @@ export function stepClawburstBoss(
       if ((i - gap + count) % count < 3) continue
       fire(muzzle.x, muzzle.y, (i / count) * Math.PI * 2, 1.6)
     }
-    const theta = Math.atan2(boss.aimY - muzzle.y, 80 - muzzle.x)
+    const theta = Math.atan2(boss.aimY - muzzle.y, boss.aimX - muzzle.x)
     fire(muzzle.x, muzzle.y, theta, 3.6)
     boss.exposedUntil = boss.frame + CLAWBURST.exposedFrames
     boss.nextVolley = boss.frame + 160

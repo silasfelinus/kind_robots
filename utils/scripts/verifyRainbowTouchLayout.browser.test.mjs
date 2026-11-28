@@ -129,11 +129,14 @@ function stageShare(layout) {
 const summary = []
 try {
   // P-05 and P-06: four pilots on a tablet, two on a landscape phone, all fighting a boss.
-  for (const { width, height, seats, minShare } of [
-    { width: 1024, height: 768, seats: 4, minShare: 0.8 },
-    { width: 844, height: 390, seats: 2, minShare: 0.65 },
-    { width: 844, height: 390, seats: 4, minShare: 0.7 },
-    { width: 1024, height: 768, seats: 2, minShare: 0.9 },
+  // Gameplay critic r2 G2: co-op clusters carry X and Y as well where they fit (`buttons` per pilot).
+  for (const { width, height, seats, minShare, buttons } of [
+    { width: 1024, height: 768, seats: 4, minShare: 0.8, buttons: 4 },
+    { width: 844, height: 390, seats: 2, minShare: 0.65, buttons: 4 },
+    { width: 844, height: 390, seats: 4, minShare: 0.7, buttons: 2 },
+    { width: 1024, height: 768, seats: 2, minShare: 0.9, buttons: 4 },
+    { width: 768, height: 1024, seats: 4, minShare: 0.9, buttons: 4 },
+    { width: 768, height: 1024, seats: 2, minShare: 0.9, buttons: 4 },
   ]) {
     const label = `${width}x${height} ${seats}P`
     const { page, errors, context } = await openCabinet(browser, fixture, {
@@ -207,6 +210,11 @@ try {
     await wait(200)
     const layout = await boxes(page)
     assertClearStage(label, layout, seats)
+    assert.equal(
+      layout.balls.length,
+      seats * buttons,
+      `${label}: ${buttons} face buttons per pilot`,
+    )
     const share = stageShare(layout)
     assert.ok(
       share >= minShare,
@@ -232,7 +240,9 @@ try {
       })
     assert.deepEqual(errors, [], `${label}: no page errors`)
     await context.close()
-    summary.push(`${label} clear (${Math.round(share * 100)}% stage)`)
+    summary.push(
+      `${label} clear (${Math.round(share * 100)}% stage, ${buttons} buttons)`,
+    )
   }
 
   // P-09: one pilot upright. The chips leave the canvas for the band under it, with a turn-sideways prompt.

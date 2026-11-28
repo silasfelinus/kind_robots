@@ -125,6 +125,9 @@ import {
 const W = 480
 const H = 270
 const GRAVITY = 0.43
+/** Upward speed of a Spillway Opens water sheet, in pixels per tick. */
+const ESCALATOR_RISE = 2.4
+const ESCALATOR_DRAG = 0.7
 const AIR_JET_IMPULSE = 1.04
 const AIR_JET_COOLDOWN = 7
 const AIR_JET_TOP_SPEED = 5.2
@@ -2488,6 +2491,11 @@ export class PlumberRun implements ArcadeGameInstance {
           sailing ? SAIL_FALL : floating ? 4 : 9,
           hero.vy + GRAVITY * (floating || sailing ? FLOAT : 1),
         )
+      if (this.onEscalator()) {
+        hero.vy = Math.min(hero.vy, -ESCALATOR_RISE)
+        // The current holds an idle rider; steering still carries her out.
+        if (!move) hero.vx *= ESCALATOR_DRAG
+      }
       prevBottom = hero.y + TALL
       const wasGround = this.ground
       const landingSpeed = hero.vy
@@ -3725,6 +3733,21 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     playPlumberCue(this.sound, 'portal')
     return true
+  }
+
+  /** Spillway Opens: a rising water sheet lifts her until its crest. */
+  private onEscalator(): boolean {
+    const sheets = this.wildwaterActive ? this.wildwater?.escalators : undefined
+    if (!sheets) return false
+    const { x, y } = this.hero
+    const feet = y + TALL
+    return sheets.some(
+      (sheet) =>
+        x >= sheet.col * TILE &&
+        x < (sheet.col + sheet.width) * TILE &&
+        feet > sheet.top * TILE &&
+        feet <= (sheet.bottom + 1) * TILE,
+    )
   }
 
   private stopWildwater() {
@@ -7505,6 +7528,20 @@ export class PlumberRun implements ArcadeGameInstance {
       drawSprite(g, PLUMBER_ART.prop('valve-switch'), x, y, 24)
       this.text(g, 'WILD TAP · X', x, y - 30, 10, '#99f5ff')
       return
+    }
+    for (const sheet of wild.escalators ?? []) {
+      const sx = sheet.col * TILE
+      const sy = sheet.top * TILE
+      const w = sheet.width * TILE
+      const h = (sheet.bottom + 1 - sheet.top) * TILE
+      g.fillStyle = 'rgba(110, 214, 255, 0.34)'
+      g.fillRect(sx, sy, w, h)
+      g.fillStyle = 'rgba(230, 251, 255, 0.75)'
+      for (let k = 0; k < h; k += 11) {
+        const rise = (k + this.tick * ESCALATOR_RISE) % h
+        g.fillRect(sx + 3 + ((k / 11) % 3) * 9, sy + h - rise, 2, 6)
+      }
+      g.fillRect(sx, sy, w, 2)
     }
     if (wild.ceilingLoop && !this.ceilingLoopComplete) return
     const x = wild.pearl.col * TILE + TILE / 2

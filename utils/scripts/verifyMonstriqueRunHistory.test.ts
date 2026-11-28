@@ -640,6 +640,11 @@ assert.match(
   /<h2 class="text-3xl font-bold">\{\{ endingTitle \}\}<\/h2>/,
 )
 assert.match(scene, /data-testid="monstrique-ending-route"/)
+assert.match(
+  scene,
+  /\.mc-ending-card \{\s+max-height: 100%;\s+overflow-y: auto;/,
+  'a long ending scrolls inside its card so NEW CASE stays reachable on phones',
+)
 
 console.log(
   'Monstrique case files: three endings reachable in both editions, the full file never locked out, edition-scoped run history, account sync and replay seeds passed',

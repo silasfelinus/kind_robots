@@ -567,10 +567,13 @@
           :alt="endingPlate.alt"
           class="mc-ending-plate absolute inset-0 size-full object-cover"
         />
-        <div class="mc-ending-card max-w-lg space-y-4 text-center">
+        <div
+          class="mc-ending-card kr-scroll max-w-lg space-y-4 text-center"
+          data-testid="monstrique-ending-card"
+        >
           <p class="mc-eyebrow">CHAPTER ONE · THE LAST CALL</p>
           <h2 class="text-3xl font-bold">{{ endingTitle }}</h2>
-          <p class="text-lg">{{ story.currentLine }}</p>
+          <p class="mc-ending-line">{{ story.currentLine }}</p>
           <p
             class="mc-ending-route text-sm"
             data-testid="monstrique-ending-route"
@@ -1486,6 +1489,7 @@ function verbIcon(verb: Verb): string {
   white-space: normal;
 }
 .mc-ending {
+  grid-template-rows: minmax(0, 1fr);
   background: #100f22ed;
 }
 .mc-ending-plate {
@@ -1495,7 +1499,13 @@ function verbIcon(verb: Verb): string {
   color: #ffd9e4;
   opacity: 0.85;
 }
+.mc-ending-line {
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
 .mc-ending-card {
+  max-height: 100%;
+  overflow-y: auto;
   position: relative;
   background: #342338e8;
   border: 2px solid #e2a5ba;
@@ -1503,6 +1513,16 @@ function verbIcon(verb: Verb): string {
   padding: 2rem;
   box-shadow: 0 0 5rem #f36a9b35;
 }
+@media (max-width: 40rem) {
+  .mc-ending-card {
+    padding: 1.25rem;
+  }
+  .mc-ending-line {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+}
+
 .mc-action-primary:focus-visible,
 .mc-verb:focus-visible,
 .mc-hotspot:focus-visible,

@@ -122,6 +122,8 @@ export const P1_KEYS: Record<string, ArcadeButton> = {
   KeyG: 'b',
   KeyX: 'b',
   ShiftLeft: 'b',
+  KeyC: 'x',
+  KeyV: 'y',
   Enter: 'start',
 }
 
@@ -136,6 +138,10 @@ export const P2_KEYS: Record<string, ArcadeButton> = {
   Period: 'b',
   ShiftRight: 'b',
   NumpadDecimal: 'b',
+  Comma: 'x',
+  Numpad1: 'x',
+  KeyM: 'y',
+  Numpad2: 'y',
   NumpadEnter: 'start',
 }
 

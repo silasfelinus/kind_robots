@@ -55,6 +55,27 @@ function touch(page, type, seat, pointerId, fx, fy) {
     { type, seat, pointerId, fx, fy },
   )
 }
+function tapBall(page, type, seat, pointerId, button) {
+  return page.evaluate(
+    ({ type, seat, pointerId, button }) => {
+      const ball = document
+        .querySelectorAll('.cabinet-buttons')
+        [seat].querySelector(`.cabinet-ball-${button}`)
+      const rect = ball.getBoundingClientRect()
+      ball.dispatchEvent(
+        new PointerEvent(type, {
+          pointerId,
+          pointerType: 'touch',
+          clientX: rect.left + rect.width / 2,
+          clientY: rect.top + rect.height / 2,
+          bubbles: true,
+          cancelable: true,
+        }),
+      )
+    },
+    { type, seat, pointerId, button },
+  )
+}
 
 const summary = []
 try {
@@ -178,11 +199,41 @@ try {
     }
     for (const [seat] of directions.entries())
       await touch(page, 'pointerup', seat, 31 + seat, 0.5, 0.5)
+    // Gameplay critic r2 G2: on a tablet every co-op seat keeps its special (X) and evade (Y).
+    const kits = await page.evaluate(() =>
+      [...document.querySelectorAll('.cabinet-buttons')].map((cluster) =>
+        ['x', 'y', 'b', 'a'].map((button) => {
+          const ball = cluster.querySelector(`.cabinet-ball-${button}`)
+          const rect = ball?.getBoundingClientRect()
+          return rect && rect.width > 0 ? rect.bottom : null
+        }),
+      ),
+    )
+    assert.equal(kits.length, 4)
+    for (const [seat, kit] of kits.entries())
+      for (const bottom of kit) {
+        assert.ok(bottom !== null, `pilot ${seat + 1} has X, Y, B and A`)
+        assert.ok(bottom <= 768, `pilot ${seat + 1}'s buttons are on screen`)
+      }
+    const ready = await rainbowRun(page)
+    for (const [seat, ship] of ready.ships.entries()) {
+      assert.equal(ship.specialCooldown, 0, `pilot ${seat + 1}'s X is ready`)
+      await tapBall(page, 'pointerdown', seat, 41 + seat, 'x')
+      await wait(80)
+      await tapBall(page, 'pointerup', seat, 41 + seat, 'x')
+    }
+    await wait(200)
+    const special = await rainbowRun(page)
+    for (const [seat, ship] of special.ships.entries())
+      assert.ok(
+        ship.specialCooldown > 0,
+        `pilot ${seat + 1}'s touch X fires her own special`,
+      )
     if (shots)
       await page.screenshot({ path: path.join(shots, 'four-pilots-touch.png') })
     assert.deepEqual(errors, [])
     await context.close()
-    summary.push('4 touch pilots at once')
+    summary.push('4 touch pilots at once, each with X and Y')
   }
 } finally {
   await browser.close()

@@ -107,12 +107,17 @@ function parts(
   labelled = false,
 ): Parts {
   if (seats > 1) {
+    // Co-op seats keep the four-button kit (gameplay critic r2 G2): X and Y sit above B and A.
     const ball = key * 1.15
+    const rows = fourButtons ? 2 : 1
     return {
       key,
       ball,
       pad: key * 3,
-      buttons: { width: ball * 2 + 0.5 * REM, height: ball + key * 0.35 },
+      buttons: {
+        width: ball * 2 + 0.5 * REM,
+        height: ball * rows + key * 0.35 + (rows - 1) * 0.6 * REM,
+      },
       tag: TAG,
     }
   }

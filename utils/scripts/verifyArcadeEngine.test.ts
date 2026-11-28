@@ -62,6 +62,7 @@ import { Dmd, DMD_COLS, DMD_ROWS, dmdTextWidth } from '../arcade/pinball/dmd'
 import {
   emptyInput,
   isWebGLInstance,
+  type ArcadeButton,
   type ArcadeGameInstance,
   type ArcadeGuidePage,
   type ArcadePlayableInstance,
@@ -318,6 +319,13 @@ import {
   // The two-player key maps never share a key.
   for (const code of Object.keys(P1_KEYS))
     assert.ok(!(code in P2_KEYS), `${code} is bound for both players`)
+  // Both keyboard pilots keep all four face buttons (Rainbow gameplay critic r2 G2).
+  for (const [seat, keys] of [P1_KEYS, P2_KEYS].entries())
+    for (const button of ['a', 'b', 'x', 'y'])
+      assert.ok(
+        Object.values(keys).includes(button as ArcadeButton),
+        `P${seat + 1} has a ${button.toUpperCase()} key`,
+      )
 }
 
 // --- cabinet flow ------------------------------------------------------------

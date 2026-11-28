@@ -583,6 +583,7 @@ export function rainbowRun(page) {
             x: ship.x,
             y: ship.y,
             lives: ship.lives,
+            specialCooldown: ship.specialCooldown,
           })),
         }
       : null

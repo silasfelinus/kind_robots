@@ -280,12 +280,12 @@
           <div
             class="cabinet-buttons"
             :class="{
-              'cabinet-buttons--four': fourButtons && !duo,
+              'cabinet-buttons--four': touchFour,
               'cabinet-buttons--labelled': labelled,
             }"
             :style="placedAt(touchPlan?.clusters[seat]?.buttons)"
           >
-            <template v-if="fourButtons && !duo">
+            <template v-if="touchFour">
               <button
                 type="button"
                 class="cabinet-ball cabinet-ball-x"
@@ -403,6 +403,13 @@
         >
           WASD / arrows move · Space / Up jump · Shift sprint · E wrench · F
           special · Down duck / pipe · Enter start · P pause
+        </p>
+        <p
+          v-else-if="!touchControls && fourButtons && duo"
+          class="cabinet-hint"
+        >
+          P1: WASD · Space = A · Shift = B · C = X · V = Y — P2: arrows · / = A
+          · . = B · , = X · M = Y — P3-4 on gamepads · P pauses
         </p>
         <p v-else-if="!touchControls && fourButtons" class="cabinet-hint">
           Arrows or WASD move · Space or Z = A · X or Shift = B · C = X · V = Y
@@ -1050,7 +1057,7 @@ const safeProbeRef = ref<HTMLDivElement | null>(null)
 const touchArea = ref<
   (TouchBox & { right: number; bottom: number; viewportMin: number }) | null
 >(null)
-const touchPlan = computed<TouchStagePlan | null>(() => {
+function planFor(withFour: boolean): TouchStagePlan | null {
   const area = touchArea.value
   if (!clearStageWanted.value || !area) return null
   return planTouchStage(
@@ -1058,14 +1065,32 @@ const touchPlan = computed<TouchStagePlan | null>(() => {
       area,
       aspect: (meta.value?.width ?? 4) / (meta.value?.height ?? 3),
       seats: players.value,
-      fourButtons: fourButtons.value && !duo.value,
+      fourButtons: withFour,
       labelled: labelled.value,
       minShare: meta.value?.touchClearMinShare,
       cornerChips: canFullscreen.value ? 2 : 1,
     },
     area.viewportMin,
   )
+}
+/** Co-op seats keep X and Y unless the taller clusters would cost the stage more than this share. */
+const COOP_FOUR_STAGE_SHARE = 0.85
+const fourPlan = computed(() => planFor(fourButtons.value))
+const plainCoopPlan = computed(() =>
+  fourButtons.value && duo.value ? planFor(false) : null,
+)
+const coopFourFits = computed(() => {
+  const four = fourPlan.value
+  const plain = plainCoopPlan.value
+  if (!four || !plain) return true
+  const area = (plan: TouchStagePlan) => plan.stage.width * plan.stage.height
+  return area(four) >= area(plain) * COOP_FOUR_STAGE_SHARE
 })
+/** Each touch seat shows X and Y: always solo, in co-op wherever they fit beside the stage. */
+const touchFour = computed(() => fourButtons.value && coopFourFits.value)
+const touchPlan = computed<TouchStagePlan | null>(() =>
+  coopFourFits.value ? fourPlan.value : plainCoopPlan.value,
+)
 const wrapStyle = computed<CSSProperties | undefined>(() => {
   const plan = touchPlan.value
   const area = touchArea.value

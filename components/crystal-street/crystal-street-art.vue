@@ -36,7 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useCrystalStreetArtStore } from '~/stores/crystalStreetArtStore'
 
 const props = withDefaults(
   defineProps<{
@@ -62,23 +63,31 @@ const props = withDefaults(
   },
 )
 
+const art = useCrystalStreetArtStore()
+const source = computed(() => art.sourceFor(props.src))
+const fallback = computed(() => art.sourceFor(props.fallback))
 const loaded = ref(false)
 const failed = ref(false)
-const shown = ref(props.src || props.fallback)
+const shown = ref(source.value || fallback.value)
 
 watch(
-  () => [props.src, props.fallback],
-  () => {
-    shown.value = props.src || props.fallback
-    loaded.value = false
-    failed.value = false
+  () => [props.src, props.fallback, art.canLoad, art.sessionToken] as const,
+  ([src, alternate]) => {
+    void art.ensure(src)
+    void art.ensure(alternate)
   },
+  { immediate: true },
 )
+watch([source, fallback], () => {
+  shown.value = source.value || fallback.value
+  loaded.value = false
+  failed.value = false
+})
 
 function onError(): void {
   loaded.value = false
-  if (props.fallback && shown.value !== props.fallback)
-    shown.value = props.fallback
+  if (fallback.value && shown.value !== fallback.value)
+    shown.value = fallback.value
   else failed.value = true
 }
 

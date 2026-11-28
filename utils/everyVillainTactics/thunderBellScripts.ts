@@ -7,7 +7,7 @@ export const THUNDER_ORIGIN_SCRIPT: SceneScript = {
       id: 'thunder-origin-opening',
       title: 'Overdue Thunder',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -17,7 +17,7 @@ export const THUNDER_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'A stolen book opens in the floating reading room. Thunder tears bookmarks from the shelves. An injured reader is stranded across the annex.',
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -29,11 +29,11 @@ export const THUNDER_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -41,7 +41,7 @@ export const THUNDER_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The forbidden book can wait. Keep the readers alive, and let them decide whether to ask for its help.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -49,16 +49,16 @@ export const THUNDER_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: "The archive could give me the city's weather. First bring the witnesses out of the annex alive.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'thunder-origin-choice',
       title: 'An Overdue Cure',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -76,12 +76,12 @@ export const THUNDER_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'thunder-sealed'
+                  flag: 'thunder-sealed',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Let the injured reader study the cure',
@@ -89,14 +89,14 @@ export const THUNDER_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'thunder-cure'
+                  flag: 'thunder-cure',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -104,7 +104,7 @@ export const THUNDER_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The shelf is sealed, and the librarian hands the squad ordinary first-aid supplies.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -112,16 +112,16 @@ export const THUNDER_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The reader copies the cure and the storm's last gust disrupts the patrol. No one is forced to use it.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'thunder-origin-victory',
       title: 'The Last Bookmark',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -135,11 +135,11 @@ export const THUNDER_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'thunder-sealed'
+              flag: 'thunder-sealed',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -147,7 +147,7 @@ export const THUNDER_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'I will leave the shelf closed for now, but the reader deserves an explanation of what was withheld.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -155,16 +155,16 @@ export const THUNDER_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'The reader has the cure in their own handwriting. The storm is no longer a reason to keep every page secret.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'thunder-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -174,11 +174,11 @@ export const THUNDER_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'The annex is still cut off. A folded storm means nothing if the readers cannot get out.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
 
 export const BELL_ORIGIN_SCRIPT: SceneScript = {
@@ -188,7 +188,7 @@ export const BELL_ORIGIN_SCRIPT: SceneScript = {
       id: 'bell-origin-opening',
       title: 'The Bell and the Door',
       trigger: {
-        kind: 'opening'
+        kind: 'opening',
       },
       start: 'o1',
       nodes: [
@@ -198,7 +198,7 @@ export const BELL_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: "The discipline hall's bell rings without a hand on the rope. A sanctuary student has been ordered outside the warded safe room, and the attendant cannot release the lock.",
-          next: 'o2'
+          next: 'o2',
         },
         {
           id: 'o2',
@@ -210,11 +210,11 @@ export const BELL_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'perspective',
-              perspective: 'villain'
+              perspective: 'villain',
             },
             then: 'ov',
-            else: 'oh'
-          }
+            else: 'oh',
+          },
         },
         {
           id: 'oh',
@@ -222,7 +222,7 @@ export const BELL_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'A sanctuary that excludes a frightened student is not a sanctuary. Hold the passage while I break the spell.',
-          next: null
+          next: null,
         },
         {
           id: 'ov',
@@ -230,16 +230,16 @@ export const BELL_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'sly',
           camera: 'close',
           text: "The teacher's bell has controlled this hall long enough. I could take its authority, but first get both people out.",
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'bell-origin-choice',
       title: 'A Rule Worth Breaking',
       trigger: {
         kind: 'turn',
-        round: 2
+        round: 2,
       },
       start: 'a',
       nodes: [
@@ -257,12 +257,12 @@ export const BELL_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'bell-obey'
+                  flag: 'bell-obey',
                 },
                 {
-                  kind: 'heal'
-                }
-              ]
+                  kind: 'heal',
+                },
+              ],
             },
             {
               label: 'Defy the exclusion order',
@@ -270,14 +270,14 @@ export const BELL_ORIGIN_SCRIPT: SceneScript = {
               effects: [
                 {
                   kind: 'flag',
-                  flag: 'bell-defy'
+                  flag: 'bell-defy',
                 },
                 {
-                  kind: 'suppress'
-                }
-              ]
-            }
-          ]
+                  kind: 'suppress',
+                },
+              ],
+            },
+          ],
         },
         {
           id: 'a0',
@@ -285,7 +285,7 @@ export const BELL_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The attendant gives us supplies while the ward remains stable. We still need to free the doorway.',
-          next: null
+          next: null,
         },
         {
           id: 'a1',
@@ -293,16 +293,16 @@ export const BELL_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'neutral',
           camera: 'wide',
           text: 'The student hears the order challenged. The patrol loses its coordinated stance; the ward itself still needs breaking.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'bell-origin-victory',
       title: 'A Sanctuary Without Permission',
       trigger: {
         kind: 'closing',
-        outcome: 'victory'
+        outcome: 'victory',
       },
       start: 'v',
       nodes: [
@@ -316,11 +316,11 @@ export const BELL_ORIGIN_SCRIPT: SceneScript = {
           branch: {
             when: {
               kind: 'flag',
-              flag: 'bell-obey'
+              flag: 'bell-obey',
             },
             then: 'va',
-            else: 'vb'
-          }
+            else: 'vb',
+          },
         },
         {
           id: 'va',
@@ -328,7 +328,7 @@ export const BELL_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'joyful',
           camera: 'close',
           text: 'The door is open, but the old rule still stands. I will ask the sanctuary students to write the next one.',
-          next: null
+          next: null,
         },
         {
           id: 'vb',
@@ -336,16 +336,16 @@ export const BELL_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'determined',
           camera: 'close',
           text: 'We broke the exclusion order and opened the door. No one should need a vow of obedience to receive shelter.',
-          next: null
-        }
-      ]
+          next: null,
+        },
+      ],
     },
     {
       id: 'bell-origin-defeat',
       title: 'An Unfinished Rescue',
       trigger: {
         kind: 'closing',
-        outcome: 'defeat'
+        outcome: 'defeat',
       },
       start: 'd',
       nodes: [
@@ -355,10 +355,9 @@ export const BELL_ORIGIN_SCRIPT: SceneScript = {
           emotion: 'afraid',
           camera: 'close',
           text: 'The bell keeps ringing behind the locked door. I cannot pretend the rule protected the people we left inside.',
-          next: null
-        }
-      ]
-    }
-  ]
+          next: null,
+        },
+      ],
+    },
+  ],
 }
-

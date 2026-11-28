@@ -113,20 +113,8 @@ for (const [stageId, lead, prefix, flagA, flagB] of [
     'glass-withhold',
     'glass-reveal',
   ],
-  [
-    'overdue-thunder',
-    'magic-air',
-    'thunder',
-    'thunder-sealed',
-    'thunder-cure',
-  ],
-  [
-    'bell-and-the-door',
-    'magic-discipline',
-    'bell',
-    'bell-obey',
-    'bell-defy',
-  ],
+  ['overdue-thunder', 'magic-air', 'thunder', 'thunder-sealed', 'thunder-cure'],
+  ['bell-and-the-door', 'magic-discipline', 'bell', 'bell-obey', 'bell-defy'],
 ] as const) {
   for (const perspective of ['hero', 'villain'] as const) {
     for (const choice of [0, 1]) {

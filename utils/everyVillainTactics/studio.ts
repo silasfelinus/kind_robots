@@ -680,7 +680,8 @@ export const STAGE_PRESETS: StageDraft[] = [
     id: 'overdue-thunder',
     title: 'Overdue Thunder',
     venue: "Academy library's floating study annex",
-    objective: 'Fold the storm at column 6, row 3 from a clear sightline within four tiles with both AP free, then evacuate the two readers.',
+    objective:
+      'Fold the storm at column 6, row 3 from a clear sightline within four tiles with both AP free, then evacuate the two readers.',
     map: {
       width: 9,
       height: 6,
@@ -734,7 +735,8 @@ export const STAGE_PRESETS: StageDraft[] = [
     id: 'bell-and-the-door',
     title: 'The Bell and the Door',
     venue: 'Academy discipline hall during an unannounced lockdown',
-    objective: 'Use the two-AP warding gesture beside the safe-room door at column 5, row 4, then evacuate the student and shelter attendant.',
+    objective:
+      'Use the two-AP warding gesture beside the safe-room door at column 5, row 4, then evacuate the student and shelter attendant.',
     map: {
       width: 9,
       height: 6,

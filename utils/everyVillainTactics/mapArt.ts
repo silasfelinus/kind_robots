@@ -44,6 +44,14 @@ export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   'when-two-plus-two-screamed': 265017,
   'heir-who-said-no': 265015,
   'empty-applause': 265015,
+  'ashes-of-the-ledger': 265015,
+  'balcony-witness': 265015,
+  'bridge-of-last-chances': 265022,
+  'ship-with-no-port': 265022,
+  'four-hands-and-a-promise': 265014,
+  'probability-of-panic': 265017,
+  'keys-to-the-shelter': 265015,
+  'friend-nobody-remembers': 265015,
   ...verifiedArenaImageIds,
 }
 

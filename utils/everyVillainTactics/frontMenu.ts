@@ -343,6 +343,14 @@ export const ORIGIN_STAGE_LEADS: Readonly<Record<string, string>> = {
   'when-two-plus-two-screamed': 'magic-genius',
   'heir-who-said-no': 'magic-birthright',
   'empty-applause': 'magic-social',
+  'ashes-of-the-ledger': 'mutant-fire',
+  'balcony-witness': 'mutant-air',
+  'bridge-of-last-chances': 'mutant-earth',
+  'ship-with-no-port': 'mutant-water',
+  'four-hands-and-a-promise': 'mutant-discipline',
+  'probability-of-panic': 'mutant-genius',
+  'keys-to-the-shelter': 'mutant-birthright',
+  'friend-nobody-remembers': 'mutant-social',
 }
 export const canStartOneShot = (stageId: string, lead: string): boolean =>
   !ORIGIN_STAGE_LEADS[stageId] || ORIGIN_STAGE_LEADS[stageId] === lead
@@ -432,6 +440,46 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     id: 'empty-applause',
     art: 'districts/student-commons',
     tag: 'Curtain Call origin · rewrite the monologue and free two performers',
+  },
+  {
+    id: 'ashes-of-the-ledger',
+    art: 'districts/student-commons',
+    tag: 'Ashborn origin · Cut a safe escape hole through the reinforced door without igniting the charts',
+  },
+  {
+    id: 'balcony-witness',
+    art: 'districts/botanical-conservatory',
+    tag: 'Kestrel origin · Redirect the flock through the high windows to shield the witness',
+  },
+  {
+    id: 'bridge-of-last-chances',
+    art: 'incidents/skybridge',
+    tag: "Groundswell origin · Reinforce the failing span with living stone at the bridge's center",
+  },
+  {
+    id: 'ship-with-no-port',
+    art: 'districts/waterfront-market',
+    tag: 'Harbormaster origin · Shape a temporary seawall beside the ferry channel',
+  },
+  {
+    id: 'four-hands-and-a-promise',
+    art: 'districts/student-commons',
+    tag: "Lotus Guard origin · Stabilize the rig's ropes beside the failed anchor with four hands",
+  },
+  {
+    id: 'probability-of-panic',
+    art: 'districts/engineering-workshop',
+    tag: 'Contingency origin · Identify the keystone fault from a clear sightline and interrupt the chain reaction',
+  },
+  {
+    id: 'keys-to-the-shelter',
+    art: 'districts/student-commons',
+    tag: 'The Guardian origin · Raise the ancestral shelter ward at the sealed doorway',
+  },
+  {
+    id: 'friend-nobody-remembers',
+    art: 'districts/student-commons',
+    tag: 'Common Ground origin · Retrace the trustworthy relationship at the council table without removing the blocking patch',
   },
   {
     id: 'college-quad',

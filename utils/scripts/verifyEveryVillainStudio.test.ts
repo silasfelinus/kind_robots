@@ -25,7 +25,7 @@ import {
   walkScene,
 } from '../everyVillainTactics/sceneGraph'
 
-assert.equal(STAGE_PRESETS.length, 29)
+assert.equal(STAGE_PRESETS.length, 37)
 assert.ok(STAGE_PRESETS.some((stage) => stage.id === 'hydrant-blue'))
 assert.ok(
   STAGE_PRESETS.some((stage) => stage.id === 'song-that-stopped'),
@@ -135,6 +135,62 @@ for (const [stageId, lead, prefix, flagA, flagB] of [
     'applause',
     'applause-cancel',
     'applause-expose',
+  ],
+  [
+    'ashes-of-the-ledger',
+    'mutant-fire',
+    'ash',
+    'ash-choice-a',
+    'ash-choice-b',
+  ],
+  [
+    'balcony-witness',
+    'mutant-air',
+    'balcony',
+    'balcony-choice-a',
+    'balcony-choice-b',
+  ],
+  [
+    'bridge-of-last-chances',
+    'mutant-earth',
+    'bridge',
+    'bridge-choice-a',
+    'bridge-choice-b',
+  ],
+  [
+    'ship-with-no-port',
+    'mutant-water',
+    'ferry',
+    'ferry-choice-a',
+    'ferry-choice-b',
+  ],
+  [
+    'four-hands-and-a-promise',
+    'mutant-discipline',
+    'rig',
+    'rig-choice-a',
+    'rig-choice-b',
+  ],
+  [
+    'probability-of-panic',
+    'mutant-genius',
+    'forecast',
+    'forecast-choice-a',
+    'forecast-choice-b',
+  ],
+  [
+    'keys-to-the-shelter',
+    'mutant-birthright',
+    'keys',
+    'keys-choice-a',
+    'keys-choice-b',
+  ],
+  [
+    'friend-nobody-remembers',
+    'mutant-social',
+    'slate',
+    'slate-choice-a',
+    'slate-choice-b',
   ],
 ] as const) {
   for (const perspective of ['hero', 'villain'] as const) {

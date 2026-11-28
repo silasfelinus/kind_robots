@@ -836,6 +836,62 @@ for (const [stageId, lead, target, start, flag] of [
     { x: 4, y: 2 },
     'applause-contract-rewritten',
   ],
+  [
+    'ashes-of-the-ledger',
+    'mutant-fire',
+    { x: 4, y: 2 },
+    { x: 3, y: 2 },
+    'ash-intervention',
+  ],
+  [
+    'balcony-witness',
+    'mutant-air',
+    { x: 5, y: 1 },
+    { x: 3, y: 1 },
+    'balcony-intervention',
+  ],
+  [
+    'bridge-of-last-chances',
+    'mutant-earth',
+    { x: 4, y: 3 },
+    { x: 4, y: 3 },
+    'bridge-intervention',
+  ],
+  [
+    'ship-with-no-port',
+    'mutant-water',
+    { x: 5, y: 3 },
+    { x: 3, y: 3 },
+    'ferry-intervention',
+  ],
+  [
+    'four-hands-and-a-promise',
+    'mutant-discipline',
+    { x: 4, y: 2 },
+    { x: 3, y: 2 },
+    'rig-intervention',
+  ],
+  [
+    'probability-of-panic',
+    'mutant-genius',
+    { x: 5, y: 2 },
+    { x: 2, y: 2 },
+    'forecast-intervention',
+  ],
+  [
+    'keys-to-the-shelter',
+    'mutant-birthright',
+    { x: 4, y: 3 },
+    { x: 3, y: 3 },
+    'keys-intervention',
+  ],
+  [
+    'friend-nobody-remembers',
+    'mutant-social',
+    { x: 4, y: 2 },
+    { x: 4, y: 2 },
+    'slate-intervention',
+  ],
 ] as const) {
   const stage = clonePreset(stageId)
   assert.deepEqual(stageProblems(stage), [])
@@ -847,8 +903,18 @@ for (const [stageId, lead, target, start, flag] of [
     actor.y = stage.civilians![0]!.y
     actor.ap = 2
     assert.equal(rescueSelected(state), false)
-    const blockedStart =
-      stageId === 'orchard-under-asphalt'
+    const mutantBlocked: Record<string, { x: number; y: number }> = {
+      'ashes-of-the-ledger': { x: 0, y: 2 },
+      'balcony-witness': { x: 0, y: 3 },
+      'bridge-of-last-chances': { x: 0, y: 3 },
+      'ship-with-no-port': { x: 0, y: 1 },
+      'four-hands-and-a-promise': { x: 0, y: 4 },
+      'probability-of-panic': { x: 0, y: 0 },
+      'keys-to-the-shelter': { x: 0, y: 1 },
+      'friend-nobody-remembers': { x: 0, y: 3 },
+    }
+    const blockedStart = mutantBlocked[stageId] ??
+      (      stageId === 'orchard-under-asphalt'
         ? { x: 3, y: 2 }
         : stageId === 'overdue-thunder'
           ? { x: 0, y: 2 }
@@ -860,15 +926,16 @@ for (const [stageId, lead, target, start, flag] of [
                 ? { x: 0, y: 4 }
                 : stageId === 'empty-applause'
                   ? { x: 3, y: 2 }
-                  : { x: 2, y: 2 }
+                  : { x: 2, y: 2 })
     actor.x = blockedStart.x
     actor.y = blockedStart.y
     assert.equal(useSelectedPower(state, target), false)
     actor.x = start.x
     actor.y = start.y
-    actor.ap = 1
+    const cost = lead.startsWith('mutant-') ? 1 : 2
+    actor.ap = cost - 1
     assert.equal(useSelectedPower(state, target), false)
-    actor.ap = 2
+    actor.ap = cost
     assert.deepEqual(selectedPowerTargets(state), [target])
     assert.equal(useSelectedPower(state, target), true)
     assert.equal(actor.ap, 0)
@@ -922,6 +989,14 @@ assert.deepEqual(ORIGIN_STAGE_LEADS, {
   'when-two-plus-two-screamed': 'magic-genius',
   'heir-who-said-no': 'magic-birthright',
   'empty-applause': 'magic-social',
+  'ashes-of-the-ledger': 'mutant-fire',
+  'balcony-witness': 'mutant-air',
+  'bridge-of-last-chances': 'mutant-earth',
+  'ship-with-no-port': 'mutant-water',
+  'four-hands-and-a-promise': 'mutant-discipline',
+  'probability-of-panic': 'mutant-genius',
+  'keys-to-the-shelter': 'mutant-birthright',
+  'friend-nobody-remembers': 'mutant-social',
 })
 for (const [stage, signature] of Object.entries(ORIGIN_STAGE_LEADS)) {
   assert.equal(canStartOneShot(stage, signature), true)

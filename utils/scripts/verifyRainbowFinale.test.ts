@@ -322,8 +322,10 @@ for (const [players, expected] of [
   assert.equal(game.snapshot.stage, 'end')
   assert.equal(game.snapshot.finalChoice, expected)
   const fight = (subdued - entered) / 3600
+  // The untouchable demo's fight (4.1 / 3.0 / 2.4 min for 1-3 pilots before gameplay critic r2 G3 and G4 gave
+  // the demo's Petal Wing a faster gun and the Crown a smaller hull, phase 2 and heart drift; about 1.4 after).
   assert.ok(
-    fight >= 2 && fight <= 8,
+    fight >= 1 && fight <= 8,
     `the Crown fight takes ${fight.toFixed(2)} min`,
   )
   summary.push(

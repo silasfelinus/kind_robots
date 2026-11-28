@@ -1,10 +1,10 @@
 /**
  * B09 Eclipse Crown: a circular crown-machine around a heart node, the finale's single dramatic boss (world
  * bible move sheet: spoke hazard with generous gaps -> moving exposed heart -> team escape through shrinking
- * prism corridors). Every attack is telegraphed. While the crown holds more than half its hull, it marks six
- * spokes for the whole warning and then fires pellets down them; the spokes turn a little every volley and
- * the wedges between them are wide. Below half, the heart node breaks loose and drifts on a slow figure of
- * eight: only the heart takes damage now, and the crown fires rings with a walking gap. When the heart is
+ * prism corridors). Every attack is telegraphed. While the crown holds more than two fifths of its hull, it
+ * marks six spokes for the whole warning and then fires pellets down them; the spokes turn a little every volley
+ * and the wedges between them are wide. Below two fifths, the heart node breaks loose and drifts on a slow figure
+ * of eight: only the heart takes damage now, and the crown fires rings with a walking gap. When the heart is
  * spent the crown stops (the engine runs the final choice), and then the escape: prism walls roll in from
  * the right with one gap each, and the gaps narrow as the heart collapses. The escape is not a damage race:
  * it ends when the crew has flown its length.
@@ -12,8 +12,8 @@
  * Conductor rainbow t-061 (PLOT-MOTHERLAND.md "Finale target"): the road changes the fight, not just its name.
  * - Rebel road, 'flagship': the crew fights the Motherland flagship that holds the Crown in its clamps. Phase 1
  *   marks two of five lanes for the whole warning, then fires a lance down each; every other volley it launches
- *   a pair of Motherland drones (the engine spawns them). Its bridge is the weak point. Below half the clamps
- *   open: the clamp core drifts free and only it takes damage, one lane lance plus an aimed five-bolt fan.
+ *   a pair of Motherland drones (the engine spawns them). Its bridge is the weak point. Below two fifths the
+ *   clamps open: the clamp core drifts free and only it takes damage, one lane lance plus an aimed five-bolt fan.
  * - Loyal road, 'crown' that pleads: the Ocean's heart itself, as above, but the moment its heart breaks loose
  *   it stops firing and pleads for CROWN_PLEA.frames. A crew that flies high through the plea stands down (the
  *   engine decides): the late course-correction PLOT-MOTHERLAND promises. Otherwise the fight goes on.
@@ -57,13 +57,22 @@ export type EclipseCrownProjectile = {
   grazed: number
 }
 
-/** One pilot's share of B09's heart, before rainbowBossHp scales it. */
-export const ECLIPSE_CROWN_MAX_HP = 300
+/**
+ * One pilot's share of B09's heart, before rainbowBossHp scales it. Gameplay critic r2 G4: at 300, with a small
+ * heart drifting wide in phase 2, novices retried the finale 12-16 times (2-4 for every other boss) and an
+ * unfocused solo fight ran 5-12 minutes. 240 keeps it the largest hull (B08 Prism Leviathan is 230).
+ */
+export const ECLIPSE_CROWN_MAX_HP = 240
 export const ECLIPSE_CROWN = {
   warningFrames: 48,
   holdX: 352,
   ringRadius: 44,
-  heartRadius: 15,
+  heartRadius: 18,
+  /** The share of the hull left when the heart breaks loose: phase 2, the harder one, is the shorter (G4). */
+  heartBreaksAt: 0.4,
+  /** Phase 2: the free heart's figure of eight (half width, half height), and its ring's cadence. */
+  heartDrift: { x: 70, y: 56 },
+  phaseTwoEvery: 160,
   spokes: 6,
   /** How far the spokes turn between volleys. */
   spokeTurn: Math.PI / 9,
@@ -80,7 +89,7 @@ export const MOTHERLAND_FLAGSHIP = {
   lanceSpacing: 13,
   lanceSpeed: 2.6,
   volleyEvery: 120,
-  phaseTwoEvery: 130,
+  phaseTwoEvery: 155,
   /** The bridge tower, its phase-1 weak point, relative to the clamped Crown (RAINBOW_FLAGSHIP_ART). */
   bridgeX: 131,
   bridgeY: -10,
@@ -164,7 +173,7 @@ export function stepEclipseCrownBoss(
   if (boss.target === 'flagship') return stepFlagship(boss, targets)
   boss.x = Math.max(ECLIPSE_CROWN.holdX, 560 - boss.frame * 1.2)
   boss.y = 135 + Math.sin(boss.frame / 110) * 10
-  const phase = boss.hp <= boss.maxHp / 2 ? 2 : 1
+  const phase = boss.hp <= boss.maxHp * ECLIPSE_CROWN.heartBreaksAt ? 2 : 1
   if (phase !== boss.phase) {
     boss.phase = phase
     // The heart breaking loose always shows a full warning before the first ring.
@@ -184,8 +193,9 @@ export function stepEclipseCrownBoss(
   } else {
     // A slow figure of eight across the right of the screen, easing out of the crown.
     const t = boss.frame / 100
-    boss.heartX += (boss.x - 40 + Math.cos(t) * 70 - boss.heartX) * 0.05
-    boss.heartY += (135 + Math.sin(2 * t) * 70 - boss.heartY) * 0.05
+    const drift = ECLIPSE_CROWN.heartDrift
+    boss.heartX += (boss.x - 40 + Math.cos(t) * drift.x - boss.heartX) * 0.05
+    boss.heartY += (135 + Math.sin(2 * t) * drift.y - boss.heartY) * 0.05
   }
   if (boss.plea > 0) {
     // The Crown holds fire while it pleads; the next volley keeps a full warning after it.
@@ -258,7 +268,7 @@ export function stepEclipseCrownBoss(
     fire(boss.heartX, boss.heartY, aim + 0.15, 1.8)
     // Alternate volleys close the aimed line, so holding still between the pair is not a hiding place (D6).
     if (boss.volleys % 2 === 0) fire(boss.heartX, boss.heartY, aim, 1.8)
-    boss.nextVolley = boss.frame + 140
+    boss.nextVolley = boss.frame + ECLIPSE_CROWN.phaseTwoEvery
   }
   return shots
 }
@@ -271,7 +281,7 @@ function stepFlagship(
   const F = MOTHERLAND_FLAGSHIP
   boss.x = Math.max(F.holdX, 560 - boss.frame)
   boss.y = 135 + Math.sin(boss.frame / 120) * 8
-  const phase = boss.hp <= boss.maxHp / 2 ? 2 : 1
+  const phase = boss.hp <= boss.maxHp * ECLIPSE_CROWN.heartBreaksAt ? 2 : 1
   if (phase !== boss.phase) {
     boss.phase = phase
     boss.nextVolley = Math.max(
@@ -285,7 +295,7 @@ function stepFlagship(
   } else {
     const t = boss.frame / 100
     boss.heartX += (boss.x - 50 + Math.cos(t) * 60 - boss.heartX) * 0.05
-    boss.heartY += (135 + Math.sin(2 * t) * 66 - boss.heartY) * 0.05
+    boss.heartY += (135 + Math.sin(2 * t) * 54 - boss.heartY) * 0.05
   }
   if (boss.frame === boss.nextVolley - ECLIPSE_CROWN.warningFrames)
     boss.lanes = flagshipLanes(boss.volleys, boss.phase)
